@@ -23,8 +23,8 @@ case class ColourSwatch(name: String,
       .sliding(2, 2)
       .map(Integer.parseInt(_, 16))
       .map(255 - _)
-      .map(_ * (1 - f) + 0.5)
-      .map(255 - _)
+      .map(_ * (1 - f))
+      .map(255 - _ + 0.5)
       .map(_.toInt)
       .map(colour => f"$colour%02X")
       .mkString
