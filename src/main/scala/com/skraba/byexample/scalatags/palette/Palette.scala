@@ -57,7 +57,7 @@ case class Palette(colours: Seq[ColourSwatch],
           yield g.toSvg(
             size = swatchWidth,
             scale = 0.8,
-            titleFont = "gelasio")(transform := s"translate(${swatchWidth * i}, $swatchDy)")
+            titleFont = titleFont)(transform := s"translate(${swatchWidth * i}, $swatchDy)")
         )
         : _*)
   }
