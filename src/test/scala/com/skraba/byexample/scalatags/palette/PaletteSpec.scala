@@ -10,6 +10,24 @@ import scala.reflect.io.File
 @RunWith(classOf[JUnitRunner])
 class PaletteSpec extends FunSpecLike with Matchers with BeforeAndAfterAll {
 
+  object Rainbow {
+    val violet: ColourSwatch = ColourSwatch("Violet", "6a245c", "FFFFFF")
+    val blue: ColourSwatch = ColourSwatch("Blue", "3543a6", "FFFFFF")
+    val green: ColourSwatch = ColourSwatch("Green", "498c13", "FFFFFF")
+    val yellow: ColourSwatch = ColourSwatch("Yellow", "fec938", "FFFFFF")
+    val orange: ColourSwatch = ColourSwatch("Orange", "ef6d0c", "FFFFFF")
+    val red: ColourSwatch = ColourSwatch("Red", "c8361e", "FFFFFF")
+  }
+
+  object RainbowDark {
+    val violet: ColourSwatch = ColourSwatch("Violet", "4c2451", "FFFFFF")
+    val blue: ColourSwatch = ColourSwatch("Blue", "242551", "FFFFFF")
+    val green: ColourSwatch = ColourSwatch("Green", "406244", "FFFFFF")
+    val yellow: ColourSwatch = ColourSwatch("Yellow", "dab71f", "FFFFFF")
+    val orange: ColourSwatch = ColourSwatch("Orange", "d8832b", "FFFFFF")
+    val red: ColourSwatch = ColourSwatch("Red", "c94d4d", "FFFFFF")
+  }
+
   describe("Creating an SVG document") {
 
     val indigoGray: ColourSwatch = ColourSwatch("Indigo Gray", "323E48", "F8F3EF")
@@ -34,6 +52,23 @@ class PaletteSpec extends FunSpecLike with Matchers with BeforeAndAfterAll {
       Svg.toFile(File("/tmp/palette.svg"), Palette(colours, gradients).toSvg(
         titleFont = "gelasio",
         shadeFont = "Source Sans Pro"
+      ))
+    }
+
+    it("should draw a pretty rainbow palette group") {
+
+      Svg.toFile(File("/tmp/rainbow.svg"), Palette(
+        colours = Seq(Rainbow.violet, Rainbow.blue, Rainbow.green, Rainbow.yellow, Rainbow.orange, Rainbow.red),
+        gradients = Seq(
+          ColourGradient("Vibe", Rainbow.violet.hex, Rainbow.blue.hex, "FFFFFF"),
+          ColourGradient("Bilge", Rainbow.blue.hex, Rainbow.green.hex, "FFFFFF"),
+          ColourGradient("Gooey", Rainbow.green.hex, Rainbow.yellow.hex, "FFFFFF"),
+          ColourGradient("Yoink", Rainbow.yellow.hex, Rainbow.orange.hex, "FFFFFF"),
+          ColourGradient("Oscule", Rainbow.orange.hex, Rainbow.red.hex, "FFFFFF"),
+          ColourGradient("Ruddy", Rainbow.red.hex, Rainbow.violet.hex, "FFFFFF")
+        )).toSvg(
+        titleFont = "Alegreya SC",
+        shadeFont = "Alegreya Sans SC"
       ))
     }
   }
