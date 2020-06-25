@@ -18,28 +18,7 @@ case class ColourSwatch(name: String,
                         textHex: String) {
 
   /** @return a hex value that is f percent lighter than the actual colour. */
-  def lightened(f: Double): String = {
-    hex
-      .sliding(2, 2)
-      .map(Integer.parseInt(_, 16))
-      .map(255 - _)
-      .map(_ * (1 - f))
-      .map(255 - _ + 0.5)
-      .map(_.toInt)
-      .map(colour => f"$colour%02X")
-      .mkString
-  }
-
-  /** @return a hex value that is f percent darker than the actual colour. */
-  def darkened(f: Double): String = {
-    hex
-      .sliding(2, 2)
-      .map(Integer.parseInt(_, 16))
-      .map(_ * (1 - f) + 0.5)
-      .map(_.toInt)
-      .map(colour => f"$colour%02X")
-      .mkString
-  }
+  def lightened(f: Double): String = ColourSwatch.lightened(hex, f)
 
   /**
    * @param dx         The width of the swatch.
@@ -85,8 +64,34 @@ case class ColourSwatch(name: String,
       (1 to shades)
         .map {
           n =>
-            shade("#" + lightened(shadeStep * n))(
+            shade("#" + ColourSwatch.lightened(hex, shadeStep * n))(
               transform := s"translate(0, ${dy - shadeDy * (shades - n + 1)})")
         }: _*)
+  }
+}
+
+object ColourSwatch {
+  /** @return a hex value that is f percent lighter than the actual colour. */
+  def lightened(hex: String, f: Double): String = {
+    hex
+      .sliding(2, 2)
+      .map(Integer.parseInt(_, 16))
+      .map(255 - _)
+      .map(_ * (1 - f))
+      .map(255 - _ + 0.5)
+      .map(_.toInt)
+      .map(colour => f"$colour%02X")
+      .mkString
+  }
+
+  /** @return a hex value that is f percent darker than the actual colour. */
+  def darkened(hex: String, f: Double): String = {
+    hex
+      .sliding(2, 2)
+      .map(Integer.parseInt(_, 16))
+      .map(_ * (1 - f) + 0.5)
+      .map(_.toInt)
+      .map(colour => f"$colour%02X")
+      .mkString
   }
 }
