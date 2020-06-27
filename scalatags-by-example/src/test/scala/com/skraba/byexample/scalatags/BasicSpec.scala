@@ -22,7 +22,9 @@ class BasicSpec extends FunSpecLike with Matchers with BeforeAndAfterEach {
           h1("Heading"),
           div(
             p("text text")
-          )))
+          )
+        )
+      )
 
       "<!DOCTYPE html>" + htmlTag.render shouldBe
         """<!DOCTYPE html>
@@ -79,7 +81,7 @@ class BasicSpec extends FunSpecLike with Matchers with BeforeAndAfterEach {
     it("should support CSS types") {
       val divTag = div(
         p(color := "red", fontSize := 64.pt)("Hello"),
-        p(color := "blue", fontSize := 64.em)("world"),
+        p(color := "blue", fontSize := 64.em)("world")
       )
       divTag.render shouldBe
         """<div>
@@ -98,8 +100,8 @@ class BasicSpec extends FunSpecLike with Matchers with BeforeAndAfterEach {
     it("should be generic.") {
       // Note that children and attributes are added in order via .apply().
       // The attribute is applied to root, not child, as are the two contents.
-      val rootTag = tag("root")(
-        tag("child"))(attr("id") := "my-root-id")("One")("Two")
+      val rootTag =
+        tag("root")(tag("child"))(attr("id") := "my-root-id")("One")("Two")
       rootTag.render shouldBe """<root id="my-root-id"><child></child>OneTwo</root>"""
     }
 
@@ -128,7 +130,9 @@ class BasicSpec extends FunSpecLike with Matchers with BeforeAndAfterEach {
       val letters = frag(tag("a"), tag("b"))
       tag("root")(letters).render shouldBe """<root><a></a><b></b></root>"""
       val moreLetters = frag(tag("z"), letters, tag("c"))
-      tag("root")(moreLetters).render shouldBe """<root><z></z><a></a><b></b><c></c></root>"""
+      tag("root")(
+        moreLetters
+      ).render shouldBe """<root><z></z><a></a><b></b><c></c></root>"""
     }
   }
 
@@ -143,9 +147,7 @@ class BasicSpec extends FunSpecLike with Matchers with BeforeAndAfterEach {
       val svg1 = svg(height := 100, width := 100)
 
       // Use apply to add an element.
-      val svg2 = svg1(line(
-        x1 := 0, y1 := 0,
-        x2 := 100, y2 := 100))
+      val svg2 = svg1(line(x1 := 0, y1 := 0, x2 := 100, y2 := 100))
       svg2.render shouldBe
         """<svg height="100" width="100">
           |<line x1="0" y1="0" x2="100" y2="100"></line>
@@ -162,13 +164,13 @@ class BasicSpec extends FunSpecLike with Matchers with BeforeAndAfterEach {
     it("should be styleable") {
 
       val svg1 = svg()
-      val svgStyled = svg1(scalatags.Text.svgTags.tag("style")(
-        raw(
-          """<![CDATA[
+      val svgStyled = svg1(scalatags.Text.svgTags.tag("style")(raw("""<![CDATA[
             |  #my-rect { fill: blue; }
             |]]>""".stripMargin.replaceAll("\n\\s*", " "))))
 
-      val svgWithStyledRect = svgStyled(rect(id := "my-rect", x := 0, y := 0, width := 10, height := 10))
+      val svgWithStyledRect = svgStyled(
+        rect(id := "my-rect", x := 0, y := 0, width := 10, height := 10)
+      )
       svgWithStyledRect.render shouldBe
         """<svg>
           |<style>

@@ -12,10 +12,12 @@ import scalatags.Text.svgTags._
   * @param hex2    The second colour to use (i.e. "0000FF").
   * @param textHex The colour of the text naming the gradient.
   */
-case class ColourGradient(name: String,
-                          hex1: String,
-                          hex2: String,
-                          textHex: String) {
+case class ColourGradient(
+    name: String,
+    hex1: String,
+    hex2: String,
+    textHex: String
+) {
 
   /** @return the SVG gradient definitions that should be put in the {{<defs>}} tag. */
   def toSvgDefs(size: Double = 50): Tag =
@@ -27,7 +29,7 @@ case class ColourGradient(name: String,
       y2 := -size / 2
     )(
       stop(offset := 0.05, stopColor := s"#$hex1"),
-      stop(offset := 0.95, stopColor := s"#$hex2"),
+      stop(offset := 0.95, stopColor := s"#$hex2")
     )
 
   /**
@@ -38,11 +40,13 @@ case class ColourGradient(name: String,
     * @param titleFont  The font to use for the gradient name.
     * @return a group containing the gradient.
     */
-  def toSvg(size: Double = 50,
-            scale: Double = 1,
-            textSize: Double = 5,
-            textAdjust: Double = 1,
-            titleFont: String = "Sans serif"): Tag = {
+  def toSvg(
+      size: Double = 50,
+      scale: Double = 1,
+      textSize: Double = 5,
+      textAdjust: Double = 1,
+      titleFont: String = "Sans serif"
+  ): Tag = {
     val textTag: Tag = text(
       x := size / 2,
       y := size / 2 + textSize / 2 - textAdjust,

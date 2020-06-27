@@ -18,13 +18,15 @@ import scalatags.Text.svgTags.rect
   * @param history     The tags that have already been added during movement.
   * @param checkpoints A list of named checkpoint positions during movement.
   */
-case class Stamper(x: Double = 0,
-                   y: Double = 0,
-                   dx: Double = 1,
-                   dy: Double = 1,
-                   stamp: Tag = rect(width := 1, height := 1),
-                   history: List[Tag] = Nil,
-                   checkpoints: Map[String, (Double, Double)] = Map()) {
+case class Stamper(
+    x: Double = 0,
+    y: Double = 0,
+    dx: Double = 1,
+    dy: Double = 1,
+    stamp: Tag = rect(width := 1, height := 1),
+    history: List[Tag] = Nil,
+    checkpoints: Map[String, (Double, Double)] = Map()
+) {
 
   /**
     * Move a relative number of pixels and add a copy of the stamp.  This does not take into account [[dx]] or [[dy]].
@@ -98,7 +100,10 @@ case class Stamper(x: Double = 0,
     copy(checkpoints = checkpoints + (name -> (x, y)))
 
   def asTags: List[Tag] = {
-    stamp(scalatags.Text.svgAttrs.x := x, scalatags.Text.svgAttrs.y := y) :: history
+    stamp(
+      scalatags.Text.svgAttrs.x := x,
+      scalatags.Text.svgAttrs.y := y
+    ) :: history
   }
 
 }
