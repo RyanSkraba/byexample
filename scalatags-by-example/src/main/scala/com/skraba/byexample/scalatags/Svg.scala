@@ -12,9 +12,12 @@ import scala.reflect.io.File
 object Svg {
 
   /** Wraps the contents in an SVG tag and writes them to a file. */
-  def toFile(f: File, svgContents: Modifier, dx: Int = 100, dy: Int = 100): Unit = {
+  def toFile(f: File,
+             svgContents: Modifier,
+             dx: Int = 100,
+             dy: Int = 100): Unit = {
     val wrapped = svgContents match {
-      case svgTag@TypedTag("svg", _, _) =>
+      case svgTag @ TypedTag("svg", _, _) =>
         svgTag
       case _ =>
         svg(width := dx, height := dy, viewBox := s"0 0 $dx $dy")(svgContents)

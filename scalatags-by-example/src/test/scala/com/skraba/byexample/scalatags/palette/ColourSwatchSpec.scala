@@ -5,7 +5,10 @@ import org.scalatest.junit.JUnitRunner
 import org.scalatest.{BeforeAndAfterAll, FunSpecLike, Matchers}
 
 @RunWith(classOf[JUnitRunner])
-class ColourSwatchSpec extends FunSpecLike with Matchers with BeforeAndAfterAll {
+class ColourSwatchSpec
+    extends FunSpecLike
+    with Matchers
+    with BeforeAndAfterAll {
 
   val white: ColourSwatch = ColourSwatch("Red", "FFFFFF", "000000")
   val red: ColourSwatch = ColourSwatch("Red", "FF0000", white.hex)
