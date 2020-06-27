@@ -27,15 +27,18 @@ class StamperSpec extends FunSpecLike with Matchers with BeforeAndAfterAll {
       east.asTags should have size 2
       east.asTags.head shouldBe rect(x := 1.0, y := 0.0)
 
-      g(east.asTags: _*).render shouldBe """<g><rect x="1.0" y="0.0"></rect><rect x="0.0" y="0.0"></rect></g>"""
+      g(
+        east.asTags: _*
+      ).render shouldBe """<g><rect x="1.0" y="0.0"></rect><rect x="0.0" y="0.0"></rect></g>"""
     }
 
     it("retains a checkpoint") {
 
-      val stamp = Stamper(stamp = rect).se().save("1").se().e().se().se().save("2").se()
+      val stamp =
+        Stamper(stamp = rect).se().save("1").se().e().se().se().save("2").se()
 
-      stamp.checkpoints("1") shouldBe(1.0, 1.0)
-      stamp.checkpoints("2") shouldBe(5.0, 4.0)
+      stamp.checkpoints("1") shouldBe (1.0, 1.0)
+      stamp.checkpoints("2") shouldBe (5.0, 4.0)
       stamp.asTags.head shouldBe rect(x := 6.0, y := 5.0)
     }
 
@@ -70,21 +73,81 @@ class StamperSpec extends FunSpecLike with Matchers with BeforeAndAfterAll {
       val door = base(fill := "#FFF")
 
       val circle = Stamper(stamp = darkGray)
-        .w().w().w().w().sw().w().sw().sw().s()
-        .sw().s().s().s().s().save("eastWall").se().s().se().se().e()
-        .se().e().e().e().e().ne().e().ne().ne().n()
-        .ne().n().n().n().n().nw().n().nw().nw().w()
+        .w()
+        .w()
+        .w()
+        .w()
+        .sw()
+        .w()
+        .sw()
+        .sw()
+        .s()
+        .sw()
+        .s()
+        .s()
+        .s()
+        .s()
+        .save("eastWall")
+        .se()
+        .s()
+        .se()
+        .se()
+        .e()
+        .se()
+        .e()
+        .e()
+        .e()
+        .e()
+        .ne()
+        .e()
+        .ne()
+        .ne()
+        .n()
+        .ne()
+        .n()
+        .n()
+        .n()
+        .n()
+        .nw()
+        .n()
+        .nw()
+        .nw()
+        .w()
 
       val eastWall = circle.checkpoints.getOrElse("eastWall", (0.0, 0.0))
 
-      val extra = Stamper(x = eastWall._1 - 1, y = eastWall._2, stamp = lightGray).w().sw()
-        .s(door).s(lightGray).se()
-        .sw(pink).s(door).s(pink).se().e(door).e(pink)
-        .ne(lightGray).se().e(door).e(lightGray)
-        .se(pink).se().e(door).e(pink).ne()
-        .ne(lightGray).e(door).e(lightGray).ne().n().n().n()
+      val extra =
+        Stamper(x = eastWall._1 - 1, y = eastWall._2, stamp = lightGray)
+          .w()
+          .sw()
+          .s(door)
+          .s(lightGray)
+          .se()
+          .sw(pink)
+          .s(door)
+          .s(pink)
+          .se()
+          .e(door)
+          .e(pink)
+          .ne(lightGray)
+          .se()
+          .e(door)
+          .e(lightGray)
+          .se(pink)
+          .se()
+          .e(door)
+          .e(pink)
+          .ne()
+          .ne(lightGray)
+          .e(door)
+          .e(lightGray)
+          .ne()
+          .n()
+          .n()
+          .n()
 
-      val plan = g(circle.asTags: _*)(extra.asTags: _*)(transform := "translate(12,0)")
+      val plan =
+        g(circle.asTags: _*)(extra.asTags: _*)(transform := "translate(12,0)")
 
       Svg.toFile(File("/tmp/plan.svg"), plan, 100, 100);
     }

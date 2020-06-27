@@ -28,16 +28,19 @@ case class ColourSwatch(name: String, hex: String, textHex: String) {
     * @param shadeDy    The height of each shade colour.
     * @param titleFont  The font to use for the colour name.
     * @param shadeFont  The font to use for RGB values.
-    * @return the swatch for the given colour. */
-  def toSvg(dx: Double = 50,
-            dy: Double = 160,
-            textSize: Double = 5,
-            textAdjust: Double = 2,
-            shades: Int = 4,
-            shadeStep: Double = 0.2,
-            shadeDy: Double = 16,
-            titleFont: String = "Sans serif",
-            shadeFont: String = "Sans serif"): Tag = {
+    * @return the swatch for the given colour.
+    */
+  def toSvg(
+      dx: Double = 50,
+      dy: Double = 160,
+      textSize: Double = 5,
+      textAdjust: Double = 2,
+      shades: Int = 4,
+      shadeStep: Double = 0.2,
+      shadeDy: Double = 16,
+      titleFont: String = "Sans serif",
+      shadeFont: String = "Sans serif"
+  ): Tag = {
 
     val textTag: Tag = text(
       x := dx / 2,
@@ -53,10 +56,11 @@ case class ColourSwatch(name: String, hex: String, textHex: String) {
     val hexTag: Tag = textTag(fontFamily := shadeFont)
 
     /** @return a swatch for a shade. */
-    def shade(rgb: String): Tag = g(
-      rect(width := dx, height := shadeDy, fill := rgb),
-      hexTag(y := shadeDy / 2 + textAdjust)(rgb.toLowerCase())
-    )
+    def shade(rgb: String): Tag =
+      g(
+        rect(width := dx, height := shadeDy, fill := rgb),
+        hexTag(y := shadeDy / 2 + textAdjust)(rgb.toLowerCase())
+      )
 
     g(
       rect(y := 0, width := dx, height := dy, fill := s"#$hex"),
