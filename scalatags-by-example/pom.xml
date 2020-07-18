@@ -100,7 +100,7 @@
         </executions>
       </plugin>
 
-      <!-- Format scala with scalafmt -->
+      <!-- Format scala with mvn mvn-scalafmt_2.12:format -->
       <plugin>
         <groupId>org.antipathy</groupId>
         <artifactId>mvn-scalafmt_${scala.minor.version}</artifactId>
