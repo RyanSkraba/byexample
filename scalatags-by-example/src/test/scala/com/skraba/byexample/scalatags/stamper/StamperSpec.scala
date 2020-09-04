@@ -337,7 +337,6 @@ class StamperSpec extends FunSpecLike with Matchers with BeforeAndAfterAll {
       // Draw the SVG diagram.
       val plan =
         g(
-          background,
           g(layer1.history: _*)(transform := "translate(0,0)"),
           g(layer2.history: _*)(transform := "translate(16,0)"),
           g(layer3.history: _*)(transform := "translate(32,0)"),
@@ -352,11 +351,19 @@ class StamperSpec extends FunSpecLike with Matchers with BeforeAndAfterAll {
           g(layer4.history: _*)(transform := "translate(48,16)"),
           g(layer3.history: _*)(transform := "translate(64,16)"),
           g(layer2.history: _*)(transform := "translate(80,16)"),
-          g(layer1.history: _*)(transform := "translate(96,16)"),
-          foreground
+          g(layer1.history: _*)(transform := "translate(96,16)")
         )
 
-      Svg.toFile(File("/tmp/circles.svg"), plan, 128, 128)
+      Svg.toFile(
+        File("/tmp/circles.svg"),
+        scalatags.Text.svgTags.frag(
+          Svg.inkscapeLayer(1, "Background")(background),
+          Svg.inkscapeLayer(2, "Circles")(plan),
+          Svg.inkscapeLayer(3, "Foreground")(foreground)
+        ),
+        128,
+        128
+      )
     }
   }
 }

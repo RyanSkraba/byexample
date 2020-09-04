@@ -1,5 +1,6 @@
 package com.skraba.byexample.scalatags.stamper
 
+import com.skraba.byexample.scalatags.Svg
 import scalatags.Text.implicits._
 import scalatags.Text.svgTags.{g, rect, use}
 
@@ -177,7 +178,7 @@ case class Stamper(
         g(scalatags.Text.svgAttrs.id := s"$id")(history: _*),
         use(
           scalatags.Text.svgAttrs.xLinkHref := s"#$id",
-          scalatags.Text.svgAttrs.transform := s"translate($dx,$dy)"
+          Svg.attrTranslate(dx, dy)
         )
       )
     )
