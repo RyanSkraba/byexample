@@ -1,5 +1,6 @@
 package com.skraba.byexample.scalatags.palette
 
+import com.skraba.byexample.scalatags.Svg
 import scalatags.Text.implicits._
 import scalatags.Text.svgAttrs._
 import scalatags.Text.svgTags._
@@ -72,7 +73,7 @@ case class ColourSwatch(name: String, hex: String, textHex: String) {
       (1 to shades)
         .map { n =>
           shade("#" + ColourSwatch.lightened(hex, shadeStep * n))(
-            transform := s"translate(0, ${dy - shadeDy * (shades - n + 1)})"
+            Svg.attrTranslate(0, dy - shadeDy * (shades - n + 1))
           )
         }: _*
     )

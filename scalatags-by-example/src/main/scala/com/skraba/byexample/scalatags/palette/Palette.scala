@@ -1,5 +1,6 @@
 package com.skraba.byexample.scalatags.palette
 
+import com.skraba.byexample.scalatags.Svg
 import scalatags.Text.implicits._
 import scalatags.Text.svgAttrs._
 import scalatags.Text.svgTags._
@@ -55,11 +56,11 @@ case class Palette(
             shadeDy = shadeDy,
             titleFont = titleFont,
             shadeFont = shadeFont
-          )(transform := s"translate(${swatchWidth * i}, 0)")
+          )(Svg.attrTranslate(swatchWidth * i, 0))
       ) ++ (
         for ((g, i) <- gradients.zipWithIndex)
           yield g.toSvg(size = swatchWidth, scale = 0.8, titleFont = titleFont)(
-            transform := s"translate(${swatchWidth * i}, $swatchDy)"
+            Svg.attrTranslate(swatchWidth * i, swatchDy)
           )
       ): _*
     )
