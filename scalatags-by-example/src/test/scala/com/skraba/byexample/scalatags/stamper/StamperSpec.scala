@@ -1,17 +1,15 @@
 package com.skraba.byexample.scalatags.stamper
 
 import com.skraba.byexample.scalatags.Svg
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{BeforeAndAfterAll, FunSpecLike, Matchers}
+import org.scalatest.funspec.AnyFunSpecLike
+import org.scalatest.matchers.should.Matchers
 import scalatags.Text.implicits._
 import scalatags.Text.svgAttrs._
 import scalatags.Text.svgTags._
 
 import scala.reflect.io.File
 
-@RunWith(classOf[JUnitRunner])
-class StamperSpec extends FunSpecLike with Matchers with BeforeAndAfterAll {
+class StamperSpec extends AnyFunSpecLike with Matchers {
 
   describe("Using a Stamper") {
 
@@ -52,7 +50,7 @@ class StamperSpec extends FunSpecLike with Matchers with BeforeAndAfterAll {
       east.x shouldBe 5.0
       east.y shouldBe 0.0
 
-      east.history shouldBe empty
+      east.history should have size (0)
     }
 
     it("retains a checkpoint") {

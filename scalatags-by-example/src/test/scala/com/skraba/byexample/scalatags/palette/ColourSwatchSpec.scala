@@ -1,14 +1,9 @@
 package com.skraba.byexample.scalatags.palette
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{BeforeAndAfterAll, FunSpecLike, Matchers}
+import org.scalatest.funspec.AnyFunSpecLike
+import org.scalatest.matchers.should.Matchers
 
-@RunWith(classOf[JUnitRunner])
-class ColourSwatchSpec
-    extends FunSpecLike
-    with Matchers
-    with BeforeAndAfterAll {
+class ColourSwatchSpec extends AnyFunSpecLike with Matchers {
 
   val white: ColourSwatch = ColourSwatch("Red", "FFFFFF", "000000")
   val red: ColourSwatch = ColourSwatch("Red", "FF0000", white.hex)

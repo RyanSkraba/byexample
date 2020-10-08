@@ -1,5 +1,5 @@
-ScalatagsByExample
-==============
+Scalatags by example
+====================
 
 Library for creating HTML/XML/SVG documents.
 

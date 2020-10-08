@@ -1,5 +1,5 @@
-ScalaByExample
-==============
+Scala by example
+================
 
 There's a LOT to the Scala programming language.  This project includes some common and useful 
 libraries and techniques.
@@ -31,4 +31,5 @@ alias ScalaGo='java -jar '$(pwd)'/target/scala-by-example-*-SNAPSHOT.jar'
 ScalaGo --help
 # Using the maven-generated classpath
 mvn exec:java -Dexec.args="--name=World --count=7"
+mvn exec:java -Dexec.mainClass="com.skraba.byexample.scala.ScalaGo" -Dexec.args="--name=world --count=7" 
 ```
