@@ -1,14 +1,12 @@
 package com.skraba.byexample.scalatags.duolingo.cn
 
 import com.skraba.byexample.scalatags.Svg
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{FunSpecLike, Matchers}
+import org.scalatest.funspec.AnyFunSpecLike
+import org.scalatest.matchers.should.Matchers
 
 import scala.reflect.io.File
 
-@RunWith(classOf[JUnitRunner])
-class CheatsheetSpec extends FunSpecLike with Matchers {
+class CheatsheetSpec extends AnyFunSpecLike with Matchers {
 
   describe("Creating a cheatsheet") {
 

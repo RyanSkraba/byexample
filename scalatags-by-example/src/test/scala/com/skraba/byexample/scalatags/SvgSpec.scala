@@ -1,10 +1,10 @@
 package com.skraba.byexample.scalatags
 
 import com.skraba.byexample.scalatags.Svg.Attrs
-import org.junit.runner.RunWith
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.OptionValues._
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{BeforeAndAfterAll, FunSpecLike, Matchers}
+import org.scalatest.funspec.AnyFunSpecLike
+import org.scalatest.matchers.should.Matchers
 import scalatags.Text.implicits._
 import scalatags.Text.svgTags.{g, svg}
 
@@ -13,8 +13,7 @@ import scala.reflect.io._
 /**
   * Unit tests for the helpers in the [[Svg]].
   */
-@RunWith(classOf[JUnitRunner])
-class SvgSpec extends FunSpecLike with Matchers with BeforeAndAfterAll {
+class SvgSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterAll {
 
   /** Temporary directory root for all tests. */
   val TempFolder: Path = Directory.makeTemp("SvgSpec")

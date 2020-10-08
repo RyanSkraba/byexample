@@ -1,13 +1,9 @@
 package com.skraba.byexample.scalatags
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{BeforeAndAfterEach, FunSpecLike, Matchers}
-import scalatags.generic
-import scalatags.text.Builder
+import org.scalatest.funspec.AnyFunSpecLike
+import org.scalatest.matchers.should.Matchers
 
-@RunWith(classOf[JUnitRunner])
-class BasicSpec extends FunSpecLike with Matchers with BeforeAndAfterEach {
+class BasicSpec extends AnyFunSpecLike with Matchers {
 
   describe("Creating HTML documents") {
 
@@ -164,7 +160,8 @@ class BasicSpec extends FunSpecLike with Matchers with BeforeAndAfterEach {
     it("should be styleable") {
 
       val svg1 = svg()
-      val svgStyled = svg1(scalatags.Text.svgTags.tag("style")(raw("""<![CDATA[
+      val svgStyled =
+        svg1(scalatags.Text.svgTags.tag("style")(raw("""<![CDATA[
             |  #my-rect { fill: blue; }
             |]]>""".stripMargin.replaceAll("\n\\s*", " "))))
 

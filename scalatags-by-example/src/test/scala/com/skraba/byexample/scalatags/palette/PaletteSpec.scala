@@ -2,14 +2,12 @@ package com.skraba.byexample.scalatags.palette
 
 import com.skraba.byexample.scalatags.Svg
 import com.skraba.byexample.scalatags.palette.PaletteSpec.Rainbow
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.{BeforeAndAfterAll, FunSpecLike, Matchers}
+import org.scalatest.funspec.AnyFunSpecLike
+import org.scalatest.matchers.should.Matchers
 
 import scala.reflect.io.File
 
-@RunWith(classOf[JUnitRunner])
-class PaletteSpec extends FunSpecLike with Matchers with BeforeAndAfterAll {
+class PaletteSpec extends AnyFunSpecLike with Matchers {
 
   describe("Creating an SVG document") {
 
