@@ -18,8 +18,8 @@ Other useful resources to learn more about Scala and functional programming:
 * [Cheat sheet](https://docs.scala-lang.org/cheatsheets/)
 * [Functional Programming for Mortals](https://leanpub.com/fpmortals)
 
-Running the launcher
---------------------
+Running the driver
+------------------
 
 This project includes an [example executable](src/main/java/com/skraba/byexample/scala/JavaScalaGo.java)
 that does a simple hello world mixing Java and Scala code.
