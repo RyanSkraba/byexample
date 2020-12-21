@@ -17,6 +17,30 @@ object Svg {
   val Attrs: scalatags.Text.svgAttrs.type = scalatags.Text.svgAttrs
 
   /**
+    * Wraps the contents in an SVG tag.  If the content is already an svg tag, it isn't wrapped.
+    *
+    * @param svgContents The tag or fragment to write to the file.
+    * @param viewBoxDx The width of the document and viewbox.
+    * @param viewBoxDy The height of the document and viewbox.
+    */
+  def wrapSvg(
+      svgContents: Modifier,
+      viewBoxDx: Int = 100,
+      viewBoxDy: Int = 100
+  ): TypedTag[String] = {
+    svgContents match {
+      case svgTag @ TypedTag("svg", _, _) =>
+        svgTag
+      case _ =>
+        svg(
+          Attrs.width := viewBoxDx,
+          Attrs.height := viewBoxDy,
+          Attrs.viewBox := s"0 0 $viewBoxDx $viewBoxDy"
+        )(svgContents)
+    }
+  }
+
+  /**
     * Wraps the contents in an SVG tag and writes them to a file.  If the content is already an
     * svg tag, it isn't wrapped.
     *
@@ -31,19 +55,9 @@ object Svg {
       viewBoxDx: Int = 100,
       viewBoxDy: Int = 100
   ): Unit = {
-    val wrapped = svgContents match {
-      case svgTag @ TypedTag("svg", _, _) =>
-        svgTag
-      case _ =>
-        svg(
-          Attrs.width := viewBoxDx,
-          Attrs.height := viewBoxDy,
-          Attrs.viewBox := s"0 0 $viewBoxDx $viewBoxDy"
-        )(svgContents)
-    }
     val pw: BufferedWriter = f.bufferedWriter()
     pw.write("""<?xml version="1.0"?>""")
-    pw.write(wrapped.render)
+    pw.write(wrapSvg(svgContents, viewBoxDx, viewBoxDy).render)
     pw.close()
   }
 
