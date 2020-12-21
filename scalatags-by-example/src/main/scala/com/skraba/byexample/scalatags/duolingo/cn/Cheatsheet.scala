@@ -48,7 +48,15 @@ object Cheatsheet {
   lazy val All: Cheatsheet = all()
 
   /** A single word in the cheatsheet. */
-  case class Vocab(cn: String, pinyin: String, en: String, info: Array[String])
+  case class Vocab(
+      cn: String,
+      pinyin: String,
+      en: String,
+      info: Array[String]
+  ) {
+    lazy val section: String = info(1)
+    lazy val lesson: String = info(2)
+  }
 
   /**
     * @param toneHex An array of hex codes to colour tones for syllables and characters.  This

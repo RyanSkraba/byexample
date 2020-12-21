@@ -15,7 +15,7 @@ class CheatsheetSpec extends AnyFunSpecLike with Matchers {
     }
 
     it("writes a pretty image") {
-      val s = Cheatsheet(vocab = Cheatsheet.All.vocab.filter(_.cn.length >= 1))
+      val s = Cheatsheet(vocab = Cheatsheet.All.vocab.filter(_.cn.nonEmpty))
       Svg.toFile(
         File("/tmp/duolingo.all.svg"),
         s.toSvg(Svg.attrTranslate(50, 10)),
@@ -27,7 +27,7 @@ class CheatsheetSpec extends AnyFunSpecLike with Matchers {
     it("should only include numbers") {
       // Just get the vocabulary we're interested in.
       val lesson = Cheatsheet.All.vocab
-        .filter(v => v.info(2) == "Numbers")
+        .filter(v => v.lesson == "Numbers")
         .map(v => (v.cn(0), v))
         .toMap
 
@@ -39,7 +39,7 @@ class CheatsheetSpec extends AnyFunSpecLike with Matchers {
         cheat,
         200,
         150
-      );
+      )
     }
   }
 

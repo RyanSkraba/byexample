@@ -19,7 +19,7 @@
   <properties>
     <maven.deploy.skip>false</maven.deploy.skip>
     <!-- Launcher class -->
-    <exec.mainClass>com.skraba.byexample.scala.ScalatagsGo</exec.mainClass>
+    <exec.mainClass>com.skraba.byexample.scalatags.ScalatagsGo</exec.mainClass>
     <!-- other project dependency versions as properties -->
     <scala.minor.version>2.12</scala.minor.version>
     <scala.version>2.12.12</scala.version>
