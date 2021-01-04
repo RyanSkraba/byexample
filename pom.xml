@@ -47,7 +47,6 @@
   </build>
 
   <modules>
-    <module>scala-by-example</module>
-    <module>scalatags-by-example</module>
+    <module>scala</module>
   </modules>
 </project>

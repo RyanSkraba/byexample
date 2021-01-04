@@ -6,7 +6,7 @@
 
   <parent>
     <groupId>com.skraba.byexample</groupId>
-    <artifactId>byexample-root-aggregator</artifactId>
+    <artifactId>byexample-scala-aggregator</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
@@ -105,7 +105,7 @@
         <artifactId>mvn-scalafmt_${scala.minor.version}</artifactId>
         <version>1.0.3</version>
         <configuration>
-          <configLocation>${project.parent.basedir}/.scalafmt.conf</configLocation>
+          <configLocation>${project.parent.basedir}/../.scalafmt.conf</configLocation>
           <validateOnly>true</validateOnly>
         </configuration>
         <executions>
