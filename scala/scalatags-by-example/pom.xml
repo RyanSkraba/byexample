@@ -21,8 +21,6 @@
     <!-- Launcher class -->
     <exec.mainClass>com.skraba.byexample.scalatags.ScalatagsGo</exec.mainClass>
     <!-- other project dependency versions as properties -->
-    <scala.minor.version>2.12</scala.minor.version>
-    <scala.version>2.12.12</scala.version>
     <scalatags.version>0.9.2</scalatags.version>
   </properties>
 
@@ -31,17 +29,10 @@
     <dependency>
       <groupId>com.offbytwo</groupId>
       <artifactId>docopt</artifactId>
-      <version>0.6.0.20150202</version>
-    </dependency>
-    <dependency>
-      <groupId>org.scala-lang</groupId>
-      <artifactId>scala-library</artifactId>
-      <version>${scala.version}</version>
     </dependency>
     <dependency>
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-reflect</artifactId>
-      <version>${scala.version}</version>
     </dependency>
     <dependency>
       <groupId>com.lihaoyi</groupId>
@@ -49,129 +40,6 @@
       <version>${scalatags.version}</version>
     </dependency>
 
-    <!-- Test dependencies. -->
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <version>5.7.0-M1</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest-library</artifactId>
-      <version>2.2</version>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- Scalatest dependencies. -->
-    <dependency>
-      <groupId>org.scalatest</groupId>
-      <artifactId>scalatest_${scala.minor.version}</artifactId>
-      <version>3.2.2</version>
-      <scope>test</scope>
-    </dependency>
-
   </dependencies>
-
-  <build>
-    <plugins>
-      <!-- Build both java and scala classes, and they can rely on each other. -->
-      <plugin>
-        <groupId>net.alchim31.maven</groupId>
-        <artifactId>scala-maven-plugin</artifactId>
-        <version>4.4.0</version>
-        <executions>
-          <execution>
-            <id>scala-compile-first</id>
-            <phase>process-resources</phase>
-            <goals>
-              <goal>add-source</goal>
-              <goal>compile</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>scala-test-compile</id>
-            <phase>process-test-resources</phase>
-            <goals>
-              <goal>testCompile</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- Format scala with mvn mvn-scalafmt_2.12:format -->
-      <plugin>
-        <groupId>org.antipathy</groupId>
-        <artifactId>mvn-scalafmt_${scala.minor.version}</artifactId>
-        <version>1.0.3</version>
-        <configuration>
-          <configLocation>${project.parent.basedir}/../.scalafmt.conf</configLocation>
-          <validateOnly>true</validateOnly>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>validate</phase>
-            <goals>
-              <goal>format</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- Run scalatest unit tests -->
-      <plugin>
-        <groupId>org.scalatest</groupId>
-        <artifactId>scalatest-maven-plugin</artifactId>
-        <version>2.0.0</version>
-        <executions>
-          <execution>
-            <id>test</id>
-            <goals>
-              <goal>test</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- Shaded fat jar with all dependencies -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.4</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>3.2.0</version>
-        <configuration>
-          <archive>
-            <manifest>
-              <mainClass>${exec.mainClass}</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.0.0-M5</version>
-        <configuration>
-          <testSourceDirectory>src/test/java</testSourceDirectory>
-          <testSourceDirectory>src/test/scala</testSourceDirectory>
-          <includes>
-            <include>**/*Spec.java</include>
-            <include>**/*Test.java</include>
-          </includes>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 
 </project>
