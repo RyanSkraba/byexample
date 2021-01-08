@@ -1,8 +1,7 @@
 package com.skraba.byexample.scala;
 
-import org.docopt.Docopt;
-
 import java.util.Map;
+import org.docopt.Docopt;
 
 /** A Java application that can use scala code. */
 public class JavaScalaGo {

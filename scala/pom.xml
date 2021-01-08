@@ -64,31 +64,10 @@
       <artifactId>scalatest_${scala.minor.version}</artifactId>
       <scope>test</scope>
     </dependency>
-
-
   </dependencies>
 
   <build>
     <plugins>
-      <!-- Format scala with mvn mvn-scalafmt_2.12:format -->
-      <plugin>
-        <groupId>org.antipathy</groupId>
-        <artifactId>mvn-scalafmt_${scala.minor.version}</artifactId>
-        <version>1.0.3</version>
-        <configuration>
-          <configLocation>${scalafmt.conf.path}</configLocation>
-          <validateOnly>true</validateOnly>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>validate</phase>
-            <goals>
-              <goal>format</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
       <!-- Build both java and scala classes, and they can rely on each other. -->
       <plugin>
         <groupId>net.alchim31.maven</groupId>
