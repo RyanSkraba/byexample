@@ -11,76 +11,95 @@
   <packaging>pom</packaging>
 
   <properties>
-    <!-- skip the deployment for aggregators, not necessary.  Needs to be flipped to false
-     for modules with artifacts. -->
-    <maven.deploy.skip>true</maven.deploy.skip>
-    <!-- Shared properties by all sub-projects -->
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- specifies that the system uses Java 11 by default -->
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
+
+    <!-- skip the deployment for aggregators, not necessary.  Needs to be flipped to false
+     for modules with artifacts. -->
+    <maven.deploy.skip>true</maven.deploy.skip>
+
+    <!-- Shared properties by all sub-projects -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <exec.mainClass>com.skraba.byexample.ToDoGo</exec.mainClass>
 
     <!-- Dependencies -->
     <docopt.version>0.6.0.20150202</docopt.version>
     <hamcrest.version>2.2</hamcrest.version>
     <junit5.version>5.7.0</junit5.version>
-    <scalafmt.version>2.6.1</scalafmt.version>
+    <scala.minor.version>2.12</scala.minor.version>
+    <scala.version>2.12.13</scala.version>
+    <scalafmt.version>2.7.5</scalafmt.version>
+    <spotless.version>1.25.1</spotless.version>
+    <scalatest.version>3.2.2</scalatest.version>
 
     <!-- Plugins -->
-    <plugin.spotless.version>2.7.0</plugin.spotless.version>
-    <plugin.surefire.maven.version>3.0.0-M5</plugin.surefire.maven.version>
     <plugin.enforcer.maven.version>3.0.0-M3</plugin.enforcer.maven.version>
     <plugin.failsafe.maven.version>3.0.0-M5</plugin.failsafe.maven.version>
     <plugin.jar.maven.version>3.2.0</plugin.jar.maven.version>
+    <plugin.maven.scala.version>4.4.0</plugin.maven.scala.version>
+    <plugin.maven.scalatest.version>2.0.2</plugin.maven.scalatest.version>
+    <plugin.shade.maven.version>3.2.4</plugin.shade.maven.version>
+    <plugin.spotless.version>2.7.0</plugin.spotless.version>
+    <plugin.surefire.maven.version>3.0.0-M5</plugin.surefire.maven.version>
   </properties>
 
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>com.offbytwo</groupId>
-        <artifactId>docopt</artifactId>
-        <version>${docopt.version}</version>
-      </dependency>
-
-      <!-- Tests -->
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-api</artifactId>
-        <version>${junit5.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-engine</artifactId>
-        <version>${junit5.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-params</artifactId>
-        <version>${junit5.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.hamcrest</groupId>
-        <artifactId>hamcrest-library</artifactId>
-        <version>${hamcrest.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-simple</artifactId>
-        <version>${slf4j.version}</version>
-        <scope>test</scope>
-      </dependency>
-
-    </dependencies>
-  </dependencyManagement>
- 
   <build>
     <pluginManagement>
       <plugins>
+        <!-- Minimum version of maven to build this project -->
         <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>${plugin.enforcer.maven.version}</version>
+          <executions>
+            <execution>
+              <id>enforce-maven</id>
+              <goals>
+                <goal>enforce</goal>
+              </goals>
+              <configuration>
+                <rules>
+                  <requireMavenVersion>
+                    <version>3.5</version>
+                  </requireMavenVersion>
+                </rules>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+
+        <!-- Add the main class name to the jar -->
+        <plugin>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.2.0</version>
+          <configuration>
+            <archive>
+              <manifest>
+                <mainClass>${exec.mainClass}</mainClass>
+              </manifest>
+            </archive>
+          </configuration>
+        </plugin>
+
+        <!-- Shaded fat jar with all dependencies -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>${plugin.shade.maven.version}</version>
+          <executions>
+            <execution>
+              <phase>package</phase>
+              <goals>
+                <goal>shade</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+        <!-- Launch scalatests as well as Java -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>${plugin.surefire.maven.version}</version>
           <configuration>
@@ -120,71 +139,120 @@
             </execution>
           </executions>
         </plugin>
+
+        <!-- Format Java and Scala with mvn spotless:apply -->
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>${plugin.jar.maven.version}</version>
+          <groupId>com.diffplug.spotless</groupId>
+          <artifactId>spotless-maven-plugin</artifactId>
+          <version>${plugin.spotless.version}</version>
+          <configuration>
+            <java>
+              <removeUnusedImports />
+              <googleJavaFormat />
+            </java>
+            <scala>
+              <includes>
+                <include>src/main/scala/**/*.scala</include>
+                <include>src/test/scala/**/*.scala</include>
+              </includes>
+              <scalafmt>
+                <version>${scalafmt.version}</version>
+              </scalafmt>
+            </scala>
+          </configuration>
+        </plugin>
+
+        <!-- Run scalatest unit tests -->
+        <plugin>
+          <groupId>org.scalatest</groupId>
+          <artifactId>scalatest-maven-plugin</artifactId>
+          <version>${plugin.maven.scalatest.version}</version>
           <executions>
-            <!-- automatically build a test jar for each component (so test modules
-              can depend on each other) -->
             <execution>
+              <id>test</id>
               <goals>
-                <goal>test-jar</goal>
+                <goal>test</goal>
               </goals>
             </execution>
           </executions>
         </plugin>
       </plugins>
     </pluginManagement>
-
-    <plugins>
-      <!-- Format Java and Scala with mvn spotless:apply -->
-      <plugin>
-        <groupId>com.diffplug.spotless</groupId>
-        <artifactId>spotless-maven-plugin</artifactId>
-        <version>${plugin.spotless.version}</version>
-        <configuration>
-          <java>
-            <removeUnusedImports />
-            <googleJavaFormat />
-          </java>
-          <scala>
-            <includes>
-              <include>src/main/scala/**/*.scala</include>
-              <include>src/test/scala/**/*.scala</include>
-            </includes>
-            <scalafmt>
-              <version>${scalafmt.version}</version>
-            </scalafmt>
-          </scala>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <version>${plugin.enforcer.maven.version}</version>
-        <executions>
-          <execution>
-            <id>enforce-maven</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
-                <requireMavenVersion>
-                  <version>3.5</version>
-                </requireMavenVersion>
-              </rules>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-    </plugins>
   </build>
 
- <dependencies>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.offbytwo</groupId>
+        <artifactId>docopt</artifactId>
+        <version>${docopt.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.scala-lang</groupId>
+        <artifactId>scala-compiler</artifactId>
+        <version>${scala.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.scala-lang</groupId>
+        <artifactId>scala-library</artifactId>
+        <version>${scala.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.scala-lang</groupId>
+        <artifactId>scala-reflect</artifactId>
+        <version>${scala.version}</version>
+      </dependency>
+
+      <!-- Tests -->
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-api</artifactId>
+        <version>${junit5.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-engine</artifactId>
+        <version>${junit5.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-params</artifactId>
+        <version>${junit5.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest-library</artifactId>
+        <version>${hamcrest.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>${slf4j.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.scalatest</groupId>
+        <artifactId>scalatest_${scala.minor.version}</artifactId>
+        <version>${scalatest.version}</version>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </reporting>
+
+  <dependencies>
     <!-- Tests -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -201,15 +269,5 @@
   <modules>
     <module>scala</module>
   </modules>
-
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-report-plugin</artifactId>
-        <version>3.0.0-M5</version>
-      </plugin>
-    </plugins>
-  </reporting>
 
 </project>
