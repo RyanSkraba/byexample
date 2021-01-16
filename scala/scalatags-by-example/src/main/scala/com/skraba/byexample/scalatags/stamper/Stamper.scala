@@ -6,8 +6,7 @@ import scalatags.Text.svgTags.{g, rect, use}
 
 import scala.util.Random
 
-/**
-  * Draws SVG files by repeating an SVG tag at different X/Y positions on the document.
+/** Draws SVG files by repeating an SVG tag at different X/Y positions on the document.
   *
   * Whenever the Stamper is moved, it leaves a copy of the tag at the current position before
   * moving to the new position (as long as the pen is "down").
@@ -35,8 +34,7 @@ case class Stamper(
     checkpoints: Map[String, (Double, Double)] = Map()
 ) {
 
-  /**
-    * Move a relative number of pixels and add a copy of the stamp.  This does not take into
+  /** Move a relative number of pixels and add a copy of the stamp.  This does not take into
     * account [[stepX]] or [[stepY]].
     *
     * @param dx    The number of pixels to move right.
@@ -48,8 +46,7 @@ case class Stamper(
     stampAt(this.x + dx, this.y + dy, tag)
   }
 
-  /**
-    * Move to an abolute position and add a copy of the stamp.  This does not take into
+  /** Move to an abolute position and add a copy of the stamp.  This does not take into
     * account [[stepX]] or [[stepY]].
     *
     * @param x     The new x position to add a stamp.
@@ -61,32 +58,28 @@ case class Stamper(
     copy(x = x, y = y, tag = tag, history = appendCurrentToHistory)
   }
 
-  /**
-    * Move one unit north (up).
+  /** Move one unit north (up).
     *
     * @param tag The stamp to use from now on (unchanged by default)
     * @return An instance of the stamper at the new position.
     */
   def n(tag: Tag = tag): Stamper = stamp(dy = -stepY, tag = tag)
 
-  /**
-    * Move one unit south (down).
+  /** Move one unit south (down).
     *
     * @param tag The stamp to use from now on (unchanged by default)
     * @return An instance of the stamper at the new position.
     */
   def s(tag: Tag = tag): Stamper = stamp(dy = +stepY, tag = tag)
 
-  /**
-    * Move one unit east (right).
+  /** Move one unit east (right).
     *
     * @param tag The stamp to use from now on (unchanged by default)
     * @return An instance of the stamper at the new position.
     */
   def e(tag: Tag = tag): Stamper = stamp(dx = +stepX, tag = tag)
 
-  /**
-    * Move one unit west (left).
+  /** Move one unit west (left).
     *
     * @param tag The stamp to use from now on (unchanged by default)
     * @return An instance of the stamper at the new position.
@@ -105,15 +98,13 @@ case class Stamper(
   /** Move one unit southwest. */
   def sw(tag: Tag = tag): Stamper = stamp(dx = -stepX, dy = +stepY, tag = tag)
 
-  /**
-    * Save the current position of the stamper so it can be recalled later.
+  /** Save the current position of the stamper so it can be recalled later.
     * @param name The name to associate with the current position.
     */
   def save(name: String): Stamper =
     copy(checkpoints = checkpoints + (name -> (x, y)))
 
-  /**
-    * Using the position and [[stepX]] and [[stepY]] values, add the two dimension array of tags
+  /** Using the position and [[stepX]] and [[stepY]] values, add the two dimension array of tags
     * into the history of this stamper.
     * @param pattern A two dimensional array of tags to be added to the history.  The tag at (0,0)
     *                will be added at position [[x]], [[y]].
@@ -122,27 +113,24 @@ case class Stamper(
     val newTags: Iterable[Tag] = pattern
       .map(_.zipWithIndex)
       .zipWithIndex
-      .flatMap {
-        case (row: Iterable[(Option[Tag], Int)], rowIndex: Int) =>
-          row.map {
-            case (Some(tag), columnIndex) => Some(tag, rowIndex, columnIndex)
-            case _                        => None
-          }
+      .flatMap { case (row: Iterable[(Option[Tag], Int)], rowIndex: Int) =>
+        row.map {
+          case (Some(tag), columnIndex) => Some(tag, rowIndex, columnIndex)
+          case _                        => None
+        }
       }
       .flatten
-      .map {
-        case (tag: Tag, rowIndex: Int, columnIndex: Int) =>
-          tag(
-            scalatags.Text.svgAttrs.x := x + stepX * columnIndex,
-            scalatags.Text.svgAttrs.y := y + stepY * rowIndex
-          )
+      .map { case (tag: Tag, rowIndex: Int, columnIndex: Int) =>
+        tag(
+          scalatags.Text.svgAttrs.x := x + stepX * columnIndex,
+          scalatags.Text.svgAttrs.y := y + stepY * rowIndex
+        )
       }
 
     copy(history = newTags.toList ++ history)
   }
 
-  /**
-    * Using the position and [[stepX]] and [[stepY]] values, add a two dimension array of tags
+  /** Using the position and [[stepX]] and [[stepY]] values, add a two dimension array of tags
     * into the history of this stamper.
     *
     * @param pattern A multiline string of characters representing a two dimension of tags.
@@ -155,8 +143,7 @@ case class Stamper(
     draw(pattern.split("\\n").toIterable.map(_.map(withTag).toIterable))
   }
 
-  /**
-    * Clone the entire history of this stamper relative to the existing position.
+  /** Clone the entire history of this stamper relative to the existing position.
     *
     * The returned stamper will have two elements in the history: the original grouped history and
     * a clone at the new position.  The existing [[x]], [[y]] position will not be changed but
@@ -184,8 +171,7 @@ case class Stamper(
     )
   }
 
-  /**
-    * Clone the entire history of this stamper to the south and the east without adding any
+  /** Clone the entire history of this stamper to the south and the east without adding any
     * additional tags or changing the position.  [[stepX]] and [[stepY]] are used to reposition the
     * clones, and the resulting stamper will have double these values.
     *

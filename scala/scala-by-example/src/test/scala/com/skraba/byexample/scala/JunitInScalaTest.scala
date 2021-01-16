@@ -6,8 +6,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.is
 import org.junit.jupiter.api.Test
 
-/**
-  * Basic JUnit test written in scala.
+/** Basic JUnit test written in scala.
   */
 class JunitInScalaTest {
   @Test

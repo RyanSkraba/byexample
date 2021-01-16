@@ -6,15 +6,13 @@ import org.docopt.{Docopt, DocoptExitException}
 
 import scala.collection.JavaConverters._
 
-/**
-  * A driver for the various utilities written with Scalatags.
+/** A driver for the various utilities written with Scalatags.
   */
 object ScalatagsGo {
 
   val Version: String = "0.0.1-SNAPSHOT"
 
-  /**
-    * The subcommands that this driver supports.
+  /** The subcommands that this driver supports.
     * @param doc The [[Docopt]] for the subcommand.
     * @param cmd The subcommand token.
     * @param description The short description for the subcommand.
@@ -55,8 +53,7 @@ object ScalatagsGo {
         .mkString("\n")
     }.trim
 
-  /**
-    * Runs the tool.  This does not handle any docopt exception automatically while parsing the
+  /** Runs the tool.  This does not handle any docopt exception automatically while parsing the
     * command line.
     *
     * @param args command-line arguments as described in [[Doc]]

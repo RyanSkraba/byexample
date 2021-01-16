@@ -5,8 +5,7 @@ import scalatags.Text.implicits._
 import scalatags.Text.svgAttrs._
 import scalatags.Text.svgTags._
 
-/**
-  * Creates a palette with all of the given colours and the gradients.
+/** Creates a palette with all of the given colours and the gradients.
   *
   * @param colours   The colour swatches to include in the palette.
   * @param gradients The colour gradients to include in the palette.
@@ -20,8 +19,7 @@ case class Palette(
     dy: Double = 210
 ) {
 
-  /**
-    * @param swatchDy   The height of the swatch.
+  /** @param swatchDy   The height of the swatch.
     * @param textSize   The font size of the title.
     * @param textAdjust A helpful hint to push the text into a centered position.
     * @param shades     The number of shades to apply on the swatch.

@@ -4,8 +4,7 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-/**
-  * Self types and traits.
+/** Self types and traits.
   *
   * Instead of extending a base, you can do this:
   *

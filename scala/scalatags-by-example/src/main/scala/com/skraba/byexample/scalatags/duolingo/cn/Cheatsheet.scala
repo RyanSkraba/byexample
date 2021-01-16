@@ -9,21 +9,19 @@ import scalatags.Text.svgTags._
 import scala.io.Source
 import scala.reflect.io.File
 
-/**
-  * A vocabulary cheat sheet for duolingo chinese lessons.
+/** A vocabulary cheat sheet for duolingo chinese lessons.
   *
   * @param vocab the list of words to include in the cheat sheet.
   * @param cfg Configuration for drawing the sheet.
   */
 case class Cheatsheet(vocab: Seq[Vocab], cfg: Config = Config()) {
 
-  /**
-    * Draws the cheatsheet.  The first column of words is centered at 0, 0, and the entire page
+  /** Draws the cheatsheet.  The first column of words is centered at 0, 0, and the entire page
     * will likely need to be translated.
     */
   def toSvg: Tag = {
-    val ys: Seq[Tag] = vocab.map(cfg.vocab).zipWithIndex.map {
-      case (tag, i) => tag(Svg.attrTranslate(0, i * cfg.lineHeight))
+    val ys: Seq[Tag] = vocab.map(cfg.vocab).zipWithIndex.map { case (tag, i) =>
+      tag(Svg.attrTranslate(0, i * cfg.lineHeight))
     }
     g(ys: _*)
   }
@@ -41,8 +39,7 @@ object Cheatsheet {
     for ((s, i) <- ToneVowels.zipWithIndex; c <- s) yield (c, i + 1)
   }.toMap
 
-  /**
-    *  A cheatsheet autoloaded with all the words and the default config.  This may make a call
+  /**  A cheatsheet autoloaded with all the words and the default config.  This may make a call
     *  out to a remote resource.
     */
   lazy val All: Cheatsheet = all()
@@ -58,8 +55,7 @@ object Cheatsheet {
     lazy val lesson: String = info(2)
   }
 
-  /**
-    * @param toneHex An array of hex codes to colour tones for syllables and characters.  This
+  /** @param toneHex An array of hex codes to colour tones for syllables and characters.  This
     *                should be a five element array and the first value is used for no tone.
     * @param text The text tag to use for writing.
     * @param cnDx The width of the chinese text in the middle of the column.
@@ -94,9 +90,8 @@ object Cheatsheet {
       spans
         .zip(tones)
         .zipWithIndex
-        .map {
-          case ((txt, tone), i) =>
-            tspan(Attrs.fill := s"#${toneHex(tone)}", txt)
+        .map { case ((txt, tone), i) =>
+          tspan(Attrs.fill := s"#${toneHex(tone)}", txt)
         }
     }
 
@@ -111,8 +106,7 @@ object Cheatsheet {
 
   }
 
-  /**
-    * Create the cheatsheet fully initialized by the vocabulary contents.
+  /** Create the cheatsheet fully initialized by the vocabulary contents.
     */
   def all(): Cheatsheet = {
     val allWords: Seq[Array[String]] = contents().map(_.split('\t'))
@@ -136,8 +130,7 @@ object Cheatsheet {
     }
   }
 
-  /**
-    * @return The TSV contents of the Duolingo classes.
+  /** @return The TSV contents of the Duolingo classes.
     */
   private[this] def contents(): Seq[String] = {
     val cached = File("/tmp/anki-deck-for-duolingo-chinese_words.tsv")

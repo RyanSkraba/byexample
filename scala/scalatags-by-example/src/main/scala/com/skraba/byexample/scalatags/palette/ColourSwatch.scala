@@ -5,8 +5,7 @@ import scalatags.Text.implicits._
 import scalatags.Text.svgAttrs._
 import scalatags.Text.svgTags._
 
-/**
-  * Provides a swatch for a colour in the palette, including lighter shades in a series of steps.
+/** Provides a swatch for a colour in the palette, including lighter shades in a series of steps.
   *
   * The swatch is organised vertically with the title and RGB (in hex) at the top, and the shades at the bottom.
   *
@@ -19,8 +18,7 @@ case class ColourSwatch(name: String, hex: String, textHex: String) {
   /** @return a hex value that is f percent lighter than the actual colour. */
   def lightened(f: Double): String = ColourSwatch.lightened(hex, f)
 
-  /**
-    * @param dx         The width of the swatch.
+  /** @param dx         The width of the swatch.
     * @param dy         The height of the swatch.
     * @param textSize   The font size of the title.
     * @param textAdjust A helpful hint to push the text into a centered position.

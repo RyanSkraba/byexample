@@ -5,8 +5,7 @@ import com.skraba.byexample.scalatags.ScalatagsGo.InternalDocoptException
 
 import scala.collection.JavaConverters._
 
-/**
-  * Command-line driver for generating a Palette SVG
+/** Command-line driver for generating a Palette SVG
   */
 object PaletteTask {
 

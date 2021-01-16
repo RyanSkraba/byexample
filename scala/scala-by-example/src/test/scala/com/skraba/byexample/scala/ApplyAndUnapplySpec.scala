@@ -3,8 +3,7 @@ package com.skraba.byexample.scala
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-/**
-  * The apply and unapply methods are used to create instances and pattern match.
+/** The apply and unapply methods are used to create instances and pattern match.
   *
   * @see https://docs.scala-lang.org/overviews/scala-book/companion-objects.html
   * @see https://dzone.com/articles/eta-expansion-and-partially-applied-functions-in-s
