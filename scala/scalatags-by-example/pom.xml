@@ -39,7 +39,6 @@
       <artifactId>scalatags_${scala.minor.version}</artifactId>
       <version>${scalatags.version}</version>
     </dependency>
-
   </dependencies>
 
 </project>
