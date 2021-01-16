@@ -18,8 +18,7 @@ class ScalaGo(params: Either[GreeterBean, ScalaCaseClass]) {
   }
 }
 
-/**
-  * The same application as [[JavaScalaGo]] written in Scala.
+/** The same application as [[JavaScalaGo]] written in Scala.
   */
 object ScalaGo {
 

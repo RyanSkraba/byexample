@@ -4,8 +4,7 @@ import scalatags.Text.implicits._
 import scalatags.Text.svgAttrs._
 import scalatags.Text.svgTags._
 
-/**
-  * Provides a swatch for a linear gradient in a circle.
+/** Provides a swatch for a linear gradient in a circle.
   *
   * @param name    The name of the gradient.
   * @param hex1    The first colour to use (i.e. "FF0000")
@@ -32,8 +31,7 @@ case class ColourGradient(
       stop(offset := 0.95, stopColor := s"#$hex2")
     )
 
-  /**
-    * @param size       The size of the swatch to be applied.
+  /** @param size       The size of the swatch to be applied.
     * @param scale      The circle will be scaled by this amount but remain centered in the area.
     * @param textSize   The font size of the title (unaffected by the scale).
     * @param textAdjust A helpful hint to push the text into a centered position.

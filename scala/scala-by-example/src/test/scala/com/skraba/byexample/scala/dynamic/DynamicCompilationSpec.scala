@@ -7,8 +7,7 @@ import org.scalatest.matchers.should.Matchers
 import scala.reflect.runtime.universe
 import scala.tools.reflect.ToolBox
 
-/**
-  * Running a class dynamically compiled from a string.
+/** Running a class dynamically compiled from a string.
   *
   * @see https://stackoverflow.com/questions/39137175/dynamically-compiling-scala-class-files-at-runtime-in-scala-2-11
   */

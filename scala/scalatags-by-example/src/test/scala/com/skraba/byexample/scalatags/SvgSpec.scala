@@ -10,8 +10,7 @@ import scalatags.Text.svgTags.{g, svg}
 
 import scala.reflect.io._
 
-/**
-  * Unit tests for the helpers in the [[Svg]].
+/** Unit tests for the helpers in the [[Svg]].
   */
 class SvgSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterAll {
 

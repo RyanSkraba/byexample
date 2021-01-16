@@ -5,8 +5,7 @@ import org.docopt.DocoptExitException
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-/**
-  * Unit tests for the helpers in the [[ScalatagsGo]] project.
+/** Unit tests for the helpers in the [[ScalatagsGo]] project.
   */
 class ScalatagsGoSpec extends AnyFunSpecLike with Matchers {
 

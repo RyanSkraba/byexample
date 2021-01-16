@@ -1,7 +1,6 @@
 package com.skraba.byexample.scala
 
-/**
-  * Examples for using Scaladoc.
+/** Examples for using Scaladoc.
   *
   * =Markup=
   *  - [[https://docs.scala-lang.org/overviews/scaladoc/overview.html Scaladoc overview]]

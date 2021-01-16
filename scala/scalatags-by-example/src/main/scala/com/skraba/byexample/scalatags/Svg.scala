@@ -16,8 +16,7 @@ object Svg {
   /** Useful pointer to qualify attribute names, since they can conflict with common variables. */
   val Attrs: scalatags.Text.svgAttrs.type = scalatags.Text.svgAttrs
 
-  /**
-    * Wraps the contents in an SVG tag.  If the content is already an svg tag, it isn't wrapped.
+  /** Wraps the contents in an SVG tag.  If the content is already an svg tag, it isn't wrapped.
     *
     * @param svgContents The tag or fragment to write to the file.
     * @param viewBoxDx The width of the document and viewbox.
@@ -40,8 +39,7 @@ object Svg {
     }
   }
 
-  /**
-    * Wraps the contents in an SVG tag and writes them to a file.  If the content is already an
+  /** Wraps the contents in an SVG tag and writes them to a file.  If the content is already an
     * svg tag, it isn't wrapped.
     *
     * @param f The file to write or overwrite.
@@ -61,8 +59,7 @@ object Svg {
     pw.close()
   }
 
-  /**
-    * Returns a group tag that can be used as an inkscape layer if at the top of the document.
+  /** Returns a group tag that can be used as an inkscape layer if at the top of the document.
     *
     * @param n The unique number to use for the layer.  This should (probably) be sequential.
     * @param label The visible name to use for the layer.
@@ -75,8 +72,7 @@ object Svg {
       attr("inkscape:label") := label
     )
 
-  /**
-    * Returns an attribute that can be added to translate an element.
+  /** Returns an attribute that can be added to translate an element.
     *
     * @param dx The number of pixels right to translate.
     * @param label The number of pixels down to translate.
@@ -85,8 +81,7 @@ object Svg {
   def attrTranslate(dx: Double, dy: Double): generic.Modifier[Builder] =
     Attrs.transform := s"translate($dx,$dy)"
 
-  /**
-    * A text config stores information about how to create small text tags.
+  /** A text config stores information about how to create small text tags.
     * @param fill The text colour.
     * @param family The font-family attribute
     * @param weight the font-weight attribute
