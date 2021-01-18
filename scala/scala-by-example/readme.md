@@ -1,18 +1,25 @@
-Scala by example
-================
+ScalaByExample
+==============
 
-There's a LOT to the Scala programming language.  This project includes some common and useful 
+There's a LOT to the Scala programming language.  This project includes some common and useful
 libraries and techniques.
 
-How do I... | Examples 
+How do I... | Examples
 ---         | ---
 compile and run scala code dynamically _(eval)_?| [com.skraba.byexample.scala.dynamic](src/test/scala/com/skraba/byexample/scala/dynamic/)
 use self-types versus traits?| [TraitSelfTypeSpec](src/test/scala/com/skraba/byexample/scala/TraitSelfTypeSpec.scala)
 
+Some of the code samples were taken or adapted into unit tests from other learning resources.  All
+of these are highly recommended!
+
+Source | Examples
+---    | ---
+[Scala collections overview](https://docs.scala-lang.org/overviews/collections/introduction.html)| [com.skraba.byexample.scala.collections](src/test/scala/com/skraba/byexample/scala/collections/)
+
 Resources
 ---------
 
-Other useful resources to learn more about Scala and functional programming: 
+Other useful resources to learn more about Scala and functional programming:
 
 * [Jargon help](https://github.com/hemanth/functional-programming-jargon)
 * [Cheat sheet](https://docs.scala-lang.org/cheatsheets/)
