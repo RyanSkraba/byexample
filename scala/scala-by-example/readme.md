@@ -15,6 +15,7 @@ of these are highly recommended!
 Source | Examples
 ---    | ---
 [Scala collections overview](https://docs.scala-lang.org/overviews/collections/introduction.html)| [com.skraba.byexample.scala.collections](src/test/scala/com/skraba/byexample/scala/collections/)
+[ScalaTest overview](https://www.scalatest.org/user_guide)| [com.skraba.byexample.scala.scalatest](src/test/scala/com/skraba/byexample/scala/scalatest/)
 
 Resources
 ---------
