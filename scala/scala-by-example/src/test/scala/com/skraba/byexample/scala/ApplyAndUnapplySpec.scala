@@ -95,12 +95,12 @@ class ApplyAndUnapplySpec extends AnyFunSpecLike with Matchers {
 
       // The default case class unapply is a function that returns an optional tuple of its
       // apply arguments.
-      Person.unapply _ shouldBe a[Person => Option[(String, Int)]]
+      "val fn: Person => Option[(String, Int)] = Person.unapply" should compile
 
-      // So you can do things link this.
+      // So you can do things like this to extract attributes:
       val sophia = Person("Estelle Getty", 1923)
       val Person(extractName, extractYear) = sophia
-      extractName shouldBe ("Estelle Getty")
+      extractName shouldBe "Estelle Getty"
       extractYear shouldBe 1923
 
       // Unapplying matches the name and sets the birth year internally.

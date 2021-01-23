@@ -91,6 +91,23 @@ class BasicMatchersSpec extends AnyFunSpecLike with Matchers {
       t.getMessage shouldBe "String index out of range: 10"
       t should have message "String index out of range: 10"
     }
+
+    it("can be asserted with thrownBy") {
+      an[IndexOutOfBoundsException] should be thrownBy "hi" (10)
+
+      // Or looking at the Exception.
+      the[IndexOutOfBoundsException] thrownBy "hi" (
+        10
+      ) should have message "String index out of range: 10"
+
+      // Or capturing the exception for future use.
+      val t2 = the[IndexOutOfBoundsException] thrownBy "hi" (10)
+      t2.getMessage shouldBe "String index out of range: 10"
+    }
+
+    it("can be asserted to not happen") {
+      noException should be thrownBy "hi" (0)
+    }
   }
 
   describe("String matchers") {
