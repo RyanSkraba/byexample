@@ -14,9 +14,14 @@ class BasicFunSpec extends AnyFunSpecLike with Matchers {
       val reused = true
       it("permits you to organise your unit tests") {
         assert(reused)
+        assert(reused, "A custom error messages")
+        assertResult(3)(1 + 2)
+        assertThrows[StringIndexOutOfBoundsException]("hi" (10))
       }
       it("organises unit tests carefully") {
-        reused should not be false
+        withClue("using a clue") {
+          reused should not be false
+        }
       }
       for (x <- 1 to 10) {
         it(s"allows creating a scope for tests $x") {
@@ -26,13 +31,23 @@ class BasicFunSpec extends AnyFunSpecLike with Matchers {
     }
 
     ignore("can be ignored by changing the keyword") {
-      val reused = false
       it("so this failing test isn't used") {
-        assert(reused)
+        fail("I never get here")
       }
       it("or this one") {
-        reused should not be false
+        fail("I never get here")
       }
+    }
+  }
+
+  describe("Controlling scenarios") {
+    val condition = false
+    it("can stop") {
+      assume(condition)
+      fail("This test was not actually run.")
+    }
+    it("can have cancelled tests") {
+      if (!condition) cancel("I don't really fail")
     }
   }
 }
