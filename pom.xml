@@ -82,7 +82,7 @@
           </configuration>
         </plugin>
 
-        <!-- Shaded fat jar with all dependencies -->
+        <!-- Shaded uber jar with all dependencies -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-shade-plugin</artifactId>

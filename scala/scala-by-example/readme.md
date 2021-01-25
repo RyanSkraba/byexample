@@ -34,7 +34,7 @@ that does a simple hello world mixing Java and Scala code.
 
 ```bash
 mvn package
-# Using the fat jar
+# Using the uber jar
 alias ScalaGo='java -jar '$(pwd)'/target/scala-by-example-*-SNAPSHOT.jar'
 ScalaGo --help
 # Using the maven-generated classpath
