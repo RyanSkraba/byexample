@@ -17,7 +17,7 @@ that does a simple hello world mixing Java and Scala code.
 
 ```bash
 mvn package
-# Using the fat jar
+# Using the uber jar
 alias ScalatagsGo='java -jar '$(pwd)'/target/scalatags-by-example-*-SNAPSHOT.jar'
 ScalatagsGo --help
 # Using the maven-generated classpath

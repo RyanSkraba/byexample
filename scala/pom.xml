@@ -18,7 +18,6 @@
     <!-- skip the deployment for aggregators, not necessary.  Needs to be flipped to false
      for project with artifacts. -->
     <maven.deploy.skip>true</maven.deploy.skip>
-    <scalafmt.conf.path>${project.basedir}/../../.scalafmt.conf</scalafmt.conf.path>
   </properties>
 
   <build>
