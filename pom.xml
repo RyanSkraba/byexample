@@ -267,6 +267,7 @@
   </dependencies>
 
   <modules>
+    <module>benchmarking</module>
     <module>scala</module>
   </modules>
 
