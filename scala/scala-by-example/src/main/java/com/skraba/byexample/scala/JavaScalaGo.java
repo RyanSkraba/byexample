@@ -7,20 +7,20 @@ import org.docopt.Docopt;
 public class JavaScalaGo {
 
   public static final String DOC =
-      "A simple test driver written in Java for running Scala examples.\n" //
+      "A simple test driver for running Scala examples.\n" //
           + "\n" //
           + "Usage:\n" //
           + "  JavaScalaGo [--scala] [--name=NAME] [--count=COUNT]\n" //
           + "\n" //
           + "Options:\n" //
-          + "  -h --help          Show this screen.\n" //
-          + "  --version          Show version.\n" //
-          + "  --scala            If present, uses the scala code to store the name and count.\n" //
-          + "  --name=NAME        The user's name.\n" //
-          + "  --count=COUNT      The number of The times to say hello [default: 10]\n" //
+          + "  -h --help       Show this screen.\n" //
+          + "  --version       Show version.\n" //
+          + "  --scala         If present, uses the scala code to store the name\n"
+          + "                  and count.\n" //
+          + "  --name=NAME     The user's name.\n" //
+          + "  --count=COUNT   The number of The times to say hello [default: 10]\n" //
           + "\n" //
-          + "Says hello.\n" //
-          + "\n"; //
+          + "Says hello."; //
 
   /** The java bean being used for the greeting. */
   private final GreeterBean javaGreeter;
