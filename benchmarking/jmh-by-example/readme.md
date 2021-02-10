@@ -13,6 +13,15 @@ Resources
 * [Online result visualizer](https://jmh.morethan.io) ([jzillmann/jmh-visualizer](https://github.com/jzillmann/jmh-visualizer)) Very pretty UI for visualizing jmh reports.
 
 
+JMH Options (`JmhGo -h`)
+-----------
+
+Option       | Explanation 
+---          | --- 
+`-bm <mode>` | **Benchmark mode** (default: `Throughput`): <ul><li>`Throughput`/`thrpt`</li><li>`AverageTime`/`avgt`</li><li>`SampleTime`/`sample`</li><li>`SingleShotTime`/`ss`</li><li>`All`/`all`.</li></ul>
+`-tu <TU>`   | **Time units** (default: `s`): `m`, `s`, `ms`, `us`, `ns`
+
+
 Running the benchmark
 ---------------------
 
@@ -25,8 +34,10 @@ alias JmhGo='java -jar '$(pwd)'/target/jmh-by-example-*-SNAPSHOT.jar'
 # Get help on the tool.
 JmhGo --h
 
-# Test one of the benchmark methods (using a regex)
-JmhGo -f 1 -wi 0 -i 1 -tu ns HashBenchmark.hash
+# Sanity check on the hash benchmarks
+# benchmark mode: single shot
+# time unit: nanoseconds
+JmhGo -bm ss -tu ns HashBenchmark.hash
 
 # Run the whole benchmark in three processes, with 4 warmups and 5 iterations
 JmhGo -f 3 -wi 4 -i 5 -bm Throughput,AverageTime -tu ns
