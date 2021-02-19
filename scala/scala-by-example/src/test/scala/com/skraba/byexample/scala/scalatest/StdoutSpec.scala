@@ -50,7 +50,6 @@ object StdoutSpec {
     for (x <- args.grouped(2)) {
       Console.out.println(x.head)
       Console.err.println(x.tail.mkString)
-
     }
   }
 
