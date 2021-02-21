@@ -18,6 +18,8 @@ that can be used to demonstrate some SVG generation tools.
 ```bash
 mvn package
 # Using the uber jar
-alias ScalatagsGo='java -jar '$(pwd)'/target/scalatags-by-example-*-SNAPSHOT.jar'
-ScalatagsGo --help
+alias byexample_go_scalatags='java -jar '$(pwd)'/target/scalatags-by-example-*-SNAPSHOT.jar'
+byexample_go_scalatags --help
+
+# 
 ```

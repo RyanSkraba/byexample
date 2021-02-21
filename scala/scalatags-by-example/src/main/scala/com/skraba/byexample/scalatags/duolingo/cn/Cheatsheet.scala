@@ -32,7 +32,7 @@ object Cheatsheet {
 
   /** Memo of vowels with tone markings (from tone 1 to tone 4). */
   private[this] val ToneVowels: Seq[String] =
-    Seq("āēīōū", "áéíóú", "ǎěǐǒǔúǚ", "àìèòùǜ")
+    Seq("āēīōū", "áéíóú", "ǎěǐǒǔǚ", "àìèòùǜ")
 
   /** Memo map from tone-marked vowel to its tone. */
   private[this] lazy val Tones: Map[Char, Int] = {
@@ -133,7 +133,7 @@ object Cheatsheet {
   /** @return The TSV contents of the Duolingo classes.
     */
   private[this] def contents(): Seq[String] = {
-    val cached = File("/tmp/anki-deck-for-duolingo-chinese_words.tsv")
+    val cached = File("/tmp/duolingo-chinese-words-anki-deck.tsv")
     cached
       .safeSlurp()
       .getOrElse {
