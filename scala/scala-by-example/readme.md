@@ -36,8 +36,8 @@ that does a simple hello world mixing Java and Scala code.
 ```bash
 mvn package
 # Using the uber jar
-alias ScalaGo='java -jar '$(pwd)'/target/scala-by-example-*-SNAPSHOT.jar'
-ScalaGo --help
+alias byexample_go_scala='java -jar '$(pwd)'/target/scala-by-example-*-SNAPSHOT.jar'
+byexample_go_scala --help
 # Using the maven-generated classpath
 mvn exec:java -Dexec.args="--name=World --count=7"
 mvn exec:java -Dexec.mainClass="com.skraba.byexample.scala.ScalaGo" -Dexec.args="--name=world --count=7" 
