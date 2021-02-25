@@ -3,6 +3,8 @@ package com.skraba.byexample.scalatags
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
+import scala.xml.XML
+
 class BasicSpec extends AnyFunSpecLike with Matchers {
 
   describe("Creating HTML documents") {
@@ -149,12 +151,23 @@ class BasicSpec extends AnyFunSpecLike with Matchers {
           |<line x1="0" y1="0" x2="100" y2="100"></line>
           |</svg>""".stripMargin.replaceAll("\n", "")
 
-      val svg3 = svg2(path(d := "M0 100 L100 0 L100 100 Z"))
+      val svg3 = svg2("    ", path(d := "M0 100 L100 0 L100 100 Z"))
       svg3.render shouldBe
         """<svg height="100" width="100">
           |<line x1="0" y1="0" x2="100" y2="100"></line>
-          |<path d="M0 100 L100 0 L100 100 Z"></path>
+          |    <path d="M0 100 L100 0 L100 100 Z"></path>
           |</svg>""".stripMargin.replaceAll("\n", "")
+
+      // You can't read it back into a scalatag, but you can read it into XML
+      val xmlNode = XML.loadString(svg3.render)
+      xmlNode.label shouldBe "svg"
+      xmlNode.attributes("height").toString shouldBe "100"
+      xmlNode.child.size shouldBe 3
+      xmlNode.child.head.label shouldBe "line"
+      xmlNode.child(1).label shouldBe "#PCDATA"
+      xmlNode.child(1).toString shouldBe "    "
+      xmlNode.child(2).label shouldBe "path"
+      xmlNode.child.filterNot (_.toString.trim == "").size shouldBe 2
     }
 
     it("should be styleable") {
