@@ -21,5 +21,11 @@ mvn package
 alias byexample_go_scalatags='java -jar '$(pwd)'/target/scalatags-by-example-*-SNAPSHOT.jar'
 byexample_go_scalatags --help
 
-# 
+# Dump Duolingo Chinese section 3 vocabulary into a cheatsheet.
+byexample_go_scalatags cheatsheet --section 3 > /tmp/section3.svg 
 ```
+
+Future work (TODO)
+==================
+
+Unit tests for `cheatsheet` make web calls to fetch duolingo vocabulary.
