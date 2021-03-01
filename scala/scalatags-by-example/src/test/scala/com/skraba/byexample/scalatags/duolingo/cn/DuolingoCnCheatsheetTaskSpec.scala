@@ -32,7 +32,7 @@ class DuolingoCnCheatsheetTaskSpec extends AnyFunSpecLike with Matchers {
           svg.label shouldBe "svg"
           svg.child.size shouldBe 1
           svg.child.head.label shouldBe "g"
-          svg.child.head.child.size  shouldBe 1500
+          svg.child.head.child.size shouldBe 1500
       }
     }
 
@@ -44,21 +44,30 @@ class DuolingoCnCheatsheetTaskSpec extends AnyFunSpecLike with Matchers {
           svg.label shouldBe "svg"
           svg.child.size shouldBe 1
           svg.child.head.label shouldBe "g"
-          svg.child.head.child.size  shouldBe 242
+          svg.child.head.child.size shouldBe 242
       }
     }
 
-    it("should filter on individual word") {
-      withScalatagsGoMatch(DuolingoCnCheatsheetTask.Cmd, "--section=3") {
+    it("should filter on individual words") {
+      withScalatagsGoMatch(DuolingoCnCheatsheetTask.Cmd, "--word=一二三") {
         case (stdout, stderr) =>
           stderr shouldBe ""
           val svg = XML.loadString(stdout)
           svg.label shouldBe "svg"
           svg.child.size shouldBe 1
           svg.child.head.label shouldBe "g"
-          svg.child.head.child.size  shouldBe 242
+          svg.child.head.child.size shouldBe 3
+      }
+      // Comma-delimit some matches.
+      withScalatagsGoMatch(DuolingoCnCheatsheetTask.Cmd, "--word=不客气,对不起,没关系") {
+        case (stdout, stderr) =>
+          stderr shouldBe ""
+          val svg = XML.loadString(stdout)
+          svg.label shouldBe "svg"
+          svg.child.size shouldBe 1
+          svg.child.head.label shouldBe "g"
+          svg.child.head.child.size shouldBe 3
       }
     }
-
   }
 }
