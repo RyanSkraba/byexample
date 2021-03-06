@@ -167,7 +167,7 @@ class BasicSpec extends AnyFunSpecLike with Matchers {
       xmlNode.child(1).label shouldBe "#PCDATA"
       xmlNode.child(1).toString shouldBe "    "
       xmlNode.child(2).label shouldBe "path"
-      xmlNode.child.filterNot (_.toString.trim == "").size shouldBe 2
+      xmlNode.child.filterNot(_.toString.trim == "").size shouldBe 2
     }
 
     it("should be styleable") {
