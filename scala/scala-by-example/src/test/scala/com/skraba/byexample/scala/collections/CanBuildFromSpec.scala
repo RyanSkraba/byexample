@@ -39,7 +39,7 @@ class CanBuildFromSpec extends AnyFunSpecLike with Matchers {
     *
     * @param dlg Delegate all of the actual logic here (but we'd probably actually want some custom logic).
     */
-  case class MagicList(dlg: Seq[Boolean] = Seq.empty) extends Seq[Boolean] {
+  case class MagicList(private val dlg: Boolean*) extends Seq[Boolean] {
     override def apply(idx: Int): Boolean = dlg(idx)
 
     override def length: Int = dlg.length
@@ -50,7 +50,7 @@ class CanBuildFromSpec extends AnyFunSpecLike with Matchers {
   describe("MagicList") {
 
     it("looks like a Seq but doesn't have the same magic.") {
-      val orig: MagicList = MagicList(Seq(true, false, true))
+      val orig: MagicList = MagicList(true, false, true)
       "val x: Seq[Boolean] = orig" should compile
 
       // So you can map it to a sequence of integers.
@@ -77,21 +77,20 @@ class CanBuildFromSpec extends AnyFunSpecLike with Matchers {
           override def apply(): mutable.Builder[Boolean, MagicList] =
             new mutable.LazyBuilder[Boolean, MagicList] {
               override def result(): MagicList =
-                MagicList(parts.flatMap(_.toSeq))
-
+                MagicList(parts.flatMap(_.toSeq): _*)
             }
         }
 
-      val orig: MagicList = MagicList(Seq(true, false, true))
+      val orig: MagicList = MagicList(true, false, true)
       "val x: Seq[Boolean] = orig" should compile
 
       // This used to fail
-      orig.map(!_) shouldBe MagicList(Seq(false, true, false))
+      orig.map(!_) shouldBe MagicList(false, true, false)
 
       // MagicList can be used magically!
-      orig ++ orig shouldBe MagicList(Seq(true, false, true, true, false, true))
-      orig :+ false shouldBe MagicList(Seq(true, false, true, false))
-      false +: orig shouldBe MagicList(Seq(false, true, false, true))
+      orig ++ orig shouldBe MagicList(true, false, true, true, false, true)
+      orig :+ false shouldBe MagicList(true, false, true, false)
+      false +: orig shouldBe MagicList(false, true, false, true)
 
       // Because there's now a way to build it.
       "implicitly[CanBuildFrom[MagicList, Boolean, MagicList]]" should compile
