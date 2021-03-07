@@ -13,7 +13,7 @@ import scala.util.matching.Regex
 case class Markd(
     title: String,
     text: String = "",
-    sub: Seq[(String, Markd)] = Seq(),
+    sub: Seq[Markd] = Seq(),
     linkRefs: Seq[String] = Seq()
 ) {
 
@@ -32,8 +32,8 @@ case class Markd(
     if (text != "")
       sb ++= s"$text\n\n"
 
-    for ((title, sectionMd) <- sub) {
-      sb ++= s"${createTitle(title)}\n\n"
+    for (sectionMd <- sub) {
+      sb ++= s"${createTitle(sectionMd.title)}\n\n"
       sectionMd.build(sb)
     }
 
@@ -117,7 +117,7 @@ object Markd {
             Markd(
               title = title,
               sub = Seq(
-                subTitle -> Markd.parse(
+                Markd.parse(
                   title = subTitle,
                   contents = subContents,
                   sectionSplitter = SectionH2
