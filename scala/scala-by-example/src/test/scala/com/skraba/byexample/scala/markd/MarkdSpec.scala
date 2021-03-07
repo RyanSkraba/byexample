@@ -31,14 +31,14 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       md.title shouldBe ""
       md.text shouldBe ""
       md.sub should have size 2
-      md.sub.head._2.title shouldBe "English"
-      md.sub.head._2.text shouldBe "Hello world"
-      md.sub.head._2.sub shouldBe Seq.empty
-      md.sub.head._2.linkRefs shouldBe Seq.empty
-      md.sub(1)._2.title shouldBe "French"
-      md.sub(1)._2.text shouldBe "Bonjour tout le monde"
-      md.sub(1)._2.sub shouldBe Seq.empty
-      md.sub(1)._2.linkRefs shouldBe Seq.empty
+      md.sub.head.title shouldBe "English"
+      md.sub.head.text shouldBe "Hello world"
+      md.sub.head.sub shouldBe Seq.empty
+      md.sub.head.linkRefs shouldBe Seq.empty
+      md.sub(1).title shouldBe "French"
+      md.sub(1).text shouldBe "Bonjour tout le monde"
+      md.sub(1).sub shouldBe Seq.empty
+      md.sub(1).linkRefs shouldBe Seq.empty
       md.linkRefs shouldBe Seq.empty
 
       val cleaned = md.build(createTitle = Markd.SectionH1Title).toString
