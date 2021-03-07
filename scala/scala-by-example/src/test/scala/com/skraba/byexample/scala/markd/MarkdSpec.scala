@@ -24,8 +24,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |English
           |===
           |Hello world
-          |French
-          |===
+          |# French
           |Bonjour tout le monde""".stripMargin
 
       val md = Markd.parse("", contents)

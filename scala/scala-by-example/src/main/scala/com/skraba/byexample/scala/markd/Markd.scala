@@ -48,11 +48,27 @@ object Markd {
 
   /** Regex used to split H1 sections. */
   val SectionH1: Regex = raw"""(?x)
-         (?=((^|\n)(?<title>.+)\n(===+\n)))
-         """.r
+          (?=(^|\n)                    # Lookahead
+            (
+              (?<title1>[^\n]+)\n       # Multiline header
+              (===+)
+            |
+              \#\s+(?<title2>[^\n]+)   # or single line header
+            )
+            (\n))
+         """.r("", "", "title1", "", "title2")
 
   /** Regex used to split H2 sections. */
-  val SectionH2: Regex = raw"(?=((^|\n)(?<title>.+)\n(---+\n)))".r
+  val SectionH2: Regex = raw"""(?x)
+          (?=(^|\n)                    # Lookahead
+            (
+              (?<title1>[^\n]+)\n       # Multiline header
+              (---+)
+            |
+              \#\#\s+(?<title2>[^\n]+)   # or single line header
+            )
+            (\n))
+         """.r("", "", "title1", "", "title2")
 
   /** The divider we want to use to generate H1 titles. */
   val SectionH1Title: String => String = title => title + "\n" + "=" * 78
@@ -87,14 +103,23 @@ object Markd {
       .split(prelinks.reverse.mkString("\n"))
       .map { text =>
         sectionSplitter.findPrefixMatchOf(text) match {
-          case None => Markd(title = title, text = text.trim())
+          case None       => Markd(title = title, text = text.trim())
           case Some(sect) =>
+            // The title is the first non-null named group starting with title
+            val subTitle = sect.groupNames
+              .filter(_.startsWith("title"))
+              .sorted
+              .find(sect.group(_) != null)
+              .map(sect.group)
+              .getOrElse("")
+            val lastMatchedGroup = 1 + sect.subgroups.lastIndexWhere(_ != null)
+            val subContents = sect.after(lastMatchedGroup).toString.trim()
             Markd(
               title = title,
               sub = Seq(
-                sect.group("title").trim() -> Markd.parse(
-                  sect.group("title").trim(),
-                  contents = sect.after(4).toString.trim(),
+                subTitle -> Markd.parse(
+                  title = subTitle,
+                  contents = subContents,
                   sectionSplitter = SectionH2
                 )
               )
