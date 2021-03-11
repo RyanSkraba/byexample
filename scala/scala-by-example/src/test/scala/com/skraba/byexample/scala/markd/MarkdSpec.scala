@@ -56,5 +56,62 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |""".stripMargin
       Markd.parse("", cleaned) shouldBe md
     }
+
+    it("should separate into headers and links") {
+      val contents = """
+          |outside
+          |# h1
+          |h1txt
+          |## header1a
+          |h1atxt
+          |## header1b
+          |h1btxt
+          |# header2
+          |h2txt
+          |## header2a
+          |h2atxt
+          |## header2b
+          |h2btxt
+          |""".stripMargin
+
+      val md = Markd.parse("", contents)
+
+      val cleaned = md.build(createTitle = Markd.SectionH1Title).toString
+      cleaned shouldBe
+        """outside
+          |
+          |h1
+          |==============================================================================
+          |
+          |h1txt
+          |
+          |header1a
+          |------------------------------------------------------------------------------
+          |
+          |h1atxt
+          |
+          |header1b
+          |------------------------------------------------------------------------------
+          |
+          |h1btxt
+          |
+          |header2
+          |==============================================================================
+          |
+          |h2txt
+          |
+          |header2a
+          |------------------------------------------------------------------------------
+          |
+          |h2atxt
+          |
+          |header2b
+          |------------------------------------------------------------------------------
+          |
+          |h2btxt
+          |
+          |""".stripMargin
+      Markd.parse("", cleaned) shouldBe md
+    }
   }
 }
