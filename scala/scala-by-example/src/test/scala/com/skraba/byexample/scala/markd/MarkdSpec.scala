@@ -60,18 +60,22 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
     it("should separate into headers and links") {
       val contents = """
           |outside
+          |[refout]: https://www.refout.com
           |# h1
           |h1txt
           |## header1a
           |h1atxt
+          |[ref1a]: https://www.ref1a.com
           |## header1b
           |h1btxt
           |# header2
           |h2txt
+          |[ref2]: https://www.ref2.com
           |## header2a
           |h2atxt
           |## header2b
           |h2btxt
+          |[ref2b]: https://www.ref2b.com
           |""".stripMargin
 
       val md = Markd.parse("", contents)
@@ -79,6 +83,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       val cleaned = md.build(createTitle = Markd.SectionH1Title).toString
       cleaned shouldBe
         """outside
+          |[refout]: https://www.refout.com
           |
           |h1
           |==============================================================================
@@ -90,6 +95,8 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |
           |h1atxt
           |
+          |[ref1a]: https://www.ref1a.com
+          |
           |header1b
           |------------------------------------------------------------------------------
           |
@@ -99,6 +106,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |==============================================================================
           |
           |h2txt
+          |[ref2]: https://www.ref2.com
           |
           |header2a
           |------------------------------------------------------------------------------
@@ -109,6 +117,8 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |------------------------------------------------------------------------------
           |
           |h2btxt
+          |
+          |[ref2b]: https://www.ref2b.com
           |
           |""".stripMargin
       Markd.parse("", cleaned) shouldBe md
