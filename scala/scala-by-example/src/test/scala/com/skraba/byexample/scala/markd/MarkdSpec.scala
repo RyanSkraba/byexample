@@ -9,14 +9,17 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
 
   describe("Parsing markdown contents") {
 
-    it("should just wrap simple contents") {
+    it("should just wrap simple contents in a Paragraph") {
       val contents = "Hello world"
 
-      val md = Markd.parse("", contents)
-      md.title shouldBe ""
-      md.text shouldBe "Hello world"
-      md.sub shouldBe Seq.empty
-      md.linkRefs shouldBe Seq.empty
+      val md = Markd.parse(contents)
+      md shouldBe Paragraph("Hello world")
+
+      val cleaned = md.build().toString
+      cleaned shouldBe
+        """Hello world
+          |""".stripMargin
+      Markd.parse(cleaned) shouldBe md
     }
 
     it("should separate into level 1 headers") {
@@ -27,21 +30,9 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |# French
           |Bonjour tout le monde""".stripMargin
 
-      val md = Markd.parse("", contents)
-      md.title shouldBe ""
-      md.text shouldBe ""
-      md.sub should have size 2
-      md.sub.head.title shouldBe "English"
-      md.sub.head.text shouldBe "Hello world"
-      md.sub.head.sub shouldBe Seq.empty
-      md.sub.head.linkRefs shouldBe Seq.empty
-      md.sub(1).title shouldBe "French"
-      md.sub(1).text shouldBe "Bonjour tout le monde"
-      md.sub(1).sub shouldBe Seq.empty
-      md.sub(1).linkRefs shouldBe Seq.empty
-      md.linkRefs shouldBe Seq.empty
+      val md = Markd.parse(contents)
 
-      val cleaned = md.build(createTitle = Markd.SectionH1Title).toString
+      val cleaned = md.build().toString
       cleaned shouldBe
         """English
           |==============================================================================
@@ -52,22 +43,23 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |==============================================================================
           |
           |Bonjour tout le monde
-          |
           |""".stripMargin
-      Markd.parse("", cleaned) shouldBe md
+      Markd.parse(cleaned) shouldBe md
     }
 
     it("should separate into headers and links") {
       val contents = """
           |outside
           |[refout]: https://www.refout.com
-          |# h1
+          |# header1
           |h1txt
           |## header1a
           |h1atxt
           |[ref1a]: https://www.ref1a.com
           |## header1b
           |h1btxt
+          |### header1b1
+          |h1b1txt
           |# header2
           |h2txt
           |[ref2]: https://www.ref2.com
@@ -78,14 +70,14 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |[ref2b]: https://www.ref2b.com
           |""".stripMargin
 
-      val md = Markd.parse("", contents)
+      val md = Markd.parse(contents)
 
-      val cleaned = md.build(createTitle = Markd.SectionH1Title).toString
+      val cleaned = md.build().toString
       cleaned shouldBe
         """outside
           |[refout]: https://www.refout.com
           |
-          |h1
+          |header1
           |==============================================================================
           |
           |h1txt
@@ -94,13 +86,16 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |------------------------------------------------------------------------------
           |
           |h1atxt
-          |
           |[ref1a]: https://www.ref1a.com
           |
           |header1b
           |------------------------------------------------------------------------------
           |
           |h1btxt
+          |
+          |### header1b1
+          |
+          |h1b1txt
           |
           |header2
           |==============================================================================
@@ -117,11 +112,9 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |------------------------------------------------------------------------------
           |
           |h2btxt
-          |
           |[ref2b]: https://www.ref2b.com
-          |
           |""".stripMargin
-      Markd.parse("", cleaned) shouldBe md
+      Markd.parse(cleaned) shouldBe md
     }
   }
 }
