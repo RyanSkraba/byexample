@@ -46,6 +46,7 @@ case class Paragraph(content: String) extends Markd {
 case class LinkRef(ref: String, url: String, title: String = "") extends Markd
 
 object LinkRef {
+
   /** Regex used to find link references. */
   val LinkRegex: Regex = raw"\s*\[([^\]]+)]:\s*(.*)".r
 
@@ -145,6 +146,7 @@ object Header {
   * @param text The text included in this snippet.
   * @param sub The sub-snippets that might be included inside this one.
   * @param linkRefs Any markdown link references at the end of the section.
+  * @deprecated moving this logic to Markd
   */
 case class Markdo(
     title: String,
