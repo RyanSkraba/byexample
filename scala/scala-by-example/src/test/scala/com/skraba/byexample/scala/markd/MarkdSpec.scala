@@ -12,14 +12,14 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
     it("should just wrap simple contents in a Paragraph") {
       val contents = "Hello world"
 
-      val md = Markd.parse(contents)
-      md shouldBe Paragraph("Hello world")
+      val md = Header.parse(contents)
+      md shouldBe Header(0, "", Seq(Paragraph("Hello world")))
 
       val cleaned = md.build().toString
       cleaned shouldBe
         """Hello world
           |""".stripMargin
-      Markd.parse(cleaned) shouldBe md
+      Header.parse(cleaned) shouldBe md
     }
 
     it("should separate into level 1 headers") {
@@ -30,7 +30,8 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |# French
           |Bonjour tout le monde""".stripMargin
 
-      val md = Markd.parse(contents)
+      val md = Header.parse(contents)
+      md.sub should have size 2
 
       val cleaned = md.build().toString
       cleaned shouldBe
@@ -44,7 +45,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |
           |Bonjour tout le monde
           |""".stripMargin
-      Markd.parse(cleaned) shouldBe md
+      Header.parse(cleaned) shouldBe md
     }
 
     it("should separate into headers and links") {
@@ -70,7 +71,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |[ref2b]: https://www.ref2b.com
           |""".stripMargin
 
-      val md = Markd.parse(contents)
+      val md = Header.parse(contents)
 
       val cleaned = md.build().toString
       cleaned shouldBe
@@ -114,7 +115,45 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |h2btxt
           |[ref2b]: https://www.ref2b.com
           |""".stripMargin
-      Markd.parse(cleaned) shouldBe md
+      Header.parse(cleaned) shouldBe md
+
+      md.sub should have size 3
+      md.sub.head shouldBe Paragraph(
+        "outside\n[refout]: https://www.refout.com"
+      )
+      md.sub(1) shouldBe a[Header]
+      md.sub(2) shouldBe a[Header]
+      val h1 = md.sub(1).asInstanceOf[Header]
+      val h2 = md.sub(2).asInstanceOf[Header]
+
+      h1.sub should have size 3
+      h1.sub.head shouldBe Paragraph("h1txt")
+      h1.sub(1) shouldBe a[Header]
+      h1.sub(2) shouldBe a[Header]
+      h1.sub(1) shouldBe Header(
+        2,
+        "header1a",
+        Seq(Paragraph("h1atxt\n[ref1a]: https://www.ref1a.com"))
+      )
+      h1.sub(2) shouldBe Header(
+        2,
+        "header1b",
+        Seq(
+          Paragraph("h1btxt"),
+          Header(3, "header1b1", Seq(Paragraph("h1b1txt")))
+        )
+      )
+
+      h2.sub should have size 3
+      h2.sub.head shouldBe Paragraph("h2txt\n[ref2]: https://www.ref2.com")
+      h2.sub(1) shouldBe a[Header]
+      h2.sub(2) shouldBe a[Header]
+      h2.sub(1) shouldBe Header(2, "header2a", Seq(Paragraph("h2atxt")))
+      h2.sub(2) shouldBe Header(
+        2,
+        "header2b",
+        Seq(Paragraph("h2btxt\n[ref2b]: https://www.ref2b.com"))
+      )
     }
   }
 }
