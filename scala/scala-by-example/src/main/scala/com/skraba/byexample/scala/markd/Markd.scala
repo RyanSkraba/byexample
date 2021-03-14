@@ -78,7 +78,7 @@ object LinkRef {
   * @param title The title of the section
   * @param sub The internal subsections and parsed [[Markd]] elements.
   */
-case class Header(level: Int, title: String, sub: Seq[Markd])
+case class Header(title: String, level: Int, sub: Seq[Markd])
     extends MultiMarkd {
 
   override def build(sb: StringBuilder = new StringBuilder()): StringBuilder = {
@@ -117,6 +117,9 @@ object Header {
     "title_sl"
   )
 
+  def apply(level: Int, title: String, sub: Markd*): Header =
+    Header(title, level, sub.toSeq)
+
   /** Extract the level and title from a matching header. */
   private[this] def getHeaderLevelAndTitle(m: Regex.Match): (Int, String) = {
     if (Option(m.group("title_ml")).isDefined)
@@ -137,32 +140,31 @@ object Header {
             val (level, title) = getHeaderLevelAndTitle(m)
             val lastMatchedGroup = 1 + m.subgroups.lastIndexWhere(_ != null)
             val headerContents = m.after(lastMatchedGroup).toString.trim
-            Seq(Header(level, title, Seq.empty), Paragraph(headerContents))
+            Seq(Header(level, title), Paragraph(headerContents))
         }
       }
 
     // Recursive function that makes the flat list into a tree.
     def treeify(node: Header, flat: Seq[Markd]): (Header, Seq[Markd]) =
-      (node, flat.headOption) match {
+      flat.headOption match {
         // If the next element in the list is a sub-section (i.e. greater level)
-        case (md: Header, Some(next: Header)) if next.level > md.level => {
+        case Some(next: Header) if next.level > node.level => {
           // then the sub-section should be treeified, using as many elements as necessary from
           // the list.
           val (subsection, flatRemainder) = treeify(next, flat.tail)
           // Add the subsection to this node, and continue to treeify this node with the rest.
-          treeify(md.copy(sub = md.sub :+ subsection), flatRemainder)
+          treeify(node.copy(sub = node.sub :+ subsection), flatRemainder)
         }
         // If the next element in the list is a section of the same or lower level,
         // then just return, and it can be added to the current node's parent.
-        case (md: Header, Some(_: Header)) => (node, flat)
+        case Some(_: Header) => (node, flat)
         // If the next element in the list is any other Markd, then just add it to this node.
-        case (md: Header, Some(next)) =>
-          treeify(md.copy(sub = md.sub :+ next), flat.tail)
+        case Some(next) => treeify(node.copy(sub = node.sub :+ next), flat.tail)
         // Otherwise processing is complete.
-        case (_, None) => (node, Seq.empty)
+        case _ => (node, Seq.empty)
       }
 
-    treeify(Header(0, "", Seq.empty), flat)._1
+    treeify(Header(0, ""), flat)._1
   }
 }
 
