@@ -1,21 +1,12 @@
 package com.skraba.byexample.scala.markd
 
-import com.skraba.byexample.scala.markd.Markdo.SectionH2
-
 import scala.util.matching.Regex
 
-/** Base class for all supported Markd types. */
+/** Markd is a hierarchical snippet of text that can be used to parse, modify and write some
+  * simple markdown files.
+  */
 trait Markd {
   def build(sb: StringBuilder = new StringBuilder()): StringBuilder = sb
-}
-
-object Markd {
-  def parse(content: String): Markd = {
-    Header.splitIntoHeaders(content) match {
-      case Seq(p: Paragraph) => p
-      case s                 => Doc(s)
-    }
-  }
 }
 
 trait MultiMarkd extends Markd {
@@ -23,10 +14,12 @@ trait MultiMarkd extends Markd {
 
   override def build(sb: StringBuilder = new StringBuilder()): StringBuilder = {
     super.build(sb)
-    sub.headOption.map(_.build(sb))
-    for (md <- sub.tail) {
-      sb ++= "\n"
-      md.build(sb)
+    if (sub.nonEmpty) {
+      sub.headOption.map(_.build(sb))
+      for (md <- sub.tail) {
+        sb ++= "\n"
+        md.build(sb)
+      }
     }
     sb
   }
@@ -43,7 +36,22 @@ case class Paragraph(content: String) extends Markd {
   }
 }
 
-case class LinkRef(ref: String, url: String, title: String = "") extends Markd
+/** A link reference.
+  *
+  * [ref]: https://link.url "Optional description"
+  *
+  * @param ref the markdown tag used to reference the link
+  * @param url the url that is being linked to
+  * @param title optionally a title or description of the link for hover text
+  */
+case class LinkRef(ref: String, url: String, title: String = "") extends Markd {
+  override def build(sb: StringBuilder = new StringBuilder()): StringBuilder = {
+    sb ++= "[" ++= ref ++= "]:"
+    if (url.nonEmpty) sb ++= " " ++= url
+    if (title.nonEmpty) sb += '"' ++= ref += '"'
+    sb ++= "\n"
+  }
+}
 
 object LinkRef {
 
@@ -57,12 +65,7 @@ object LinkRef {
   val GithubPrLinkRegex: Regex = raw"\s*\[(\S+)\s+PR#(\d+)\]:\s*(.*)".r
 }
 
-/** A document just a collection of elements.
-  * @param sub The internal subsections and parsed [[Markd]] elements.
-  */
-case class Doc(sub: Seq[Markd]) extends MultiMarkd {}
-
-/** Markdown header section
+/** Markdown header or section.
   *
   * # Header 1
   *
@@ -71,7 +74,7 @@ case class Doc(sub: Seq[Markd]) extends MultiMarkd {}
   *
   * ### Header 3
   *
-  * @param level The level (from 1 to 9).
+  * @param level The level (from 1 to 9).  A level of 0 can be used to represent an entire document.
   * @param title The title of the section
   * @param sub The internal subsections and parsed [[Markd]] elements.
   */
@@ -80,12 +83,14 @@ case class Header(level: Int, title: String, sub: Seq[Markd])
 
   override def build(sb: StringBuilder = new StringBuilder()): StringBuilder = {
     level match {
+      case 0 => // No title section for a document.
       case 1 => sb ++= title ++= "\n" ++= "=" * 78 ++= "\n"
       case 2 => sb ++= title ++= "\n" ++= "-" * 78 ++= "\n"
       case _ => sb ++= "#" * level ++= " " ++= title ++= "\n"
     }
-    sb ++= "\n"
-
+    if (sub.nonEmpty && level > 0) {
+      sb ++= "\n"
+    }
     super.build(sb)
   }
 
@@ -120,24 +125,50 @@ object Header {
       (m.group("level_sl").length, m.group("title_sl"))
   }
 
-  /** Splits the content into Headers and Paragraphs */
-  def splitIntoHeaders(content: String): Seq[Markd] = {
-    HeaderRegex
+  /** Splits the content into sections, as a tree of headers. */
+  def parse(content: String): Header = {
+    // Split the entire contents into Markd elements as a flat list.
+    val flat: Array[Markd] = HeaderRegex
       .split(content)
-      .map { text =>
+      .flatMap { text =>
         HeaderRegex.findPrefixMatchOf(text) match {
-          case None => Paragraph(text.trim)
+          case None => Seq(Paragraph(text.trim))
           case Some(m: Regex.Match) =>
             val (level, title) = getHeaderLevelAndTitle(m)
             val lastMatchedGroup = 1 + m.subgroups.lastIndexWhere(_ != null)
             val headerContents = m.after(lastMatchedGroup).toString.trim
-            Header(level, title, Seq(Paragraph(headerContents)))
+            Seq(Header(level, title, Seq.empty), Paragraph(headerContents))
         }
       }
 
-  }
+    // Recursive function that makes the flat list into a tree.
+    def treeify(node: Header, flat: Seq[Markd]): (Header, Seq[Markd]) =
+      (node, flat.headOption) match {
+        // If the next element in the list is a sub-section (i.e. greater level)
+        case (md: Header, Some(next: Header)) if next.level > md.level => {
+          // then the sub-section should be treeified, using as many elements as necessary from
+          // the list.
+          val (subsection, flatRemainder) = treeify(next, flat.tail)
+          // Add the subsection to this node, and continue to treeify this node with the rest.
+          treeify(md.copy(sub = md.sub :+ subsection), flatRemainder)
+        }
+        // If the next element in the list is a section of the same or lower level,
+        // then just return, and it can be added to the current node's parent.
+        case (md: Header, Some(_: Header)) => (node, flat)
+        // If the next element in the list is any other Markd, then just add it to this node.
+        case (md: Header, Some(next)) =>
+          treeify(md.copy(sub = md.sub :+ next), flat.tail)
+        // Otherwise processing is complete.
+        case (_, None) => (node, Seq.empty)
+      }
 
+    treeify(Header(0, "", Seq.empty), flat)._1
+  }
 }
+
+/** ******************************************************************************
+  * OLD
+  */
 
 /** Markd is a hierarchical snippet of text that can be used to parse, modify and write some
   * simple markdown files.
