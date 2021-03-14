@@ -13,7 +13,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       val contents = "Hello world"
 
       val md = Header.parse(contents)
-      md shouldBe Header(0, "", Seq(Paragraph("Hello world")))
+      md shouldBe Header(0, "", Paragraph("Hello world"))
 
       val cleaned = md.build().toString
       cleaned shouldBe
@@ -133,26 +133,24 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       h1.sub(1) shouldBe Header(
         2,
         "header1a",
-        Seq(Paragraph("h1atxt\n[ref1a]: https://www.ref1a.com"))
+        Paragraph("h1atxt\n[ref1a]: https://www.ref1a.com")
       )
       h1.sub(2) shouldBe Header(
         2,
         "header1b",
-        Seq(
-          Paragraph("h1btxt"),
-          Header(3, "header1b1", Seq(Paragraph("h1b1txt")))
-        )
+        Paragraph("h1btxt"),
+        Header(3, "header1b1", Paragraph("h1b1txt"))
       )
 
       h2.sub should have size 3
       h2.sub.head shouldBe Paragraph("h2txt\n[ref2]: https://www.ref2.com")
       h2.sub(1) shouldBe a[Header]
       h2.sub(2) shouldBe a[Header]
-      h2.sub(1) shouldBe Header(2, "header2a", Seq(Paragraph("h2atxt")))
+      h2.sub(1) shouldBe Header(2, "header2a", Paragraph("h2atxt"))
       h2.sub(2) shouldBe Header(
         2,
         "header2b",
-        Seq(Paragraph("h2btxt\n[ref2b]: https://www.ref2b.com"))
+        Paragraph("h2btxt\n[ref2b]: https://www.ref2b.com")
       )
     }
   }
