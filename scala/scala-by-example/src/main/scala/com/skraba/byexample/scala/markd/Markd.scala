@@ -36,6 +36,13 @@ case class Paragraph(content: String) extends Markd {
   }
 }
 
+object Paragraph {
+  def parse(text: String): Seq[Markd] = {
+    if (text.isBlank) Seq()
+    else Seq(Paragraph(text.trim))
+  }
+}
+
 /** A link reference.
   *
   * [ref]: https://link.url "Optional description"
@@ -102,10 +109,10 @@ object Header {
   val HeaderRegex: Regex = raw"""(?x)
           (?=(^|\n)                           # Lookahead
             (
-              (?<title1>[^\n]+)\n             # Multiline header
+              (?<titleml>[^\n]+)\n            # Multiline header
               (===+|---+)
             |
-              (\#{1,9})\s+(?<title2>[^\n]+)   # or single line header
+              (\#{1,9})\s+(?<titlesl>[^\n]+)  # or single line header
             )
             (\n))
          """.r(
@@ -134,13 +141,13 @@ object Header {
     val flat: Array[Markd] = HeaderRegex
       .split(content)
       .flatMap { text =>
-        HeaderRegex.findPrefixMatchOf(text) match {
-          case None => Seq(Paragraph(text.trim))
+        HeaderRegex.findPrefixMatchOf(s"$text\n") match {
+          case None => Paragraph.parse(text)
           case Some(m: Regex.Match) =>
             val (level, title) = getHeaderLevelAndTitle(m)
             val lastMatchedGroup = 1 + m.subgroups.lastIndexWhere(_ != null)
-            val headerContents = m.after(lastMatchedGroup).toString.trim
-            Seq(Header(level, title), Paragraph(headerContents))
+            val headerContents = m.after(lastMatchedGroup).toString
+            Header(level, title) +: Paragraph.parse(headerContents)
         }
       }
 

@@ -7,9 +7,9 @@ import org.scalatest.matchers.should.Matchers
   */
 class MarkdSpec extends AnyFunSpecLike with Matchers {
 
-  describe("Parsing markdown contents") {
+  describe("Parsing markdown into sections") {
 
-    it("should just wrap simple contents in a Paragraph") {
+    it("should just wrap in a Paragraph if there are none") {
       val contents = "Hello world"
 
       val md = Header.parse(contents)
@@ -44,6 +44,36 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |==============================================================================
           |
           |Bonjour tout le monde
+          |""".stripMargin
+      Header.parse(cleaned) shouldBe md
+    }
+
+    it("should nicely nest sections ") {
+      val contents = """
+          |### Three
+          |## Two
+          |# One
+          |## Two
+          |### Three
+          |""".stripMargin
+
+      val md = Header.parse(contents)
+      md.sub should have size 3
+
+      val cleaned = md.build().toString
+      cleaned shouldBe
+        """### Three
+          |
+          |Two
+          |------------------------------------------------------------------------------
+          |
+          |One
+          |==============================================================================
+          |
+          |Two
+          |------------------------------------------------------------------------------
+          |
+          |### Three
           |""".stripMargin
       Header.parse(cleaned) shouldBe md
     }
@@ -152,6 +182,20 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         "header2b",
         Paragraph("h2btxt\n[ref2b]: https://www.ref2b.com")
       )
+    }
+  }
+
+  describe("Parsing a paragraph") {
+
+    it("should be empty if there aren't any contents") {
+      val contents = "     \t\n\n"
+
+      val md = Header.parse(contents)
+      md shouldBe Header(0, "")
+
+      val cleaned = md.build().toString
+      cleaned shouldBe ""
+      Header.parse(cleaned) shouldBe md
     }
   }
 }
