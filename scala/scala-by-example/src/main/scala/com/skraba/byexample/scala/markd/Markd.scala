@@ -4,11 +4,101 @@ import scala.util.matching.Regex
 
 /** Markd is a hierarchical snippet of text that can be used to parse, modify and write some
   * simple markdown files.
+  *
+  * The model is simple and includes many (but not all) features of markdown.
   */
 trait Markd {
   def build(sb: StringBuilder = new StringBuilder()): StringBuilder = sb
 }
 
+/** A simple text paragraph of Markdown.
+  *
+  * @param content the text contents for the paragraph.
+  */
+case class Paragraph(content: String) extends Markd {
+  override def build(sb: StringBuilder = new StringBuilder()): StringBuilder = {
+    sb ++= content.trim() ++= "\n"
+  }
+}
+
+object Paragraph {
+
+  /** Parse section text (between section headers) into Markd instances.
+    *
+    * @param content The text inside the section.
+    * @return a list of corresponding Markd instances.
+    */
+  def parse(content: String): Seq[Markd] = {
+    // Extract all of the LinkRefs from the content.
+    val (lines: Seq[String], links: Seq[Markd]) = content.trim
+      .split("\n")
+      .foldLeft((Seq.empty[String], Seq.empty[Markd])) { case ((a, b), s) =>
+        LinkRef.LinkRegex
+          .findFirstMatchIn(s)
+          .map(m =>
+            (
+              a :+ "",
+              b :+ LinkRef(
+                m.group("ref"),
+                Option(m.group("url")),
+                Option(m.group("title"))
+              )
+            )
+          )
+          .getOrElse((a :+ s, b))
+      }
+
+    // TODO: The contents in the single paragraph still need to be cleaned.
+    val nonlinks = lines.mkString("\n")
+    if (nonlinks.isBlank) links
+    else Paragraph(nonlinks.trim) +: links
+  }
+}
+
+/** A link reference.
+  *
+  * [ref]: https://link.url "Optional description"
+  *
+  * @param ref the markdown tag used to reference the link
+  * @param url the url that is being linked to
+  * @param title optionally a title or description of the link for hover text
+  */
+case class LinkRef(
+    ref: String,
+    url: Option[String] = None,
+    title: Option[String] = None
+) extends Markd {
+  override def build(sb: StringBuilder = new StringBuilder()): StringBuilder = {
+    sb ++= "[" ++= ref ++= "]:"
+    url.map(sb ++= " " ++= _)
+    title.map(sb += '"' ++= _ += '"')
+    sb ++= "\n"
+  }
+}
+
+object LinkRef {
+
+  /** Regex used to find link references. */
+  val LinkRegex: Regex = raw"""(?x)
+          ^
+          \s*\[(?<ref>[^\]]+)]:
+          \s*(?<url>.*?)
+          (\s+"(?<title>[^"]*?)")?
+          $$
+          """.r
+
+  /** Regex used to find Jira-style link references. */
+  val JiraLinkRegex: Regex = raw"\s*\[(\S+)-(\d+)\]:\s*(.*)".r
+
+  /** Regex used to find Github PR-style link references. */
+  val GithubPrLinkRegex: Regex = raw"\s*\[(\S+)\s+PR#(\d+)\]:\s*(.*)".r
+
+  def apply(ref: String, url: String): LinkRef = LinkRef(ref, Some(url), None)
+  def apply(ref: String, url: String, title: String): LinkRef =
+    LinkRef(ref, Some(url), Some(title))
+}
+
+/** An element that can contain other elements. */
 trait MultiMarkd extends Markd {
   def sub: Seq[Markd]
 
@@ -23,53 +113,6 @@ trait MultiMarkd extends Markd {
     }
     sb
   }
-
-}
-
-/** A simple text paragraph of Markdown.
-  *
-  * @param content the text contents for the paragraph.
-  */
-case class Paragraph(content: String) extends Markd {
-  override def build(sb: StringBuilder = new StringBuilder()): StringBuilder = {
-    sb ++= content.trim() ++= "\n"
-  }
-}
-
-object Paragraph {
-  def parse(text: String): Seq[Markd] = {
-    if (text.isBlank) Seq()
-    else Seq(Paragraph(text.trim))
-  }
-}
-
-/** A link reference.
-  *
-  * [ref]: https://link.url "Optional description"
-  *
-  * @param ref the markdown tag used to reference the link
-  * @param url the url that is being linked to
-  * @param title optionally a title or description of the link for hover text
-  */
-case class LinkRef(ref: String, url: String, title: String = "") extends Markd {
-  override def build(sb: StringBuilder = new StringBuilder()): StringBuilder = {
-    sb ++= "[" ++= ref ++= "]:"
-    if (url.nonEmpty) sb ++= " " ++= url
-    if (title.nonEmpty) sb += '"' ++= ref += '"'
-    sb ++= "\n"
-  }
-}
-
-object LinkRef {
-
-  /** Regex used to find link references. */
-  val LinkRegex: Regex = raw"\s*\[([^\]]+)]:\s*(.*)".r
-
-  /** Regex used to find Jira-style link references. */
-  val JiraLinkRegex: Regex = raw"\s*\[(\S+)-(\d+)\]:\s*(.*)".r
-
-  /** Regex used to find Github PR-style link references. */
-  val GithubPrLinkRegex: Regex = raw"\s*\[(\S+)\s+PR#(\d+)\]:\s*(.*)".r
 }
 
 /** Markdown header or section.

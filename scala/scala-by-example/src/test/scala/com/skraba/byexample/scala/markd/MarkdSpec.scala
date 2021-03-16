@@ -85,8 +85,9 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |# header1
           |h1txt
           |## header1a
-          |h1atxt
           |[ref1a]: https://www.ref1a.com
+          |h1atxt
+          |[ref1a_dup]: https://www.ref1a.com
           |## header1b
           |h1btxt
           |### header1b1
@@ -106,6 +107,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       val cleaned = md.build().toString
       cleaned shouldBe
         """outside
+          |
           |[refout]: https://www.refout.com
           |
           |header1
@@ -117,7 +119,10 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |------------------------------------------------------------------------------
           |
           |h1atxt
+          |
           |[ref1a]: https://www.ref1a.com
+          |
+          |[ref1a_dup]: https://www.ref1a.com
           |
           |header1b
           |------------------------------------------------------------------------------
@@ -132,6 +137,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |==============================================================================
           |
           |h2txt
+          |
           |[ref2]: https://www.ref2.com
           |
           |header2a
@@ -143,18 +149,18 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |------------------------------------------------------------------------------
           |
           |h2btxt
+          |
           |[ref2b]: https://www.ref2b.com
           |""".stripMargin
       Header.parse(cleaned) shouldBe md
 
-      md.sub should have size 3
-      md.sub.head shouldBe Paragraph(
-        "outside\n[refout]: https://www.refout.com"
-      )
-      md.sub(1) shouldBe a[Header]
+      md.sub should have size 4
+      md.sub.head shouldBe Paragraph("outside")
+      md.sub(1) shouldBe LinkRef("refout", "https://www.refout.com")
       md.sub(2) shouldBe a[Header]
-      val h1 = md.sub(1).asInstanceOf[Header]
-      val h2 = md.sub(2).asInstanceOf[Header]
+      md.sub(3) shouldBe a[Header]
+      val h1 = md.sub(2).asInstanceOf[Header]
+      val h2 = md.sub(3).asInstanceOf[Header]
 
       h1.sub should have size 3
       h1.sub.head shouldBe Paragraph("h1txt")
@@ -163,7 +169,9 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       h1.sub(1) shouldBe Header(
         2,
         "header1a",
-        Paragraph("h1atxt\n[ref1a]: https://www.ref1a.com")
+        Paragraph("h1atxt"),
+        LinkRef("ref1a", "https://www.ref1a.com"),
+        LinkRef("ref1a_dup", "https://www.ref1a.com")
       )
       h1.sub(2) shouldBe Header(
         2,
@@ -172,15 +180,15 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         Header(3, "header1b1", Paragraph("h1b1txt"))
       )
 
-      h2.sub should have size 3
-      h2.sub.head shouldBe Paragraph("h2txt\n[ref2]: https://www.ref2.com")
-      h2.sub(1) shouldBe a[Header]
-      h2.sub(2) shouldBe a[Header]
-      h2.sub(1) shouldBe Header(2, "header2a", Paragraph("h2atxt"))
-      h2.sub(2) shouldBe Header(
+      h2.sub should have size 4
+      h2.sub.head shouldBe Paragraph("h2txt")
+      h2.sub(1) shouldBe LinkRef("ref2", "https://www.ref2.com")
+      h2.sub(2) shouldBe Header(2, "header2a", Paragraph("h2atxt"))
+      h2.sub(3) shouldBe Header(
         2,
         "header2b",
-        Paragraph("h2btxt\n[ref2b]: https://www.ref2b.com")
+        Paragraph("h2btxt"),
+        LinkRef("ref2b", "https://www.ref2b.com")
       )
     }
   }
