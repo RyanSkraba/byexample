@@ -205,5 +205,77 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       cleaned shouldBe ""
       Header.parse(cleaned) shouldBe md
     }
+
+    it("should parse different linkrefs") {
+      val contents = """
+          |[ref-bare]:
+          |[url]: url
+          |[url-prews]:.....url-prews
+          |[url-postws]:url-postws.....
+          |[title]: "title"
+          |[title-prews]:....."title-prews"
+          |[title-postws]:"title-postws".....
+          |[title-empty]:""
+          |[title-empty-prews]:.....""
+          |[title-empty-postws]:"".....
+          |[all]: all "all"
+          |[all-prews]:.....all-prews "all-prews"
+          |[all-midws]:all-midws....."all-midws"
+          |[all-postws]:all-postws."all-postws".....
+          |[all-empty-title]:all-empty-title.""
+          |""".stripMargin.replaceAllLiterally(".", " ")
+
+      val md = Header.parse(contents)
+
+      val cleaned = md.build().toString
+      cleaned shouldBe """[ref-bare]:
+          |
+          |[url]: url
+          |
+          |[url-prews]: url-prews
+          |
+          |[url-postws]: url-postws
+          |
+          |[title]: "title"
+          |
+          |[title-prews]: "title-prews"
+          |
+          |[title-postws]: "title-postws"
+          |
+          |[title-empty]:
+          |
+          |[title-empty-prews]:
+          |
+          |[title-empty-postws]:
+          |
+          |[all]: all "all"
+          |
+          |[all-prews]: all-prews "all-prews"
+          |
+          |[all-midws]: all-midws "all-midws"
+          |
+          |[all-postws]: all-postws "all-postws"
+          |
+          |[all-empty-title]: all-empty-title
+          |""".stripMargin
+      Header.parse(cleaned) shouldBe md
+
+      md.sub should have size 15
+      md.sub.head shouldBe LinkRef("ref-bare", None, None)
+      md.sub(1) shouldBe LinkRef("url", "url")
+      md.sub(2) shouldBe LinkRef("url-prews", "url-prews")
+      md.sub(3) shouldBe LinkRef("url-postws", "url-postws")
+      md.sub(4) shouldBe LinkRef("title", None, Some("title"))
+      md.sub(5) shouldBe LinkRef("title-prews", None, Some("title-prews"))
+      md.sub(6) shouldBe LinkRef("title-postws", None, Some("title-postws"))
+      md.sub(7) shouldBe LinkRef("title-empty", None, None)
+      md.sub(8) shouldBe LinkRef("title-empty-prews", None, None)
+      md.sub(9) shouldBe LinkRef("title-empty-postws", None, None)
+      md.sub(10) shouldBe LinkRef("all", "all", "all")
+      md.sub(11) shouldBe LinkRef("all-prews", "all-prews", "all-prews")
+      md.sub(12) shouldBe LinkRef("all-midws", "all-midws", "all-midws")
+      md.sub(13) shouldBe LinkRef("all-postws", "all-postws", "all-postws")
+      md.sub(14) shouldBe LinkRef("all-empty-title", "all-empty-title")
+    }
   }
 }

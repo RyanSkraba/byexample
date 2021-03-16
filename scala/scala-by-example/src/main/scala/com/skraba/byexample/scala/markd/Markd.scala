@@ -40,8 +40,8 @@ object Paragraph {
               a :+ "",
               b :+ LinkRef(
                 m.group("ref"),
-                Option(m.group("url")),
-                Option(m.group("title"))
+                Option(m.group("url")).filter(!_.isBlank).map(_.trim),
+                Option(m.group("title")).filter(!_.isBlank)
               )
             )
           )
@@ -70,8 +70,8 @@ case class LinkRef(
 ) extends Markd {
   override def build(sb: StringBuilder = new StringBuilder()): StringBuilder = {
     sb ++= "[" ++= ref ++= "]:"
-    url.map(sb ++= " " ++= _)
-    title.map(sb += '"' ++= _ += '"')
+    url.filterNot(_.isBlank).map(sb ++= " " ++= _)
+    title.filterNot(_.isBlank).map(sb ++= " \"" ++= _ += '"')
     sb ++= "\n"
   }
 }
@@ -82,8 +82,9 @@ object LinkRef {
   val LinkRegex: Regex = raw"""(?x)
           ^
           \s*\[(?<ref>[^\]]+)]:
-          \s*(?<url>.*?)
-          (\s+"(?<title>[^"]*?)")?
+          \s*(?<url>[^"].*?)?
+          (\s*"(?<title>[^"]*?)")?
+          \s*
           $$
           """.r
 
