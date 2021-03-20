@@ -51,7 +51,7 @@ class FilesSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 
       // Reading
       val contents = Streamable.closing(
-        io.Source.fromFile(myFile.toAbsolute.toString())
+        scala.io.Source.fromFile(myFile.toAbsolute.toString())
       ) { out =>
         out.getLines().toList
       }

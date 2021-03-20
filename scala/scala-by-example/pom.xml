@@ -40,6 +40,15 @@
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-compiler</artifactId>
     </dependency>
+
+    <!-- Necessary for IDE integration with Ammonite -->
+    <dependency>
+      <groupId>com.lihaoyi</groupId>
+      <artifactId>ammonite_2.12.13</artifactId>
+      <version>2.3.8-54-a1dec1cf</version>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
 </project>
