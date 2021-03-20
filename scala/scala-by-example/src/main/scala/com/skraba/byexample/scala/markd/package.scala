@@ -137,6 +137,8 @@ package object markd {
   /** An element that can contain other elements. */
   trait MultiMarkd extends Markd {
 
+    type Self <: MultiMarkd
+
     /** The subelements of this element. */
     def sub: Seq[Markd]
 
@@ -164,6 +166,11 @@ package object markd {
       sb
     }
 
+    /** Create a copy of the element with the new subelements.
+      * @param newSub The subelements to replace the existing ones in the copy.
+      */
+    def copySub(newSub: Seq[Markd]): Self
+
     /** Create a copy of the list of subelements, replacing some as necessary.
       *
       * A partial function matches and replaces Markd subelements.  If the partial function is
@@ -173,11 +180,11 @@ package object markd {
       * @param filter True if non-matching subelements should be removed, false to leave
       *               non-matching elements unchanged.
       * @param pf A partial function to replace markd elements.
-      * @return The updated list of subelements.
+      * @return A copy of this [[MultiMarkd]] with the replaced subelements
       */
     def replaceInSub(
         filter: Boolean = false
-    )(pf: PartialFunction[(Option[Markd], Int), Seq[Markd]]): Seq[Markd] = {
+    )(pf: PartialFunction[(Option[Markd], Int), Seq[Markd]]): Self = {
       // Elements undefined by the partial function should either be filtered from the results
       // or passed through without modification.
       val unmatched: PartialFunction[(Option[Markd], Int), Seq[Markd]] =
@@ -185,8 +192,10 @@ package object markd {
         else { case (md, _) => md.toSeq }
 
       // Map the sub elements with the function, using None for the end.
-      (sub.map { Option(_) }.zipWithIndex :+ (None, sub.size))
-        .flatMap(pf orElse unmatched)
+      copySub(
+        (sub.map { Option(_) }.zipWithIndex :+ (None, sub.size))
+          .flatMap(pf orElse unmatched)
+      )
     }
 
     /** Create a copy of the list of subelements, replacing the first one that matches.
@@ -197,24 +206,26 @@ package object markd {
       * @param ifNotFound If nothing is matched, try again using this list instead.  This permits
       *                   "insert and update" if not found.
       * @param pf A partial function to replace markd elements.
-      * @return The updated list of subelements.
+      * @return A copy of this [[MultiMarkd]] with the replaced subelements
       */
     def replaceFirstInSub(ifNotFound: => Seq[Markd] = Seq.empty)(
         pf: PartialFunction[Markd, Seq[Markd]]
-    ): Seq[Markd] = {
-      Option(sub.indexWhere(pf.isDefinedAt))
-        .filter(_ != -1)
-        .map((_, sub))
-        .orElse {
-          // First fallback, use the ifNotFound instead.
-          Option(ifNotFound.indexWhere(pf.isDefinedAt))
-            .filter(_ != -1)
-            .map((_, ifNotFound))
-        }
-        .map { case (idx, mds) =>
-          mds.patch(idx, pf(mds(idx)), 1)
-        }
-        .getOrElse(sub)
+    ): Self = {
+      copySub(
+        Option(sub.indexWhere(pf.isDefinedAt))
+          .filter(_ != -1)
+          .map((_, sub))
+          .orElse {
+            // First fallback, use the ifNotFound instead.
+            Option(ifNotFound.indexWhere(pf.isDefinedAt))
+              .filter(_ != -1)
+              .map((_, ifNotFound))
+          }
+          .map { case (idx, mds) =>
+            mds.patch(idx, pf(mds(idx)), 1)
+          }
+          .getOrElse(sub)
+      )
     }
   }
 
@@ -233,6 +244,10 @@ package object markd {
     */
   case class Header(title: String, level: Int, sub: Seq[Markd])
       extends MultiMarkd {
+
+    type Self = Header
+
+    override def copySub(newSub: Seq[Markd]): Self = copy(sub = newSub)
 
     override def build(
         sb: StringBuilder = new StringBuilder()

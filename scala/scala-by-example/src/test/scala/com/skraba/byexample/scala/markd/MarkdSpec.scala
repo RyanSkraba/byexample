@@ -263,19 +263,27 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         md.replaceInSub() {
           case (Some(h @ Header(title, 1, _)), _) if title.startsWith("T") =>
             Seq(h.copy(title = h.title.toUpperCase))
-        } shouldBe Seq(Header(1, "One"), Header(1, "TWO"), Header(1, "THREE"))
+        }.sub shouldBe Seq(
+          Header(1, "One"),
+          Header(1, "TWO"),
+          Header(1, "THREE")
+        )
       }
       it("should replace all matches with filtering") {
         md.replaceInSub(filter = true) {
           case (Some(h @ Header(title, 1, _)), _) if title.startsWith("T") =>
             Seq(h.copy(title = h.title.toUpperCase))
-        } shouldBe Seq(Header(1, "TWO"), Header(1, "THREE"))
+        }.sub shouldBe Seq(Header(1, "TWO"), Header(1, "THREE"))
       }
       it("should replace the first") {
         md.replaceFirstInSub() {
           case h @ Header(title, 1, _) if title.startsWith("T") =>
             Seq(h.copy(title = h.title.toUpperCase))
-        } shouldBe Seq(Header(1, "One"), Header(1, "TWO"), Header(1, "Three"))
+        }.sub shouldBe Seq(
+          Header(1, "One"),
+          Header(1, "TWO"),
+          Header(1, "Three")
+        )
       }
     }
 
@@ -284,19 +292,19 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         md.replaceInSub() {
           case (Some(h @ Header(title, 1, _)), _) if title.startsWith("T") =>
             Seq.empty
-        } shouldBe Seq(Header(1, "One"))
+        }.sub shouldBe Seq(Header(1, "One"))
       }
       it("should replace all matches with filtering") {
         md.replaceInSub(filter = true) {
           case (Some(h @ Header(title, 1, _)), _) if title.startsWith("T") =>
             Seq.empty
-        } shouldBe Seq.empty
+        }.sub shouldBe Seq.empty
       }
       it("should replace the first") {
         md.replaceFirstInSub() {
           case h @ Header(title, 1, _) if title.startsWith("T") =>
             Seq.empty
-        } shouldBe Seq(Header(1, "One"), Header(1, "Three"))
+        }.sub shouldBe Seq(Header(1, "One"), Header(1, "Three"))
       }
     }
 
@@ -305,7 +313,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         md.replaceInSub() {
           case (Some(h @ Header(title, 1, _)), _) if title.startsWith("T") =>
             Seq(h, h.copy(title = h.title.toUpperCase))
-        } shouldBe Seq(
+        }.sub shouldBe Seq(
           Header(1, "One"),
           Header(1, "Two"),
           Header(1, "TWO"),
@@ -317,7 +325,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         md.replaceInSub(filter = true) {
           case (Some(h @ Header(title, 1, _)), _) if title.startsWith("T") =>
             Seq(h, h.copy(title = h.title.toUpperCase))
-        } shouldBe Seq(
+        }.sub shouldBe Seq(
           Header(1, "Two"),
           Header(1, "TWO"),
           Header(1, "Three"),
@@ -328,7 +336,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         md.replaceFirstInSub() {
           case h @ Header(title, 1, _) if title.startsWith("T") =>
             Seq(h, h.copy(title = h.title.toUpperCase))
-        } shouldBe Seq(
+        }.sub shouldBe Seq(
           Header(1, "One"),
           Header(1, "Two"),
           Header(1, "TWO"),
@@ -342,25 +350,25 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         md.replaceInSub() {
           case (Some(h @ Header(title, 1, _)), _) if title.startsWith("F") =>
             Seq(h.copy(title = h.title.toUpperCase))
-        } shouldBe md.sub
+        }.sub shouldBe md.sub
       }
       it("should remove all when filtering") {
         md.replaceInSub(filter = true) {
           case (Some(h @ Header(title, 1, _)), _) if title.startsWith("F") =>
             Seq(h.copy(title = h.title.toUpperCase))
-        } shouldBe Seq.empty
+        }.sub shouldBe Seq.empty
       }
       it("should do nothing when no first match") {
         md.replaceFirstInSub() {
           case h @ Header(title, 1, _) if title.startsWith("F") =>
             Seq(h.copy(title = h.title.toUpperCase))
-        } shouldBe md.sub
+        }.sub shouldBe md.sub
       }
       it("should help falling back when no first match") {
         md.replaceFirstInSub(ifNotFound = md.sub :+ Header(1, "Four")) {
           case h @ Header(title, 1, _) if title.startsWith("F") =>
             Seq(h.copy(title = h.title.toUpperCase))
-        } shouldBe Seq(
+        }.sub shouldBe Seq(
           Header(1, "One"),
           Header(1, "Two"),
           Header(1, "Three"),
@@ -373,7 +381,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       it("should append on all matches") {
         md.replaceInSub() { case (None, _) =>
           Seq(Header(1, "Four"))
-        } shouldBe Seq(
+        }.sub shouldBe Seq(
           Header(1, "One"),
           Header(1, "Two"),
           Header(1, "Three"),
@@ -383,7 +391,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       it("should remove all but the element when filtering") {
         md.replaceInSub(filter = true) { case (None, _) =>
           Seq(Header(1, "Four"))
-        } shouldBe Seq(Header(1, "Four"))
+        }.sub shouldBe Seq(Header(1, "Four"))
       }
     }
 
@@ -391,7 +399,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       it("should prepend on all matches") {
         md.replaceInSub() { case (Some(md), 0) =>
           Seq(Header(1, "Zero"), md)
-        } shouldBe Seq(
+        }.sub shouldBe Seq(
           Header(1, "Zero"),
           Header(1, "One"),
           Header(1, "Two"),
@@ -401,7 +409,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       it("should remove all but the element and the head when filtering") {
         md.replaceInSub(filter = true) { case (Some(md), 0) =>
           Seq(Header(1, "Zero"), md)
-        } shouldBe Seq(Header(1, "Zero"), Header(1, "One"))
+        }.sub shouldBe Seq(Header(1, "Zero"), Header(1, "One"))
       }
     }
   }
