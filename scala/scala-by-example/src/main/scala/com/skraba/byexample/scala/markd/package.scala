@@ -13,7 +13,7 @@ package object markd {
 
     /** Write some whitespace before this element.
       *
-      * @param sb The builder to write to.
+      * @param sb   The builder to write to.
       * @param prev The element before this element (if any).
       * @return The builder passed in.
       */
@@ -80,8 +80,8 @@ package object markd {
     *
     * [ref]: https://link.url "Optional description"
     *
-    * @param ref the markdown tag used to reference the link
-    * @param url the url that is being linked to
+    * @param ref   the markdown tag used to reference the link
+    * @param url   the url that is being linked to
     * @param title optionally a title or description of the link for hover text
     */
   case class LinkRef(
@@ -112,7 +112,8 @@ package object markd {
   object LinkRef {
 
     /** Regex used to find link references. */
-    val LinkRegex: Regex = raw"""(?x)
+    val LinkRegex: Regex =
+      raw"""(?x)
           ^
           \s*\[(?<ref>[^\]]+)]:
           \s*(?<url>[^"].*?)?
@@ -128,15 +129,25 @@ package object markd {
     val GithubPrLinkRegex: Regex = raw"\s*\[(\S+)\s+PR#(\d+)\]:\s*(.*)".r
 
     def apply(ref: String, url: String): LinkRef = LinkRef(ref, Some(url), None)
+
     def apply(ref: String, url: String, title: String): LinkRef =
       LinkRef(ref, Some(url), Some(title))
   }
 
   /** An element that can contain other elements. */
   trait MultiMarkd extends Markd {
+
+    /** The subelements of this element. */
     def sub: Seq[Markd]
 
-    def subBuild(
+    /** Write this element to the builder.
+      *
+      * @param sb   The builder to write to.
+      * @param prev If known, the previous element written to the builder.  This can be used to
+      *             adjust spacing.
+      * @return The builder passed in.
+      */
+    def buildSub(
         sb: StringBuilder = new StringBuilder(),
         prev: Option[Markd]
     ): StringBuilder = {
@@ -152,6 +163,59 @@ package object markd {
       }
       sb
     }
+
+    /** Create a copy of the list of subelements, replacing some as necessary.
+      *
+      * A partial function matches and replaces Markd subelements.  If the partial function is
+      * defined for one of the subelements, it supplies the list of replacements.  It matches
+      * on the element (or None to match the end of the list) and its index.
+      *
+      * @param filter True if non-matching subelements should be removed, false to leave
+      *               non-matching elements unchanged.
+      * @param pf A partial function to replace markd elements.
+      * @return The updated list of subelements.
+      */
+    def replaceInSub(
+        filter: Boolean = false
+    )(pf: PartialFunction[(Option[Markd], Int), Seq[Markd]]): Seq[Markd] = {
+      // Elements undefined by the partial function should either be filtered from the results
+      // or passed through without modification.
+      val unmatched: PartialFunction[(Option[Markd], Int), Seq[Markd]] =
+        if (filter) { case _ => Seq() }
+        else { case (md, _) => md.toSeq }
+
+      // Map the sub elements with the function, using None for the end.
+      (sub.map { Option(_) }.zipWithIndex :+ (None, sub.size))
+        .flatMap(pf orElse unmatched)
+    }
+
+    /** Create a copy of the list of subelements, replacing the first one that matches.
+      *
+      * A partial function matches and replaces Markd subelements.  If the partial function is
+      * defined for one of the subelements, it supplies the list of replacements.
+      *
+      * @param ifNotFound If nothing is matched, try again using this list instead.  This permits
+      *                   "insert and update" if not found.
+      * @param pf A partial function to replace markd elements.
+      * @return The updated list of subelements.
+      */
+    def replaceFirstInSub(ifNotFound: => Seq[Markd] = Seq.empty)(
+        pf: PartialFunction[Markd, Seq[Markd]]
+    ): Seq[Markd] = {
+      Option(sub.indexWhere(pf.isDefinedAt))
+        .filter(_ != -1)
+        .map((_, sub))
+        .orElse {
+          // First fallback, use the ifNotFound instead.
+          Option(ifNotFound.indexWhere(pf.isDefinedAt))
+            .filter(_ != -1)
+            .map((_, ifNotFound))
+        }
+        .map { case (idx, mds) =>
+          mds.patch(idx, pf(mds(idx)), 1)
+        }
+        .getOrElse(sub)
+    }
   }
 
   /** Markdown header or section.
@@ -165,7 +229,7 @@ package object markd {
     *
     * @param level The level (from 1 to 9).  A level of 0 can be used to represent an entire document.
     * @param title The title of the section
-    * @param sub The internal subsections and parsed [[Markd]] elements.
+    * @param sub   The internal subsections and parsed [[Markd]] elements.
     */
   case class Header(title: String, level: Int, sub: Seq[Markd])
       extends MultiMarkd {
@@ -179,14 +243,15 @@ package object markd {
         case 2 => sb ++= title ++= "\n" ++= "-" * 78 ++= "\n"
         case _ => sb ++= "#" * level ++= " " ++= title ++= "\n"
       }
-      subBuild(sb, if (level == 0) None else Some(this))
+      buildSub(sb, if (level == 0) None else Some(this))
     }
   }
 
   object Header {
 
     /** Regex used to split header section. */
-    val HeaderRegex: Regex = raw"""(?x)
+    val HeaderRegex: Regex =
+      raw"""(?x)
           (?=(^|\n)                           # Lookahead
             (
               (?<titleml>[^\n]+)\n            # Multiline header
@@ -196,13 +261,13 @@ package object markd {
             )
             (\n))
          """.r(
-      "",
-      "",
-      "title_ml",
-      "level_ml",
-      "level_sl",
-      "title_sl"
-    )
+        "",
+        "",
+        "title_ml",
+        "level_ml",
+        "level_sl",
+        "title_sl"
+      )
 
     def apply(level: Int, title: String, sub: Markd*): Header =
       Header(title, level, sub.toSeq)
