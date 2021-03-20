@@ -65,7 +65,7 @@ def help(): Unit = {
   println(s"""$BOLD$cmd - Let's get things done!
              |
              |  $CYAN     clean$RESET : Rewrite the status document
-             |  $CYAN  nextWeek$RESET : Add a new week to the status document ${RED_B}TODO$RESET
+             |  $CYAN   newWeek$RESET : Add a new week to the status document
              |  $CYAN        pr$RESET : Add a PR review to this week ${RED_B}TODO$RESET
              |  $CYAN      stat$RESET : Add a statistic to the document ${RED_B}TODO$RESET
              |  $CYAN      week$RESET : Print the last week status or a specific week ${RED_B}TODO$RESET
@@ -73,7 +73,7 @@ def help(): Unit = {
              |Usage:
              |
              | $cmd ${CYAN}clean$RESET
-             | $cmd ${CYAN}nextWeek$RESET
+             | $cmd ${CYAN}newWeek$RESET
              | $cmd ${CYAN}pr$RESET avro 9876 1234 "Implemented a thing" REVIEWED
              | $cmd ${CYAN}stat$RESET avro-unread 448
              | $cmd ${CYAN}week$RESET
@@ -86,6 +86,51 @@ def help(): Unit = {
 def clean(): Unit = {
   // Read and overwrite the existing document without making any changes.
   val doc = Header.parse(read ! StatusFile)
-  write.over(StatusFile, doc.build().toString.trim())
+  write.over(StatusFile, doc.build().toString)
   println(proposeGit(s"feat(status): Beautify the document"))
+}
+
+@arg(doc = "Add a new week")
+@main
+def newWeek(): Unit = {
+
+  // Read the existing document.
+  val doc = Header.parse(read ! StatusFile)
+
+  /** Calculate either next Monday or the monday 7 days after the Date in the String. */
+  def nextMonday(date: Option[String]): String = {
+    // Use the time classes to find the next date.
+    import java.time.format.DateTimeFormatter
+    import java.time.temporal.TemporalAdjusters
+    import java.time.{DayOfWeek, LocalDate}
+    val pattern = DateTimeFormatter.ofPattern("yyyy/MM/dd")
+    val monday = date
+      .map(ptn => LocalDate.parse(ptn.substring(0, 10), pattern))
+      .getOrElse(LocalDate.now)
+      .plusDays(1)
+      .`with`(TemporalAdjusters.previous(DayOfWeek.MONDAY))
+      .plusDays(7)
+      .format(pattern)
+    println(proposeGit(s"feat(status): Add new week $monday"))
+    monday
+  }
+
+  val newDoc = {
+    doc.replaceFirstInSub(ifNotFound = doc.sub :+ Header(1, H1Weekly)) {
+      case weekly @ Header(title, 1, _) if title.startsWith(H1Weekly) =>
+        Seq(
+          weekly.replaceFirstInSub(ifNotFound = Header(2, "") +: weekly.sub) {
+            case lastWeek @ Header(lastTitle, 2, _)
+                if lastTitle.length >= 10 => {
+              Seq(lastWeek.copy(title = nextMonday(Some(lastTitle))), lastWeek)
+            }
+            case holder @ Header("", 2, _) => {
+              Seq(holder.copy(title = nextMonday(None)))
+            }
+          }
+        )
+    }
+  }
+
+  write.over(StatusFile, newDoc.build().toString.trim() + "\n")
 }
