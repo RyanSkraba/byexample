@@ -68,7 +68,7 @@ def help(): Unit = {
              |  $CYAN   newWeek$RESET : Add a new week to the status document
              |  $CYAN        pr$RESET : Add a PR review to this week ${RED_B}TODO$RESET
              |  $CYAN      stat$RESET : Add a statistic to the document ${RED_B}TODO$RESET
-             |  $CYAN      week$RESET : Print the last week status or a specific week ${RED_B}TODO$RESET
+             |  $CYAN      week$RESET : Print the last week status or a specific week
              |
              |Usage:
              |
@@ -93,7 +93,6 @@ def clean(): Unit = {
 @arg(doc = "Add a new week")
 @main
 def newWeek(): Unit = {
-
   // Read the existing document.
   val doc = Header.parse(read ! StatusFile)
 
@@ -133,4 +132,27 @@ def newWeek(): Unit = {
   }
 
   write.over(StatusFile, newDoc.build().toString.trim() + "\n")
+}
+
+@arg(doc = "Print the status for this week")
+@main
+def week(
+    @arg(doc = "The week to list or none for this week.")
+    week: Option[String] = None
+): Unit = {
+  // Read the existing document.
+  val doc = Header.parse(read ! StatusFile)
+  val topWeek: Seq[Markd] = doc.sub.flatMap {
+    case h @ Header(title, 1, _) if title.startsWith(H1Weekly) => {
+      h.sub.find {
+        case Header(title, 2, _)
+            if week.map(title.startsWith).getOrElse(title.length >= 10) =>
+          true
+        case _ => false
+      }
+    }
+    case _ => None
+  }
+
+  topWeek.headOption.map(_.build().toString).foreach(println(_))
 }
