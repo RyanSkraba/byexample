@@ -49,11 +49,11 @@ package object markd {
       * @param content The text inside the section.
       * @return a list of corresponding Markd instances.
       */
-    def parse(content: String): Seq[Markd] = {
+    def parse(content: String, cfg: ParserCfg = new ParserCfg()): Seq[Markd] = {
       // Extract all of the LinkRefs from the content.
-      val (lines: Seq[String], links: Seq[Markd]) = content.trim
+      val (lines: Seq[String], links: Seq[LinkRef]) = content.trim
         .split("\n")
-        .foldLeft((Seq.empty[String], Seq.empty[Markd])) { case ((a, b), s) =>
+        .foldLeft((Seq.empty[String], Seq.empty[LinkRef])) { case ((a, b), s) =>
           LinkRef.LinkRegex
             .findFirstMatchIn(s)
             .map(m =>
@@ -72,7 +72,7 @@ package object markd {
       // TODO: The contents in the single paragraph still need to be cleaned.
       val nonlinks = lines.mkString("\n")
       if (nonlinks.isBlank) links
-      else Paragraph(nonlinks.trim) +: links
+      else Paragraph(nonlinks.trim) +: cfg.linkCleaner(links)
     }
   }
 
@@ -123,10 +123,10 @@ package object markd {
           """.r
 
     /** Regex used to find Jira-style link references. */
-    val JiraLinkRegex: Regex = raw"\s*\[(\S+)-(\d+)\]:\s*(.*)".r
+    val JiraLinkRefRegex: Regex = raw"(\S+)-(\d+)".r
 
     /** Regex used to find Github PR-style link references. */
-    val GithubPrLinkRegex: Regex = raw"\s*\[(\S+)\s+PR#(\d+)\]:\s*(.*)".r
+    val GithubPrLinkRefRegex: Regex = raw"(\S+)\s+PR#(\d+)".r
 
     def apply(ref: String, url: String): LinkRef = LinkRef(ref, Some(url), None)
 
@@ -296,18 +296,18 @@ package object markd {
     }
 
     /** Splits the content into sections, as a tree of headers. */
-    def parse(content: String): Header = {
+    def parse(content: String, cfg: ParserCfg = new ParserCfg()): Header = {
       // Split the entire contents into Markd elements as a flat list.
       val flat: Array[Markd] = HeaderRegex
         .split(content)
         .flatMap { text =>
           HeaderRegex.findPrefixMatchOf(s"$text\n") match {
-            case None => Paragraph.parse(text)
+            case None => Paragraph.parse(text, cfg)
             case Some(m: Regex.Match) =>
               val (level, title) = getHeaderLevelAndTitle(m)
               val lastMatchedGroup = 1 + m.subgroups.lastIndexWhere(_ != null)
               val headerContents = m.after(lastMatchedGroup).toString
-              Header(level, title) +: Paragraph.parse(headerContents)
+              Header(level, title) +: Paragraph.parse(headerContents, cfg)
           }
         }
 
@@ -333,5 +333,12 @@ package object markd {
 
       treeify(Header(0, ""), flat)._1
     }
+  }
+
+  /** Helps build the model when parsing contents. */
+  class ParserCfg {
+
+    /** Clean up the references at the end of a section. */
+    def linkCleaner(links: Seq[LinkRef]): Seq[LinkRef] = links
   }
 }
