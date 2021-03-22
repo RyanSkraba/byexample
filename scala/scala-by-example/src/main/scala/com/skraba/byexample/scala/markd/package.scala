@@ -10,6 +10,23 @@ import scala.util.matching.Regex
 package object markd {
 
   trait Markd {
+
+    /** Write some whitespace before this element.
+      *
+      * @param sb The builder to write to.
+      * @param prev The element before this element (if any).
+      * @return The builder passed in.
+      */
+    def buildPreSpace(
+        sb: StringBuilder = new StringBuilder(),
+        prev: Option[Markd]
+    ): StringBuilder = if (prev.isDefined) sb ++= "\n" else sb
+
+    /** Write this element to the builder.
+      *
+      * @param sb The builder to write to.
+      * @return The builder passed in.
+      */
     def build(sb: StringBuilder = new StringBuilder()): StringBuilder = sb
   }
 
@@ -72,6 +89,16 @@ package object markd {
       url: Option[String] = None,
       title: Option[String] = None
   ) extends Markd {
+
+    /** Don't space between LinkRefs */
+    override def buildPreSpace(
+        sb: StringBuilder = new StringBuilder(),
+        prev: Option[Markd]
+    ): StringBuilder = prev match {
+      case Some(LinkRef(_, _, _)) => sb
+      case _                      => super.buildPreSpace(sb, prev)
+    }
+
     override def build(
         sb: StringBuilder = new StringBuilder()
     ): StringBuilder = {
@@ -109,15 +136,18 @@ package object markd {
   trait MultiMarkd extends Markd {
     def sub: Seq[Markd]
 
-    override def build(
-        sb: StringBuilder = new StringBuilder()
+    def subBuild(
+        sb: StringBuilder = new StringBuilder(),
+        prev: Option[Markd]
     ): StringBuilder = {
-      super.build(sb)
       if (sub.nonEmpty) {
-        sub.headOption.map(_.build(sb))
-        for (md <- sub.tail) {
-          sb ++= "\n"
-          md.build(sb)
+        sub.headOption.map { head =>
+          head.buildPreSpace(sb, prev)
+          head.build(sb)
+        }
+        for (md: Seq[Markd] <- sub.sliding(2) if md.size == 2) {
+          md.last.buildPreSpace(sb, Some(md.head))
+          md.last.build(sb)
         }
       }
       sb
@@ -149,12 +179,8 @@ package object markd {
         case 2 => sb ++= title ++= "\n" ++= "-" * 78 ++= "\n"
         case _ => sb ++= "#" * level ++= " " ++= title ++= "\n"
       }
-      if (sub.nonEmpty && level > 0) {
-        sb ++= "\n"
-      }
-      super.build(sb)
+      subBuild(sb, if (level == 0) None else Some(this))
     }
-
   }
 
   object Header {
@@ -209,13 +235,12 @@ package object markd {
       def treeify(node: Header, flat: Seq[Markd]): (Header, Seq[Markd]) =
         flat.headOption match {
           // If the next element in the list is a sub-section (i.e. greater level)
-          case Some(next: Header) if next.level > node.level => {
+          case Some(next: Header) if next.level > node.level =>
             // then the sub-section should be treeified, using as many elements as necessary from
             // the list.
             val (subsection, flatRemainder) = treeify(next, flat.tail)
             // Add the subsection to this node, and continue to treeify this node with the rest.
             treeify(node.copy(sub = node.sub :+ subsection), flatRemainder)
-          }
           // If the next element in the list is a section of the same or lower level,
           // then just return, and it can be added to the current node's parent.
           case Some(_: Header) => (node, flat)
