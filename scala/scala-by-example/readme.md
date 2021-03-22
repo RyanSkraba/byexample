@@ -43,9 +43,11 @@ examples.
 
 ```
 # Install this jar into the local repository so we can use its classes in the scripts.
+# This only needs to be done when something changes in src/main !
 mvn install
 
-# Run the script directly from the resources directory
+# Run the script directly from the resources directory.  You can make changes and re-run
+# without rebuilding with maven.
 src/test/resources/getting_things_done.sc help
 ```
 

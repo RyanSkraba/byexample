@@ -10,9 +10,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
   describe("Parsing markdown into sections") {
 
     it("should just wrap in a Paragraph if there are none") {
-      val contents = "Hello world"
-
-      val md = Header.parse(contents)
+      val md = Header.parse("Hello world")
       md shouldBe Header(0, "", Paragraph("Hello world"))
 
       val cleaned = md.build().toString
@@ -121,7 +119,6 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |h1atxt
           |
           |[ref1a]: https://www.ref1a.com
-          |
           |[ref1a_dup]: https://www.ref1a.com
           |
           |header1b
@@ -229,33 +226,19 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
 
       val cleaned = md.build().toString
       cleaned shouldBe """[ref-bare]:
-          |
           |[url]: url
-          |
           |[url-prews]: url-prews
-          |
           |[url-postws]: url-postws
-          |
           |[title]: "title"
-          |
           |[title-prews]: "title-prews"
-          |
           |[title-postws]: "title-postws"
-          |
           |[title-empty]:
-          |
           |[title-empty-prews]:
-          |
           |[title-empty-postws]:
-          |
           |[all]: all "all"
-          |
           |[all-prews]: all-prews "all-prews"
-          |
           |[all-midws]: all-midws "all-midws"
-          |
           |[all-postws]: all-postws "all-postws"
-          |
           |[all-empty-title]: all-empty-title
           |""".stripMargin
       Header.parse(cleaned) shouldBe md
