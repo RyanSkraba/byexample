@@ -50,7 +50,7 @@ package object markd {
       * @return a list of corresponding Markd instances.
       */
     def parse(content: String, cfg: ParserCfg = new ParserCfg()): Seq[Markd] = {
-      // Extract all of the LinkRefs from the content.
+      // The first pass extracts all of the LinkRefs from the content to place at the end.
       val (lines: Seq[String], links: Seq[LinkRef]) = content.trim
         .split("\n")
         .foldLeft((Seq.empty[String], Seq.empty[LinkRef])) { case ((a, b), s) =>
@@ -69,10 +69,13 @@ package object markd {
             .getOrElse((a :+ s, b))
         }
 
-      // TODO: The contents in the single paragraph still need to be cleaned.
-      val nonlinks = lines.mkString("\n")
-      if (nonlinks.isBlank) links
-      else Paragraph(nonlinks.trim) +: cfg.linkCleaner(links)
+      val paragraphs = raw"\n\s*\n".r
+        .split(lines.mkString("\n"))
+        .map(_.trim)
+        .filter(_.nonEmpty)
+        .map(Paragraph.apply)
+
+      paragraphs ++ cfg.linkCleaner(links)
     }
   }
 
