@@ -18,6 +18,92 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       Header.parse(cleaned) shouldBe md
     }
 
+    for (
+      (tag, content) <- Seq(
+        "simple" -> "Hello world",
+        "simplePreWhitespace" -> "\n\n\t  Hello world",
+        "simplePostWhitespace" -> "Hello world\n\t  \n\n",
+        "internalNewline" -> "Hello\nworld",
+        "internalNewlinePreWhitespace" -> "\n\n\t  Hello\nworld",
+        "internalNewlinePostWhitespace" -> "Hello\nworld\n\t  \n\n",
+        "internalWhitespace" -> "Hello     \n     world",
+        "internalWhitespacePreWhitespace" -> "\n\n\t  Hello     \n     world",
+        "internalWhitespacePostWhitespace" -> "Hello     \n     world\n\t  \n\n"
+      )
+    ) {
+      describe(s"for the $tag paragraph") {
+        it("creates a simple paragraph in no section") {
+          val md = Header.parse(content)
+          md shouldBe Header(0, "", Paragraph(content.trim))
+
+          val cleaned = md.build().toString
+          cleaned shouldBe s"${content.trim}\n"
+          Header.parse(cleaned) shouldBe md
+        }
+
+        it("creates a simple paragraph in a section") {
+          val md = Header.parse(s"# Main\n$content")
+          md shouldBe Header(0, "", Header(1, "Main", Paragraph(content.trim)))
+
+          val cleaned = md.build().toString
+          cleaned shouldBe
+            s"""Main
+              |==============================================================================
+              |
+              |${content.trim}
+              |""".stripMargin
+          Header.parse(cleaned) shouldBe md
+        }
+      }
+    }
+
+    for (
+      (tag, content) <- Seq(
+        "simple" -> "Hello\n\nworld",
+        "simplePreWhitespace" -> "\n\n\t  Hello\n\nworld",
+        "simplePostWhitespace" -> "Hello\n\nworld\n\t  \n\n",
+        "internalPreWhitespace" -> "Hello  \t  \n\nworld",
+        "internalMidWhitespace" -> "Hello\n  \t  \nworld",
+        "internalPostWhitespace" -> "Hello\n\n  \t  world",
+        "internalLotsWhitespace" -> "Hello\n\n\n\n\n\nworld"
+      )
+    ) {
+      describe(s"for the $tag paragraphs") {
+        it("creates paragraphs in no sections") {
+          val md = Header.parse(content)
+          md shouldBe Header(0, "", Paragraph("Hello"), Paragraph("world"))
+
+          val cleaned = md.build().toString
+          cleaned shouldBe
+            s"""Hello
+               |
+               |world
+               |""".stripMargin
+          Header.parse(cleaned) shouldBe md
+        }
+
+        it("creates paragraphs in a section") {
+          val md = Header.parse(s"# Main\n$content")
+          md shouldBe Header(
+            0,
+            "",
+            Header(1, "Main", Paragraph("Hello"), Paragraph("world"))
+          )
+
+          val cleaned = md.build().toString
+          cleaned shouldBe
+            s"""Main
+               |==============================================================================
+               |
+               |Hello
+               |
+               |world
+               |""".stripMargin
+          Header.parse(cleaned) shouldBe md
+        }
+      }
+    }
+
     it("should parse different linkrefs") {
       val md = Header.parse("""
           |[ref-bare]:
@@ -76,17 +162,6 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
   }
 
   describe("Parsing markdown into sections") {
-
-    it("should just wrap in a Paragraph if there are none") {
-      val md = Header.parse("Hello world")
-      md shouldBe Header(0, "", Paragraph("Hello world"))
-
-      val cleaned = md.build().toString
-      cleaned shouldBe
-        """Hello world
-          |""".stripMargin
-      Header.parse(cleaned) shouldBe md
-    }
 
     it("should separate into level 1 headers") {
       val md = Header.parse("""English
