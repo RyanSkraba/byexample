@@ -46,6 +46,9 @@ val StatusFile: Path = sys.env
 /** The header with the weekly statuses. */
 val H1Weekly: String = "Weekly Status"
 
+/** The list of apache projects. */
+val Projects = Set("avro", "beam", "flink", "parquet", "pulsar", "spark")
+
 /** Propose a git commit message for the status page
   * @param msg The git message to propose
   * @return A string to copy and paste to check the changes.
@@ -58,6 +61,51 @@ def proposeGit(msg: String): String = {
      |""".stripMargin
 }
 
+object ProjectParserCfg extends ParserCfg {
+
+  /** Clean up the references at the end of a section. */
+  override def linkCleaner(links: Seq[LinkRef]) = {
+    // Clean the links.
+    links
+      .map {
+        case LinkRef(LinkRef.JiraLinkRefRegex(prj, num), None, title)
+            if Projects(prj.toLowerCase) =>
+          (
+            f"${prj.toUpperCase}-$num%9s",
+            LinkRef(
+              s"${prj.toUpperCase}-$num",
+              Some(
+                s"https://issues.apache.org/jira/browse/${prj.toUpperCase}-$num"
+              ),
+              title
+            )
+          )
+        case l @ LinkRef(LinkRef.JiraLinkRefRegex(prj, num), _, _) =>
+          (f"${prj.toUpperCase}-$num%9s", l)
+        case LinkRef(LinkRef.GithubPrLinkRefRegex(prj, num), None, title)
+            if Projects(prj.toLowerCase) =>
+          (
+            f"${prj.toUpperCase}-PR$num%9s",
+            LinkRef(
+              s"${prj.toLowerCase.capitalize} PR#$num",
+              Some(
+                s"https://github.com/apache/${prj.toLowerCase}/pull/$num"
+              ),
+              title
+            )
+          )
+        case l @ LinkRef(LinkRef.GithubPrLinkRefRegex(prj, num), _, _) =>
+          (f"${prj.toUpperCase}-PR$num%9s", l)
+        case other =>
+          (other.ref, other)
+      }
+      .toMap
+      .toSeq
+      .sortBy(_._1)
+      .map(_._2)
+  }
+}
+
 @arg(doc = "Print help to the console.")
 @main
 def help(): Unit = {
@@ -66,7 +114,7 @@ def help(): Unit = {
              |
              |  $CYAN     clean$RESET : Rewrite the status document
              |  $CYAN   newWeek$RESET : Add a new week to the status document
-             |  $CYAN        pr$RESET : Add a PR review to this week ${RED_B}TODO$RESET
+             |  $CYAN        pr$RESET : Add a PR review to this week
              |  $CYAN      stat$RESET : Add a statistic to the document ${RED_B}TODO$RESET
              |  $CYAN      week$RESET : Print the last week status or a specific week
              |
@@ -85,7 +133,7 @@ def help(): Unit = {
 @main
 def clean(): Unit = {
   // Read and overwrite the existing document without making any changes.
-  val doc = Header.parse(read ! StatusFile)
+  val doc = Header.parse(read ! StatusFile, ProjectParserCfg)
   write.over(StatusFile, doc.build().toString)
   println(proposeGit(s"feat(status): Beautify the document"))
 }
@@ -94,7 +142,7 @@ def clean(): Unit = {
 @main
 def newWeek(): Unit = {
   // Read the existing document.
-  val doc = Header.parse(read ! StatusFile)
+  val doc = Header.parse(read ! StatusFile, ProjectParserCfg)
 
   /** Calculate either next Monday or the monday 7 days after the Date in the String. */
   def nextMonday(date: Option[String]): String = {
@@ -134,6 +182,63 @@ def newWeek(): Unit = {
   write.over(StatusFile, newDoc.build().toString.trim() + "\n")
 }
 
+@arg(doc = "Start working on a new PR")
+@main
+def pr(
+    @arg(doc = "The JIRA tag for the project")
+    prj: String,
+    @arg(doc = "The PR number being worked on")
+    prNum: Int,
+    @arg(doc = "The corresponding JIRA number being worked on")
+    jira: Int,
+    @arg(doc = "A short description for the PR")
+    description: String,
+    @arg(doc = "The status of the work on the PR")
+    status: String = "TOREVIEW"
+): Unit = {
+  // Read the existing document.
+  val doc = Header.parse(read ! StatusFile, ProjectParserCfg)
+
+  // The reference and task snippets to add to the file.
+  val fullJira = if (jira != 0) Some(s"${prj.toUpperCase}-$jira") else None
+  val fullPr =
+    if (prNum != 0) Some(s"${prj.toLowerCase.capitalize} PR#$prNum") else None
+  val task = (fullJira, fullPr) match {
+    case (Some(refJira), Some(refPr)) =>
+      s"  - **[$refJira]** | [$refPr] : $description `$status`"
+    case (Some(refJira), None) => s"  - **[$refJira]** : $description `$status`"
+    case (None, Some(refPr))   => s"  - [$refPr] : $description `$status`"
+    case (None, None)          => s"  - $description `$status`"
+  }
+
+  val newDoc =
+    doc.replaceFirstInSub(ifNotFound = doc.sub :+ Header(1, H1Weekly)) {
+      case weekly @ Header(title, 1, _) if title.startsWith(H1Weekly) =>
+        // Add the two JIRA to the weekly status section.  Their URLs will be filled in
+        // automatically on cleanup.
+        val newWeekly = weekly.copySub(
+          fullJira.map(LinkRef(_, None, Some(description))).toSeq ++
+            fullPr.map(LinkRef(_, None, Some(description))) ++ weekly.sub
+        )
+
+        // Update the most recent week.
+        Seq(newWeekly.replaceFirstInSub() {
+          case h @ Header(title, 2, _) if title.length >= 10 => {
+            Seq(h.copySub(h.sub :+ Paragraph(task)))
+          }
+        })
+    }
+
+  val cleanedNewDoc = Header.parse(newDoc.build().toString, ProjectParserCfg)
+
+  println(
+    proposeGit(
+      s"feat(status): Apache ${fullJira.orElse(fullPr).getOrElse("")} $description"
+    )
+  )
+  write.over(StatusFile, cleanedNewDoc.build().toString.trim() + "\n")
+}
+
 @arg(doc = "Print the status for this week")
 @main
 def week(
@@ -141,7 +246,7 @@ def week(
     week: Option[String] = None
 ): Unit = {
   // Read the existing document.
-  val doc = Header.parse(read ! StatusFile)
+  val doc = Header.parse(read ! StatusFile, ProjectParserCfg)
   val topWeek: Seq[Markd] = doc.sub.flatMap {
     case h @ Header(title, 1, _) if title.startsWith(H1Weekly) => {
       h.sub.find {
