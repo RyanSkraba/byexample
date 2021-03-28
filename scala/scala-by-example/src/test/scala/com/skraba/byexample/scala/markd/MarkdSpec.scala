@@ -104,6 +104,31 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       }
     }
 
+    it("should parse a code block") {
+      val md = Header.parse("""
+        |```bash
+        |echo Hello world
+        |```
+        """.stripMargin)
+      md shouldBe Header(0, "", Code("bash", "echo Hello world\n"))
+
+      val cleaned = md.build().toString
+      cleaned shouldBe """```bash
+        |echo Hello world
+        |```
+        |""".stripMargin
+      Header.parse(cleaned) shouldBe md
+    }
+
+    it("should parse a comment") {
+      val md = Header.parse("<!-- Hello world -->")
+      md shouldBe Header(0, "", Comment(" Hello world "))
+
+      val cleaned = md.build().toString
+      cleaned shouldBe "<!-- Hello world -->\n"
+      Header.parse(cleaned) shouldBe md
+    }
+
     it("should parse different linkrefs") {
       val md = Header.parse("""
           |[ref-bare]:
