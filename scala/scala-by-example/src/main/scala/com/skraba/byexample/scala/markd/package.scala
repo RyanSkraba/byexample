@@ -42,7 +42,50 @@ package object markd {
     }
   }
 
+  /** Contents outside of the markdown processing.
+    *
+    * {{{
+    *   <!-- comment -->
+    * }}}
+    *
+    * @param content the contents of the comment.
+    */
+  case class Comment(content: String) extends Markd {
+    override def build(
+        sb: StringBuilder = new StringBuilder()
+    ): StringBuilder = {
+      sb ++= "<!--" ++= content ++= "-->\n"
+    }
+  }
+
+  /** A fenced code block.
+    *
+    * {{{
+    * ```bash
+    * echo Hello world!
+    * ```
+    * }}}
+    *
+    * @param content the contents of the comment.
+    */
+  case class Code(code_type: String, content: String) extends Markd {
+    override def build(
+        sb: StringBuilder = new StringBuilder()
+    ): StringBuilder = {
+      sb ++= "```" ++= code_type ++= "\n" ++= content ++= "```\n"
+    }
+  }
+
   object Paragraph {
+
+    private[this] val ParagraphChunkRegex: Regex =
+      raw"""(?x)(?s)
+            ( <!--(.*?)-->                                 # Comment
+            | (?<=(^|\n))```(\S*)\s*\n(.*?)```\s*(\n|$$)   # Code
+            | (?<=(^|\n))\s*(\[[^\n]*)                     # LinkRef
+            | .*?(?=$$|<!--|```|\n\s*\[|\n\s*\n)           # All other text
+            )
+         """.r
 
     /** Parse section text (between section headers) into Markd instances.
       *
@@ -50,32 +93,24 @@ package object markd {
       * @return a list of corresponding Markd instances.
       */
     def parse(content: String, cfg: ParserCfg = new ParserCfg()): Seq[Markd] = {
-      // The first pass extracts all of the LinkRefs from the content to place at the end.
-      val (lines: Seq[String], links: Seq[LinkRef]) = content.trim
-        .split("\n")
-        .foldLeft((Seq.empty[String], Seq.empty[LinkRef])) { case ((a, b), s) =>
-          LinkRef.LinkRegex
-            .findFirstMatchIn(s)
-            .map(m =>
-              (
-                a :+ "",
-                b :+ LinkRef(
-                  m.group("ref"),
-                  Option(m.group("url")).filter(!_.isBlank).map(_.trim),
-                  Option(m.group("title")).filter(!_.isBlank)
-                )
-              )
-            )
-            .getOrElse((a :+ s, b))
+      val (xs, linkRefs) = ParagraphChunkRegex
+        .findAllMatchIn(content)
+        .flatMap {
+          case ParagraphChunkRegex(_, _, _, code_type, code, _*)
+              if code != null =>
+            Seq(Code(code_type, code))
+          case ParagraphChunkRegex(_, comment, _*) if comment != null =>
+            Seq(Comment(comment))
+          case ParagraphChunkRegex(_, _, _, _, _, _, _, linkRef, _*)
+              if linkRef != null =>
+            LinkRef.parse(linkRef)
+          case ParagraphChunkRegex(all, _*) if !all.isBlank =>
+            Seq(Paragraph(all.trim))
+          case _ => Seq()
         }
+        .partition(!_.isInstanceOf[LinkRef])
 
-      val paragraphs = raw"\n\s*\n".r
-        .split(lines.mkString("\n"))
-        .map(_.trim)
-        .filter(_.nonEmpty)
-        .map(Paragraph.apply)
-
-      paragraphs ++ cfg.linkCleaner(links)
+      (xs ++ linkRefs).toSeq
     }
   }
 
@@ -135,6 +170,18 @@ package object markd {
 
     def apply(ref: String, url: String, title: String): LinkRef =
       LinkRef(ref, Some(url), Some(title))
+
+    def parse(content: String): Option[LinkRef] = {
+      LinkRef.LinkRegex
+        .findFirstMatchIn(content)
+        .map(m =>
+          LinkRef(
+            m.group("ref"),
+            Option(m.group("url")).filter(!_.isBlank).map(_.trim),
+            Option(m.group("title")).filter(!_.isBlank)
+          )
+        )
+    }
   }
 
   /** An element that can contain other elements. */
