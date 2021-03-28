@@ -104,29 +104,101 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       }
     }
 
-    it("should parse a code block") {
-      val md = Header.parse("""
-        |```bash
-        |echo Hello world
-        |```
+    describe("with a code block") {
+      it("should find a standalone element") {
+        val md = Header.parse("""
+            |```bash
+            |echo Hello world
+            |```
         """.stripMargin)
-      md shouldBe Header(0, "", Code("bash", "echo Hello world\n"))
+        md shouldBe Header(0, "", Code("bash", "echo Hello world\n"))
 
-      val cleaned = md.build().toString
-      cleaned shouldBe """```bash
-        |echo Hello world
-        |```
-        |""".stripMargin
-      Header.parse(cleaned) shouldBe md
+        val cleaned = md.build().toString
+        cleaned shouldBe
+          """```bash
+            |echo Hello world
+            |```
+            |""".stripMargin
+        Header.parse(cleaned) shouldBe md
+      }
+
+      it("should ignore unnecessary whitespace") {
+        val md = Header.parse("""
+            |```bash.....
+            |.....echo Hello world.....
+            |```.....
+        """.stripMargin.replaceAllLiterally(".", " "))
+        md shouldBe Header(0, "", Code("bash", "     echo Hello world     \n"))
+
+        val cleaned = md.build().toString
+        cleaned shouldBe
+          """```bash
+            |.....echo Hello world.....
+            |```
+            |""".stripMargin.replaceAllLiterally(".", " ")
+        Header.parse(cleaned) shouldBe md
+      }
+
+      it("should ignore a code block with bad whitespace") {
+        val md = Header.parse("""
+                                |   ```bash
+                                |echo Hello world
+                                |```
+        """.stripMargin.replaceAllLiterally(".", " "))
+        // TODO: What do we expect here?  This is probably not what we want and cleaning breaks.
+        // md shouldBe Header(0, "", Paragraph("   ```bash\necho Hello world\n```"))
+
+        val cleaned = md.build().toString
+        cleaned shouldBe
+          """``bash
+            |echo Hello world
+            |
+            |``
+            |""".stripMargin.replaceAllLiterally(".", " ")
+        Header.parse(cleaned) shouldBe md
+      }
     }
 
-    it("should parse a comment") {
-      val md = Header.parse("<!-- Hello world -->")
-      md shouldBe Header(0, "", Comment(" Hello world "))
+    describe("with a comment block") {
+      it("should find a standalone element") {
+        val md = Header.parse("<!-- Hello world -->")
+        md shouldBe Header(0, "", Comment(" Hello world "))
 
-      val cleaned = md.build().toString
-      cleaned shouldBe "<!-- Hello world -->\n"
-      Header.parse(cleaned) shouldBe md
+        val cleaned = md.build().toString
+        cleaned shouldBe "<!-- Hello world -->\n"
+        Header.parse(cleaned) shouldBe md
+      }
+
+      it("should ignore unnecessary whitespace") {
+        val md = Header.parse("\n    \t<!-- Hello\n\tworld -->\n    \t")
+        md shouldBe Header(0, "", Comment(" Hello\n\tworld "))
+
+        val cleaned = md.build().toString
+        cleaned shouldBe "<!-- Hello\n\tworld -->\n"
+        Header.parse(cleaned) shouldBe md
+      }
+
+      it("should separate it carefully from other elements") {
+        val md = Header.parse("Hello\t<!-- Hello\n\tworld -->     world")
+        md shouldBe Header(
+          0,
+          "",
+          Paragraph("Hello"),
+          Comment(" Hello\n\tworld "),
+          Paragraph("world")
+        )
+
+        val cleaned = md.build().toString
+        cleaned shouldBe
+          """Hello
+            |
+            |<!-- Hello
+            |.world -->
+            |
+            |world
+            |""".stripMargin.replaceAllLiterally(".", "\t")
+        Header.parse(cleaned) shouldBe md
+      }
     }
 
     it("should parse different linkrefs") {

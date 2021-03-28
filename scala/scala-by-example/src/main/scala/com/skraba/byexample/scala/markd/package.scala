@@ -6,6 +6,8 @@ import scala.util.matching.Regex
   * simple markdown files.
   *
   * The model is simple and includes many (but not all) features of markdown.
+  *
+  * You can clean a markdown file into a model then writing out again.
   */
 package object markd {
 
@@ -28,6 +30,56 @@ package object markd {
       * @return The builder passed in.
       */
     def build(sb: StringBuilder = new StringBuilder()): StringBuilder = sb
+  }
+
+  object Markd {
+
+    /** Splits text into strings ready to be placed into [[Comment]], [[Code]],
+      * [[LinkRef]] and [[Paragraph]] instances.
+      */
+    private[this] val Pass1Regex: Regex =
+      raw"""(?x)(?s)
+            ( <!--(.*?)-->                                 # Comment
+            | (?<=(^|\n))```(\S*)\s*\n(.*?)```\s*(\n|$$)   # Code
+            | (?<=(^|\n))\s*(\[[^\n]*)                     # LinkRef
+            | .*?(?=$$|<!--|```|\n\s*\[|\n\s*\n)           # All other text
+            )
+         """.r
+
+    /** Parse the text between section headers into Markd instances.
+      *
+      * @param content The text inside the section.
+      * @return a list of corresponding Markd instances.
+      */
+    def parse(content: String, cfg: ParserCfg = new ParserCfg()): Seq[Markd] = {
+
+      // The first pass splits everything into code, comments, links and paragraphs
+      val pass1 = Pass1Regex
+        .findAllMatchIn(content)
+        .flatMap {
+          case Pass1Regex(_, _, _, code_type, code, _*) if code != null =>
+            Seq(Code(code_type, code))
+          case Pass1Regex(_, comment, _*) if comment != null =>
+            Seq(Comment(comment))
+          case Pass1Regex(_, _, _, _, _, _, _, linkRef, _*)
+              if linkRef != null =>
+            LinkRef.parse(linkRef)
+          case Pass1Regex(all, _*) if !all.isBlank => Seq(Paragraph(all.trim))
+          case _                                   => Nil
+        }
+
+      // Clean the links and put them at the end
+      val (xs, linkRefs) = pass1
+        .foldRight((List.empty[Markd], List.empty[LinkRef])) {
+          case (md, (mds, refs)) =>
+            md match {
+              case ref: LinkRef => (mds, ref :: refs)
+              case _            => (md :: mds, refs)
+            }
+        }
+
+      xs ++ cfg.linkCleaner(linkRefs)
+    }
   }
 
   /** A simple text paragraph of Markdown.
@@ -73,44 +125,6 @@ package object markd {
         sb: StringBuilder = new StringBuilder()
     ): StringBuilder = {
       sb ++= "```" ++= code_type ++= "\n" ++= content ++= "```\n"
-    }
-  }
-
-  object Paragraph {
-
-    private[this] val ParagraphChunkRegex: Regex =
-      raw"""(?x)(?s)
-            ( <!--(.*?)-->                                 # Comment
-            | (?<=(^|\n))```(\S*)\s*\n(.*?)```\s*(\n|$$)   # Code
-            | (?<=(^|\n))\s*(\[[^\n]*)                     # LinkRef
-            | .*?(?=$$|<!--|```|\n\s*\[|\n\s*\n)           # All other text
-            )
-         """.r
-
-    /** Parse section text (between section headers) into Markd instances.
-      *
-      * @param content The text inside the section.
-      * @return a list of corresponding Markd instances.
-      */
-    def parse(content: String, cfg: ParserCfg = new ParserCfg()): Seq[Markd] = {
-      val (xs, linkRefs) = ParagraphChunkRegex
-        .findAllMatchIn(content)
-        .flatMap {
-          case ParagraphChunkRegex(_, _, _, code_type, code, _*)
-              if code != null =>
-            Seq(Code(code_type, code))
-          case ParagraphChunkRegex(_, comment, _*) if comment != null =>
-            Seq(Comment(comment))
-          case ParagraphChunkRegex(_, _, _, _, _, _, _, linkRef, _*)
-              if linkRef != null =>
-            LinkRef.parse(linkRef)
-          case ParagraphChunkRegex(all, _*) if !all.isBlank =>
-            Seq(Paragraph(all.trim))
-          case _ => Seq()
-        }
-        .partition(!_.isInstanceOf[LinkRef])
-
-      (xs ++ linkRefs).toSeq
     }
   }
 
@@ -352,12 +366,12 @@ package object markd {
         .split(content)
         .flatMap { text =>
           HeaderRegex.findPrefixMatchOf(s"$text\n") match {
-            case None => Paragraph.parse(text, cfg)
+            case None => Markd.parse(text, cfg)
             case Some(m: Regex.Match) =>
               val (level, title) = getHeaderLevelAndTitle(m)
               val lastMatchedGroup = 1 + m.subgroups.lastIndexWhere(_ != null)
               val headerContents = m.after(lastMatchedGroup).toString
-              Header(level, title) +: Paragraph.parse(headerContents, cfg)
+              Header(level, title) +: Markd.parse(headerContents, cfg)
           }
         }
 
