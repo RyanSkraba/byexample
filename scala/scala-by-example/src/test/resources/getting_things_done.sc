@@ -163,10 +163,10 @@ def newWeek(): Unit = {
   }
 
   val newDoc = {
-    doc.replaceFirstInSub(ifNotFound = doc.sub :+ Header(1, H1Weekly)) {
+    doc.replaceFirstIn(ifNotFound = doc.mds :+ Header(1, H1Weekly)) {
       case weekly @ Header(title, 1, _) if title.startsWith(H1Weekly) =>
         Seq(
-          weekly.replaceFirstInSub(ifNotFound = Header(2, "") +: weekly.sub) {
+          weekly.replaceFirstIn(ifNotFound = Header(2, "") +: weekly.mds) {
             case lastWeek @ Header(lastTitle, 2, _)
                 if lastTitle.length >= 10 => {
               Seq(lastWeek.copy(title = nextMonday(Some(lastTitle))), lastWeek)
@@ -212,19 +212,19 @@ def pr(
   }
 
   val newDoc =
-    doc.replaceFirstInSub(ifNotFound = doc.sub :+ Header(1, H1Weekly)) {
+    doc.replaceFirstIn(ifNotFound = doc.mds :+ Header(1, H1Weekly)) {
       case weekly @ Header(title, 1, _) if title.startsWith(H1Weekly) =>
         // Add the two JIRA to the weekly status section.  Their URLs will be filled in
         // automatically on cleanup.
-        val newWeekly = weekly.copySub(
+        val newWeekly = weekly.copyMds(
           fullJira.map(LinkRef(_, None, Some(description))).toSeq ++
-            fullPr.map(LinkRef(_, None, Some(description))) ++ weekly.sub
+            fullPr.map(LinkRef(_, None, Some(description))) ++ weekly.mds
         )
 
         // Update the most recent week.
-        Seq(newWeekly.replaceFirstInSub() {
+        Seq(newWeekly.replaceFirstIn() {
           case h @ Header(title, 2, _) if title.length >= 10 => {
-            Seq(h.copySub(h.sub :+ Paragraph(task)))
+            Seq(h.copyMds(h.mds :+ Paragraph(task)))
           }
         })
     }
@@ -247,9 +247,9 @@ def week(
 ): Unit = {
   // Read the existing document.
   val doc = Header.parse(read ! StatusFile, ProjectParserCfg)
-  val topWeek: Seq[Markd] = doc.sub.flatMap {
+  val topWeek: Seq[Markd] = doc.mds.flatMap {
     case h @ Header(title, 1, _) if title.startsWith(H1Weekly) => {
-      h.sub.find {
+      h.mds.find {
         case Header(title, 2, _)
             if week.map(title.startsWith).getOrElse(title.length >= 10) =>
           true
