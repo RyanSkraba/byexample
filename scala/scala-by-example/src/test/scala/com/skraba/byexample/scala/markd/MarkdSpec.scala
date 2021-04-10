@@ -239,22 +239,22 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
                          |""".stripMargin
       Header.parse(cleaned) shouldBe md
 
-      md.sub should have size 15
-      md.sub.head shouldBe LinkRef("ref-bare", None, None)
-      md.sub(1) shouldBe LinkRef("url", "url")
-      md.sub(2) shouldBe LinkRef("url-prews", "url-prews")
-      md.sub(3) shouldBe LinkRef("url-postws", "url-postws")
-      md.sub(4) shouldBe LinkRef("title", None, Some("title"))
-      md.sub(5) shouldBe LinkRef("title-prews", None, Some("title-prews"))
-      md.sub(6) shouldBe LinkRef("title-postws", None, Some("title-postws"))
-      md.sub(7) shouldBe LinkRef("title-empty", None, None)
-      md.sub(8) shouldBe LinkRef("title-empty-prews", None, None)
-      md.sub(9) shouldBe LinkRef("title-empty-postws", None, None)
-      md.sub(10) shouldBe LinkRef("all", "all", "all")
-      md.sub(11) shouldBe LinkRef("all-prews", "all-prews", "all-prews")
-      md.sub(12) shouldBe LinkRef("all-midws", "all-midws", "all-midws")
-      md.sub(13) shouldBe LinkRef("all-postws", "all-postws", "all-postws")
-      md.sub(14) shouldBe LinkRef("all-empty-title", "all-empty-title")
+      md.mds should have size 15
+      md.mds.head shouldBe LinkRef("ref-bare", None, None)
+      md.mds(1) shouldBe LinkRef("url", "url")
+      md.mds(2) shouldBe LinkRef("url-prews", "url-prews")
+      md.mds(3) shouldBe LinkRef("url-postws", "url-postws")
+      md.mds(4) shouldBe LinkRef("title", None, Some("title"))
+      md.mds(5) shouldBe LinkRef("title-prews", None, Some("title-prews"))
+      md.mds(6) shouldBe LinkRef("title-postws", None, Some("title-postws"))
+      md.mds(7) shouldBe LinkRef("title-empty", None, None)
+      md.mds(8) shouldBe LinkRef("title-empty-prews", None, None)
+      md.mds(9) shouldBe LinkRef("title-empty-postws", None, None)
+      md.mds(10) shouldBe LinkRef("all", "all", "all")
+      md.mds(11) shouldBe LinkRef("all-prews", "all-prews", "all-prews")
+      md.mds(12) shouldBe LinkRef("all-midws", "all-midws", "all-midws")
+      md.mds(13) shouldBe LinkRef("all-postws", "all-postws", "all-postws")
+      md.mds(14) shouldBe LinkRef("all-empty-title", "all-empty-title")
     }
   }
 
@@ -266,7 +266,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |Hello world
           |# French
           |Bonjour tout le monde""".stripMargin)
-      md.sub should have size 2
+      md.mds should have size 2
 
       val cleaned = md.build().toString
       cleaned shouldBe
@@ -291,7 +291,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |## Two
           |### Three
           |""".stripMargin)
-      md.sub should have size 3
+      md.mds should have size 3
 
       val cleaned = md.build().toString
       cleaned shouldBe
@@ -384,37 +384,37 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |""".stripMargin
       Header.parse(cleaned) shouldBe md
 
-      md.sub should have size 4
-      md.sub.head shouldBe Paragraph("outside")
-      md.sub(1) shouldBe LinkRef("refout", "https://www.refout.com")
-      md.sub(2) shouldBe a[Header]
-      md.sub(3) shouldBe a[Header]
-      val h1 = md.sub(2).asInstanceOf[Header]
-      val h2 = md.sub(3).asInstanceOf[Header]
+      md.mds should have size 4
+      md.mds.head shouldBe Paragraph("outside")
+      md.mds(1) shouldBe LinkRef("refout", "https://www.refout.com")
+      md.mds(2) shouldBe a[Header]
+      md.mds(3) shouldBe a[Header]
+      val h1 = md.mds(2).asInstanceOf[Header]
+      val h2 = md.mds(3).asInstanceOf[Header]
 
-      h1.sub should have size 3
-      h1.sub.head shouldBe Paragraph("h1txt")
-      h1.sub(1) shouldBe a[Header]
-      h1.sub(2) shouldBe a[Header]
-      h1.sub(1) shouldBe Header(
+      h1.mds should have size 3
+      h1.mds.head shouldBe Paragraph("h1txt")
+      h1.mds(1) shouldBe a[Header]
+      h1.mds(2) shouldBe a[Header]
+      h1.mds(1) shouldBe Header(
         2,
         "header1a",
         Paragraph("h1atxt"),
         LinkRef("ref1a", "https://www.ref1a.com"),
         LinkRef("ref1a_dup", "https://www.ref1a.com")
       )
-      h1.sub(2) shouldBe Header(
+      h1.mds(2) shouldBe Header(
         2,
         "header1b",
         Paragraph("h1btxt"),
         Header(3, "header1b1", Paragraph("h1b1txt"))
       )
 
-      h2.sub should have size 4
-      h2.sub.head shouldBe Paragraph("h2txt")
-      h2.sub(1) shouldBe LinkRef("ref2", "https://www.ref2.com")
-      h2.sub(2) shouldBe Header(2, "header2a", Paragraph("h2atxt"))
-      h2.sub(3) shouldBe Header(
+      h2.mds should have size 4
+      h2.mds.head shouldBe Paragraph("h2txt")
+      h2.mds(1) shouldBe LinkRef("ref2", "https://www.ref2.com")
+      h2.mds(2) shouldBe Header(2, "header2a", Paragraph("h2atxt"))
+      h2.mds(3) shouldBe Header(
         2,
         "header2b",
         Paragraph("h2btxt"),
@@ -432,26 +432,26 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
 
     describe("replacing a match one-to-one with another element") {
       it("should replace all matches") {
-        md.replaceInSub() {
+        md.replaceIn() {
           case (Some(h @ Header(title, 1, _)), _) if title.startsWith("T") =>
             Seq(h.copy(title = h.title.toUpperCase))
-        }.sub shouldBe Seq(
+        }.mds shouldBe Seq(
           Header(1, "One"),
           Header(1, "TWO"),
           Header(1, "THREE")
         )
       }
       it("should replace all matches with filtering") {
-        md.replaceInSub(filter = true) {
+        md.replaceIn(filter = true) {
           case (Some(h @ Header(title, 1, _)), _) if title.startsWith("T") =>
             Seq(h.copy(title = h.title.toUpperCase))
-        }.sub shouldBe Seq(Header(1, "TWO"), Header(1, "THREE"))
+        }.mds shouldBe Seq(Header(1, "TWO"), Header(1, "THREE"))
       }
       it("should replace the first") {
-        md.replaceFirstInSub() {
+        md.replaceFirstIn() {
           case h @ Header(title, 1, _) if title.startsWith("T") =>
             Seq(h.copy(title = h.title.toUpperCase))
-        }.sub shouldBe Seq(
+        }.mds shouldBe Seq(
           Header(1, "One"),
           Header(1, "TWO"),
           Header(1, "Three")
@@ -461,31 +461,31 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
 
     describe("removing a match") {
       it("should replace all matches") {
-        md.replaceInSub() {
+        md.replaceIn() {
           case (Some(h @ Header(title, 1, _)), _) if title.startsWith("T") =>
             Seq.empty
-        }.sub shouldBe Seq(Header(1, "One"))
+        }.mds shouldBe Seq(Header(1, "One"))
       }
       it("should replace all matches with filtering") {
-        md.replaceInSub(filter = true) {
+        md.replaceIn(filter = true) {
           case (Some(h @ Header(title, 1, _)), _) if title.startsWith("T") =>
             Seq.empty
-        }.sub shouldBe Seq.empty
+        }.mds shouldBe Seq.empty
       }
       it("should replace the first") {
-        md.replaceFirstInSub() {
+        md.replaceFirstIn() {
           case h @ Header(title, 1, _) if title.startsWith("T") =>
             Seq.empty
-        }.sub shouldBe Seq(Header(1, "One"), Header(1, "Three"))
+        }.mds shouldBe Seq(Header(1, "One"), Header(1, "Three"))
       }
     }
 
     describe("inserting after a match") {
       it("should replace all matches") {
-        md.replaceInSub() {
+        md.replaceIn() {
           case (Some(h @ Header(title, 1, _)), _) if title.startsWith("T") =>
             Seq(h, h.copy(title = h.title.toUpperCase))
-        }.sub shouldBe Seq(
+        }.mds shouldBe Seq(
           Header(1, "One"),
           Header(1, "Two"),
           Header(1, "TWO"),
@@ -494,10 +494,10 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         )
       }
       it("should replace all matches with filtering") {
-        md.replaceInSub(filter = true) {
+        md.replaceIn(filter = true) {
           case (Some(h @ Header(title, 1, _)), _) if title.startsWith("T") =>
             Seq(h, h.copy(title = h.title.toUpperCase))
-        }.sub shouldBe Seq(
+        }.mds shouldBe Seq(
           Header(1, "Two"),
           Header(1, "TWO"),
           Header(1, "Three"),
@@ -505,10 +505,10 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         )
       }
       it("should replace the first") {
-        md.replaceFirstInSub() {
+        md.replaceFirstIn() {
           case h @ Header(title, 1, _) if title.startsWith("T") =>
             Seq(h, h.copy(title = h.title.toUpperCase))
-        }.sub shouldBe Seq(
+        }.mds shouldBe Seq(
           Header(1, "One"),
           Header(1, "Two"),
           Header(1, "TWO"),
@@ -519,28 +519,28 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
 
     describe("when a match isn't found") {
       it("should do nothing on all matches") {
-        md.replaceInSub() {
+        md.replaceIn() {
           case (Some(h @ Header(title, 1, _)), _) if title.startsWith("F") =>
             Seq(h.copy(title = h.title.toUpperCase))
-        }.sub shouldBe md.sub
+        }.mds shouldBe md.mds
       }
       it("should remove all when filtering") {
-        md.replaceInSub(filter = true) {
+        md.replaceIn(filter = true) {
           case (Some(h @ Header(title, 1, _)), _) if title.startsWith("F") =>
             Seq(h.copy(title = h.title.toUpperCase))
-        }.sub shouldBe Seq.empty
+        }.mds shouldBe Seq.empty
       }
       it("should do nothing when no first match") {
-        md.replaceFirstInSub() {
+        md.replaceFirstIn() {
           case h @ Header(title, 1, _) if title.startsWith("F") =>
             Seq(h.copy(title = h.title.toUpperCase))
-        }.sub shouldBe md.sub
+        }.mds shouldBe md.mds
       }
       it("should help falling back when no first match") {
-        md.replaceFirstInSub(ifNotFound = md.sub :+ Header(1, "Four")) {
+        md.replaceFirstIn(ifNotFound = md.mds :+ Header(1, "Four")) {
           case h @ Header(title, 1, _) if title.startsWith("F") =>
             Seq(h.copy(title = h.title.toUpperCase))
-        }.sub shouldBe Seq(
+        }.mds shouldBe Seq(
           Header(1, "One"),
           Header(1, "Two"),
           Header(1, "Three"),
@@ -551,9 +551,9 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
 
     describe("when matching on None to append") {
       it("should append on all matches") {
-        md.replaceInSub() { case (None, _) =>
+        md.replaceIn() { case (None, _) =>
           Seq(Header(1, "Four"))
-        }.sub shouldBe Seq(
+        }.mds shouldBe Seq(
           Header(1, "One"),
           Header(1, "Two"),
           Header(1, "Three"),
@@ -561,17 +561,17 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         )
       }
       it("should remove all but the element when filtering") {
-        md.replaceInSub(filter = true) { case (None, _) =>
+        md.replaceIn(filter = true) { case (None, _) =>
           Seq(Header(1, "Four"))
-        }.sub shouldBe Seq(Header(1, "Four"))
+        }.mds shouldBe Seq(Header(1, "Four"))
       }
     }
 
     describe("when matching on 0 to prepend") {
       it("should prepend on all matches") {
-        md.replaceInSub() { case (Some(md), 0) =>
+        md.replaceIn() { case (Some(md), 0) =>
           Seq(Header(1, "Zero"), md)
-        }.sub shouldBe Seq(
+        }.mds shouldBe Seq(
           Header(1, "Zero"),
           Header(1, "One"),
           Header(1, "Two"),
@@ -579,9 +579,9 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         )
       }
       it("should remove all but the element and the head when filtering") {
-        md.replaceInSub(filter = true) { case (Some(md), 0) =>
+        md.replaceIn(filter = true) { case (Some(md), 0) =>
           Seq(Header(1, "Zero"), md)
-        }.sub shouldBe Seq(Header(1, "Zero"), Header(1, "One"))
+        }.mds shouldBe Seq(Header(1, "Zero"), Header(1, "One"))
       }
     }
   }

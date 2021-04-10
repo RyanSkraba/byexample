@@ -204,7 +204,7 @@ package object markd {
     type Self <: MultiMarkd
 
     /** The subelements of this element. */
-    def sub: Seq[Markd]
+    def mds: Seq[Markd]
 
     /** Write this element to the builder.
       *
@@ -217,12 +217,12 @@ package object markd {
         sb: StringBuilder = new StringBuilder(),
         prev: Option[Markd]
     ): StringBuilder = {
-      if (sub.nonEmpty) {
-        sub.headOption.map { head =>
+      if (mds.nonEmpty) {
+        mds.headOption.map { head =>
           head.buildPreSpace(sb, prev)
           head.build(sb)
         }
-        for (md: Seq[Markd] <- sub.sliding(2) if md.size == 2) {
+        for (md: Seq[Markd] <- mds.sliding(2) if md.size == 2) {
           md.last.buildPreSpace(sb, Some(md.head))
           md.last.build(sb)
         }
@@ -231,9 +231,9 @@ package object markd {
     }
 
     /** Create a copy of the element with the new subelements.
-      * @param newSub The subelements to replace the existing ones in the copy.
+      * @param newMds The subelements to replace the existing ones in the copy.
       */
-    def copySub(newSub: Seq[Markd]): Self
+    def copyMds(newMds: Seq[Markd]): Self
 
     /** Create a copy of the list of subelements, replacing some as necessary.
       *
@@ -246,7 +246,7 @@ package object markd {
       * @param pf A partial function to replace markd elements.
       * @return A copy of this [[MultiMarkd]] with the replaced subelements
       */
-    def replaceInSub(
+    def replaceIn(
         filter: Boolean = false
     )(pf: PartialFunction[(Option[Markd], Int), Seq[Markd]]): Self = {
       // Elements undefined by the partial function should either be filtered from the results
@@ -256,8 +256,8 @@ package object markd {
         else { case (md, _) => md.toSeq }
 
       // Map the sub elements with the function, using None for the end.
-      copySub(
-        (sub.map { Option(_) }.zipWithIndex :+ (None, sub.size))
+      copyMds(
+        (mds.map { Option(_) }.zipWithIndex :+ (None, mds.size))
           .flatMap(pf orElse unmatched)
       )
     }
@@ -272,13 +272,13 @@ package object markd {
       * @param pf A partial function to replace markd elements.
       * @return A copy of this [[MultiMarkd]] with the replaced subelements
       */
-    def replaceFirstInSub(ifNotFound: => Seq[Markd] = Seq.empty)(
-        pf: PartialFunction[Markd, Seq[Markd]]
-    ): Self = {
-      copySub(
-        Option(sub.indexWhere(pf.isDefinedAt))
+    def replaceFirstIn(
+        ifNotFound: => Seq[Markd] = Seq.empty
+    )(pf: PartialFunction[Markd, Seq[Markd]]): Self = {
+      copyMds(
+        Option(mds.indexWhere(pf.isDefinedAt))
           .filter(_ != -1)
-          .map((_, sub))
+          .map((_, mds))
           .orElse {
             // First fallback, use the ifNotFound instead.
             Option(ifNotFound.indexWhere(pf.isDefinedAt))
@@ -288,7 +288,7 @@ package object markd {
           .map { case (idx, mds) =>
             mds.patch(idx, pf(mds(idx)), 1)
           }
-          .getOrElse(sub)
+          .getOrElse(mds)
       )
     }
   }
@@ -302,16 +302,19 @@ package object markd {
     *
     * ### Header 3
     *
-    * @param level The level (from 1 to 9).  A level of 0 can be used to represent an entire document.
+    * @param level The level (from 1 to 9).  A level of 0 can be used to represent an entire
+    *              document.
     * @param title The title of the section
-    * @param sub   The internal subsections and parsed [[Markd]] elements.
+    * @param mds   The internal subsections and parsed [[Markd]] elements.
     */
-  case class Header(title: String, level: Int, sub: Seq[Markd])
+  case class Header(title: String, level: Int, mds: Seq[Markd])
       extends MultiMarkd {
 
     type Self = Header
 
-    override def copySub(newSub: Seq[Markd]): Self = copy(sub = newSub)
+    // override def mds: Seq[Markd] = mds
+
+    override def copyMds(newMds: Seq[Markd]): Self = copy(mds = newMds)
 
     override def build(
         sb: StringBuilder = new StringBuilder()
@@ -384,13 +387,13 @@ package object markd {
             // the list.
             val (subsection, flatRemainder) = treeify(next, flat.tail)
             // Add the subsection to this node, and continue to treeify this node with the rest.
-            treeify(node.copy(sub = node.sub :+ subsection), flatRemainder)
+            treeify(node.copy(mds = node.mds :+ subsection), flatRemainder)
           // If the next element in the list is a section of the same or lower level,
           // then just return, and it can be added to the current node's parent.
           case Some(_: Header) => (node, flat)
           // If the next element in the list is any other Markd, then just add it to this node.
           case Some(next) =>
-            treeify(node.copy(sub = node.sub :+ next), flat.tail)
+            treeify(node.copy(mds = node.mds :+ next), flat.tail)
           // Otherwise processing is complete.
           case _ => (node, Seq.empty)
         }
