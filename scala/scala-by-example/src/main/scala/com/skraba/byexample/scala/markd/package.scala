@@ -199,12 +199,12 @@ package object markd {
   }
 
   /** An element that can contain other elements. */
-  trait MultiMarkd extends Markd {
+  trait MultiMarkd[T <: Markd] extends Markd {
 
-    type Self <: MultiMarkd
+    type Self <: MultiMarkd[T]
 
     /** The subelements of this element. */
-    def mds: Seq[Markd]
+    def mds: Seq[T]
 
     /** Write this element to the builder.
       *
@@ -215,7 +215,7 @@ package object markd {
       */
     def buildSub(
         sb: StringBuilder = new StringBuilder(),
-        prev: Option[Markd]
+        prev: Option[T]
     ): StringBuilder = {
       if (mds.nonEmpty) {
         mds.headOption.map { head =>
@@ -233,7 +233,7 @@ package object markd {
     /** Create a copy of the element with the new subelements.
       * @param newMds The subelements to replace the existing ones in the copy.
       */
-    def copyMds(newMds: Seq[Markd]): Self
+    def copyMds(newMds: Seq[T]): Self
 
     /** Create a copy of the list of subelements, replacing some as necessary.
       *
@@ -248,10 +248,10 @@ package object markd {
       */
     def replaceIn(
         filter: Boolean = false
-    )(pf: PartialFunction[(Option[Markd], Int), Seq[Markd]]): Self = {
+    )(pf: PartialFunction[(Option[T], Int), Seq[T]]): Self = {
       // Elements undefined by the partial function should either be filtered from the results
       // or passed through without modification.
-      val unmatched: PartialFunction[(Option[Markd], Int), Seq[Markd]] =
+      val unmatched: PartialFunction[(Option[T], Int), Seq[T]] =
         if (filter) { case _ => Seq() }
         else { case (md, _) => md.toSeq }
 
@@ -273,8 +273,8 @@ package object markd {
       * @return A copy of this [[MultiMarkd]] with the replaced subelements
       */
     def replaceFirstIn(
-        ifNotFound: => Seq[Markd] = Seq.empty
-    )(pf: PartialFunction[Markd, Seq[Markd]]): Self = {
+        ifNotFound: => Seq[T] = Seq.empty
+    )(pf: PartialFunction[T, Seq[T]]): Self = {
       copyMds(
         Option(mds.indexWhere(pf.isDefinedAt))
           .filter(_ != -1)
@@ -308,7 +308,7 @@ package object markd {
     * @param mds   The internal subsections and parsed [[Markd]] elements.
     */
   case class Header(title: String, level: Int, mds: Seq[Markd])
-      extends MultiMarkd {
+      extends MultiMarkd[Markd] {
 
     type Self = Header
 
