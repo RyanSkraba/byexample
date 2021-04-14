@@ -295,12 +295,14 @@ package object markd {
 
   /** Markdown header or section.
     *
+    * {{{
     * # Header 1
     *
     * Header 2
     * --------
     *
     * ### Header 3
+    * }}}
     *
     * @param level The level (from 1 to 9).  A level of 0 can be used to represent an entire
     *              document.
