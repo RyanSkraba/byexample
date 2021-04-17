@@ -67,4 +67,10 @@ byexample_go_scala --help
 # Using the maven-generated classpath
 mvn exec:java -Dexec.args="--name=World --count=7"
 mvn exec:java -Dexec.mainClass="com.skraba.byexample.scala.ScalaGo" -Dexec.args="--name=world --count=7" 
-```
+
+# MarkdGo is another internal application to this project.
+
+alias byexample_go_markd='java -classpath '$(pwd)'/target/scala-by-example-*-SNAPSHOT.jar com.skraba.byexample.scala.markd.MarkdGo'
+byexample_go_markd beautify readme.md
+
+``
