@@ -3,6 +3,7 @@ package com.skraba.byexample.scala.markd
 import org.docopt.Docopt
 import org.docopt.DocoptExitException
 import scala.collection.JavaConverters._
+import scala.reflect.io.File
 
 /** A driver for the various utilities that use the [[Markd]] model.
   */
@@ -36,9 +37,9 @@ object MarkdGo {
       |  MarkdGo [--debug] <command> [<ARGS>...]
       |
       |Options:
-      |  -h --help          Show this screen.
-      |  --version          Show version.
-      |  --debug            Log extra information to the console while executing.
+      |  -h --help    Show this screen.
+      |  --version    Show version.
+      |  --debug      Log extra information to the console while executing.
       |
       |Commands:
       |%s
@@ -132,9 +133,9 @@ object MarkdGo {
         |  MarkdGo beautify FILE...
         |
         |Options:
-        |  -h --help    Show this screen.
-        |  --version    Show version.
-        |  FILE         File(s) to beautify.
+        |  -h --help   Show this screen.
+        |  --version   Show version.
+        |  FILE        File(s) to beautify.
         |""".stripMargin.trim
 
     val Cmd = "beautify"
@@ -149,9 +150,13 @@ object MarkdGo {
           .asInstanceOf[java.lang.Iterable[String]]
           .asScala
           .toSeq
-      println(files)
-      // TODO
 
+      files
+        .map(File(_).toAbsolute)
+        .foreach(f => {
+          val md = Header.parse(f.slurp())
+          f.writeAll(md.build().toString)
+        })
     }
 
     val Task: MarkdGo.Task = MarkdGo.Task(Doc, Cmd, Description, go)
