@@ -31,14 +31,14 @@ class StdoutSpec extends AnyFunSpecLike with Matchers {
     }
 
     it("should match stdout and stderr using withGoMatch.") {
-      withScalaGoMatch("one", "two", "three") { case (stdout, stderr) =>
+      withStdoutGoMatch("one", "two", "three") { case (stdout, stderr) =>
         stdout shouldBe "one\nthree\n"
         stderr shouldBe "two\n\n"
       }
     }
 
     it("should return stdout and stderr using withGo") {
-      withScalaGo("one", "two", "three") shouldBe ("one\nthree\n", "two\n\n")
+      withStdoutGo("one", "two", "three") shouldBe ("one\nthree\n", "two\n\n")
     }
   }
 }
@@ -89,7 +89,7 @@ object StdoutSpec {
     * @tparam U The return value type of the partial function to return.
     * @return The return value of the partial function.
     */
-  def withScalaGoMatch[T, U](
+  def withStdoutGoMatch[T, U](
       args: String*
   )(pf: scala.PartialFunction[(String, String), U]): U = {
     withConsoleMatch(go(args: _*)) { case (_, stdout, stderr) =>
@@ -101,7 +101,7 @@ object StdoutSpec {
     * @param args String arguments to pass to the go method
     * @return A tuple of the stdout and stderr
     */
-  def withScalaGo(args: String*): (String, String) = {
-    withScalaGoMatch(args: _*) { case any => any }
+  def withStdoutGo(args: String*): (String, String) = {
+    withStdoutGoMatch(args: _*) { case any => any }
   }
 }
