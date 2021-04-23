@@ -423,6 +423,36 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
     }
   }
 
+  describe("Parsing markdown into tables") {
+    it("should clean up a simple table") {
+      val md = Header.parse("""Before
+          |
+          |Id        | Name
+          |---    | ---
+          |   [1](https://en.wikipedia.org/wiki/1)    |      One
+          |2|Two
+          |3|Three
+          |
+          |
+          |After
+          |""".stripMargin)
+      // TODO
+      md.mds should have size 3
+      val cleaned = md.build().toString
+//      cleaned shouldBe
+//        """Before
+//          |
+//          |Id  | Name
+//          |--- | ---
+//          |1   | One
+//          |2   | Two
+//          |
+//          |After
+//          |""".stripMargin
+      Header.parse(cleaned) shouldBe md
+    }
+  }
+
   describe("Replacing subelements") {
     val md = Header.parse("""
                             |# One
