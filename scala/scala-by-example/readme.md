@@ -73,4 +73,4 @@ mvn exec:java -Dexec.mainClass="com.skraba.byexample.scala.ScalaGo" -Dexec.args=
 alias byexample_go_markd='java -classpath '$(pwd)'/target/scala-by-example-*-SNAPSHOT.jar com.skraba.byexample.scala.markd.MarkdGo'
 byexample_go_markd beautify readme.md
 
-``
+```

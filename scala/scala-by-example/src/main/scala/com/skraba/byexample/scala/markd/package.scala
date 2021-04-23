@@ -41,8 +41,8 @@ package object markd {
       raw"""(?x)(?s)
             ( <!--(.*?)-->                                 # Comment
             | (?<=(^|\n))```(\S*)\s*\n(.*?)```\s*(\n|$$)   # Code
-            | (?<=(^|\n))\s*(\[[^\n]*)                     # LinkRef
-            | .*?(?=$$|<!--|```|\n\s*\[|\n\s*\n)           # All other text
+            | (?<=(^|\n))(\[[^\]]+\]:[^\n]*)               # LinkRef
+            | .*?(?=$$|<!--|```|\n\[[^\]]+\]:|\n\s*\n)     # All other text
             )
          """.r
 
