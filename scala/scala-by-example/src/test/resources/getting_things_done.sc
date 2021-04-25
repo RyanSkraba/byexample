@@ -13,7 +13,6 @@ import ammonite.ops.{home, _}
 import mainargs.{arg, main}
 
 import scala.io.AnsiColor._
-import scala.util.matching.Regex
 
 interp.repositories() ++= {
   // Get the local Maven repository.
