@@ -258,6 +258,27 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
     }
   }
 
+  it("should ignore non-linkref") {
+    val md = Header.parse("""
+                            |[url]: url
+                            | [space-before]: Leading space?  Not a link ref
+                            |""".stripMargin.replaceAllLiterally(".", " "))
+
+    val cleaned = md.build().toString
+    cleaned shouldBe """[space-before]: Leading space?  Not a link ref
+                       |
+                       |[url]: url
+                       |""".stripMargin
+    // TODO: The round-trip is still broken because of cleaning up whitespace.
+    // Header.parse(cleaned) shouldBe md
+
+    md.mds should have size 2
+    md.mds.head shouldBe Paragraph(
+      "[space-before]: Leading space?  Not a link ref"
+    )
+    md.mds(1) shouldBe LinkRef("url", "url")
+  }
+
   describe("Parsing markdown into sections") {
 
     it("should separate into level 1 headers") {
