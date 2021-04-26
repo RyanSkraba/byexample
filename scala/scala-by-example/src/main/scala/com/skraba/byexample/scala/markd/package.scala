@@ -167,7 +167,7 @@ package object markd {
     val LinkRegex: Regex =
       raw"""(?x)
           ^
-          \s*\[(?<ref>[^\]]+)]:
+          \[(?<ref>[^]]+)]:
           \s*(?<url>[^"].*?)?
           (\s*"(?<title>[^"]*?)")?
           \s*
