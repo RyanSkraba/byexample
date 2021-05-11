@@ -49,6 +49,7 @@ mvn install
 # Run the script directly from the resources directory.  You can make changes and re-run
 # without rebuilding with maven.
 src/test/resources/getting_things_done.sc help
+src/test/resources/file_renamer.sc help
 ```
 
 [Ammonite]: https://ammonite.io/
