@@ -3,6 +3,8 @@ package com.skraba.byexample.scala.tour
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
+import scala.annotation.tailrec
+
 /** Examples from the scala tour.
   *
   * @see https://docs.scala-lang.org/tour/tour-of-scala.html
@@ -37,6 +39,7 @@ class Tour060HigherOrderNestedCurryingSpec
   describe("Nested methods") {
     it("are possible") {
       def factorial(x: Int): Int = {
+        @tailrec
         def fact(x: Int, accumulator: Int): Int = {
           if (x <= 1) accumulator
           else fact(x - 1, x * accumulator)
