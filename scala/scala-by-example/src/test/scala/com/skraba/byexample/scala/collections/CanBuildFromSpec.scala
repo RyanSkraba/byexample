@@ -48,7 +48,7 @@ class CanBuildFromSpec extends AnyFunSpecLike with Matchers {
 
   describe("MagicList") {
 
-    it("looks like a Seq but doesn't have the same magic.") {
+    it("looks like a Seq but doesn't have the same magic") {
       val orig: MagicList = MagicList(true, false, true)
       "val x: Seq[Boolean] = orig" should compile
 
@@ -64,7 +64,7 @@ class CanBuildFromSpec extends AnyFunSpecLike with Matchers {
       "implicitly[CanBuildFrom[MagicList, Boolean, MagicList]]" shouldNot compile
     }
 
-    it("can act like a sequence and MagicList.") {
+    it("can act like a sequence and MagicList") {
 
       // We can add the magic with an implicit CanBuildFrom
       implicit val mcbf: CanBuildFrom[Seq[Boolean], Boolean, MagicList] =

@@ -19,7 +19,7 @@ class ScalaGoSpec
     with BeforeAndAfterAll {
 
   describe("ScalaGo docopt check") {
-    it("should have less than 80 characters per string for readability.") {
+    it("should have less than 80 characters per string for readability") {
       for (line <- ScalaGo.Doc.split("\n")) {
         withClue("main" -> line) {
           line.length should be < 80
@@ -80,7 +80,7 @@ class ScalaGoSpec
   }
 
   describe("ScalaGo valid command lines") {
-    it("should match stdout and stderr using withScalaGoMatch.") {
+    it("should match stdout and stderr using withScalaGoMatch") {
       withScalaGoMatch() { case (stdout, stderr) =>
         stdout shouldBe "Hello, JavaScalaGo!\n" * 10
         stderr shouldBe ""

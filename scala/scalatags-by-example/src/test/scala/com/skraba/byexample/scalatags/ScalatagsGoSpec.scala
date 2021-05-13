@@ -14,7 +14,7 @@ import scala.reflect.io.Streamable
 class ScalatagsGoSpec extends AnyFunSpecLike with Matchers {
 
   describe("ScalatagsGo docopt check") {
-    it("should have less than 80 characters per string for readability.") {
+    it("should have less than 80 characters per string for readability") {
       for (line <- ScalatagsGo.Doc.split("\n")) {
         withClue("main" -> line) {
           line.length should be < 80

@@ -18,7 +18,7 @@ class Collections010TraversableSpec extends AnyFunSpecLike with Matchers {
     // Instance for testing.
     val xs = Traversable(1, 2, 3)
 
-    it("has a default implementation of immutable.List.") {
+    it("has a default implementation of immutable.List") {
       xs shouldBe a[List[_]]
 
       // If you want to define a new Traversable, all you need to implement is foreach.

@@ -35,7 +35,7 @@ class Tour020UnifiedTypesSpec extends AnyFunSpecLike with Matchers {
 
   describe("UnifiedTypes") {
 
-    it("should have all values as base.") {
+    it("should have all values as base") {
       val list: List[Any] = List(
         "a string",
         732, // an integer

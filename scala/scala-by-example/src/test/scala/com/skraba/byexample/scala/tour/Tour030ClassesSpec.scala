@@ -11,7 +11,7 @@ class Tour030ClassesSpec extends AnyFunSpecLike with Matchers {
 
   describe("Classes") {
 
-    it("can be very simple.") {
+    it("can be very simple") {
       class Thing
       val x = new Thing
 
