@@ -16,7 +16,7 @@ class Collections040SetSpec extends AnyFunSpecLike with Matchers {
     // Instance for testing.
     val xs = Set(1, 2, 3)
 
-    it("has a default implementation of immutable.HashSet for larger sets.") {
+    it("has a default implementation of immutable.HashSet for larger sets") {
       // Any smaller sets may have a specialized implementation.
       Set(1, 2, 3, 4, 5) shouldBe a[immutable.HashSet[_]]
 
@@ -106,7 +106,7 @@ class Collections040SetSpec extends AnyFunSpecLike with Matchers {
   }
 
   describe("Sorted sets") {
-    it("has a default implementation of immutable.TreeSet.") {
+    it("has a default implementation of immutable.TreeSet") {
       // Any smaller sets may have a specialized implementation.
       val xs = SortedSet(1, 2, 3, 4, 5)
       xs shouldBe a[immutable.TreeSet[_]]
@@ -133,7 +133,7 @@ class Collections040SetSpec extends AnyFunSpecLike with Matchers {
   }
 
   describe("Bit sets") {
-    it("has a default implementation of immutable.BitSet.") {
+    it("has a default implementation of immutable.BitSet") {
       // Can only contain ints, and is stored internally as sequences of Long
       val xs = immutable.BitSet(1, 2, 5, 100, 200)
       xs shouldBe a[immutable.BitSet]

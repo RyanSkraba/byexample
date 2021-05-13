@@ -69,7 +69,7 @@ class TraitSelfTypeSpec
 
     object ImASubYX extends MixinExtends with SubY with SubX
 
-    it("return the mixed in behaviour.") {
+    it("return the mixed in behaviour") {
       ImNotABase.mixinValue shouldBe "m--"
       ImABase.mixinValue shouldBe "m--"
       ImASubX.mixinValue shouldBe "mX"
@@ -78,7 +78,7 @@ class TraitSelfTypeSpec
       ImASubYX.mixinValue shouldBe "mX"
     }
 
-    it("expose the behaviour of the extended trait.") {
+    it("expose the behaviour of the extended trait") {
       val mixinB: MixinExtends = ImASubXY
       mixinB.mixinValue shouldBe "mY"
       mixinB.value shouldBe "Y" // See below
@@ -99,7 +99,7 @@ class TraitSelfTypeSpec
 
     object ImASubYX extends MixinSelfType with SubY with SubX
 
-    it("return the mixed in behaviour.") {
+    it("return the mixed in behaviour") {
       // Looks exactly the same as above.
       ImABase.mixinValue shouldBe "m--"
       ImASubX.mixinValue shouldBe "mX"
@@ -108,7 +108,7 @@ class TraitSelfTypeSpec
       ImASubYX.mixinValue shouldBe "mX"
     }
 
-    it("hides the behaviour of the extended trait.") {
+    it("hides the behaviour of the extended trait") {
       // Cast so we can't see which Base it is.
       val mixinY: MixinSelfType = ImASubXY
       // This is different: we aren't allowed to access the info from the Base, just the Mixin!

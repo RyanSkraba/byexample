@@ -28,12 +28,12 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
     val xs = Seq(1, 2, 3)
     val xsInf = Stream.from(1)
 
-    it("has a default implementation of immutable.List.") {
+    it("has a default implementation of immutable.List") {
       xs shouldBe a[List[_]]
       xs shouldBe a[PartialFunction[_, _]] // Int, T
     }
 
-    it("supports indexing and length.") {
+    it("supports indexing and length") {
       // Partial function
       xs(1) shouldBe 2
       xs.apply(1) shouldBe 2 // alias
@@ -53,13 +53,13 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
       xs.indices shouldBe Range(0, 3, 1)
     }
 
-    it("supports nested sequences.") {
+    it("supports nested sequences") {
       val ys = Seq(Seq(0, 1, 2), Seq(3, 4, 5))
       ys(1)(1) shouldBe 4
       ys.flatten shouldBe Seq(0, 1, 2, 3, 4, 5)
     }
 
-    it("supports index search.") {
+    it("supports index search") {
       xs indexOf 1 shouldBe 0
       xs lastIndexOf 1 shouldBe 0
       xs indexOfSlice Seq(2, 3) shouldBe 1
@@ -70,13 +70,13 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
       xs prefixLength (_ < 3) shouldBe 2
     }
 
-    it("support additions.") {
+    it("support additions") {
       0 +: xs shouldBe Seq(0, 1, 2, 3)
       xs :+ 0 shouldBe Seq(1, 2, 3, 0)
       xs.padTo(5, 99) shouldBe Seq(1, 2, 3, 99, 99)
     }
 
-    it("support updates.") {
+    it("support updates") {
       xs patch (0, Seq(99, 98, 97), 2) shouldBe Seq(99, 98, 97, 3)
       xs patch (1, Seq(99, 98, 97, 96), 1) shouldBe Seq(1, 99, 98, 97, 96, 3)
       xs updated (2, 99) shouldBe Seq(1, 2, 99)
@@ -118,7 +118,7 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
 
   describe("Buffer") {
 
-    it("has a default implementation of mutable.ArrayBuffer.") {
+    it("has a default implementation of mutable.ArrayBuffer") {
       val buf = mutable.Buffer(1, 2, 3)
       buf shouldBe a[ArrayBuffer[_]]
     }

@@ -23,7 +23,7 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
     // Instance for testing.
     val xs = Iterable(1, 2, 3)
 
-    it("has a default implementation of immutable.List.") {
+    it("has a default implementation of immutable.List") {
       xs shouldBe a[List[_]]
 
       // It defines foreach in Traversable via iterator.
@@ -33,7 +33,7 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
       while (it.hasNext) it.next should (be > 0 and be <= 3)
     }
 
-    it("supports grouped sub-iterators.") {
+    it("supports grouped sub-iterators") {
       // Returns iterators taking the original collection in chunks.
       val it = xs.grouped(2)
       it.hasNext shouldBe true
@@ -43,7 +43,7 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
       it.hasNext shouldBe false
     }
 
-    it("supports sliding sub-iterators.") {
+    it("supports sliding sub-iterators") {
       // Returns iterators taking the original collection in chunks.
       val it = xs.sliding(2, 1)
       it.hasNext shouldBe true
@@ -53,13 +53,13 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
       it.hasNext shouldBe false
     }
 
-    it("supports additional subcollection.") {
+    it("supports additional subcollection") {
       // In addition to take/drop
       xs takeRight 2 shouldBe Iterable(2, 3)
       xs dropRight 2 shouldBe Iterable(1)
     }
 
-    it("supports iterating together.") {
+    it("supports iterating together") {
       val ys1 = Iterable("a", "b")
       val ys2 = Iterable("a", "b", "c", "d")
 

@@ -60,7 +60,7 @@ class ApplyAndUnapplySpec extends AnyFunSpecLike with Matchers {
       d should not be d2
     }
 
-    it("creates an instance from a tuple.") {
+    it("creates an instance from a tuple") {
       val t = ("Ruth McClanahan", 1934)
 
       // Turning a def into a val function is called Eta expansion.

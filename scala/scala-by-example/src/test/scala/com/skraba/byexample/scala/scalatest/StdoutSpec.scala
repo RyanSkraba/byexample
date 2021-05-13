@@ -16,7 +16,7 @@ class StdoutSpec extends AnyFunSpecLike with Matchers {
 
   describe("Matching standard streams") {
 
-    it("should match stdout and stderr using withConsoleMatch.") {
+    it("should match stdout and stderr using withConsoleMatch") {
       withConsoleMatch {
         // Run any arbritrary code here.
         Console.out.println("Hello")
@@ -30,7 +30,7 @@ class StdoutSpec extends AnyFunSpecLike with Matchers {
       }
     }
 
-    it("should match stdout and stderr using withGoMatch.") {
+    it("should match stdout and stderr using withGoMatch") {
       withStdoutGoMatch("one", "two", "three") { case (stdout, stderr) =>
         stdout shouldBe "one\nthree\n"
         stderr shouldBe "two\n\n"

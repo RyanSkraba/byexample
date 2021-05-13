@@ -11,7 +11,7 @@ class Tour040Traits extends AnyFunSpecLike with Matchers {
 
   describe("Traits") {
 
-    it("can be very simple.") {
+    it("can be very simple") {
       trait HairColor
 
       // Created an anonymous implementation

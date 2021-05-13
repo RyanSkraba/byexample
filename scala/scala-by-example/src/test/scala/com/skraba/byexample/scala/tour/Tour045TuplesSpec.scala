@@ -11,7 +11,7 @@ class Tour045TuplesSpec extends AnyFunSpecLike with Matchers {
 
   describe("Tuples") {
 
-    it("can be simple pairs.") {
+    it("can be simple pairs") {
       // Create with parenthesis
       val tuple: (Int, String) = (1, "one")
       tuple shouldBe (1, "one")
@@ -38,7 +38,7 @@ class Tour045TuplesSpec extends AnyFunSpecLike with Matchers {
       }
     }
 
-    it("are products and case classes.") {
+    it("are products and case classes") {
       // Create with parenthesis
       val tuple = (1, "one")
 

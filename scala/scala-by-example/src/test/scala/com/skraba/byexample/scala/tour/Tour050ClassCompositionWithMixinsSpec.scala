@@ -13,7 +13,7 @@ class Tour050ClassCompositionWithMixinsSpec
 
   describe("Class composition") {
 
-    it("can have multiple inheritance of traits.") {
+    it("can have multiple inheritance of trait") {
       abstract class A {
         val message: String
       }
@@ -34,7 +34,7 @@ class Tour050ClassCompositionWithMixinsSpec
       d.loudMessage shouldBe "I'M AN INSTANCE OF CLASS B"
     }
 
-    it("can have interesting examples.") {
+    it("can have interesting examples") {
 
       // Abstract class has an abstract type (defined by subclass).
       abstract class AbsIterator {

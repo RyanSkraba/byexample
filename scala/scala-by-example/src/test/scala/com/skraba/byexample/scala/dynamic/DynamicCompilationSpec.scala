@@ -26,7 +26,7 @@ class DynamicCompilationSpec
     val tb = universe.runtimeMirror(getClass.getClassLoader).mkToolBox()
 
     describe("Of an expression") {
-      it("should return Hello!.") {
+      it("should return Hello!") {
         val parsed = tb.parse("""{"Hello!"}""")
         val result = tb.eval(parsed)
         result shouldBe "Hello!"
@@ -35,7 +35,7 @@ class DynamicCompilationSpec
 
     describe("of a class file") {
 
-      it("should return a callable class.") {
+      it("should return a callable class") {
         val parsed = tb.parse(
           DynamicCompilationSpec.myGreeterClass.format("Hello, ", "!!")
         )

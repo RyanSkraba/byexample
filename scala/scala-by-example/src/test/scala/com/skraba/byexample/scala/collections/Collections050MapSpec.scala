@@ -16,7 +16,7 @@ class Collections050MapSpec extends AnyFunSpecLike with Matchers {
     // Instance for testing.
     val ms = Map(1 -> "one", 2 -> "two", 3 -> "three")
 
-    it("has a default implementation of immutable.TreeMap.") {
+    it("has a default implementation of immutable.TreeMap") {
       // Any smaller maps may have a specialized implementation.
       ms + (4 -> "four", 5 -> "five") shouldBe a[immutable.HashMap[_, _]]
 

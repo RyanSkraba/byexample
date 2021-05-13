@@ -95,7 +95,7 @@ class BasicSpec extends AnyFunSpecLike with Matchers {
     import scalatags.Text.implicits._
     import scalatags.Text.tags._
 
-    it("should be generic.") {
+    it("should be generic") {
       // Note that children and attributes are added in order via .apply().
       // The attribute is applied to root, not child, as are the two contents.
       val rootTag =
@@ -103,7 +103,7 @@ class BasicSpec extends AnyFunSpecLike with Matchers {
       rootTag.render shouldBe """<root id="my-root-id"><child></child>OneTwo</root>"""
     }
 
-    it("should permit flow control.") {
+    it("should permit flow control") {
       val condition = true
       val rootTag = tag("root")(
         tag("in")("one"),
