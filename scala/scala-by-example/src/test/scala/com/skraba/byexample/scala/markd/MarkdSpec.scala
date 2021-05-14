@@ -122,6 +122,24 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         Header.parse(cleaned) shouldBe md
       }
 
+      ignore("should ignore headers inside a code block") {
+        // TODO: This currently fails.
+        val md = Header.parse("""
+                                |```bash
+                                |# echo Hello world
+                                |```
+        """.stripMargin)
+        md shouldBe Header(0, "", Code("bash", "# echo Hello world\n"))
+
+        val cleaned = md.build().toString
+        cleaned shouldBe
+          """```bash
+            |echo Hello world
+            |```
+            |""".stripMargin
+        Header.parse(cleaned) shouldBe md
+      }
+
       it("should ignore unnecessary whitespace") {
         val md = Header.parse("""
             |```bash.....
