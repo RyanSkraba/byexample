@@ -122,8 +122,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         Header.parse(cleaned) shouldBe md
       }
 
-      ignore("should ignore headers inside a code block") {
-        // TODO: This currently fails.
+      it("should ignore headers inside a code block") {
         val md = Header.parse("""
                                 |```bash
                                 |# echo Hello world
@@ -134,7 +133,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         val cleaned = md.build().toString
         cleaned shouldBe
           """```bash
-            |echo Hello world
+            |# echo Hello world
             |```
             |""".stripMargin
         Header.parse(cleaned) shouldBe md
