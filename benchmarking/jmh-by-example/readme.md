@@ -1,10 +1,10 @@
-Jmh by example
-==============
+JMH by example
+==============================================================================
 
 JHM is a micro-benchmarking tool, included as part of the openjdk project.
 
 Resources
----------
+------------------------------------------------------------------------------
 
 * [Home page](http://openjdk.java.net/projects/code-tools/jmh/)
 * [JMH Samples](http://hg.openjdk.java.net/code-tools/jmh/file/tip/jmh-samples/src/main/java/org/openjdk/jmh/samples/): The best place to read, understand and learn what is happening.
@@ -12,18 +12,16 @@ Resources
     - (http://tutorials.jenkov.com/java-performance/jmh.html)
 * [Online result visualizer](https://jmh.morethan.io) ([jzillmann/jmh-visualizer](https://github.com/jzillmann/jmh-visualizer)) Very pretty UI for visualizing jmh reports.
 
-
 JMH Options (`JmhGo -h`)
------------
+------------------------------------------------------------------------------
 
 Option       | Explanation 
 ---          | --- 
 `-bm <mode>` | **Benchmark mode** (default: `Throughput`): <ul><li>`Throughput`/`thrpt`</li><li>`AverageTime`/`avgt`</li><li>`SampleTime`/`sample`</li><li>`SingleShotTime`/`ss`</li><li>`All`/`all`.</li></ul>
 `-tu <TU>`   | **Time units** (default: `s`): `m`, `s`, `ms`, `us`, `ns`
 
-
 Running the benchmark
----------------------
+------------------------------------------------------------------------------
 
 The easiest way to run a JMH benchmark is to create an uber-jar with the JMH driver included.
 

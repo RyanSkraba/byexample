@@ -1,5 +1,5 @@
 ScalaByExample
-==============
+==============================================================================
 
 There's a LOT to the Scala programming language.  This project includes some common and useful
 libraries and techniques.
@@ -20,7 +20,7 @@ Source | Examples
 [ScalaTest overview](https://www.scalatest.org/user_guide)| [com.skraba.byexample.scala.scalatest](src/test/scala/com/skraba/byexample/scala/scalatest/)
 
 Resources
----------
+------------------------------------------------------------------------------
 
 Other useful resources to learn more about Scala and functional programming:
 
@@ -29,7 +29,7 @@ Other useful resources to learn more about Scala and functional programming:
 * [Functional Programming for Mortals](https://leanpub.com/fpmortals)
 
 Ammonite
-------------------
+------------------------------------------------------------------------------
 
 [Ammonite] is a pretty great tool for running scripts written in Scala.  This project includes some
 examples.
@@ -55,7 +55,7 @@ src/test/resources/file_renamer.sc help
 [Ammonite]: https://ammonite.io/
 
 Running the driver
-------------------
+------------------------------------------------------------------------------
 
 This project includes an [example executable](src/main/java/com/skraba/byexample/scala/JavaScalaGo.java)
 that does a simple hello world mixing Java and Scala code.
