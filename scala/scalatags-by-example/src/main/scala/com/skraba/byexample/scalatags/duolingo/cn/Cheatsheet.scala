@@ -20,10 +20,25 @@ case class Cheatsheet(vocab: Seq[Vocab], cfg: Config = Config()) {
     * will likely need to be translated.
     */
   def toSvg: Tag = {
-    val ys: Seq[Tag] = vocab.map(cfg.vocab).zipWithIndex.map { case (tag, i) =>
-      tag(Svg.attrTranslate(0, i * cfg.lineHeight))
+    // Group the words according to their lesson
+    val byLesson: List[List[Vocab]] = vocab.foldRight[List[List[Vocab]]](Nil) {
+      case (v, head :: tail)
+          if head.headOption.map(_.lesson).contains(v.lesson) =>
+        (v :: head) :: tail
+      case (v, xs) => (v :: Nil) :: xs
     }
-    g(ys: _*)
+
+    // Set the words in a group vertically, and the lessons horizontally.
+    val groupTags: Seq[Tag] = byLesson.zipWithIndex.map { case (vs, x) =>
+      val vocabTags = vs
+        .map(cfg.vocab)
+        .zipWithIndex
+        .map { case (tag, y) =>
+          tag(Svg.attrTranslate(0, y * cfg.lineHeight))
+        }
+      g(vocabTags: _*)(Svg.attrTranslate(x * 150, 0))
+    }
+    g(groupTags: _*)
   }
 
 }
