@@ -11,7 +11,7 @@ import scala.runtime.BoxedUnit
   */
 class Tour010BasicsSpec extends AnyFunSpecLike with Matchers {
 
-  describe("Basics") {
+  describe("Basic scala syntax") {
 
     it("has expressions") {
       (1 + 1) shouldBe 2
