@@ -42,14 +42,16 @@ class Tour090SingletonRegexExtractorsSpec extends AnyFunSpecLike with Matchers {
       def apply(name: String): Device = new Device(name)
     }
 
-    it("is simple") {
+    it("provide simple constants and static methods") {
       DeviceA.MaxWidth shouldBe 750
       DeviceB.MaxWidth shouldBe 1000
       DeviceB.MaxDepth shouldBe 10
       DeviceA shouldBe a[DeviceA.type]
       DeviceB shouldBe a[DeviceB.type]
       DeviceB shouldBe a[ThreeDimensional]
+    }
 
+    it("use companion objects to access secrets and constructors") {
       // Use the apply in the companion object to build the instance.
       val deviceC: Device = Device("c")
       deviceC.name shouldBe "c"
@@ -58,123 +60,136 @@ class Tour090SingletonRegexExtractorsSpec extends AnyFunSpecLike with Matchers {
       "print(Device.secret)" shouldNot compile
     }
   }
+
   describe("Regex patterns") {
     import scala.util.matching.Regex
 
-    it("is simple") {
-      // Any string turns into a Regex using .r
-      val numberPattern: Regex = "[0-9]".r
-      numberPattern.findFirstMatchIn("awesome123password") should not be empty
-      numberPattern.findFirstMatchIn("awesomepassword") shouldBe empty
+    // Group into the project and the issue number, like BYEX-1234
+    val IssueRegex: Regex = raw"([A-Z]+)-(\d+)".r
+
+    it("can be contructed from any string") {
+      IssueRegex.findFirstIn("No match") shouldBe None
+      IssueRegex.findFirstIn("BYEX-1234") shouldBe Some("BYEX-1234")
+      IssueRegex.findFirstIn("This addresses BYEX-123.") shouldBe Some(
+        "BYEX-123"
+      )
+      // None of these match.
+      IssueRegex.findFirstIn("byex-23 BYEX -123") shouldBe None
     }
 
     it("can use groups") {
-      val keyValPattern: Regex = "([a-z-]+): (.+);".r
-
       val input: String =
-        """background-color: #A03300;
-          |background-image: url(img/header100.png);
-          |background-position: top center;
-          |background-repeat: repeat-x;
-          |background-size: 2160px 108px;
-          |margin: 0;
-          |height: 108px;
-          |width: 100%;""".stripMargin
+        "BYEX-123 AVRO-1234 BEAM-4321 byex-1 BYEX- -1234 - ignored"
 
-      val x =
-        for (patternMatch <- keyValPattern.findAllMatchIn(input))
-          yield s"key: ${patternMatch.group(1)}"
-      x.toList should (contain("key: background-color") and contain(
-        "key: margin"
-      ))
+      // Iterating over all matches to find the project
+      val allProjects = {
+        for (patternMatch <- IssueRegex.findAllMatchIn(input))
+          yield patternMatch.group(1)
+      }.toList
+
+      allProjects should have size 3
+      allProjects should (contain("AVRO") and contain("BEAM"))
     }
 
-    it("can be used as an extractor.") {
-      val date: Regex = raw"(\d{4})-(\d{2})-(\d{2})".r
+    it("can be used as an extractor") {
+      val IssueRegex(project, number) = "BYEX-1234"
 
-      // Used as an extractor and labelling the groups.
-      val x = "2004-01-20" match {
-        case date(year, month, day) => s"$year was a good year for PLs."
+      project shouldBe "BYEX"
+      number shouldBe "1234"
+
+      // When used as an extractor, the entire string must match.
+      intercept[MatchError] {
+        val IssueRegex(project, number) = "I fixed BYEX-123 and BYEX-124 today"
       }
-      x shouldBe "2004 was a good year for PLs."
 
-      // Used as an extractor but ignoring the groups.
-      val x2 = "2004-01-20" match {
-        case date(_*) => "It's a date!"
+      // If you just want to find one, then unanchor it.
+      val unanchoredIssue = IssueRegex.unanchored
+      val unanchoredIssue(project2, number2) =
+        "Fixed BYEX-123 and BYEX-124 today"
+      project2 shouldBe "BYEX"
+      number2 shouldBe "123"
+
+      unanchoredIssue.anchored shouldBe theSameInstanceAs(IssueRegex)
+    }
+
+    it("can be used as an extractor in match statements") {
+
+      def matcher(s: String): String = s match {
+        // Matching all groups
+        case IssueRegex(prj, num) if num.startsWith("1") => s"BenfordsLaw"
+        // Ignoring one of the values
+        case IssueRegex(prj, _) if prj == "BYEX" => s"ByExample"
+        // Match while ignoring groups
+        case IssueRegex(_*) => "Valid"
+        case _              => "Invalid"
       }
-      x2 shouldBe "It's a date!"
 
-      // Used as an extractor but ignoring some groups.
-      val x3 = "2004-01-20" match {
-        case date(year, _*) => s"$year was a good year for PLs."
-      }
-      x3 shouldBe "2004 was a good year for PLs."
-
-      // To match anywhere in the string in a case.
-      val embeddedDate = date.unanchored
-      val x4 =
-        "Date: 2004-01-20 17:25:18 GMT (10 years, 28 weeks, 5 days, 17 hours and 51 minutes ago)" match {
-          case embeddedDate("2004", "01", "20") => "A Scala is born."
-        }
-      x4 shouldBe "A Scala is born."
+      matcher("BYEX") shouldBe "Invalid"
+      matcher("AVRO-1234") shouldBe "BenfordsLaw"
+      matcher("BYEX-234") shouldBe "ByExample"
+      matcher("BEAM-999") shouldBe "Valid"
+      // See unanchored for the reason.
+      matcher("Fixed BYEX-123 and BYEX-124 today") shouldBe "Invalid"
     }
   }
 
-  describe("Extractor") {
-    it("is simple") {
-      import scala.util.Random
+  describe("Extractors") {
 
-      object CustomerID {
+    it("can be used to create and extract info from instances.") {
 
-        // Apply takes arguments and returns an object.
-        def apply(name: String) = s"$name--${Random.nextLong}"
+      object Issue {
+        // Apply takes parameters and returns any object, often the companion
+        def apply(project: String, number: Int) = s"$project-$number"
 
-        // Unapply takes an object and returns arguments.
-        def unapply(customerID: String): Option[String] = {
-          val name = customerID.split("--").head
-          if (name.nonEmpty) Some(name) else None
+        // Unapply takes that object and returns parameters.
+        def unapply(customerID: String): Option[(String, Int)] = try {
+          customerID.split("-") match {
+            case Array(project, number) if project.nonEmpty =>
+              Some((project, number.toInt))
+            case _ => None
+          }
+        } catch {
+          case e: NumberFormatException => None
         }
       }
 
-      val customer1ID = CustomerID("Sukyoung") // Sukyoung--23098234908
-      val x = customer1ID match {
-        case CustomerID(name) => s"The name is $name." // The name is Sukyoung.
-        case _                => "Could not get name."
-      }
-      x shouldBe "The name is Sukyoung."
+      // Creating an Issue.  Here, it's encoded as a string, but usually will be a
+      // composite object like a case class.
+      val issue1: String = Issue("BYEX", 1234)
+      issue1 shouldBe "BYEX-1234"
 
-      val customer2ID = CustomerID("Nico")
-      val CustomerID(name2) = customer2ID
-      // Equivalent to:
-      // val name = CustomerID.unapply(customer2ID).get
-      customer2ID should startWith("Nico--")
-      name2 shouldBe "Nico"
+      val Issue(prj1, num1) = issue1
+      prj1 shouldBe "BYEX"
+      num1 shouldBe 1234
 
       // Throws a match error if it can't be unapplied.
-      intercept[MatchError] {
-        val CustomerID(_) = "--12345"
-      }
+      intercept[MatchError] { val Issue(prjX, _) = "-1234" }
+      intercept[MatchError] { val Issue(prjX, numX) = "BYEX1234" }
+      intercept[MatchError] { val Issue(prjX, numX) = "BYEX-123X" }
     }
 
-    it("returns a boolean") {
-      object X {
-        // Apply takes arguments and returns an object.
-        def apply() = "12345"
+    it("returns a boolean to test") {
 
-        // Unapply takes an object and returns arguments.
-        def unapply(name: String): Boolean = {
-          name.equals("12345")
-        }
+      object SecretCode {
+        def apply() = "abc123"
+        def unapply(name: String): Boolean = name.equals("abc123")
       }
 
-      val a = X()
+      // SecretCode() creates the instance, in this case a string. It could be
+      // a much more advanced data container.
+      val x = SecretCode()
+      x shouldBe a[String]
+      x shouldBe "abc123"
 
-      val x = a match {
-        case X() => s"Is an X." // The name is Sukyoung.
-        case _   => "Not an X."
+      def attempt(key: String) = key match {
+        // The unapply doesn't extract anything but tests the value.  In this case, it
+        // could be a much more advanced test.
+        case SecretCode() => "Unlocked"
+        case _            => "LOCKED"
       }
-      a shouldBe "12345"
-      x shouldBe "Is an X."
+
+      attempt(x) shouldBe "Unlocked"
+      attempt("HACKED") shouldBe "LOCKED"
     }
 
     it("can use more than one argument") {
