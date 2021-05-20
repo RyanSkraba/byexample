@@ -142,8 +142,8 @@ class Tour090SingletonRegexExtractorsSpec extends AnyFunSpecLike with Matchers {
         def apply(project: String, number: Int) = s"$project-$number"
 
         // Unapply takes that object and returns parameters.
-        def unapply(customerID: String): Option[(String, Int)] = try {
-          customerID.split("-") match {
+        def unapply(issue: String): Option[(String, Int)] = try {
+          issue.split("-") match {
             case Array(project, number) if project.nonEmpty =>
               Some((project, number.toInt))
             case _ => None
@@ -168,11 +168,11 @@ class Tour090SingletonRegexExtractorsSpec extends AnyFunSpecLike with Matchers {
       intercept[MatchError] { val Issue(prjX, numX) = "BYEX-123X" }
     }
 
-    it("returns a boolean to test") {
+    it("can return a boolean for a simple test") {
 
       object SecretCode {
         def apply() = "abc123"
-        def unapply(name: String): Boolean = name.equals("abc123")
+        def unapply(code: String): Boolean = code.equals("abc123")
       }
 
       // SecretCode() creates the instance, in this case a string. It could be
@@ -181,7 +181,7 @@ class Tour090SingletonRegexExtractorsSpec extends AnyFunSpecLike with Matchers {
       x shouldBe a[String]
       x shouldBe "abc123"
 
-      def attempt(key: String) = key match {
+      def attempt(key: String): String = key match {
         // The unapply doesn't extract anything but tests the value.  In this case, it
         // could be a much more advanced test.
         case SecretCode() => "Unlocked"
@@ -192,69 +192,41 @@ class Tour090SingletonRegexExtractorsSpec extends AnyFunSpecLike with Matchers {
       attempt("HACKED") shouldBe "LOCKED"
     }
 
-    it("can use more than one argument") {
-      object CustomerID {
+    it("can return an arbitrary list of arguments") {
 
-        // Apply takes arguments and returns an object.
-        def apply(name: String, id: String) = s"$name--$id"
+      object Issue {
+        // Apply takes parameters and returns any object, often the companion
+        def apply(project: String, number: Int) = s"$project-$number"
 
-        // Unapply takes an object and returns arguments.
-        def unapply(customerID: String): Option[(String, String)] = {
-          val values = customerID.split("--")
-          if (values.length == 2) Some((values(0), values(1))) else None
+        // Unapply takes that object and returns parameters.
+        def unapplySeq(issue: String): Option[Seq[String]] = {
+          Some(issue.split("-"))
         }
       }
 
-      val customer1ID = CustomerID("Sukyoung", "12345") // Sukyoung--12345
-      val x = customer1ID match {
-        case CustomerID(name, id) =>
-          s"The name is $name." // The name is Sukyoung.
-        case _ => "Could not match."
-      }
-      x shouldBe "The name is Sukyoung."
+      // Creating an Issue.  Here, it's encoded as a string, but usually will be a
+      // composite object like a case class.
+      val issue1: String = Issue("BYEX", 1234)
+      issue1 shouldBe "BYEX-1234"
 
-      val customer2ID = CustomerID("Nico", "54321")
-      val CustomerID(name2, id2) = customer2ID
-      // Equivalent to:
-      // val name = CustomerID.unapply(customer2ID).get
-      customer2ID shouldBe "Nico--54321"
-      name2 shouldBe "Nico"
-      id2 shouldBe "54321"
+      val Issue(prj1, num1) = issue1
+      prj1 shouldBe "BYEX"
+      num1 shouldBe "1234"
+
+      // The number of extractions must match or there's a MatchError
+      intercept[MatchError] { val Issue(prjX, numX) = "BYEX-1234-Urgent" }
+
+      val Issue(prj2, num2, cat2) = "BYEX-1234-Urgent"
+      prj2 shouldBe "BYEX"
+      num2 shouldBe "1234"
+      cat2 shouldBe "Urgent"
 
       // Throws a match error if it can't be unapplied.
-      intercept[MatchError] {
-        val CustomerID(name2) = "Badguy"
-      }
-    }
+      intercept[MatchError] { val Issue(prjX, numX) = "BYEX1234" }
 
-    it("can use a list of arguments") {
-
-      object CustomerID {
-
-        // Apply takes arguments and returns an object.
-        def apply(name: String, id: String) = s"$name--$id"
-
-        // Unapply takes an object and returns arguments.
-        def unapplySeq(customerID: String): Option[Seq[String]] = {
-          Some(customerID.split("--"))
-        }
-      }
-
-      val customer1ID = CustomerID("Sukyoung", "12345") // Sukyoung--12345
-      val x = customer1ID match {
-        case CustomerID(name, id) =>
-          s"The name is $name." // The name is Sukyoung.
-        case _ => "Could not match."
-      }
-      x shouldBe "The name is Sukyoung."
-
-      val customer2ID = CustomerID("Nico", "54321")
-      val CustomerID(name2, id2) = customer2ID
-      // Equivalent to:
-      // val name = CustomerID.unapply(customer2ID).get
-      customer2ID shouldBe "Nico--54321"
-      name2 shouldBe "Nico"
-      id2 shouldBe "54321"
+      // But you can throw away unused parameters with _*
+      val Issue(prj3, _*) = "BYEX1234"
+      prj3 shouldBe "BYEX1234"
     }
   }
 }
