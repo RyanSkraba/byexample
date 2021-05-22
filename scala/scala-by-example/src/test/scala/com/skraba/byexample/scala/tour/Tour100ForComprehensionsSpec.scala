@@ -12,28 +12,30 @@ import scala.collection.mutable.ArrayBuffer
 class Tour100ForComprehensionsSpec extends AnyFunSpecLike with Matchers {
 
   describe("For comprehensions") {
-    it("is simple") {
+
+    it("are powerful and simple loops") {
 
       // Create a sequence for testing.
-      case class User(name: String, age: Int)
-      val userBase = List(
-        User("Travis", 28),
-        User("Kelly", 33),
-        User("Jennifer", 44),
-        User("Dennis", 23)
+      case class Issue(project: String, number: Int)
+      val issues = List(
+        Issue("BYEX", 1234),
+        Issue("BEAM", 1111),
+        Issue("AVRO", 2222),
+        Issue("BYEX", 2345)
       )
 
       // twentySomethings will be a List[User] since the first comprehension is a list.
-      val twentySomethings =
-        for (user <- userBase if user.age >= 20 && user.age < 30)
-          yield user.name // i.e. add this to a list
+      val byexIssues =
+        for (i <- issues if i.project == "BYEX")
+          yield i.number // i.e. add this to a list
 
-      twentySomethings shouldBe List("Travis", "Dennis")
+      byexIssues shouldBe List(1234, 2345)
 
       // Desugared to withFilter and map.
-      val twentySomethings2 = userBase
-        .withFilter(user => user.age >= 20 && user.age < 30)
-        .map(user => user.name) // i.e. add this to a list
+      val byexIssues2 = issues
+        .withFilter(i => i.project == "BYEX")
+        .map(i => i.number) // i.e. add this to a list
+      byexIssues shouldBe List(1234, 2345)
 
       // Example with more than one enumeration.  The first loop(s) will be flatMap.
       def foo(n: Int, v: Int) =
@@ -68,7 +70,7 @@ class Tour100ForComprehensionsSpec extends AnyFunSpecLike with Matchers {
 
     // For comprehensions can be applied to any object with map, flatMap and filter methods since
     // it is translated into these operations underneath.
-    it("is translated into map, flatMap, filters.") {
+    it("are translated into map, flatMap, filters.") {
       val xs = List(1, 2, 3)
 
       // Functions appropriate for a map, flatMap and filter arguments.
@@ -90,7 +92,8 @@ class Tour100ForComprehensionsSpec extends AnyFunSpecLike with Matchers {
       (for (x <- xs if p(x)) yield x) shouldEqual List(1, 3)
       (for (x <- xs if p(x)) yield x) shouldEqual xs.filter(p)
 
-      // In the other direction, the map/flatMap/filter implemented using the for comprehension.
+      // In the other direction, map, flatMap and filter can be implemented using
+      // the for comprehensions
       def mapUsingFor[IN, OUT](xs: List[IN], f: IN => OUT): List[OUT] =
         for (x <- xs) yield f(x)
 
