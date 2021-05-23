@@ -47,6 +47,13 @@ class Tour100ForComprehensionsSpec extends AnyFunSpecLike with Matchers {
 
       foo(10, 10) shouldEqual List((1, 9), (2, 8), (3, 7), (4, 6), (5, 5))
 
+      // The translation to map, flatMap and filter:
+      foo(10, 10) shouldEqual (0 until 10)
+        .flatMap { i =>
+          (i until 10).map(j => (i, j))
+        }
+        .filter(ij => ij._1 + ij._2 == 10)
+
       // You can omit yield if you don't want to return a List, but use side effects.
       val sideEffectCollector: ArrayBuffer[(Int, Int)] =
         ArrayBuffer.empty[(Int, Int)]
