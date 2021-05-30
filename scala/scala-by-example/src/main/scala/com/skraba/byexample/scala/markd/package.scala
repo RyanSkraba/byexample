@@ -42,6 +42,8 @@ package object markd {
     ): StringBuilder = {
       sb ++= content.trim() ++= "\n"
     }
+
+    def refine(): Markd = this
   }
 
   /** Contents outside of the markdown processing.
@@ -319,11 +321,14 @@ package object markd {
       Header(title, level, sub.toSeq)
 
     /** Extract the level and title from a matching header. */
-    private[this] def getHeaderLevelAndTitle(m: Regex.Match): (Int, String) = {
+    private[this] def extractHeader(m: Regex.Match): Header = {
       if (Option(m.group("title_ml")).isDefined)
-        (if (m.group("level_ml").startsWith("=")) 1 else 2, m.group("title_ml"))
+        Header(
+          if (m.group("level_ml").startsWith("=")) 1 else 2,
+          m.group("title_ml")
+        )
       else
-        (m.group("level_sl").length, m.group("title_sl"))
+        Header(m.group("level_sl").length, m.group("title_sl"))
     }
 
     /** Splits the content into sections, as a tree of headers. */
@@ -350,21 +355,25 @@ package object markd {
             .split(content)
             .flatMap { text =>
               HeaderRegex.findPrefixMatchOf(s"$text\n") match {
-                case None if text.nonEmpty => Option(Paragraph(text.trim))
+                case None if text.nonEmpty => Some(Paragraph(text.trim))
                 case Some(m: Regex.Match) =>
-                  val (level, title) = getHeaderLevelAndTitle(m)
+                  val h = extractHeader(m)
+                  // The contents come after the last match in the regex.
                   val lastMatchedGroup =
                     1 + m.subgroups.lastIndexWhere(_ != null)
                   val headerContents = m.after(lastMatchedGroup).toString
-                  Header(level, title) +: (if (headerContents.isEmpty) Nil
-                                           else
-                                             Seq(
-                                               Paragraph(headerContents.trim)
-                                             ))
+                  if (headerContents.isEmpty) Some(h)
+                  else Seq(h, Paragraph(headerContents.trim))
                 case _ => None
               }
             }
         case other: Markd => Option(other)
+      }
+
+      // A third pass allows a Paragraph to "refine" itself to another type.
+      val pass3: Iterator[Markd] = pass2.map {
+        case p: Paragraph => p.refine()
+        case other        => other
       }
 
       // Apply a recursive function that makes the flat list into a tree.
@@ -386,7 +395,7 @@ package object markd {
           // Otherwise processing is complete.
           case _ => (node, Seq.empty)
         }
-      val pass3: Header = treeify(Header(0, ""), pass2.toSeq)._1
+      val pass4: Header = treeify(Header(0, ""), pass3.toSeq)._1
 
       // Organize all of the nodes inside the tree.
       def organizeHeaderContents(node: Header): Header = {
@@ -404,7 +413,7 @@ package object markd {
         // The right order is all elements, followed by linkRefs, followed by subheaders.
         node.copy(mds = others ++ cfg.linkCleaner(linkRefs) ++ headers)
       }
-      organizeHeaderContents(pass3)
+      organizeHeaderContents(pass4)
     }
   }
 
