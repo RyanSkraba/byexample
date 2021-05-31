@@ -1,5 +1,7 @@
 package com.skraba.byexample.scala
 
+import com.skraba.byexample.scala.markd.Alignment.Alignment
+
 import scala.util.matching.Regex
 
 /** Markd is a hierarchical snippet of text that can be used to parse, modify and write some
@@ -414,6 +416,47 @@ package object markd {
         node.copy(mds = others ++ cfg.linkCleaner(linkRefs) ++ headers)
       }
       organizeHeaderContents(pass4)
+    }
+  }
+
+  object Alignment extends Enumeration {
+    type Alignment = Value
+    val LEFT, CENTER, RIGHT = Value
+  }
+
+  /** Markdown table.
+    *
+    * {{{
+    * | Col1     |      Col2      |  Col3 |
+    * |----------|:-------------:|------:|
+    * | col 1 is |  left-aligned | $1600 |
+    * | col 2 is |    centered   |   $12 |
+    * | col 3 is | right-aligned |    $1 |
+    * }}}
+    *
+    * @param headers The header text and alignment for each column.
+    * @param mds   The table rows.
+    */
+  case class Table(headers: Seq[(String, Alignment)], mds: Seq[TableRow])
+      extends MultiMarkd[TableRow] {
+
+    type Self = Table
+
+    override def build(
+        sb: StringBuilder = new StringBuilder()
+    ): StringBuilder = {
+      sb
+    }
+
+    override def copyMds(newMds: Seq[TableRow]): Self = copy(mds = newMds)
+  }
+
+  case class TableRow(values: Seq[String]) extends Markd {
+    def buildRow(
+        sb: StringBuilder = new StringBuilder(),
+        widths: Seq[Int]
+    ): StringBuilder = {
+      sb
     }
   }
 
