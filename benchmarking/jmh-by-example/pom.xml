@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>jmh-by-example</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
 
   <name>By Example :: Benchmarking :: JMH</name>
   <description>JMH example project, setup, howtos, etc.</description>
@@ -21,7 +21,6 @@
     <!-- Launcher class -->
     <exec.mainClass>org.openjdk.jmh.Main</exec.mainClass>
     <!-- other project dependency versions as properties -->
-    <scalafmt.conf.path>${project.basedir}/../../.scalafmt.conf</scalafmt.conf.path>
     <big-math.version>2.3.0</big-math.version>
   </properties>
 
