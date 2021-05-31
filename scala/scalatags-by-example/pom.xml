@@ -18,11 +18,11 @@
 
   <properties>
     <maven.deploy.skip>false</maven.deploy.skip>
+    <scalafmt.conf.path>${project.basedir}/../../.scalafmt.conf</scalafmt.conf.path>
     <!-- Launcher class -->
     <exec.mainClass>com.skraba.byexample.scalatags.ScalatagsGo</exec.mainClass>
     <!-- other project dependency versions as properties -->
     <scalatags.version>0.9.2</scalatags.version>
-    <scalafmt.conf.path>${project.basedir}/../../.scalafmt.conf</scalafmt.conf.path>
   </properties>
 
   <dependencies>

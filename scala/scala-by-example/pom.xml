@@ -18,10 +18,10 @@
 
   <properties>
     <maven.deploy.skip>false</maven.deploy.skip>
+    <scalafmt.conf.path>${project.basedir}/../../.scalafmt.conf</scalafmt.conf.path>
     <!-- Launcher class -->
     <exec.mainClass>com.skraba.byexample.scala.ScalaGo</exec.mainClass>
     <!-- other project dependency versions as properties -->
-    <scalafmt.conf.path>${project.basedir}/../../.scalafmt.conf</scalafmt.conf.path>
   </properties>
 
   <dependencies>
