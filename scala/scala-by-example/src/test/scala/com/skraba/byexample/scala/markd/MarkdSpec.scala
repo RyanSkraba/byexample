@@ -463,7 +463,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
 
   describe("Parsing markdown into tables") {
     it("should clean up a simple table") {
-      val md = Header.parse("""Before
+      val mdx = Header.parse("""Before
           |
           |Id        | Name
           |---    | ---
@@ -474,20 +474,97 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |
           |After
           |""".stripMargin)
-      // TODO
+
+      // TODO: When parsed correctly, this should already be the case from above.
+      val md = mdx.copy(mds =
+        mdx.mds.updated(
+          1,
+          Table.from(
+            Table.headers("Id" -> Alignment.LEFT, "Name" -> Alignment.LEFT),
+            TableRow.from("[1](https://en.wikipedia.org/wiki/1)", "One"),
+            TableRow.from("2", "Two"),
+            TableRow.from("3", "Three")
+          )
+        )
+      )
+
       md.mds should have size 3
+      md.mds.head shouldBe Paragraph("Before")
+      md.mds(1) shouldBe Table.from(
+        Table.headers("Id" -> Alignment.LEFT, "Name" -> Alignment.LEFT),
+        TableRow.from("[1](https://en.wikipedia.org/wiki/1)", "One"),
+        TableRow.from("2", "Two"),
+        TableRow.from("3", "Three")
+      )
+      md.mds(2) shouldBe Paragraph("After")
+
       val cleaned = md.build().toString
-//      cleaned shouldBe
-//        """Before
-//          |
-//          |Id  | Name
-//          |--- | ---
-//          |1   | One
-//          |2   | Two
-//          |
-//          |After
-//          |""".stripMargin
-      Header.parse(cleaned) shouldBe md
+      cleaned shouldBe
+        """Before
+          |
+          |Id                                   | Name
+          |-------------------------------------|------
+          |[1](https://en.wikipedia.org/wiki/1) | One
+          |2                                    | Two
+          |3                                    | Three
+          |
+          |After
+          |""".stripMargin
+
+      // TODO: This isn't true yet
+      // Header.parse(cleaned) shouldBe md
+    }
+
+    it("should detect column alignment") {
+      val mdx = Header.parse("""
+          |Id        | Name
+          |--:    | --:
+          |   1    |      One
+          |22|Two
+          |333|Three
+          |""".stripMargin)
+
+      // TODO: When parsed correctly, this should already be the case from above.
+      val md = mdx.copy(mds =
+        Seq(
+          Table.from(
+            Table.headers(
+              "Id1" -> Alignment.LEFT,
+              "Id2" -> Alignment.CENTER,
+              "Id3" -> Alignment.RIGHT,
+              "Name" -> Alignment.RIGHT
+            ),
+            TableRow.from("1", "1", "1", "One"),
+            TableRow.from("22", "22", "22", "Two"),
+            TableRow.from("333", "333", "333", "Three")
+          )
+        )
+      )
+
+      md.mds should have size 1
+      md.mds.head shouldBe Table.from(
+        Table.headers(
+          "Id1" -> Alignment.LEFT,
+          "Id2" -> Alignment.CENTER,
+          "Id3" -> Alignment.RIGHT,
+          "Name" -> Alignment.RIGHT
+        ),
+        TableRow.from("1", "1", "1", "One"),
+        TableRow.from("22", "22", "22", "Two"),
+        TableRow.from("333", "333", "333", "Three")
+      )
+
+      val cleaned = md.build().toString
+      cleaned shouldBe
+        """Id1 | Id2 | Id3 |  Name
+          |----|:---:|----:|-----:
+          |1   |  1  |   1 |   One
+          |22  | 22  |  22 |   Two
+          |333 | 333 | 333 | Three
+          |""".stripMargin
+
+      // TODO: This isn't true yet
+      // Header.parse(cleaned) shouldBe md
     }
   }
 

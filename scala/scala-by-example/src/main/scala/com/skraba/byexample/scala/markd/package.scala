@@ -1,6 +1,7 @@
 package com.skraba.byexample.scala
 
 import com.skraba.byexample.scala.markd.Alignment.Alignment
+import com.skraba.byexample.scala.markd.Table.MinimumColumnWidth
 
 import scala.util.matching.Regex
 
@@ -427,7 +428,7 @@ package object markd {
   /** Markdown table.
     *
     * {{{
-    * | Col1     |      Col2      |  Col3 |
+    * | Col1     |      Col2     |  Col3 |
     * |----------|:-------------:|------:|
     * | col 1 is |  left-aligned | $1600 |
     * | col 2 is |    centered   |   $12 |
@@ -435,29 +436,80 @@ package object markd {
     * }}}
     *
     * @param headers The header text and alignment for each column.
-    * @param mds   The table rows.
+    * @param mds     The table rows.
     */
   case class Table(headers: Seq[(String, Alignment)], mds: Seq[TableRow])
       extends MultiMarkd[TableRow] {
 
     type Self = Table
 
+    /** The maximum cell string length for each header column, not including margins */
+    lazy val widths: Seq[Int] =
+      for (((hdr, _), i) <- headers.zipWithIndex)
+        yield {
+          (Seq(MinimumColumnWidth, hdr.length) ++ mds.map(
+            _.values.applyOrElse(i, (_: Int) => "").length
+          )).max
+        }
+
+    /** Fill out a string to the right width for the column, including the alignment. */
+    def align(i: Int, value: String): String = {
+      if (i >= headers.length) return value
+      val prefix =
+        if (headers(i)._2 == Alignment.CENTER)
+          " " * ((widths(i) - value.length) / 2)
+        else ""
+      if (i == headers.length - 1 && headers(i)._2 != Alignment.RIGHT)
+        return prefix + value
+      s"%${if (headers(i)._2 != Alignment.RIGHT) "-" else ""}${widths(i)}s".format(prefix + value)
+    }
+
     override def build(
         sb: StringBuilder = new StringBuilder()
     ): StringBuilder = {
+      // The header line
+      sb ++= (for (((hdr, _), i) <- headers.zipWithIndex)
+        yield align(i, hdr)).mkString("", " | ", "\n")
+      // The separator row
+      sb ++= (for (((_, align), i) <- headers.zipWithIndex)
+        yield {
+          val margin = if (i == 0 || i == headers.length - 1) 1 else 2
+          val sb2 = new StringBuilder("-" * (widths(i) + margin))
+          if (align == Alignment.CENTER || align == Alignment.RIGHT)
+            sb2.setCharAt(sb2.length - 1, ':')
+          if (align == Alignment.CENTER)
+            sb2.setCharAt(0, ':')
+          sb2
+        }).mkString("", "|", "\n")
+      // And a line for
+      for (tr <- mds)
+        sb ++= (for ((c, i) <- tr.values.zipWithIndex)
+          yield align(i, c)).mkString("", " | ", "\n")
       sb
     }
 
     override def copyMds(newMds: Seq[TableRow]): Self = copy(mds = newMds)
   }
 
-  case class TableRow(values: Seq[String]) extends Markd {
-    def buildRow(
-        sb: StringBuilder = new StringBuilder(),
-        widths: Seq[Int]
-    ): StringBuilder = {
-      sb
-    }
+  object Table {
+
+    val MinimumColumnWidth = 3
+
+    /** Shortcut method just for the varargs */
+    def from(headers: Seq[(String, Alignment)], mds: TableRow*): Table =
+      Table(headers, mds.toSeq)
+
+    /** Shortcut method just for the varargs */
+    def headers(headers: (String, Alignment)*): Seq[(String, Alignment)] =
+      headers.toSeq
+  }
+
+  case class TableRow(values: Seq[String]) extends Markd
+
+  object TableRow {
+
+    /** Shortcut method just for the varargs */
+    def from(values: String*): TableRow = TableRow(values.toSeq)
   }
 
   /** Helps build the model when parsing contents. */
