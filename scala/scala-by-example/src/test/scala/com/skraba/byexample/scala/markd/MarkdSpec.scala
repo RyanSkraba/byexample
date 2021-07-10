@@ -462,8 +462,30 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
   }
 
   describe("Parsing markdown into tables") {
+
+    it("should parse lines into TableRows") {
+      TableRow.parse("") shouldBe TableRow.from("")
+      TableRow.parse("|") shouldBe TableRow.from("", "")
+      TableRow.parse("||") shouldBe TableRow.from("", "", "")
+      TableRow
+        .parse("one|two|three") shouldBe TableRow.from("one", "two", "three")
+      TableRow.parse("|two|three") shouldBe TableRow.from("", "two", "three")
+      TableRow.parse("one||three") shouldBe TableRow.from("one", "", "three")
+      TableRow.parse("one|two|") shouldBe TableRow.from("one", "two", "")
+      TableRow.parse(raw"\||two|three") shouldBe TableRow.from(
+        raw"\|",
+        "two",
+        "three"
+      )
+      TableRow.parse(raw"one\||t\|wo|\|three") shouldBe TableRow.from(
+        raw"one\|",
+        raw"t\|wo",
+        raw"\|three"
+      )
+    }
+
     it("should clean up a simple table") {
-      val mdx = Header.parse("""Before
+      val md = Header.parse("""Before
           |
           |Id        | Name
           |---    | ---
@@ -474,19 +496,6 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |
           |After
           |""".stripMargin)
-
-      // TODO: When parsed correctly, this should already be the case from above.
-      val md = mdx.copy(mds =
-        mdx.mds.updated(
-          1,
-          Table.from(
-            Table.headers("Id" -> Alignment.LEFT, "Name" -> Alignment.LEFT),
-            TableRow.from("[1](https://en.wikipedia.org/wiki/1)", "One"),
-            TableRow.from("2", "Two"),
-            TableRow.from("3", "Three")
-          )
-        )
-      )
 
       md.mds should have size 3
       md.mds.head shouldBe Paragraph("Before")
@@ -510,36 +519,17 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |
           |After
           |""".stripMargin
-
-      // TODO: This isn't true yet
-      // Header.parse(cleaned) shouldBe md
+      Header.parse(cleaned) shouldBe md
     }
 
     it("should detect column alignment") {
-      val mdx = Header.parse("""
-          |Id        | Name
-          |--:    | --:
-          |   1    |      One
-          |22|Two
-          |333|Three
+      val md = Header.parse("""
+          |Id1|Id2|Id3|Name
+          |:--   |   :--: |------:  |--:
+          |   1    |1    |1    |      One
+          |22|22|22|Two
+          |333|333|333|Three
           |""".stripMargin)
-
-      // TODO: When parsed correctly, this should already be the case from above.
-      val md = mdx.copy(mds =
-        Seq(
-          Table.from(
-            Table.headers(
-              "Id1" -> Alignment.LEFT,
-              "Id2" -> Alignment.CENTER,
-              "Id3" -> Alignment.RIGHT,
-              "Name" -> Alignment.RIGHT
-            ),
-            TableRow.from("1", "1", "1", "One"),
-            TableRow.from("22", "22", "22", "Two"),
-            TableRow.from("333", "333", "333", "Three")
-          )
-        )
-      )
 
       md.mds should have size 1
       md.mds.head shouldBe Table.from(
@@ -562,9 +552,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |22  | 22  |  22 |   Two
           |333 | 333 | 333 | Three
           |""".stripMargin
-
-      // TODO: This isn't true yet
-      // Header.parse(cleaned) shouldBe md
+      Header.parse(cleaned) shouldBe md
     }
   }
 
