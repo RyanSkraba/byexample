@@ -35,7 +35,9 @@ package com.skraba.byexample.scala
   *    a. eh?
   *
   * =Tags=
+  *
   * @todo [[https://docs.scala-lang.org/overviews/scaladoc/for-library-authors.html#tags]]
+  * @see https://en.wikipedia.org/
   */
 class ScalaDocExample {
 
