@@ -46,7 +46,10 @@ package object markd {
       sb ++= content.trim() ++= "\n"
     }
 
-    def refine(): Markd = this
+    /** Transforms this paragraph into another more specific [Markd] type if possible. */
+    def refine(): Markd =
+      Table.parse(content).getOrElse(this)
+
   }
 
   /** Contents outside of the markdown processing.
@@ -461,7 +464,8 @@ package object markd {
         else ""
       if (i == headers.length - 1 && headers(i)._2 != Alignment.RIGHT)
         return prefix + value
-      s"%${if (headers(i)._2 != Alignment.RIGHT) "-" else ""}${widths(i)}s".format(prefix + value)
+      s"%${if (headers(i)._2 != Alignment.RIGHT) "-" else ""}${widths(i)}s"
+        .format(prefix + value)
     }
 
     override def build(
@@ -481,7 +485,7 @@ package object markd {
             sb2.setCharAt(0, ':')
           sb2
         }).mkString("", "|", "\n")
-      // And a line for
+      // And a line for each row
       for (tr <- mds)
         sb ++= (for ((c, i) <- tr.values.zipWithIndex)
           yield align(i, c)).mkString("", " | ", "\n")
@@ -495,6 +499,8 @@ package object markd {
 
     val MinimumColumnWidth = 3
 
+    val AlignmentCellRegex: Regex = raw"^\s*(:-+:|---+|:--+|-+-:)\s*$$".r
+
     /** Shortcut method just for the varargs */
     def from(headers: Seq[(String, Alignment)], mds: TableRow*): Table =
       Table(headers, mds.toSeq)
@@ -502,14 +508,57 @@ package object markd {
     /** Shortcut method just for the varargs */
     def headers(headers: (String, Alignment)*): Seq[(String, Alignment)] =
       headers.toSeq
+
+    /** If some text content can be reasonably parsed into a [Table].
+      * @param content
+      * @return
+      */
+    def parse(content: String): Option[Table] = {
+      val lines = content.split("\n").map(TableRow.parse)
+      // If there aren't at least two lines with the same number of cells, this isn't a Table.
+      if (lines.length < 2 || lines(0).values.length != lines(1).values.length)
+        return None
+
+      // Check the second row for alignments.
+      val align: Seq[Alignment] = lines(1).values.flatMap {
+        case AlignmentCellRegex(cell)
+            if cell.startsWith(":") && cell.endsWith(":") =>
+          Some(Alignment.CENTER)
+        case AlignmentCellRegex(cell) if cell.endsWith(":") =>
+          Some(Alignment.RIGHT)
+        case AlignmentCellRegex(_) => Some(Alignment.LEFT)
+        case _                     => None
+      }
+      // If the alignment row removed any elements, then this is not a Table
+      if (align.length < lines(1).values.length) return None
+
+      // Create the column header names and alignments from the first two lines
+      Some(
+        Table(
+          headers = lines(0).values.zipWithIndex.map { case (columnHeader, i) =>
+            (columnHeader, align(i))
+          },
+          mds = lines.drop(2)
+        )
+      )
+
+    }
+
   }
 
   case class TableRow(values: Seq[String]) extends Markd
 
   object TableRow {
 
+    /** Split into cells by |, taking into account escaped pipes but not other constructions. */
+    val CellRegex: Regex = raw"(?<!\\)\|".r
+
     /** Shortcut method just for the varargs */
     def from(values: String*): TableRow = TableRow(values.toSeq)
+
+    def parse(content: String): TableRow = {
+      TableRow(CellRegex.pattern.split(content, -1).map(_.trim))
+    }
   }
 
   /** Helps build the model when parsing contents. */
