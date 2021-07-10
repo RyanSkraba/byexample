@@ -5,15 +5,26 @@ import com.skraba.byexample.scala.markd.Table.MinimumColumnWidth
 
 import scala.util.matching.Regex
 
-/** Markd is a hierarchical snippet of text that can be used to parse, modify and write some
-  * simple markdown files.
+/** Markd is a model for simple markdown files.  It can be used to parse, modify and write
+  * markdown text.
   *
   * The model is simple and includes many (but not all) features of markdown.
   *
-  * You can clean a markdown file into a model then writing out again.
+  * You can clean a markdown file by parsing it into a model then writing it out again.
+  *
+  * {{{
+  * files
+  *  .foreach(f => {
+  *    val md = Header.parse(f.slurp())
+  *    f.writeAll(md.build().toString)
+  *  })
+  * }}}
+  *
+  * @see https://en.wikipedia.org/wiki/Markdown
   */
 package object markd {
 
+  /** Any markdown element. */
   trait Markd {
 
     /** Write some whitespace before this element.
@@ -35,7 +46,7 @@ package object markd {
     def build(sb: StringBuilder = new StringBuilder()): StringBuilder = sb
   }
 
-  /** A simple text paragraph of Markdown.
+  /** A simple text paragraph of Markdown, containing any text content.
     *
     * @param content the text contents for the paragraph.
     */
@@ -46,7 +57,7 @@ package object markd {
       sb ++= content.trim() ++= "\n"
     }
 
-    /** Transforms this paragraph into another more specific [Markd] type if possible. */
+    /** Transforms this paragraph into another more specific [[Markd]] type if possible. */
     def refine(): Markd =
       Table.parse(content).getOrElse(this)
 
@@ -88,7 +99,9 @@ package object markd {
 
   /** A link reference.
     *
+    * {{{
     * [ref]: https://link.url "Optional description"
+    * }}}
     *
     * @param ref   the markdown tag used to reference the link
     * @param url   the url that is being linked to
@@ -509,9 +522,9 @@ package object markd {
     def headers(headers: (String, Alignment)*): Seq[(String, Alignment)] =
       headers.toSeq
 
-    /** If some text content can be reasonably parsed into a [Table].
-      * @param content
-      * @return
+    /** Determines if some content can be reasonably parsed into a [[Table]].
+      * @param content The string contents to parse.
+      * @return An [[Option]] containing a [[Table]] if it is possible to construct, or None if it isn't.
       */
     def parse(content: String): Option[Table] = {
       val lines = content.split("\n").map(TableRow.parse)
