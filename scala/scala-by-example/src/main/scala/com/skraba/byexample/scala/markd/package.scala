@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala
 
-import com.skraba.byexample.scala.markd.Alignment.Alignment
+import com.skraba.byexample.scala.markd.Align.Align
 import com.skraba.byexample.scala.markd.Table.MinimumColumnWidth
 
 import scala.util.matching.Regex
@@ -436,8 +436,8 @@ package object markd {
     }
   }
 
-  object Alignment extends Enumeration {
-    type Alignment = Value
+  object Align extends Enumeration {
+    type Align = Value
     val LEFT, CENTER, RIGHT = Value
   }
 
@@ -451,57 +451,47 @@ package object markd {
     * | col 3 is | right-aligned |    $1 |
     * }}}
     *
-    * @param headers The header text and alignment for each column.
-    * @param mds     The table rows.
+    * @param align The alignment for each column.
+    * @param mds   The table rows, including the column headers (as the first row) and cell values (all subsequent rows).
     */
-  case class Table(headers: Seq[(String, Alignment)], mds: Seq[TableRow])
+  case class Table(aligns: Seq[Align], mds: Seq[TableRow])
       extends MultiMarkd[TableRow] {
 
     type Self = Table
 
-    /** The maximum cell string length for each header column, not including margins */
-    lazy val widths: Seq[Int] =
-      for (((hdr, _), i) <- headers.zipWithIndex)
-        yield {
-          (Seq(MinimumColumnWidth, hdr.length) ++ mds.map(
+    /** The maximum cell string length for each column, not including margins */
+    lazy val widths: Seq[Int] = Seq.tabulate(aligns.length) { i =>
+      Math.max(
+        MinimumColumnWidth,
+        mds
+          .map(
             _.values.applyOrElse(i, (_: Int) => "").length
-          )).max
-        }
-
-    /** Fill out a string to the right width for the column, including the alignment. */
-    def align(i: Int, value: String): String = {
-      if (i >= headers.length) return value
-      val prefix =
-        if (headers(i)._2 == Alignment.CENTER)
-          " " * ((widths(i) - value.length) / 2)
-        else ""
-      if (i == headers.length - 1 && headers(i)._2 != Alignment.RIGHT)
-        return prefix + value
-      s"%${if (headers(i)._2 != Alignment.RIGHT) "-" else ""}${widths(i)}s"
-        .format(prefix + value)
+          )
+          .max
+      )
     }
 
     override def build(
         sb: StringBuilder = new StringBuilder()
     ): StringBuilder = {
-      // The header line
-      sb ++= (for (((hdr, _), i) <- headers.zipWithIndex)
-        yield align(i, hdr)).mkString("", " | ", "\n")
+      // The column header line
+      mds.head.buildRow(aligns, widths, sb)
+
       // The separator row
-      sb ++= (for (((_, align), i) <- headers.zipWithIndex)
+      sb ++= (for ((a, i) <- aligns.zipWithIndex)
         yield {
-          val margin = if (i == 0 || i == headers.length - 1) 1 else 2
+          val margin = if (i == 0 || i == aligns.length - 1) 1 else 2
           val sb2 = new StringBuilder("-" * (widths(i) + margin))
-          if (align == Alignment.CENTER || align == Alignment.RIGHT)
+          if (a == Align.CENTER || a == Align.RIGHT)
             sb2.setCharAt(sb2.length - 1, ':')
-          if (align == Alignment.CENTER)
+          if (a == Align.CENTER)
             sb2.setCharAt(0, ':')
           sb2
         }).mkString("", "|", "\n")
+
       // And a line for each row
-      for (tr <- mds)
-        sb ++= (for ((c, i) <- tr.values.zipWithIndex)
-          yield align(i, c)).mkString("", " | ", "\n")
+      for (tr <- mds.tail)
+        tr.buildRow(aligns, widths, sb)
       sb
     }
 
@@ -515,12 +505,8 @@ package object markd {
     val AlignmentCellRegex: Regex = raw"^\s*(:-+:|---+|:--+|-+-:)\s*$$".r
 
     /** Shortcut method just for the varargs */
-    def from(headers: Seq[(String, Alignment)], mds: TableRow*): Table =
-      Table(headers, mds.toSeq)
-
-    /** Shortcut method just for the varargs */
-    def headers(headers: (String, Alignment)*): Seq[(String, Alignment)] =
-      headers.toSeq
+    def from(aligns: Seq[Align], mds: TableRow*): Table =
+      Table(aligns, mds.toSeq)
 
     /** Determines if some content can be reasonably parsed into a [[Table]].
       * @param content The string contents to parse.
@@ -533,33 +519,72 @@ package object markd {
         return None
 
       // Check the second row for alignments.
-      val align: Seq[Alignment] = lines(1).values.flatMap {
+      val aligns: Seq[Align] = lines(1).values.flatMap {
         case AlignmentCellRegex(cell)
             if cell.startsWith(":") && cell.endsWith(":") =>
-          Some(Alignment.CENTER)
+          Some(Align.CENTER)
         case AlignmentCellRegex(cell) if cell.endsWith(":") =>
-          Some(Alignment.RIGHT)
-        case AlignmentCellRegex(_) => Some(Alignment.LEFT)
+          Some(Align.RIGHT)
+        case AlignmentCellRegex(_) => Some(Align.LEFT)
         case _                     => None
       }
       // If the alignment row removed any elements, then this is not a Table
-      if (align.length < lines(1).values.length) return None
+      if (aligns.length < lines(1).values.length) return None
+
+      // Remove all trailing empty values in rows.
+      val rows = for (tr <- lines.patch(1, Seq.empty, 1)) yield {
+        if (tr.values.last.nonEmpty) tr
+        else {
+          val lastNonEmpty = tr.values.lastIndexWhere(_.trim.nonEmpty)
+          TableRow(values =
+            tr.values.dropRight(tr.values.length - lastNonEmpty - 1)
+          )
+        }
+      }
 
       // Create the column header names and alignments from the first two lines
-      Some(
-        Table(
-          headers = lines(0).values.zipWithIndex.map { case (columnHeader, i) =>
-            (columnHeader, align(i))
-          },
-          mds = lines.drop(2)
-        )
-      )
-
+      Some(Table(aligns, rows))
     }
 
   }
 
-  case class TableRow(values: Seq[String]) extends Markd
+  case class TableRow(values: Seq[String]) extends Markd {
+
+    /** Write this element to the builder.
+      *
+      * @param sb The builder to write to.
+      * @return The builder passed in.
+      */
+    def buildRow(
+        aligns: Seq[Align],
+        widths: Seq[Int],
+        sb: StringBuilder = new StringBuilder()
+    ): StringBuilder = {
+
+      val aligned =
+        for (
+          i <- 0 until Math.max(
+            aligns.length,
+            Math.min(values.length, 1 + values.lastIndexWhere(_.trim.nonEmpty))
+          )
+        ) yield {
+          val a = aligns.applyOrElse(i, (_: Int) => Align.LEFT)
+          val w = widths.applyOrElse(i, (_: Int) => 0);
+          val v = values.applyOrElse(i, (_: Int) => "");
+
+          val lPad =
+            if (a == Align.CENTER) (w - v.length) / 2
+            else if (a == Align.RIGHT) w - v.length
+            else 0
+          val lPadded = " " * Math.max(0, lPad) + v
+
+          lPadded + " " * Math.max(0, w - lPadded.length)
+        }
+
+      sb ++= aligned.mkString(" | ").replaceAll("\\s+$", "")
+      sb ++= "\n"
+    }
+  }
 
   object TableRow {
 
