@@ -158,5 +158,33 @@ class Collections010TraversableSpec extends AnyFunSpecLike with Matchers {
       xs.view shouldBe Traversable(1, 2, 3)
       xs view (1, 2) shouldBe Traversable(2)
     }
+
+    it("supports creation") {
+      // One dimensional
+      Traversable.fill(5)("A") shouldBe Traversable("A", "A", "A", "A", "A")
+      Traversable.tabulate(5)(x => s"A$x") shouldBe Traversable(
+        "A0",
+        "A1",
+        "A2",
+        "A3",
+        "A4"
+      )
+
+      // Up to five dimensions are possible.
+      Traversable.fill(5, 2)("A") shouldBe Traversable(
+        Traversable("A", "A"),
+        Traversable("A", "A"),
+        Traversable("A", "A"),
+        Traversable("A", "A"),
+        Traversable("A", "A")
+      )
+      Traversable.tabulate(5, 2)((x, y) => s"A$x$y") shouldBe Traversable(
+        Traversable("A00", "A01"),
+        Traversable("A10", "A11"),
+        Traversable("A20", "A21"),
+        Traversable("A30", "A31"),
+        Traversable("A40", "A41")
+      )
+    }
   }
 }
