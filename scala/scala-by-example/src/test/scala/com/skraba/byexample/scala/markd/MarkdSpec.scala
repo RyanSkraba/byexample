@@ -2,6 +2,7 @@ package com.skraba.byexample.scala.markd
 
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.OptionValues._
 
 /** Unit tests for [[Markd]]
   */
@@ -486,21 +487,22 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
 
     it("should clean up a simple table") {
       val md = Header.parse("""Before
-          |
-          |Id        | Name
-          |---    | ---
-          |   [1](https://en.wikipedia.org/wiki/1)    |      One
-          |2|Two
-          |3|Three
-          |
-          |
-          |After
-          |""".stripMargin)
+          !
+          !Id        | Name
+          !---    | ---
+          !   [1](https://en.wikipedia.org/wiki/1)    |      One
+          !2|Two
+          !3|Three
+          !
+          !
+          !After
+          !""".stripMargin('!'))
 
       md.mds should have size 3
       md.mds.head shouldBe Paragraph("Before")
       md.mds(1) shouldBe Table.from(
-        Table.headers("Id" -> Alignment.LEFT, "Name" -> Alignment.LEFT),
+        Seq(Align.LEFT, Align.LEFT),
+        TableRow.from("Id", "Name"),
         TableRow.from("[1](https://en.wikipedia.org/wiki/1)", "One"),
         TableRow.from("2", "Two"),
         TableRow.from("3", "Three")
@@ -510,35 +512,36 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       val cleaned = md.build().toString
       cleaned shouldBe
         """Before
-          |
-          |Id                                   | Name
-          |-------------------------------------|------
-          |[1](https://en.wikipedia.org/wiki/1) | One
-          |2                                    | Two
-          |3                                    | Three
-          |
-          |After
-          |""".stripMargin
+          !
+          !Id                                   | Name
+          !-------------------------------------|------
+          ![1](https://en.wikipedia.org/wiki/1) | One
+          !2                                    | Two
+          !3                                    | Three
+          !
+          !After
+          !""".stripMargin('!')
       Header.parse(cleaned) shouldBe md
     }
 
     it("should detect column alignment") {
       val md = Header.parse("""
-          |Id1|Id2|Id3|Name
-          |:--   |   :--: |------:  |--:
-          |   1    |1    |1    |      One
-          |22|22|22|Two
-          |333|333|333|Three
-          |""".stripMargin)
+          !Id1|Id2|Id3|Name
+          !:--   |   :--: |------:  |--:
+          !   1    |1    |1    |      One
+          !22|22|22|Two
+          !333|333|333|Three
+          !""".stripMargin('!'))
 
       md.mds should have size 1
       md.mds.head shouldBe Table.from(
-        Table.headers(
-          "Id1" -> Alignment.LEFT,
-          "Id2" -> Alignment.CENTER,
-          "Id3" -> Alignment.RIGHT,
-          "Name" -> Alignment.RIGHT
+        Seq(
+          Align.LEFT,
+          Align.CENTER,
+          Align.RIGHT,
+          Align.RIGHT
         ),
+        TableRow.from("Id1", "Id2", "Id3", "Name"),
         TableRow.from("1", "1", "1", "One"),
         TableRow.from("22", "22", "22", "Two"),
         TableRow.from("333", "333", "333", "Three")
@@ -547,21 +550,77 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       val cleaned = md.build().toString
       cleaned shouldBe
         """Id1 | Id2 | Id3 |  Name
-          |----|:---:|----:|-----:
-          |1   |  1  |   1 |   One
-          |22  | 22  |  22 |   Two
-          |333 | 333 | 333 | Three
-          |""".stripMargin
+          !----|:---:|----:|-----:
+          !1   |  1  |   1 |   One
+          !22  | 22  |  22 |   Two
+          !333 | 333 | 333 | Three
+          !""".stripMargin('!')
       Header.parse(cleaned) shouldBe md
+    }
+
+    it("should handle ragged rows") {
+      val md = Table
+        .parse("""AAA|BBB|CCC|DDD
+          !---|:-:|--:|---
+          !a
+          !b|b
+          !c|c|c
+          !d|d|d|d
+          !e|e|e|e|eee
+          !f|f|f|f|ff|f|f|f|||||
+          !
+          !a
+          !|b
+          !||c
+          !|||d
+          !||||e
+          !|||||||f|||||
+          !""".stripMargin('!'))
+        .value
+      val cleaned = md.build().toString
+      cleaned shouldBe
+        """AAA | BBB | CCC | DDD
+          !----|:---:|----:|----
+          !a   |     |     |
+          !b   |  b  |     |
+          !c   |  c  |   c |
+          !d   |  d  |   d | d
+          !e   |  e  |   e | e   | eee
+          !f   |  f  |   f | f   | ff | f | f | f
+          !    |     |     |
+          !a   |     |     |
+          !    |  b  |     |
+          !    |     |   c |
+          !    |     |     | d
+          !    |     |     |     | e
+          !    |     |     |     |  |  |  | f
+          !""".stripMargin('!')
+      Table.parse(cleaned).value shouldBe md
+    }
+
+    it("should handle empty column headers") {
+      val md = Table.parse(
+        """|   ||
+          !---|:-:|--:|---
+          !a|b|c|d
+          !""".stripMargin('!'))
+        .value
+      val cleaned = md.build().toString
+      cleaned shouldBe
+        """    |     |     |
+          !----|:---:|----:|----
+          !a   |  b  |   c | d
+          !""".stripMargin('!')
+      Table.parse(cleaned).value shouldBe md
     }
   }
 
   describe("Replacing subelements") {
     val md = Header.parse("""
-                            |# One
-                            |# Two
-                            |# Three
-                            |""".stripMargin)
+        |# One
+        |# Two
+        |# Three
+        |""".stripMargin)
 
     describe("replacing a match one-to-one with another element") {
       it("should replace all matches") {
