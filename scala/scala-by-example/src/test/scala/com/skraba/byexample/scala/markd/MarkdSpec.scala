@@ -599,8 +599,8 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
     }
 
     it("should handle empty column headers") {
-      val md = Table.parse(
-        """|   ||
+      val md = Table
+        .parse("""|   ||
           !---|:-:|--:|---
           !a|b|c|d
           !""".stripMargin('!'))
