@@ -1,8 +1,8 @@
 package com.skraba.byexample.scala.markd
 
+import org.scalatest.OptionValues._
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.OptionValues._
 
 /** Unit tests for [[Markd]]
   */
@@ -610,6 +610,22 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         """    |     |     |
           !----|:---:|----:|----
           !a   |  b  |   c | d
+          !""".stripMargin('!')
+      Table.parse(cleaned).value shouldBe md
+    }
+
+    it("should handle escaped pipes") {
+      val md = Table
+        .parse("""|   \|\||\||
+                 !---|:-:|--:|---
+                 !a\|a|b\||\|c|d
+                 !""".stripMargin('!'))
+        .value
+      val cleaned = md.build().toString
+      cleaned shouldBe
+        """     | \|\| |  \| |
+          !-----|:----:|----:|----
+          !a\|a | b\|  | \|c | d
           !""".stripMargin('!')
       Table.parse(cleaned).value shouldBe md
     }
