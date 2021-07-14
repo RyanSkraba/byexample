@@ -502,6 +502,9 @@ package object markd {
 
     val MinimumColumnWidth = 3
 
+    /** Split into cells by |, taking into account escaped pipes but not other constructions. */
+    val CellRegex: Regex = raw"(?<!\\)\|".r
+
     val AlignmentCellRegex: Regex = raw"^\s*(:-+:|---+|:--+|-+-:)\s*$$".r
 
     /** Shortcut method just for the varargs */
@@ -513,13 +516,19 @@ package object markd {
       * @return An [[Option]] containing a [[Table]] if it is possible to construct, or None if it isn't.
       */
     def parse(content: String): Option[Table] = {
-      val lines = content.split("\n").map(TableRow.parse)
-      // If there aren't at least two lines with the same number of cells, this isn't a Table.
-      if (lines.length < 2 || lines(0).values.length != lines(1).values.length)
-        return None
+      val prelines = content.split("\n").map(parseRow)
+      // If there aren't at least two lines, this isn't a Table.
+      if (prelines.length < 2) return None
+
+      // If the alignment line starts with pipe, then remove the first strictly empty cell
+      // from each row.
+      val lines =
+        if (!prelines(1).headOption.contains("")) prelines
+        else
+          prelines.map(xs => if (xs.headOption.contains("")) xs.drop(1) else xs)
 
       // Check the second row for alignments.
-      val aligns: Seq[Align] = lines(1).values.flatMap {
+      val aligns: Seq[Align] = lines(1).flatMap {
         case AlignmentCellRegex(cell)
             if cell.startsWith(":") && cell.endsWith(":") =>
           Some(Align.CENTER)
@@ -529,23 +538,23 @@ package object markd {
         case _                     => None
       }
       // If the alignment row removed any elements, then this is not a Table
-      if (aligns.length < lines(1).values.length) return None
+      if (aligns.length < lines(1).length) return None
 
-      // Remove all trailing empty values in rows.
-      val rows = for (tr <- lines.patch(1, Seq.empty, 1)) yield {
-        if (tr.values.last.nonEmpty) tr
-        else {
-          val lastNonEmpty = tr.values.lastIndexWhere(_.trim.nonEmpty)
-          TableRow(values =
-            tr.values.dropRight(tr.values.length - lastNonEmpty - 1)
-          )
-        }
-      }
+      val rows =
+        lines.patch(1, Seq.empty, 1).map(_.map(_.trim)).map(TableRow.apply)
 
-      // Create the column header names and alignments from the first two lines
       Some(Table(aligns, rows))
     }
 
+    /** Parses a string into cells, removing all trailing whitespace-only cells. */
+    def parseRow(content: String): Seq[String] = {
+      val values = CellRegex.pattern.split(content, -1)
+      if (values.last.nonEmpty) values
+      else {
+        val lastNonEmpty = values.lastIndexWhere(!_.isBlank)
+        values.dropRight(values.length - lastNonEmpty - 1)
+      }
+    }
   }
 
   case class TableRow(values: Seq[String]) extends Markd {
@@ -562,12 +571,7 @@ package object markd {
     ): StringBuilder = {
 
       val aligned =
-        for (
-          i <- 0 until Math.max(
-            aligns.length,
-            Math.min(values.length, 1 + values.lastIndexWhere(_.trim.nonEmpty))
-          )
-        ) yield {
+        for (i <- 0 until Math.max(aligns.length, values.length)) yield {
           val a = aligns.applyOrElse(i, (_: Int) => Align.LEFT)
           val w = widths.applyOrElse(i, (_: Int) => 0);
           val v = values.applyOrElse(i, (_: Int) => "");
@@ -588,15 +592,8 @@ package object markd {
 
   object TableRow {
 
-    /** Split into cells by |, taking into account escaped pipes but not other constructions. */
-    val CellRegex: Regex = raw"(?<!\\)\|".r
-
     /** Shortcut method just for the varargs */
     def from(values: String*): TableRow = TableRow(values.toSeq)
-
-    def parse(content: String): TableRow = {
-      TableRow(CellRegex.pattern.split(content, -1).map(_.trim))
-    }
   }
 
   /** Helps build the model when parsing contents. */

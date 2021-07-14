@@ -175,6 +175,18 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
             |""".stripMargin.replaceAllLiterally(".", " ")
         Header.parse(cleaned) shouldBe md
       }
+
+      // TODO: This doesn't quite work.
+      ignore("should ignore an internal code block") {
+        val md = Header.parse("""
+            |echo ```Hello``` world
+            |""".stripMargin)
+        md shouldBe Header(0, "", Paragraph("echo ```Hello``` world"))
+
+        val cleaned = md.build().toString
+        cleaned shouldBe """echo ```Hello``` world"""
+        Header.parse(cleaned) shouldBe md
+      }
     }
 
     describe("with a comment block") {
@@ -464,21 +476,28 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
 
   describe("Parsing markdown into tables") {
 
-    it("should parse lines into TableRows") {
-      TableRow.parse("") shouldBe TableRow.from("")
-      TableRow.parse("|") shouldBe TableRow.from("", "")
-      TableRow.parse("||") shouldBe TableRow.from("", "", "")
-      TableRow
-        .parse("one|two|three") shouldBe TableRow.from("one", "two", "three")
-      TableRow.parse("|two|three") shouldBe TableRow.from("", "two", "three")
-      TableRow.parse("one||three") shouldBe TableRow.from("one", "", "three")
-      TableRow.parse("one|two|") shouldBe TableRow.from("one", "two", "")
-      TableRow.parse(raw"\||two|three") shouldBe TableRow.from(
+    it("should parse lines into cells") {
+      Table.parseRow("") shouldBe Seq()
+      Table.parseRow("|") shouldBe Seq()
+      Table.parseRow("||") shouldBe Seq()
+      Table.parseRow("one|two|three") shouldBe Seq("one", "two", "three")
+      Table.parseRow("|two|three") shouldBe Seq("", "two", "three")
+      Table.parseRow("one||three") shouldBe Seq("one", "", "three")
+      Table.parseRow("one|two|") shouldBe Seq("one", "two")
+      Table.parseRow("one|two||||") shouldBe Seq("one", "two")
+      Table.parseRow(raw"\||two|three") shouldBe Seq(
         raw"\|",
         "two",
         "three"
       )
-      TableRow.parse(raw"one\||t\|wo|\|three") shouldBe TableRow.from(
+      Table.parseRow(raw"\||two|three||\|") shouldBe Seq(
+        raw"\|",
+        "two",
+        "three",
+        "",
+        raw"\|"
+      )
+      Table.parseRow(raw"one\||t\|wo|\|three") shouldBe Seq(
         raw"one\|",
         raw"t\|wo",
         raw"\|three"
@@ -614,6 +633,30 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       Table.parse(cleaned).value shouldBe md
     }
 
+    it("should handle extra pipes") {
+      val md = Table
+        .parse("""|Id|Name|
+                 !|---|---|
+                 !|1  |One|
+                 ! 2  |Two|
+                 !|3  | Three
+                 ! 4  | Four
+                 ! |5|Five||||
+                 !""".stripMargin('!'))
+        .value
+      val cleaned = md.build().toString
+      cleaned shouldBe
+        """Id  | Name
+          !----|------
+          !1   | One
+          !2   | Two
+          !3   | Three
+          !4   | Four
+          !    | 5     | Five
+          !""".stripMargin('!')
+      Table.parse(cleaned).value shouldBe md
+    }
+
     it("should handle escaped pipes") {
       val md = Table
         .parse("""|   \|\||\||
@@ -628,6 +671,42 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           !a\|a | b\|  | \|c | d
           !""".stripMargin('!')
       Table.parse(cleaned).value shouldBe md
+    }
+
+    it("should ignore non-tables") {
+      // Missing or bad alignment lines
+      Table.parse("Hello world") shouldBe None
+      Table.parse("A|B|C") shouldBe None
+      Table.parse("A|B|C\na|b|c") shouldBe None
+      Table.parse("A|B|C\n---|---|c--") shouldBe None
+      Table.parse("---|---|---") shouldBe None
+      Table.parse("A|B|C\n---|---|--") shouldBe None
+    }
+
+    it("should resolve missing or extra pipes") {
+      // A valid table
+      val md = Table.parse("A|B\n---|---\na|b").value
+      val cleaned = md.build().toString
+      cleaned shouldBe
+        """A   | B
+          !----|----
+          !a   | b
+          !""".stripMargin('!')
+      Table.parse(cleaned).value shouldBe md
+
+      // Other ways to represent the same table
+      for (
+        content <- Seq(
+          "  A  |  B  \n  ---  |  ---  \n  a  |  b  ",
+          "\tA\t|\tB\t\n\t---\t|\t---\t\n\ta\t|\tb\t",
+          " A | B \n| --- | --- \n a | b ",
+          "| A | B \n| --- | --- \n a | b ",
+          " A | B \n| --- | --- \n| a | b ",
+          "| A | B |\n| --- | --- \n| a | b |"
+        )
+      ) {
+        Table.parse(content).value shouldBe md
+      }
     }
   }
 
