@@ -1,7 +1,6 @@
 package com.skraba.byexample.scala
 
 import com.skraba.byexample.scala.markd.Align.Align
-import com.skraba.byexample.scala.markd.Table.MinimumColumnWidth
 
 import scala.util.matching.Regex
 
@@ -462,7 +461,7 @@ package object markd {
     /** The maximum cell string length for each column, not including margins */
     lazy val widths: Seq[Int] = Seq.tabulate(aligns.length) { i =>
       Math.max(
-        MinimumColumnWidth,
+        1,
         mds
           .map(
             _.values.applyOrElse(i, (_: Int) => "").length
@@ -480,14 +479,13 @@ package object markd {
       // The separator row
       sb ++= (for ((a, i) <- aligns.zipWithIndex)
         yield {
-          val margin = if (i == 0 || i == aligns.length - 1) 1 else 2
-          val sb2 = new StringBuilder("-" * (widths(i) + margin))
+          val sb2 = new StringBuilder("-" * (widths(i) + 2))
           if (a == Align.CENTER || a == Align.RIGHT)
             sb2.setCharAt(sb2.length - 1, ':')
           if (a == Align.CENTER)
             sb2.setCharAt(0, ':')
           sb2
-        }).mkString("", "|", "\n")
+        }).mkString("|", "|", "|\n")
 
       // And a line for each row
       for (tr <- mds.tail)
@@ -499,8 +497,6 @@ package object markd {
   }
 
   object Table {
-
-    val MinimumColumnWidth = 3
 
     /** Split into cells by |, taking into account escaped pipes but not other constructions. */
     val CellRegex: Regex = raw"(?<!\\)\|".r
@@ -585,7 +581,7 @@ package object markd {
           lPadded + " " * Math.max(0, w - lPadded.length)
         }
 
-      sb ++= aligned.mkString(" | ").replaceAll("\\s+$", "")
+      sb ++= aligned.mkString("| ", " | ", " |")
       sb ++= "\n"
     }
   }

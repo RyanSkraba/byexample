@@ -532,11 +532,11 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       cleaned shouldBe
         """Before
           !
-          !Id                                   | Name
-          !-------------------------------------|------
-          ![1](https://en.wikipedia.org/wiki/1) | One
-          !2                                    | Two
-          !3                                    | Three
+          !| Id                                   | Name  |
+          !|--------------------------------------|-------|
+          !| [1](https://en.wikipedia.org/wiki/1) | One   |
+          !| 2                                    | Two   |
+          !| 3                                    | Three |
           !
           !After
           !""".stripMargin('!')
@@ -568,11 +568,11 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
 
       val cleaned = md.build().toString
       cleaned shouldBe
-        """Id1 | Id2 | Id3 |  Name
-          !----|:---:|----:|-----:
-          !1   |  1  |   1 |   One
-          !22  | 22  |  22 |   Two
-          !333 | 333 | 333 | Three
+        """| Id1 | Id2 | Id3 |  Name |
+          !|-----|:---:|----:|------:|
+          !| 1   |  1  |   1 |   One |
+          !| 22  | 22  |  22 |   Two |
+          !| 333 | 333 | 333 | Three |
           !""".stripMargin('!')
       Header.parse(cleaned) shouldBe md
     }
@@ -598,21 +598,21 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         .value
       val cleaned = md.build().toString
       cleaned shouldBe
-        """AAA | BBB | CCC | DDD
-          !----|:---:|----:|----
-          !a   |     |     |
-          !b   |  b  |     |
-          !c   |  c  |   c |
-          !d   |  d  |   d | d
-          !e   |  e  |   e | e   | eee
-          !f   |  f  |   f | f   | ff | f | f | f
-          !    |     |     |
-          !a   |     |     |
-          !    |  b  |     |
-          !    |     |   c |
-          !    |     |     | d
-          !    |     |     |     | e
-          !    |     |     |     |  |  |  | f
+        """| AAA | BBB | CCC | DDD |
+          !|-----|:---:|----:|-----|
+          !| a   |     |     |     |
+          !| b   |  b  |     |     |
+          !| c   |  c  |   c |     |
+          !| d   |  d  |   d | d   |
+          !| e   |  e  |   e | e   | eee |
+          !| f   |  f  |   f | f   | ff | f | f | f |
+          !|     |     |     |     |
+          !| a   |     |     |     |
+          !|     |  b  |     |     |
+          !|     |     |   c |     |
+          !|     |     |     | d   |
+          !|     |     |     |     | e |
+          !|     |     |     |     |  |  |  | f |
           !""".stripMargin('!')
       Table.parse(cleaned).value shouldBe md
     }
@@ -626,9 +626,9 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         .value
       val cleaned = md.build().toString
       cleaned shouldBe
-        """    |     |     |
-          !----|:---:|----:|----
-          !a   |  b  |   c | d
+        """|   |   |   |   |
+          !|---|:-:|--:|---|
+          !| a | b | c | d |
           !""".stripMargin('!')
       Table.parse(cleaned).value shouldBe md
     }
@@ -646,13 +646,13 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         .value
       val cleaned = md.build().toString
       cleaned shouldBe
-        """Id  | Name
-          !----|------
-          !1   | One
-          !2   | Two
-          !3   | Three
-          !4   | Four
-          !    | 5     | Five
+        """| Id | Name  |
+          !|----|-------|
+          !| 1  | One   |
+          !| 2  | Two   |
+          !| 3  | Three |
+          !| 4  | Four  |
+          !|    | 5     | Five |
           !""".stripMargin('!')
       Table.parse(cleaned).value shouldBe md
     }
@@ -666,9 +666,9 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         .value
       val cleaned = md.build().toString
       cleaned shouldBe
-        """     | \|\| |  \| |
-          !-----|:----:|----:|----
-          !a\|a | b\|  | \|c | d
+        """|      | \|\| |  \| |   |
+          !|------|:----:|----:|---|
+          !| a\|a | b\|  | \|c | d |
           !""".stripMargin('!')
       Table.parse(cleaned).value shouldBe md
     }
@@ -688,9 +688,9 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       val md = Table.parse("A|B\n---|---\na|b").value
       val cleaned = md.build().toString
       cleaned shouldBe
-        """A   | B
-          !----|----
-          !a   | b
+        """| A | B |
+          !|---|---|
+          !| a | b |
           !""".stripMargin('!')
       Table.parse(cleaned).value shouldBe md
 
