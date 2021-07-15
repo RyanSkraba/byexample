@@ -15,10 +15,10 @@ Resources
 JMH Options (`JmhGo -h`)
 ------------------------------------------------------------------------------
 
-Option       | Explanation
--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-`-bm <mode>` | **Benchmark mode** (default: `Throughput`): <ul><li>`Throughput`/`thrpt`</li><li>`AverageTime`/`avgt`</li><li>`SampleTime`/`sample`</li><li>`SingleShotTime`/`ss`</li><li>`All`/`all`.</li></ul>
-`-tu <TU>`   | **Time units** (default: `s`): `m`, `s`, `ms`, `us`, `ns`
+| Option       | Explanation                                                                                                                                                                                      |
+|--------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `-bm <mode>` | **Benchmark mode** (default: `Throughput`): <ul><li>`Throughput`/`thrpt`</li><li>`AverageTime`/`avgt`</li><li>`SampleTime`/`sample`</li><li>`SingleShotTime`/`ss`</li><li>`All`/`all`.</li></ul> |
+| `-tu <TU>`   | **Time units** (default: `s`): `m`, `s`, `ms`, `us`, `ns`                                                                                                                                        |
 
 Running the benchmark
 ------------------------------------------------------------------------------
