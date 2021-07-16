@@ -14,7 +14,7 @@ class ScalaGo(params: Either[GreeterBean, ScalaCaseClass]) {
   def name(): String = params.fold(_.getName, _.name)
 
   def go(): Unit = {
-    for (x <- 1 to count())
+    for (_ <- 1 to count())
       println("Hello, " + name() + "!")
   }
 }
