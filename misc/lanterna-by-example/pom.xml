@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.skraba.byexample</groupId>
+    <artifactId>byexample-misc-aggregator</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>lanterna-by-example</artifactId>
+
+  <name>By Example :: Misc :: Lanterna</name>
+  <description>Lanterna example project, setup, howtos, etc.</description>
+
+  <properties>
+    <maven.deploy.skip>false</maven.deploy.skip>
+    <scalafmt.conf.path>${project.basedir}/../../.scalafmt.conf</scalafmt.conf.path>
+    <!-- Launcher class -->
+    <exec.mainClass>com.skraba.byexample.lanterna.LanternaGo</exec.mainClass>
+    <!-- other project dependency versions as properties -->
+    <lanterna.version>3.1.1</lanterna.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.offbytwo</groupId>
+      <artifactId>docopt</artifactId>
+      <version>${docopt.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.googlecode.lanterna</groupId>
+      <artifactId>lanterna</artifactId>
+      <version>${lanterna.version}</version>
+    </dependency>
+  </dependencies>
+</project>
