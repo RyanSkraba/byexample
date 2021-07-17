@@ -25,32 +25,32 @@ public class JavaScalaGoTest {
   public void testBasicExceptions() {
     // --version and --help don't run the tool but drop out with "successful" exit
     DocoptExitException ex =
-        assertThrows(DocoptExitException.class, () -> withConsoleMatch("--version"));
+        assertThrows(DocoptExitException.class, () -> JavaScalaGo.go("--version"));
     assertThat(ex.getExitCode(), is(0));
     assertThat(ex.getMessage(), is(JavaScalaGo.VERSION));
-    ex = assertThrows(DocoptExitException.class, () -> withConsoleMatch("--help"));
+    ex = assertThrows(DocoptExitException.class, () -> JavaScalaGo.go("--help"));
     assertThat(ex.getExitCode(), is(0));
     assertThat(ex.getMessage(), is(JavaScalaGo.DOC));
 
     // Missing arguments are failures
-    ex = assertThrows(DocoptExitException.class, () -> withConsoleMatch("--name"));
+    ex = assertThrows(DocoptExitException.class, () -> JavaScalaGo.go("--name"));
     assertThat(ex.getExitCode(), is(1));
     assertThat(ex.getMessage(), is("--name requires argument"));
-    ex = assertThrows(DocoptExitException.class, () -> withConsoleMatch("--count"));
+    ex = assertThrows(DocoptExitException.class, () -> JavaScalaGo.go("--count"));
     assertThat(ex.getExitCode(), is(1));
     assertThat(ex.getMessage(), is("--count requires argument"));
 
     // Unknown arguments are failures.
-    ex = assertThrows(DocoptExitException.class, () -> withConsoleMatch("--garbage"));
+    ex = assertThrows(DocoptExitException.class, () -> JavaScalaGo.go("--garbage"));
     assertThat(ex.getExitCode(), is(1));
     assertThat(ex.getMessage(), nullValue());
-    ex = assertThrows(DocoptExitException.class, () -> withConsoleMatch("--debug", "--garbage"));
+    ex = assertThrows(DocoptExitException.class, () -> JavaScalaGo.go("--debug", "--garbage"));
     assertThat(ex.getExitCode(), is(1));
     assertThat(ex.getMessage(), nullValue());
-    ex = assertThrows(DocoptExitException.class, () -> withConsoleMatch("--garbage", "--debug"));
+    ex = assertThrows(DocoptExitException.class, () -> JavaScalaGo.go("--garbage", "--debug"));
     assertThat(ex.getExitCode(), is(1));
     assertThat(ex.getMessage(), nullValue());
-    ex = assertThrows(DocoptExitException.class, () -> withConsoleMatch("--garbage", "garbage"));
+    ex = assertThrows(DocoptExitException.class, () -> JavaScalaGo.go("--garbage", "garbage"));
     assertThat(ex.getExitCode(), is(1));
     assertThat(ex.getMessage(), nullValue());
   }
@@ -58,7 +58,6 @@ public class JavaScalaGoTest {
   @Test
   public void testNoArguments() {
     String[] out = withConsoleMatch();
-
     assertThat(out[0], is("Hello, JavaScalaGo!\n".repeat(10)));
     assertThat(out[1], is(""));
   }
