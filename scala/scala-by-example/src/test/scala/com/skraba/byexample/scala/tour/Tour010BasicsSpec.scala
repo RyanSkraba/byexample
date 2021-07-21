@@ -24,7 +24,7 @@ class Tour010BasicsSpec extends AnyFunSpecLike with Matchers {
       x shouldBe a[Integer]
       val x2: Int = 1 + 1
       x2 shouldBe 2
-      // Not permitted:
+      // Not permitted, values are immutable.
       """x = 3""" shouldNot compile
 
       var x3 = 1 + 1
@@ -47,14 +47,17 @@ class Tour010BasicsSpec extends AnyFunSpecLike with Matchers {
       val incr = (x: Int) => x + 1
       incr(2) shouldBe 3
       incr shouldBe a[_ => _]
+      "val check: Int => Int = incr" should compile
 
       val add = (x: Int, y: Int) => x + y
       add(2, 1) shouldBe 3
       add shouldBe a[(_, _) => _]
+      "val check: (Int, Int) => Int = add" should compile
 
       val three = () => 3
       three() shouldBe 3
       three shouldBe a[() => _]
+      "val check: () => Int = three" should compile
     }
 
     it("has methods") {

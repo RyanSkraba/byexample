@@ -17,7 +17,12 @@ class Tour045TuplesSpec extends AnyFunSpecLike with Matchers {
       tuple shouldBe (1, "one")
       tuple._1 shouldBe 1
       tuple._2 shouldBe "one"
-      tuple shouldBe a[(Int, String)]
+
+      // These types are equivalent
+      tuple shouldBe a[(_, _)]
+      tuple shouldBe a[Tuple2[_, _]]
+      "val x: (Int, String) = tuple" should compile
+      "val x: Tuple2[Int, String] = tuple" should compile
 
       // Or as an instance.  This is a case class.
       val tuple2 = Tuple2(2, "two")
