@@ -20,7 +20,7 @@ class Tour030ClassesSpec extends AnyFunSpecLike with Matchers {
       x should not be new Thing
     }
 
-    it("can have constructor") {
+    it("can have a constructor") {
       // Constructors are val and private by default.
       // If you add val or var, they are public with accessor(s).
       // If you add private, there are no accessors.
@@ -54,7 +54,7 @@ class Tour030ClassesSpec extends AnyFunSpecLike with Matchers {
       point1.toString shouldBe "(4, 4, 0)"
     }
 
-    it("can have constructor with optional parameters") {
+    it("can have a constructor with optional parameters") {
       class Point(var x: Int = 0, var y: Int = 0)
 
       val origin = new Point // x and y are both set to 0

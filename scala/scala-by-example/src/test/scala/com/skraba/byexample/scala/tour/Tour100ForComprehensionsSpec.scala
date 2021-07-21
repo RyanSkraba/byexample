@@ -45,10 +45,10 @@ class Tour100ForComprehensionsSpec extends AnyFunSpecLike with Matchers {
         )
           yield (i, j)
 
-      foo(10, 10) shouldEqual List((1, 9), (2, 8), (3, 7), (4, 6), (5, 5))
+      foo(10, 10) shouldBe List((1, 9), (2, 8), (3, 7), (4, 6), (5, 5))
 
       // The translation to map, flatMap and filter:
-      foo(10, 10) shouldEqual (0 until 10)
+      foo(10, 10) shouldBe (0 until 10)
         .flatMap { i =>
           (i until 10).map(j => (i, j))
         }
@@ -66,7 +66,7 @@ class Tour100ForComprehensionsSpec extends AnyFunSpecLike with Matchers {
           sideEffectCollector += ((i, j))
 
       foox(10, 10)
-      sideEffectCollector shouldEqual List(
+      sideEffectCollector shouldBe List(
         (1, 9),
         (2, 8),
         (3, 7),
@@ -88,16 +88,16 @@ class Tour100ForComprehensionsSpec extends AnyFunSpecLike with Matchers {
       def p(i: Int): Boolean = i % 2 == 1
 
       // The arrow represents a map.
-      (for (x <- xs) yield f(x)) shouldEqual List(2, 4, 6)
-      (for (x <- xs) yield f(x)) shouldEqual xs.map(f)
+      (for (x <- xs) yield f(x)) shouldBe List(2, 4, 6)
+      (for (x <- xs) yield f(x)) shouldBe xs.map(f)
 
       // The semicolon between predicates is a flatMap.
-      (for (x <- xs; y <- g(x)) yield y) shouldEqual List(1, 2, 2, 3, 3, 3)
-      (for (x <- xs; y <- g(x)) yield y) shouldEqual xs.flatMap(g)
+      (for (x <- xs; y <- g(x)) yield y) shouldBe List(1, 2, 2, 3, 3, 3)
+      (for (x <- xs; y <- g(x)) yield y) shouldBe xs.flatMap(g)
 
       // The if predicate is a filter.
-      (for (x <- xs if p(x)) yield x) shouldEqual List(1, 3)
-      (for (x <- xs if p(x)) yield x) shouldEqual xs.filter(p)
+      (for (x <- xs if p(x)) yield x) shouldBe List(1, 3)
+      (for (x <- xs if p(x)) yield x) shouldBe xs.filter(p)
 
       // In the other direction, map, flatMap and filter can be implemented using
       // the for comprehensions
@@ -113,9 +113,9 @@ class Tour100ForComprehensionsSpec extends AnyFunSpecLike with Matchers {
       def filterUsingFor[IN](xs: List[IN], p: IN => Boolean): List[IN] =
         for (x <- xs if p(x)) yield x
 
-      mapUsingFor(xs, f) shouldEqual List(2, 4, 6)
-      flatMapUsingFor(xs, g) shouldEqual List(1, 2, 2, 3, 3, 3)
-      filterUsingFor(xs, p) shouldEqual List(1, 3)
+      mapUsingFor(xs, f) shouldBe List(2, 4, 6)
+      flatMapUsingFor(xs, g) shouldBe List(1, 2, 2, 3, 3, 3)
+      filterUsingFor(xs, p) shouldBe List(1, 3)
     }
   }
 }

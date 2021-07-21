@@ -51,10 +51,10 @@ class BasicMatchersSpec extends AnyFunSpecLike with Matchers {
       increase(x) shouldBe a[Int]
 
       // You can use compilation to check the exact types
-      "val a: Int => Int = increase" should compile
+      "val check: Int => Int = increase" should compile
       // Or typeCheck for failures
-      "val a: String => Int = increase" shouldNot compile
-      "val a: String => Int = increase" shouldNot typeCheck
+      "val check: String => Int = increase" shouldNot compile
+      "val check: String => Int = increase" shouldNot typeCheck
     }
 
     it("can test numbers to be close enough") {

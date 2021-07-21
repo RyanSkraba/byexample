@@ -9,9 +9,9 @@ import org.scalatest.matchers.should.Matchers
   */
 class Tour080PatternMatchingSpec extends AnyFunSpecLike with Matchers {
 
-  describe("Pattern Matching") {
+  describe("Pattern matching") {
 
-    it("is simple") {
+    it("allow you to construct advanced switch expressions") {
       val x: Int = 0
       val y = x match {
         case 0 => "zero"

@@ -24,7 +24,7 @@ class Tour070CaseClassesSpec extends AnyFunSpecLike with Matchers {
       "one.id = 2" shouldNot compile
     }
 
-    it("defines equality nicely") {
+    it("define equality nicely") {
       val one = Simple(1, "one")
       val other = Simple(1, "one")
 
@@ -32,13 +32,13 @@ class Tour070CaseClassesSpec extends AnyFunSpecLike with Matchers {
       one.hashCode shouldBe other.hashCode
     }
 
-    it("creates a nice toString") {
+    it("create a nice toString") {
       val one = Simple(1, "one")
 
       one.toString shouldBe "Simple(1,one)"
     }
 
-    it("has a nice copy constructor") {
+    it("have a nice copy constructor") {
       val one = Simple(1, "one")
 
       val un = one.copy(name = "un")
@@ -52,7 +52,7 @@ class Tour070CaseClassesSpec extends AnyFunSpecLike with Matchers {
       un.hashCode shouldNot be(one.hashCode)
     }
 
-    it("has an unapply") {
+    it("have an unapply") {
       val one = Simple(1, "one")
 
       // Unapply here
