@@ -19,14 +19,14 @@ class CanBuildFromSpec extends AnyFunSpecLike with Matchers {
       // A string is a implicitly sequence of characters.
       val orig = "Hello world"
       orig shouldBe a[String]
-      "val x: Seq[Char] = orig" should compile
+      "val check: Seq[Char] = orig" should compile
 
       // So you can map it to a sequence of integers.
-      "val x: Seq[Int] = orig.map(_.toInt)" should compile
+      "val check: Seq[Int] = orig.map(_.toInt)" should compile
 
       // Or magically to a String (or sequence of characters, whatever).
-      "val x: Seq[Char] = orig.map(_.toUpper)" should compile
-      "val x: String = orig.map(_.toUpper)" should compile
+      "val check: Seq[Char] = orig.map(_.toUpper)" should compile
+      "val check: String = orig.map(_.toUpper)" should compile
 
       // This magic comes from the Predefs StringCanBuildFrom!
       val scbf: CanBuildFrom[String, Char, String] = implicitly
@@ -50,7 +50,7 @@ class CanBuildFromSpec extends AnyFunSpecLike with Matchers {
 
     it("looks like a Seq but doesn't have the same magic") {
       val orig: MagicList = MagicList(true, false, true)
-      "val x: Seq[Boolean] = orig" should compile
+      "val check: Seq[Boolean] = orig" should compile
 
       // So you can map it to a sequence of integers.
       orig.map(if (_) 1 else 0) shouldBe Seq(1, 0, 1)
@@ -81,7 +81,7 @@ class CanBuildFromSpec extends AnyFunSpecLike with Matchers {
         }
 
       val orig: MagicList = MagicList(true, false, true)
-      "val x: Seq[Boolean] = orig" should compile
+      "val check: Seq[Boolean] = orig" should compile
 
       // This used to fail
       val mapped: MagicList = orig.map(!_)
@@ -163,7 +163,7 @@ class CanBuildFromSpec extends AnyFunSpecLike with Matchers {
     it("can act like a sequence and NamedList") {
 
       // This is still true.
-      "val x: Seq[Boolean] = orig" should compile
+      "val check: Seq[Boolean] = orig" should compile
 
       // This used to fail
       orig.map(!_) shouldBe NamedList("orig", false, true)

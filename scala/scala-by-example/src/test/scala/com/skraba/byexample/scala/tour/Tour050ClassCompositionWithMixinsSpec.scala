@@ -13,7 +13,7 @@ class Tour050ClassCompositionWithMixinsSpec
 
   describe("Class composition") {
 
-    it("can have multiple inheritance of trait") {
+    it("can have multiple inheritance of traits") {
       abstract class A {
         val message: String
       }
