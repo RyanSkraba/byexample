@@ -39,7 +39,7 @@ public class LanternaGo {
           "Runs rich console examples using Lanterna.",
           "",
           "Usage:",
-          "  LanternaGo [--speed=SPEED] [--private] [hacker|listener]",
+          "  LanternaGo [--speed=SPEED] [--private] [--emulator] [hacker|listener]",
           "",
           "Options:",
           "  -h --help      Show this screen.",
@@ -63,7 +63,8 @@ public class LanternaGo {
 
     int speed = Integer.parseInt((String) opts.get("--speed"));
     boolean privateTerm = opts.get("--private").equals(true);
-    try (Terminal term = new DefaultTerminalFactory().createTerminal()) {
+    boolean emulator = opts.get("--emulator").equals(true);
+    try (Terminal term = emulator ? new DefaultTerminalFactory().createTerminalEmulator() : new DefaultTerminalFactory().createTerminal()) {
       if (privateTerm) {
         term.enterPrivateMode();
         term.clearScreen();
@@ -153,16 +154,24 @@ public class LanternaGo {
     // If we're running in interactive mode, this will advance/scroll the terminal.
     // In a private window, it will move the cursor down the screen.  Right now,
     // we are only adding text, but later we'll want to move the cursor around.
-    term.putString("\n\n");
+    term.putCharacter('\n');
+    term.putCharacter('\n');
     term.flush();
+    // It looks like the Swing emulator mode hates "\n" in the putString method.
 
     // SGR is used to "style" characters written to the screen.
     term.enableSGR(SGR.BOLD);
-    term.putString("Lanterna Global Sequence Launcher 1.0\n");
-    term.putString("=====================================\n\n");
+    term.putString("Lanterna Global Sequence Launcher 1.0");
+    term.putCharacter('\n');
+    term.putString("=====================================");
+    term.putCharacter('\n');
+    term.putCharacter('\n');
     term.disableSGR(SGR.BOLD);
-    term.putString("Attention!\n");
-    term.putString("Unauthorized access is prohibited.\n\n");
+    term.putString("Attention!");
+    term.putCharacter('\n');
+    term.putString("Unauthorized access is prohibited.");
+    term.putCharacter('\n');
+    term.putCharacter('\n');
 
     // Simulate typing the login in a single line.
     term.setForegroundColor(ANSI.CYAN);
@@ -200,7 +209,9 @@ public class LanternaGo {
     // Again, advance three rows.  The first is empty, the second will have our
     // HACKER banner and the third will scan through numbers while detecting the
     // security token.
-    term.putString("\n\n\n");
+    term.putCharacter('\n');
+    term.putCharacter('\n');
+    term.putCharacter('\n');
 
     // You can get and adjust the position of the cursor. Note that moving the cursor
     // down doesn't scroll the existing contents, but printing a newline does.
@@ -288,7 +299,10 @@ public class LanternaGo {
     term.flush();
 
     term.resetColorAndSGR();
-    term.putString("\n\n\nWelcome!");
+    term.putCharacter('\n');
+    term.putCharacter('\n');
+    term.putCharacter('\n');
+    term.putString("Welcome!");
     term.flush();
     term.setCursorVisible(true);
     Thread.sleep(5L * sleep);
