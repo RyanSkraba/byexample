@@ -17,14 +17,16 @@ import com.skraba.byexample.lanterna.progress.BarProgress;
 import com.skraba.byexample.lanterna.progress.PercentProgress;
 import com.skraba.byexample.lanterna.progress.ProgressMonitor;
 import com.skraba.byexample.misc.ClrsCc;
+
+import org.docopt.Docopt;
+import org.docopt.DocoptExitException;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import org.docopt.Docopt;
-import org.docopt.DocoptExitException;
 
 /** Some examples of rich console applications using the Lanterna library. */
 public class LanternaGo {
@@ -37,16 +39,16 @@ public class LanternaGo {
           "Runs rich console examples using Lanterna.",
           "",
           "Usage:",
-          "  LanternaGo [--speed=SPEED] [hacker|phacker|listener]",
+          "  LanternaGo [--speed=SPEED] [--private] [hacker|listener]",
           "",
           "Options:",
           "  -h --help      Show this screen.",
           "  --version      Show version.",
           "  --speed=SPEED  The number of The times to say hello [default: 100]",
+          "  --private      Use a private terminal",
           "",
           "Commands:",
           "   hacker  Outputs a non-interactive hollywood hacking scenario.",
-          "  phacker  Same as hacker, but in a private terminal.",
           " listener  Demonstrates listening to keystrokes in a private window.");
 
   /**
@@ -60,14 +62,23 @@ public class LanternaGo {
     Map<String, Object> opts = new Docopt(DOC).withVersion(VERSION).withExit(false).parse(args);
 
     int speed = Integer.parseInt((String) opts.get("--speed"));
-    System.out.println("Speed");
+    boolean privateTerm = opts.get("--private").equals(true);
     try (Terminal term = new DefaultTerminalFactory().createTerminal()) {
-      if (opts.get("hacker").equals(true)) {
-        goHollywoodHacking(term, speed);
-      } else if (opts.get("phacker").equals(true)) {
-        goHollywoodHackingPrivate(term, speed);
-      } else {
-        goListeners(term);
+      if (privateTerm) {
+        term.enterPrivateMode();
+        term.clearScreen();
+        // This *almost* looks the same -- but it appears that there are differences between
+        // newlines and setting cursor positions between the two.
+        term.setCursorPosition(0, 0);
+      }
+      try {
+        if (opts.get("hacker").equals(true)) {
+          goHollywoodHacking(term, speed);
+        } else {
+          goListeners(term);
+        }
+      } finally {
+        if (privateTerm) term.exitPrivateMode();
       }
     }
   }
@@ -129,10 +140,8 @@ public class LanternaGo {
     // Remember this for later.
     final TerminalSize size = term.getTerminalSize();
 
-    // Simple text is put to the screen character by character.
-    for (char c : "Connecting".toCharArray()) {
-      term.putCharacter(c);
-    }
+    // Simple text is put to the screen as a String or by character.
+    term.putString("Connecting");
     term.flush();
     // Animate the simplest progress with twenty periods.
     for (int i = 0; i < 20; i++) {
@@ -140,38 +149,25 @@ public class LanternaGo {
       term.flush();
       Thread.sleep(sleep);
     }
-    term.putCharacter('\n');
-    term.putCharacter('\n');
+
+    // If we're running in interactive mode, this will advance/scroll the terminal.
+    // In a private window, it will move the cursor down the screen.  Right now,
+    // we are only adding text, but later we'll want to move the cursor around.
+    term.putString("\n\n");
     term.flush();
 
     // SGR is used to "style" characters written to the screen.
     term.enableSGR(SGR.BOLD);
-    for (char c : "Lanterna Global Sequence Launcher 1.0\n".toCharArray()) {
-      term.putCharacter(c);
-    }
-    for (char c : "=====================================\n\n".toCharArray()) {
-      term.putCharacter(c);
-    }
+    term.putString("Lanterna Global Sequence Launcher 1.0\n");
+    term.putString("=====================================\n\n");
     term.disableSGR(SGR.BOLD);
+    term.putString("Attention!\n");
+    term.putString("Unauthorized access is prohibited.\n\n");
 
-    for (char c : "Attention!\n".toCharArray()) {
-      term.putCharacter(c);
-    }
-    for (char c : "Unauthorized access is prohibited.\n\n".toCharArray()) {
-      term.putCharacter(c);
-    }
-
-    // You can get and adjust the position of the cursor. Note that moving the cursor down doesn't
-    // scroll the existing contents, but printing a newline does.
-    TerminalPosition pos = term.getCursorPosition();
-    term.setCursorPosition(pos.withRelativeColumn(5));
-
-    // Simulate typing the login.
+    // Simulate typing the login in a single line.
     term.setForegroundColor(ANSI.CYAN);
     term.enableSGR(SGR.BOLD);
-    for (char c : "Login: ".toCharArray()) {
-      term.putCharacter(c);
-    }
+    term.putString("     Login: ");
     term.disableSGR(SGR.BOLD);
     term.flush();
     term.setForegroundColor(ANSI.YELLOW);
@@ -180,15 +176,15 @@ public class LanternaGo {
       term.flush();
       Thread.sleep(sleep + rnd.nextInt(sleep));
     }
+
+    // Because we want to support both private and interactive mode, we add a newline
+    // (which scrolls the window) and then note the new position.
     term.putCharacter('\n');
 
-    // Simulate typing the password.
-    term.setCursorPosition(pos.withRelativeColumn(5));
+    // Simulate typing the login in a single line.
     term.setForegroundColor(ANSI.CYAN);
     term.enableSGR(SGR.BOLD);
-    for (char c : "Password: ".toCharArray()) {
-      term.putCharacter(c);
-    }
+    term.putString("     Password: ");
     term.disableSGR(SGR.BOLD);
     term.flush();
     term.setForegroundColor(ANSI.YELLOW);
@@ -200,28 +196,32 @@ public class LanternaGo {
       term.setCursorPosition(term.getCursorPosition().withRelativeColumn(-1));
       term.putCharacter('*');
     }
-    term.putCharacter('\n');
-    term.putCharacter('\n');
-    term.putCharacter('\n');
 
-    // So secure we need two factor authentication.
+    // Again, advance three rows.  The first is empty, the second will have our
+    // HACKER banner and the third will scan through numbers while detecting the
+    // security token.
+    term.putString("\n\n\n");
+
+    // You can get and adjust the position of the cursor. Note that moving the cursor
+    // down doesn't scroll the existing contents, but printing a newline does.
+    TerminalPosition pos = term.getCursorPosition();
+
+    // On the third line, print the prompt for the secure token.
     term.setCursorPosition(pos.withRelativeColumn(5));
     term.setForegroundColor(ANSI.CYAN);
     term.enableSGR(SGR.BOLD);
-    for (char c : "Secure token: ".toCharArray()) {
-      term.putCharacter(c);
-    }
+    term.putString("Secure token: ");
     term.disableSGR(SGR.BOLD);
     term.flush();
 
+    // These positions are where we'll draw the hacker banner and the security scan.
     TerminalPosition hackingPosition = pos.withRelativeRow(-1);
     TerminalPosition secureTokenPosition = term.getCursorPosition();
     Thread.sleep(5L * sleep);
 
-    // But start the hacking!
+    // But start the hacking!  Here's the contents of the banner.
     char[] hacking = new char[size.getColumns()];
     Arrays.fill(hacking, ' ');
-
     String hackingMsg = "HACKING ENABLED";
     System.arraycopy(
         hackingMsg.toCharArray(),
@@ -267,9 +267,10 @@ public class LanternaGo {
         }
       }
       term.flush();
-      Thread.sleep(100);
+      Thread.sleep(sleep);
     }
 
+    // The hacking succeeded, so brag a bit with a green banner.
     hackingMsg = "HACKING SUCCESSFUL";
     System.arraycopy(
         hackingMsg.toCharArray(),
@@ -287,35 +288,10 @@ public class LanternaGo {
     term.flush();
 
     term.resetColorAndSGR();
-    term.putCharacter('\n');
-    term.putCharacter('\n');
-    term.putCharacter('\n');
-    for (char c : "Wecome!".toCharArray()) {
-      term.putCharacter(c);
-    }
-    term.putCharacter('\n');
+    term.putString("\n\n\nWelcome!");
     term.flush();
     term.setCursorVisible(true);
-    Thread.sleep(200);
-  }
-
-  /**
-   * Demonstrate the low level operations on a {@link Terminal} in private mode.
-   *
-   * @param term The terminal to use.
-   * @param sleep Used to control the speed of the story, smaller is faster.
-   * @throws IOException If a problem occurs during terminal IO.
-   * @throws InterruptedException If a problem occurs while the thread is animating the response.
-   */
-  private static void goHollywoodHackingPrivate(final Terminal term, final int sleep)
-      throws IOException, InterruptedException {
-    term.enterPrivateMode();
-    term.clearScreen();
-    // This *almost* looks the same -- but it appears that there are differences between newlines
-    // and setting cursor positions between the two.
-    term.setCursorPosition(0, 0);
-    goHollywoodHacking(term, sleep);
-    term.exitPrivateMode();
+    Thread.sleep(5L * sleep);
   }
 
   /**
