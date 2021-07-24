@@ -12,21 +12,18 @@ import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
-import com.googlecode.lanterna.terminal.TerminalResizeListener;
 import com.skraba.byexample.lanterna.progress.BarProgress;
 import com.skraba.byexample.lanterna.progress.PercentProgress;
 import com.skraba.byexample.lanterna.progress.ProgressMonitor;
 import com.skraba.byexample.misc.ClrsCc;
-
-import org.docopt.Docopt;
-import org.docopt.DocoptExitException;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import org.docopt.Docopt;
+import org.docopt.DocoptExitException;
 
 /** Some examples of rich console applications using the Lanterna library. */
 public class LanternaGo {
@@ -64,7 +61,10 @@ public class LanternaGo {
     int speed = Integer.parseInt((String) opts.get("--speed"));
     boolean privateTerm = opts.get("--private").equals(true);
     boolean emulator = opts.get("--emulator").equals(true);
-    try (Terminal term = emulator ? new DefaultTerminalFactory().createTerminalEmulator() : new DefaultTerminalFactory().createTerminal()) {
+    try (Terminal term =
+        emulator
+            ? new DefaultTerminalFactory().createTerminalEmulator()
+            : new DefaultTerminalFactory().createTerminal()) {
       if (privateTerm) {
         term.enterPrivateMode();
         term.clearScreen();
@@ -316,8 +316,7 @@ public class LanternaGo {
    */
   private static void goListeners(final Terminal term) throws IOException {
 
-    // Setup for private, fullscreen mode.
-    term.enterPrivateMode();
+    // Clear the screen
     term.clearScreen();
     term.setCursorVisible(false);
 
@@ -334,6 +333,13 @@ public class LanternaGo {
 
     // Create a bunch of progress bars to put on the screen.
     int row = 0;
+    textGraphics.putString(0, row++, "Progress bar examples", SGR.BOLD);
+    textGraphics.putString(0, row++, "Left and right to update progress");
+    textGraphics.putString(0, row++, "Up and down to update total");
+    textGraphics.putString(0, row++, "CTRL to multiply by 10");
+    textGraphics.putString(0, row++, "SHIFT to allow more than 100%");
+    row++;
+
     final List<ProgressMonitor> progress = new ArrayList<>();
     // Set up a percentage progress.
     {
@@ -373,31 +379,28 @@ public class LanternaGo {
               term.newTextGraphics(),
               new TerminalPosition(1, row),
               terminalSize.getColumns() - 2,
-              new TextCharacter(' ', TextColor.ANSI.DEFAULT, TextColor.ANSI.BLUE),
-              new TextCharacter(' ', TextColor.ANSI.DEFAULT, TextColor.ANSI.CYAN),
-              new TextCharacter(' ', TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT)));
+              TextCharacter.fromCharacter(' ', TextColor.ANSI.DEFAULT, TextColor.ANSI.BLUE)[0],
+              TextCharacter.fromCharacter(' ', TextColor.ANSI.DEFAULT, TextColor.ANSI.CYAN)[0],
+              TextCharacter.fromCharacter(' ', TextColor.ANSI.DEFAULT, TextColor.ANSI.DEFAULT)[0]));
     }
     row++;
 
     // Set up a resize listener on a different thread.
     term.addResizeListener(
-        new TerminalResizeListener() {
-          @Override
-          public void onResized(Terminal terminal, TerminalSize newSize) {
-            ((BarProgress) progress.get(1)).setBarSize(newSize.getColumns() - 2);
-            textGraphics.putString(newSize.getColumns() - 1, 1, "]", SGR.BOLD);
-            ((BarProgress) progress.get(2)).setBarSize(newSize.getColumns() - 2);
-            textGraphics.putString(newSize.getColumns() - 1, 2, ">", SGR.BOLD);
-            ((BarProgress) progress.get(3)).setBarSize(newSize.getColumns() - 2);
-            textGraphics.putString(newSize.getColumns() - 1, 3, "]", SGR.BOLD);
-          }
+        (terminal, newSize) -> {
+          ((BarProgress) progress.get(1)).setBarSize(newSize.getColumns() - 2);
+          textGraphics.putString(newSize.getColumns() - 1, 1, "]", SGR.BOLD);
+          ((BarProgress) progress.get(2)).setBarSize(newSize.getColumns() - 2);
+          textGraphics.putString(newSize.getColumns() - 1, 2, ">", SGR.BOLD);
+          ((BarProgress) progress.get(3)).setBarSize(newSize.getColumns() - 2);
+          textGraphics.putString(newSize.getColumns() - 1, 3, "]", SGR.BOLD);
         });
 
     // Do a blocking read on keyboard input and update the progress.
     // Left and right control the progress, up and down the expected number.
     // Shift permits you to go out of bounds.
     // Control jumps by increments of 10.
-    KeyStroke keyStroke = null;
+    KeyStroke keyStroke;
     do {
       for (ProgressMonitor p : progress) {
         p.tick(tickCount, tickTotal);
@@ -408,24 +411,31 @@ public class LanternaGo {
         textGraphics.putString(0, row + 1, keyStroke.toString());
       }
 
-      boolean changeTotal =
-          keyStroke.getKeyType() == KeyType.ArrowUp || keyStroke.getKeyType() == KeyType.ArrowDown;
-      boolean decrement =
-          keyStroke.getKeyType() == KeyType.ArrowUp || keyStroke.getKeyType() == KeyType.ArrowLeft;
-      int value = (keyStroke.isCtrlDown() ? 10 : 1) * (decrement ? -1 : 1);
+      int value = 0;
+      if (keyStroke.getKeyType() == KeyType.ArrowUp || keyStroke.getKeyType() == KeyType.ArrowRight)
+        value = 1;
+      else if (keyStroke.getKeyType() == KeyType.ArrowDown
+          || keyStroke.getKeyType() == KeyType.ArrowLeft) value = -1;
+      value *= keyStroke.isCtrlDown() ? 10 : 1;
+
       boolean enforceMinMax = !keyStroke.isShiftDown();
 
-      if (changeTotal) {
+      if (keyStroke.getKeyType() == KeyType.ArrowUp
+          || keyStroke.getKeyType() == KeyType.ArrowDown) {
         tickTotal += value;
         if (enforceMinMax) {
-          tickTotal = Math.max(1, tickTotal);
+          tickTotal = Math.max(tickTotal, tickCount);
         }
       } else {
         tickCount += value;
         if (enforceMinMax) {
-          tickCount = Math.max(0, Math.min(tickTotal, tickCount));
+          tickCount = Math.min(tickTotal, tickCount);
         }
       }
+
+      tickCount = Math.max(0, tickCount);
+      tickTotal = Math.max(1, tickTotal);
+
     } while (keyStroke.getKeyType() != KeyType.Escape);
   }
 }
