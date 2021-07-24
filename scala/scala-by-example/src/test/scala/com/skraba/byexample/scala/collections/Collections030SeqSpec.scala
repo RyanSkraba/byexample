@@ -74,6 +74,9 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
       0 +: xs shouldBe Seq(0, 1, 2, 3)
       xs :+ 0 shouldBe Seq(1, 2, 3, 0)
       xs.padTo(5, 99) shouldBe Seq(1, 2, 3, 99, 99)
+
+      // Note that padTo doesn't trim the size of the Seq
+      xs.padTo(2, 99) shouldBe Seq(1, 2, 3)
     }
 
     it("support updates") {
