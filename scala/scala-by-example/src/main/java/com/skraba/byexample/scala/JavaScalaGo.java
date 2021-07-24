@@ -30,7 +30,7 @@ public class JavaScalaGo {
           "  --scala         If present, uses the scala code to store the name",
           "                  and count.",
           "  --name=NAME     The user's name.",
-          "  --count=COUNT   The number of The times to say hello [default: 10]",
+          "  --count=COUNT   The number of times to say hello [default: 10]",
           "",
           "Says hello.");
 
