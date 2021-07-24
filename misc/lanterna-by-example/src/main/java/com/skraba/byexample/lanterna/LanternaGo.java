@@ -41,7 +41,7 @@ public class LanternaGo {
           "Options:",
           "  -h --help      Show this screen.",
           "  --version      Show version.",
-          "  --speed=SPEED  The number of The times to say hello [default: 100]",
+          "  --speed=SPEED  A relative speed for animations [default: 100]",
           "  --private      Use a private terminal",
           "",
           "Commands:",
