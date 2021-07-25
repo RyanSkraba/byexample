@@ -435,6 +435,7 @@ package object markd {
     }
   }
 
+  /** Alignment in a Table. */
   object Align extends Enumeration {
     type Align = Value
     val LEFT, CENTER, RIGHT = Value
@@ -450,8 +451,9 @@ package object markd {
     * | col 3 is | right-aligned |    $1 |
     * }}}
     *
-    * @param align The alignment for each column.
-    * @param mds   The table rows, including the column headers (as the first row) and cell values (all subsequent rows).
+    * @param aligns The alignment for each column.
+    * @param mds   The table rows, including the column headers (as the first row) and cell
+    *              values (all subsequent rows).
     */
   case class Table(aligns: Seq[Align], mds: Seq[TableRow])
       extends MultiMarkd[TableRow] {
@@ -464,7 +466,7 @@ package object markd {
         1,
         mds
           .map(
-            _.values.applyOrElse(i, (_: Int) => "").length
+            _.cells.applyOrElse(i, (_: Int) => "").length
           )
           .max
       )
@@ -494,6 +496,41 @@ package object markd {
     }
 
     override def copyMds(newMds: Seq[TableRow]): Self = copy(mds = newMds)
+
+    /** Creates a new table from this one with the given cell value updated.  Note that the zeroth
+      *  row is the column headers.
+      *
+      * @param column The index of the column to update
+      * @param row The index of the row to update
+      * @param cell The new value
+      * @return A  table with the one cell updated to the given value
+      */
+    def updated(
+        column: Int,
+        row: Int,
+        cell: String
+    ): Table = {
+      val cellsUpdated: Seq[String] =
+        mds.lift
+          .apply(row)
+          .map(_.cells)
+          .getOrElse(Seq.empty)
+          .padTo(column + 1, "")
+          .updated(column, cell)
+          .reverse
+          .dropWhile(_.isEmpty)
+          .reverse
+
+      val rowsUpdated = mds
+        .padTo(row + 1, TableRow.from())
+        .updated(row, new TableRow(cellsUpdated))
+
+      Table(
+        if (row == 0) aligns.padTo(column + 1, Align.LEFT) else aligns,
+        mds = rowsUpdated
+      )
+    }
+
   }
 
   object Table {
@@ -553,7 +590,7 @@ package object markd {
     }
   }
 
-  case class TableRow(values: Seq[String]) extends Markd {
+  case class TableRow(cells: Seq[String]) extends Markd {
 
     /** Write this element to the builder.
       *
@@ -567,18 +604,18 @@ package object markd {
     ): StringBuilder = {
 
       val aligned =
-        for (i <- 0 until Math.max(aligns.length, values.length)) yield {
-          val a = aligns.applyOrElse(i, (_: Int) => Align.LEFT)
-          val w = widths.applyOrElse(i, (_: Int) => 0);
-          val v = values.applyOrElse(i, (_: Int) => "");
+        for (i <- 0 until Math.max(aligns.length, cells.length)) yield {
+          val align = aligns.applyOrElse(i, (_: Int) => Align.LEFT)
+          val width = widths.applyOrElse(i, (_: Int) => 0);
+          val cell = cells.applyOrElse(i, (_: Int) => "");
 
           val lPad =
-            if (a == Align.CENTER) (w - v.length) / 2
-            else if (a == Align.RIGHT) w - v.length
+            if (align == Align.CENTER) (width - cell.length) / 2
+            else if (align == Align.RIGHT) width - cell.length
             else 0
-          val lPadded = " " * Math.max(0, lPad) + v
+          val lPadded = " " * Math.max(0, lPad) + cell
 
-          lPadded + " " * Math.max(0, w - lPadded.length)
+          lPadded + " " * Math.max(0, width - lPadded.length)
         }
 
       sb ++= aligned.mkString("| ", " | ", " |")
@@ -589,7 +626,7 @@ package object markd {
   object TableRow {
 
     /** Shortcut method just for the varargs */
-    def from(values: String*): TableRow = TableRow(values.toSeq)
+    def from(cells: String*): TableRow = TableRow(cells.toSeq)
   }
 
   /** Helps build the model when parsing contents. */
