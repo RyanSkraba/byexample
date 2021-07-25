@@ -708,6 +708,60 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         Table.parse(content).value shouldBe md
       }
     }
+
+    describe("should update a table") {
+      // A valid table
+      val md = Table.parse("A|B\n---|---\na|b\nc|d").value
+
+      it("by row and column") {
+        md.updated(0, 0, "X").build().toString shouldBe
+          """| X | B |
+            !|---|---|
+            !| a | b |
+            !| c | d |
+            !""".stripMargin('!')
+        md.updated(1, 1, "X").build().toString shouldBe
+          """| A | B |
+            !|---|---|
+            !| a | X |
+            !| c | d |
+            !""".stripMargin('!')
+        md.updated(0, 2, "X").build().toString shouldBe
+          """| A | B |
+            !|---|---|
+            !| a | b |
+            !| X | d |
+            !""".stripMargin('!')
+      }
+
+      it("by adding blank columns if necessary") {
+        md.updated(2, 0, "X").build().toString shouldBe
+          """| A | B | X |
+            !|---|---|---|
+            !| a | b |   |
+            !| c | d |   |
+            !""".stripMargin('!')
+        md.updated(3, 0, "X").build().toString shouldBe
+          """| A | B |   | X |
+            !|---|---|---|---|
+            !| a | b |   |   |
+            !| c | d |   |   |
+            !""".stripMargin('!')
+        // When adding to cells that aren't headers, only that row is affected.
+        md.updated(2, 1, "X").build().toString shouldBe
+          """| A | B |
+            !|---|---|
+            !| a | b | X |
+            !| c | d |
+            !""".stripMargin('!')
+        md.updated(10, 2, "X").updated(6, 2, "Y").build().toString shouldBe
+          """| A | B |
+            !|---|---|
+            !| a | b |
+            !| c | d |  |  |  |  | Y |  |  |  | X |
+            !""".stripMargin('!')
+      }
+    }
   }
 
   describe("Replacing subelements") {
