@@ -761,6 +761,40 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
             !| c | d |  |  |  |  | Y |  |  |  | X |
             !""".stripMargin('!')
       }
+
+      it("by adding blank rows if necessary") {
+        md.updated(0, 3, "X").build().toString shouldBe
+          """| A | B |
+            !|---|---|
+            !| a | b |
+            !| c | d |
+            !| X |   |
+            !""".stripMargin('!')
+        md.updated(1, 5, "X").build().toString shouldBe
+          """| A | B |
+            !|---|---|
+            !| a | b |
+            !| c | d |
+            !|   |   |
+            !|   |   |
+            !|   | X |
+            !""".stripMargin('!')
+      }
+
+      it("and delete a column from a nonheader cell ") {
+        val updated = md.updated(4, 1, "X")
+        updated.build().toString shouldBe
+          """| A | B |
+             !|---|---|
+             !| a | b |  |  | X |
+             !| c | d |
+             !""".stripMargin('!')
+
+        // Remove the updated cell, but only because it didn't extend any columns
+        updated.updated(4, 1, "") shouldBe md
+        // This is completely ignored
+        updated.updated(8, 1, "") shouldBe updated
+      }
     }
   }
 
