@@ -122,7 +122,7 @@ def help(): Unit = {
              | $cmd ${CYAN}clean$RESET
              | $cmd ${CYAN}newWeek$RESET
              | $cmd ${CYAN}pr$RESET avro 9876 1234 "Implemented a thing" REVIEWED
-             | $cmd ${CYAN}stat$RESET avro-unread 448
+             | $cmd ${CYAN}stat$RESET unread 448 [Wed] [2021/03/08] [Stats]
              | $cmd ${CYAN}week$RESET
              | $cmd ${CYAN}week$RESET 2021/03/08
              |""".stripMargin)
@@ -236,6 +236,63 @@ def pr(
     )
   )
   write.over(StatusFile, cleanedNewDoc.build().toString.trim() + "\n")
+}
+
+/** @param doc
+  * @param week
+  * @return
+  */
+private def topWeek(doc: Header, week: Option[String] = None): Seq[Markd] =
+  doc.mds.flatMap {
+    case h @ Header(title, 1, _) if title.startsWith(H1Weekly) =>
+      h.mds.find {
+        case Header(title, 2, _)
+            if week.map(title.startsWith).getOrElse(title.length >= 10) =>
+          true
+        case _ => false
+      }
+    case _ => None
+  }
+
+@arg(doc = "Update a statistic in a table.")
+@main
+def stat(
+    @arg(doc = "The row header to match for updating.")
+    statName: String,
+    @arg(doc = "The value to put in the cell.")
+    statCell: String,
+    @arg(doc = "The row header to match for updating, or none to add to the next non-empty column.")
+    statColumn: Option[String] = None,
+    @arg(doc = "The week to be updated or none for this week.")
+    week: Option[String] = None,
+    @arg(doc = "The value at 0,0 to match for updating.")
+    statTableName: String = "Stats"
+): Unit = {
+  // Read the existing document.
+  val doc = Header.parse(read ! StatusFile, ProjectParserCfg)
+
+  val newDoc =
+    doc.replaceFirstIn(ifNotFound = doc.mds :+ Header(1, H1Weekly)) {
+      // Matches this current week.
+      case weekly @ Header(title, 1, _) if title.startsWith(H1Weekly) =>
+        Seq(weekly.replaceFirstIn() {
+          // Matches the table with the given name.
+          case tb @ Table(_, Seq(Seq(tableName: String, _*), _*))
+              if tableName == statTableName =>
+            // TODO: find the row and the column index in the table
+            Seq(tb)
+        })
+    }
+
+  val cleanedNewDoc = Header.parse(newDoc.build().toString, ProjectParserCfg)
+
+  println(
+    proposeGit(
+      s"feat(status): Update $statName"
+    )
+  )
+  write.over(StatusFile, cleanedNewDoc.build().toString.trim() + "\n")
+
 }
 
 @arg(doc = "Print the status for this week")
