@@ -799,7 +799,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
   }
 
   describe("Replacing subelements") {
-    val md = Header.parse("""
+    val md: Header = Header.parse("""
         |# One
         |# Two
         |# Three
@@ -957,6 +957,73 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         md.replaceIn(filter = true) { case (Some(md), 0) =>
           Seq(Header(1, "Zero"), md)
         }.mds shouldBe Seq(Header(1, "Zero"), Header(1, "One"))
+      }
+    }
+
+    describe("in a complicated internal match") {
+
+      val md: Header = Header.parse("""
+          !One
+          !==============================================================================
+          !
+          !| A1 | A2 |
+          !|----|----|
+          !| 1  | 2  |
+          !
+          !| B1 | B2 |
+          !|----|----|
+          !| 10 | 20 |
+          !
+          !Two
+          !==============================================================================
+          !
+          !| A1 | A2 |
+          !|----|----|
+          !| 1  | 2  |
+          !
+          !| B1 | B2 |
+          !|----|----|
+          !| 10 | 20 |
+          !""".stripMargin('!'))
+
+      it("should update the B1 table in the Two section") {
+
+        // This is a complicated internal replacement: the first replacement finds
+        // section Two and the second updates one specific table in the section
+        val replaced = md.replaceFirstIn() {
+          // Matches the Two section and replace the contents inside
+          case weekly @ Header(title, 1, _) if title.startsWith("Two") =>
+            Seq(weekly.replaceFirstIn() {
+              // Matches the B1 table and updates it with our new table
+              case tb @ Table(_, Seq(TableRow(Seq(tableName: String, _*)), _*))
+                  if tableName == "B1" =>
+                Seq(tb.updated(1, 1, "X"))
+            })
+        }
+
+        replaced.build().toString shouldBe
+          """One
+            !==============================================================================
+            !
+            !| A1 | A2 |
+            !|----|----|
+            !| 1  | 2  |
+            !
+            !| B1 | B2 |
+            !|----|----|
+            !| 10 | 20 |
+            !
+            !Two
+            !==============================================================================
+            !
+            !| A1 | A2 |
+            !|----|----|
+            !| 1  | 2  |
+            !
+            !| B1 | B2 |
+            !|----|----|
+            !| 10 | X  |
+            !""".stripMargin('!')
       }
     }
   }
