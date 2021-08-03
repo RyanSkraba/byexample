@@ -2,6 +2,7 @@ package com.skraba.byexample.scala
 
 import com.skraba.byexample.scala.markd.Align.Align
 
+import scala.collection.GenSeq
 import scala.util.matching.Regex
 
 /** Markd is a model for simple markdown files.  It can be used to parse, modify and write
@@ -232,7 +233,7 @@ package object markd {
       )
     }
 
-    /** Create a copy of the list of subelements, replacing the first one that matches.
+    /** Copies this element, but flatMapping the first matching subelement to new values.
       *
       * A partial function matches and replaces Markd subelements.  If the partial function is
       * defined for one of the subelements, it supplies the list of replacements.
@@ -242,9 +243,9 @@ package object markd {
       * @param pf A partial function to replace markd elements.
       * @return A copy of this [[MultiMarkd]] with the replaced subelements
       */
-    def replaceFirstIn(
+    def flatMapFirstIn(
         ifNotFound: => Seq[T] = Seq.empty
-    )(pf: PartialFunction[T, Seq[T]]): Self = {
+    )(pf: PartialFunction[T, GenSeq[T]]): Self = {
       copyMds(
         Option(mds.indexWhere(pf.isDefinedAt))
           .filter(_ != -1)
@@ -261,6 +262,21 @@ package object markd {
           .getOrElse(mds)
       )
     }
+
+    /** Copies this element, but mapping the first matching subelement to a new value.
+      *
+      * A partial function matches and replaces Markd subelements.  If the partial function is
+      * defined for one of the subelements, it supplies the replacements.
+      *
+      * @param ifNotFound If nothing is matched, try again using this list instead.  This permits
+      *                   "insert and update" if not found.
+      * @param pf A partial function to replace markd elements.
+      * @return A copy of this [[MultiMarkd]] with the replaced subelements
+      */
+    def mapFirstIn(ifNotFound: => Seq[T] = Seq.empty)(
+        pf: PartialFunction[T, T]
+    ): Self =
+      flatMapFirstIn(ifNotFound)(pf.andThen(Seq(_)))
   }
 
   /** Markdown header or section.

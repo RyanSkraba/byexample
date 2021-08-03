@@ -822,8 +822,17 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
             Seq(h.copy(title = h.title.toUpperCase))
         }.mds shouldBe Seq(Header(1, "TWO"), Header(1, "THREE"))
       }
-      it("should replace the first") {
-        md.replaceFirstIn() {
+      it("should replace the first matching") {
+        md.mapFirstIn() {
+          case h @ Header(title, 1, _) if title.startsWith("T") =>
+            h.copy(title = h.title.toUpperCase)
+        }.mds shouldBe Seq(
+          Header(1, "One"),
+          Header(1, "TWO"),
+          Header(1, "Three")
+        )
+        // The equivalent
+        md.flatMapFirstIn() {
           case h @ Header(title, 1, _) if title.startsWith("T") =>
             Seq(h.copy(title = h.title.toUpperCase))
         }.mds shouldBe Seq(
@@ -837,19 +846,20 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
     describe("removing a match") {
       it("should replace all matches") {
         md.replaceIn() {
-          case (Some(h @ Header(title, 1, _)), _) if title.startsWith("T") =>
+          case (Some(Header(title, 1, _)), _) if title.startsWith("T") =>
             Seq.empty
         }.mds shouldBe Seq(Header(1, "One"))
       }
       it("should replace all matches with filtering") {
+        // This isn't very useful
         md.replaceIn(filter = true) {
-          case (Some(h @ Header(title, 1, _)), _) if title.startsWith("T") =>
+          case (Some(Header(title, 1, _)), _) if title.startsWith("T") =>
             Seq.empty
         }.mds shouldBe Seq.empty
       }
       it("should replace the first") {
-        md.replaceFirstIn() {
-          case h @ Header(title, 1, _) if title.startsWith("T") =>
+        md.flatMapFirstIn() {
+          case Header(title, 1, _) if title.startsWith("T") =>
             Seq.empty
         }.mds shouldBe Seq(Header(1, "One"), Header(1, "Three"))
       }
@@ -880,7 +890,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         )
       }
       it("should replace the first") {
-        md.replaceFirstIn() {
+        md.flatMapFirstIn() {
           case h @ Header(title, 1, _) if title.startsWith("T") =>
             Seq(h, h.copy(title = h.title.toUpperCase))
         }.mds shouldBe Seq(
@@ -906,13 +916,26 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         }.mds shouldBe Seq.empty
       }
       it("should do nothing when no first match") {
-        md.replaceFirstIn() {
+        md.mapFirstIn() {
+          case h @ Header(title, 1, _) if title.startsWith("F") =>
+            h.copy(title = h.title.toUpperCase)
+        }.mds shouldBe md.mds
+        md.flatMapFirstIn() {
           case h @ Header(title, 1, _) if title.startsWith("F") =>
             Seq(h.copy(title = h.title.toUpperCase))
         }.mds shouldBe md.mds
       }
       it("should help falling back when no first match") {
-        md.replaceFirstIn(ifNotFound = md.mds :+ Header(1, "Four")) {
+        md.mapFirstIn(ifNotFound = md.mds :+ Header(1, "Four")) {
+          case h @ Header(title, 1, _) if title.startsWith("F") =>
+            h.copy(title = h.title.toUpperCase)
+        }.mds shouldBe Seq(
+          Header(1, "One"),
+          Header(1, "Two"),
+          Header(1, "Three"),
+          Header(1, "FOUR")
+        )
+        md.flatMapFirstIn(ifNotFound = md.mds :+ Header(1, "Four")) {
           case h @ Header(title, 1, _) if title.startsWith("F") =>
             Seq(h.copy(title = h.title.toUpperCase))
         }.mds shouldBe Seq(
@@ -990,15 +1013,15 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
 
         // This is a complicated internal replacement: the first replacement finds
         // section Two and the second updates one specific table in the section
-        val replaced = md.replaceFirstIn() {
+        val replaced = md.mapFirstIn() {
           // Matches the Two section and replace the contents inside
           case weekly @ Header(title, 1, _) if title.startsWith("Two") =>
-            Seq(weekly.replaceFirstIn() {
+            weekly.mapFirstIn() {
               // Matches the B1 table and updates it with our new table
               case tb @ Table(_, Seq(TableRow(Seq(tableName: String, _*)), _*))
                   if tableName == "B1" =>
-                Seq(tb.updated(1, 1, "X"))
-            })
+                tb.updated(1, 1, "X")
+            }
         }
 
         replaced.build().toString shouldBe
