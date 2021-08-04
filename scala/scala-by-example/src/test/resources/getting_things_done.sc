@@ -24,6 +24,8 @@ interp.repositories() ++= {
 }
 
 @
+// Intellij always removes the following line, which should be
+// import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
 import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
 import com.skraba.byexample.scala.markd._
 
@@ -162,19 +164,14 @@ def newWeek(): Unit = {
   }
 
   val newDoc = {
-    doc.replaceFirstIn(ifNotFound = doc.mds :+ Header(1, H1Weekly)) {
+    doc.mapFirstIn(ifNotFound = doc.mds :+ Header(1, H1Weekly)) {
       case weekly @ Header(title, 1, _) if title.startsWith(H1Weekly) =>
-        Seq(
-          weekly.replaceFirstIn(ifNotFound = Header(2, "") +: weekly.mds) {
-            case lastWeek @ Header(lastTitle, 2, _)
-                if lastTitle.length >= 10 => {
-              Seq(lastWeek.copy(title = nextMonday(Some(lastTitle))), lastWeek)
-            }
-            case holder @ Header("", 2, _) => {
-              Seq(holder.copy(title = nextMonday(None)))
-            }
-          }
-        )
+        weekly.flatMapFirstIn(ifNotFound = Header(2, "") +: weekly.mds) {
+          case lastWeek @ Header(lastTitle, 2, _) if lastTitle.length >= 10 =>
+            Seq(lastWeek.copy(title = nextMonday(Some(lastTitle))), lastWeek)
+          case holder @ Header("", 2, _) =>
+            Seq(holder.copy(title = nextMonday(None)))
+        }
     }
   }
 
@@ -211,7 +208,7 @@ def pr(
   }
 
   val newDoc =
-    doc.replaceFirstIn(ifNotFound = doc.mds :+ Header(1, H1Weekly)) {
+    doc.mapFirstIn(ifNotFound = doc.mds :+ Header(1, H1Weekly)) {
       case weekly @ Header(title, 1, _) if title.startsWith(H1Weekly) =>
         // Add the two JIRA to the weekly status section.  Their URLs will be filled in
         // automatically on cleanup.
@@ -221,38 +218,21 @@ def pr(
         )
 
         // Update the most recent week.
-        Seq(newWeekly.replaceFirstIn() {
-          case h @ Header(title, 2, _) if title.length >= 10 => {
-            Seq(h.copyMds(h.mds :+ Paragraph(task)))
-          }
-        })
+        newWeekly.mapFirstIn() {
+          case h @ Header(title, 2, _) if title.length >= 10 =>
+            h.copyMds(h.mds :+ Paragraph(task))
+        }
     }
 
   val cleanedNewDoc = Header.parse(newDoc.build().toString, ProjectParserCfg)
 
   println(
     proposeGit(
-      s"feat(status): Apache ${fullJira.orElse(fullPr).getOrElse("")} $description"
+      s"feat(status): PR ${fullJira.orElse(fullPr).getOrElse("")} $description"
     )
   )
   write.over(StatusFile, cleanedNewDoc.build().toString.trim() + "\n")
 }
-
-/** @param doc
-  * @param week
-  * @return
-  */
-private def topWeek(doc: Header, week: Option[String] = None): Seq[Markd] =
-  doc.mds.flatMap {
-    case h @ Header(title, 1, _) if title.startsWith(H1Weekly) =>
-      h.mds.find {
-        case Header(title, 2, _)
-            if week.map(title.startsWith).getOrElse(title.length >= 10) =>
-          true
-        case _ => false
-      }
-    case _ => None
-  }
 
 @arg(doc = "Update a statistic in a table.")
 @main
@@ -261,7 +241,7 @@ def stat(
     statName: String,
     @arg(doc = "The value to put in the cell.")
     statCell: String,
-    @arg(doc = "The row header to match for updating, or none to add to the next non-empty column.")
+    @arg(doc = "The row header to match for updating.")
     statColumn: Option[String] = None,
     @arg(doc = "The week to be updated or none for this week.")
     week: Option[String] = None,
@@ -272,16 +252,16 @@ def stat(
   val doc = Header.parse(read ! StatusFile, ProjectParserCfg)
 
   val newDoc =
-    doc.replaceFirstIn(ifNotFound = doc.mds :+ Header(1, H1Weekly)) {
+    doc.mapFirstIn(ifNotFound = doc.mds :+ Header(1, H1Weekly)) {
       // Matches this current week.
       case weekly @ Header(title, 1, _) if title.startsWith(H1Weekly) =>
-        Seq(weekly.replaceFirstIn() {
+        weekly.mapFirstIn() {
           // Matches the table with the given name.
           case tb @ Table(_, Seq(Seq(tableName: String, _*), _*))
               if tableName == statTableName =>
             // TODO: find the row and the column index in the table
-            Seq(tb)
-        })
+            tb
+        }
     }
 
   val cleanedNewDoc = Header.parse(newDoc.build().toString, ProjectParserCfg)
