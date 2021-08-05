@@ -12,6 +12,7 @@
 import ammonite.ops.{home, _}
 import mainargs.{arg, main}
 
+import java.time.LocalDate
 import scala.io.AnsiColor._
 
 interp.repositories() ++= {
@@ -234,33 +235,72 @@ def pr(
   write.over(StatusFile, cleanedNewDoc.build().toString.trim() + "\n")
 }
 
-@arg(doc = "Update a statistic in a table.")
+@arg(doc = "Update a statistic in a table, typically for the day of the week")
 @main
 def stat(
-    @arg(doc = "The row header to match for updating.")
-    statName: String,
-    @arg(doc = "The value to put in the cell.")
-    statCell: String,
-    @arg(doc = "The row header to match for updating.")
-    statColumn: Option[String] = None,
-    @arg(doc = "The week to be updated or none for this week.")
+    @arg(doc = "Update the statistic on this row (matches first element.")
+    rowStat: String,
+    @arg(doc = "The new value to put in the row")
+    cell: String,
+    @arg(doc = "The week to be updated or none for this week")
     week: Option[String] = None,
-    @arg(doc = "The value at 0,0 to match for updating.")
-    statTableName: String = "Stats"
+    @arg(
+      doc =
+        "The first column header in the table to be updated, or None for today."
+    )
+    statTable: String = "Stats",
+    @arg(doc = "The column to update or None for today")
+    colStat: Option[String] = None
 ): Unit = {
   // Read the existing document.
   val doc = Header.parse(read ! StatusFile, ProjectParserCfg)
 
+  lazy val newTable = Table.from(
+    Seq.fill(8)(Align.LEFT),
+    TableRow.from(
+      statTable,
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat",
+      "Sun"
+    )
+  )
+
   val newDoc =
     doc.mapFirstIn(ifNotFound = doc.mds :+ Header(1, H1Weekly)) {
-      // Matches this current week.
       case weekly @ Header(title, 1, _) if title.startsWith(H1Weekly) =>
         weekly.mapFirstIn() {
-          // Matches the table with the given name.
-          case tb @ Table(_, Seq(Seq(tableName: String, _*), _*))
-              if tableName == statTableName =>
-            // TODO: find the row and the column index in the table
-            tb
+          case weekToUpdate @ Header(title, 2, _)
+              if week.map(title.startsWith).getOrElse(title.length >= 10) =>
+            weekToUpdate.mapFirstIn(ifNotFound = newTable +: weekToUpdate.mds) {
+              // Matches the table with the given name.
+              case tb @ Table(_, Seq(TableRow(Seq(a1: String, _*)), _*))
+                  if a1 == statTable =>
+                val statsRow =
+                  tb.mds.indexWhere(_.cells.headOption.contains(rowStat))
+                val row = if (statsRow != -1) statsRow else tb.mds.size
+
+                val statsCol = colStat
+                  .map(c =>
+                    tb.mds.headOption
+                      .map(_.cells.indexWhere(_ == c))
+                      .getOrElse(-1)
+                  )
+                  .getOrElse(
+                    LocalDate.now.getDayOfWeek.getValue
+                  )
+                val col =
+                  if (statsCol != -1) statsCol
+                  else LocalDate.now.getDayOfWeek.getValue
+
+                if (statsRow == -1)
+                  tb.updated(col, row, cell).updated(0, row, rowStat)
+                else tb.updated(col, row, cell)
+            }
+
         }
     }
 
@@ -268,7 +308,7 @@ def stat(
 
   println(
     proposeGit(
-      s"feat(status): Update $statName"
+      s"feat(status): Update $rowStat"
     )
   )
   write.over(StatusFile, cleanedNewDoc.build().toString.trim() + "\n")
@@ -284,14 +324,13 @@ def week(
   // Read the existing document.
   val doc = Header.parse(read ! StatusFile, ProjectParserCfg)
   val topWeek: Seq[Markd] = doc.mds.flatMap {
-    case h @ Header(title, 1, _) if title.startsWith(H1Weekly) => {
+    case h @ Header(title, 1, _) if title.startsWith(H1Weekly) =>
       h.mds.find {
         case Header(title, 2, _)
             if week.map(title.startsWith).getOrElse(title.length >= 10) =>
           true
         case _ => false
       }
-    }
     case _ => None
   }
 
