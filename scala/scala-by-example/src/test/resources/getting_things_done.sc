@@ -55,12 +55,42 @@ val Projects = Set("avro", "beam", "flink", "parquet", "pulsar", "spark")
   * @param msg The git message to propose
   * @return A string to copy and paste to check the changes.
   */
-def proposeGit(msg: String): String = {
+private def proposeGit(msg: String): String = {
   s"""${GREEN}Commit:$RESET
      |  git -C $StatusRepo add ${StatusFile.relativeTo(StatusRepo)} &&
      |      git -C $StatusRepo difftool --staged
      |  git -C $StatusRepo commit -m $BOLD"$msg"$RESET
      |""".stripMargin
+}
+
+/** Helper function to update only the weekly statuses section of the document, adding
+  * it if necessary.
+  *
+  * @param doc The entire status document.
+  * @param fn A function that modifies only the weekly statuses (a Header 1)
+  * @return The entire document with only the function applied to the weekly statuses.
+  */
+private def updateH1Weekly(
+    doc: Header
+)(fn: Header => Header): Header =
+  doc.mapFirstIn(ifNotFound = doc.mds :+ Header(1, H1Weekly)) {
+    case weekly @ Header(title, 1, _) if title.startsWith(H1Weekly) =>
+      fn(weekly)
+  }
+
+/** Helper function to update only the last week section of the statuses document, adding one
+  * if necessary.
+  *
+  * @param doc The entire status document.
+  * @param fn A function that modifies only the weekly statuses (a Header 2)
+  * @return The entire document with only the function applied to the last week.
+  */
+private def updateTopWeek(
+    doc: Header
+)(fn: Header => Header): Header = updateH1Weekly(doc) {
+  _.mapFirstIn(ifNotFound = doc.mds :+ Header(2, "1900/01/01")) {
+    case topWeek @ Header(_, 2, _) => fn(topWeek)
+  }
 }
 
 object ProjectParserCfg extends ParserCfg {
@@ -125,7 +155,7 @@ def help(): Unit = {
              | $cmd ${CYAN}clean$RESET
              | $cmd ${CYAN}newWeek$RESET
              | $cmd ${CYAN}pr$RESET avro 9876 1234 "Implemented a thing" REVIEWED
-             | $cmd ${CYAN}stat$RESET unread 448 [Wed] [2021/03/08] [Stats]
+             | $cmd ${CYAN}stat$RESET unread 448 [Wed] [Stats]
              | $cmd ${CYAN}week$RESET
              | $cmd ${CYAN}week$RESET 2021/03/08
              |""".stripMargin)
@@ -164,15 +194,12 @@ def newWeek(): Unit = {
     monday
   }
 
-  val newDoc = {
-    doc.mapFirstIn(ifNotFound = doc.mds :+ Header(1, H1Weekly)) {
-      case weekly @ Header(title, 1, _) if title.startsWith(H1Weekly) =>
-        weekly.flatMapFirstIn(ifNotFound = Header(2, "") +: weekly.mds) {
-          case lastWeek @ Header(lastTitle, 2, _) if lastTitle.length >= 10 =>
-            Seq(lastWeek.copy(title = nextMonday(Some(lastTitle))), lastWeek)
-          case holder @ Header("", 2, _) =>
-            Seq(holder.copy(title = nextMonday(None)))
-        }
+  val newDoc = updateH1Weekly(doc) { weekly =>
+    weekly.flatMapFirstIn(ifNotFound = Header(2, "") +: weekly.mds) {
+      case lastWeek @ Header(lastTitle, 2, _) if lastTitle.length >= 10 =>
+        Seq(lastWeek.copy(title = nextMonday(Some(lastTitle))), lastWeek)
+      case holder @ Header("", 2, _) =>
+        Seq(holder.copy(title = nextMonday(None)))
     }
   }
 
@@ -208,22 +235,19 @@ def pr(
     case (None, None)          => s"  - $description `$status`"
   }
 
-  val newDoc =
-    doc.mapFirstIn(ifNotFound = doc.mds :+ Header(1, H1Weekly)) {
-      case weekly @ Header(title, 1, _) if title.startsWith(H1Weekly) =>
-        // Add the two JIRA to the weekly status section.  Their URLs will be filled in
-        // automatically on cleanup.
-        val newWeekly = weekly.copyMds(
-          fullJira.map(LinkRef(_, None, Some(description))).toSeq ++
-            fullPr.map(LinkRef(_, None, Some(description))) ++ weekly.mds
-        )
+  val docWithLinks = updateH1Weekly(doc) { topWeekly =>
+    // Add the two JIRA to the weekly status section.  Their URLs will be filled in
+    // automatically on cleanup.
+    topWeekly.copyMds(
+      fullJira.map(LinkRef(_, None, Some(description))).toSeq ++
+        fullPr.map(LinkRef(_, None, Some(description))) ++ topWeekly.mds
+    )
+  }
 
-        // Update the most recent week.
-        newWeekly.mapFirstIn() {
-          case h @ Header(title, 2, _) if title.length >= 10 =>
-            h.copyMds(h.mds :+ Paragraph(task))
-        }
-    }
+  val newDoc = updateTopWeek(docWithLinks) { weekly =>
+    // Update the most recent week.
+    weekly.copyMds(weekly.mds :+ Paragraph(task))
+  }
 
   val cleanedNewDoc = Header.parse(newDoc.build().toString, ProjectParserCfg)
 
@@ -242,15 +266,13 @@ def stat(
     rowStat: String,
     @arg(doc = "The new value to put in the row")
     cell: String,
-    @arg(doc = "The week to be updated or none for this week")
-    week: Option[String] = None,
+    @arg(doc = "The column to update or None for today")
+    colStat: Option[String] = None,
     @arg(
       doc =
         "The first column header in the table to be updated, or None for today."
     )
-    statTable: String = "Stats",
-    @arg(doc = "The column to update or None for today")
-    colStat: Option[String] = None
+    statTable: String = "Stats"
 ): Unit = {
   // Read the existing document.
   val doc = Header.parse(read ! StatusFile, ProjectParserCfg)
@@ -269,40 +291,33 @@ def stat(
     )
   )
 
-  val newDoc =
-    doc.mapFirstIn(ifNotFound = doc.mds :+ Header(1, H1Weekly)) {
-      case weekly @ Header(title, 1, _) if title.startsWith(H1Weekly) =>
-        weekly.mapFirstIn() {
-          case weekToUpdate @ Header(title, 2, _)
-              if week.map(title.startsWith).getOrElse(title.length >= 10) =>
-            weekToUpdate.mapFirstIn(ifNotFound = newTable +: weekToUpdate.mds) {
-              // Matches the table with the given name.
-              case tb @ Table(_, Seq(TableRow(Seq(a1: String, _*)), _*))
-                  if a1 == statTable =>
-                val statsRow =
-                  tb.mds.indexWhere(_.cells.headOption.contains(rowStat))
-                val row = if (statsRow != -1) statsRow else tb.mds.size
+  val newDoc = updateTopWeek(doc) { weekly =>
+    weekly.mapFirstIn(ifNotFound = newTable +: weekly.mds) {
+      // Matches the table with the given name.
+      case tb @ Table(_, Seq(TableRow(Seq(a1: String, _*)), _*))
+          if a1 == statTable =>
+        val statsRow =
+          tb.mds.indexWhere(_.cells.headOption.contains(rowStat))
+        val row = if (statsRow != -1) statsRow else tb.mds.size
 
-                val statsCol = colStat
-                  .map(c =>
-                    tb.mds.headOption
-                      .map(_.cells.indexWhere(_ == c))
-                      .getOrElse(-1)
-                  )
-                  .getOrElse(
-                    LocalDate.now.getDayOfWeek.getValue
-                  )
-                val col =
-                  if (statsCol != -1) statsCol
-                  else LocalDate.now.getDayOfWeek.getValue
+        val statsCol = colStat
+          .map(c =>
+            tb.mds.headOption
+              .map(_.cells.indexWhere(_ == c))
+              .getOrElse(-1)
+          )
+          .getOrElse(
+            LocalDate.now.getDayOfWeek.getValue
+          )
+        val col =
+          if (statsCol != -1) statsCol
+          else LocalDate.now.getDayOfWeek.getValue
 
-                if (statsRow == -1)
-                  tb.updated(col, row, cell).updated(0, row, rowStat)
-                else tb.updated(col, row, cell)
-            }
-
-        }
+        if (statsRow == -1)
+          tb.updated(col, row, cell).updated(0, row, rowStat)
+        else tb.updated(col, row, cell)
     }
+  }
 
   val cleanedNewDoc = Header.parse(newDoc.build().toString, ProjectParserCfg)
 
