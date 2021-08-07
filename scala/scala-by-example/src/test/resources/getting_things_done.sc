@@ -194,13 +194,35 @@ def newWeek(): Unit = {
     monday
   }
 
+  /** Create the new head week from the last week, if any is present. */
+  def createHead(oldWeek: Option[Header]): Header = {
+    oldWeek
+      .map { week =>
+        // if there was a last week
+        week
+          .copy(title = nextMonday(Some(week.title)))
+          .replaceIn() {
+            case (
+                  Some(tb @ Table(_, Seq(TableRow(Seq("Stats", _*)), _*))),
+                  _
+                ) => {
+              Seq(tb.replaceIn() {
+                case (Some(TableRow(cells)), row)
+                    if row > 0 && cells.size > 1 =>
+                  Seq(TableRow.from(cells.head))
+              })
+            }
+          }
+      }
+      .getOrElse(Header(2, nextMonday(None)))
+  }
+
+  // Add the new head week to the weekly statuses.
   val newDoc = updateH1Weekly(doc) { weekly =>
-    weekly.flatMapFirstIn(ifNotFound = Header(2, "") +: weekly.mds) {
-      case lastWeek @ Header(lastTitle, 2, _) if lastTitle.length >= 10 =>
-        Seq(lastWeek.copy(title = nextMonday(Some(lastTitle))), lastWeek)
-      case holder @ Header("", 2, _) =>
-        Seq(holder.copy(title = nextMonday(None)))
-    }
+    val headWeek = createHead(weekly.mds.collectFirst {
+      case h2 @ Header(_, 2, _) => h2
+    })
+    weekly.copy(mds = headWeek +: weekly.mds)
   }
 
   write.over(StatusFile, newDoc.build().toString.trim() + "\n")
