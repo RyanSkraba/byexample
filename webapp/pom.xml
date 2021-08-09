@@ -18,10 +18,34 @@
     <!-- skip the deployment for aggregators, not necessary.  Needs to be flipped to false
      for project with artifacts. -->
     <maven.deploy.skip>true</maven.deploy.skip>
+
     <!-- Common versions used by projects. -->
     <jetty.version>11.0.6</jetty.version>
     <jakarta.servlet-api.version>5.0.0</jakarta.servlet-api.version>
+
+    <!-- Plugins -->
+    <!-- It looks like this needs to be hard-coded below. -->
+    <plugin.maven.jetty.version>11.0.6</plugin.maven.jetty.version>
   </properties>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>jetty-maven-plugin</artifactId>
+          <version>11.0.6</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 
   <dependencyManagement>
     <dependencies>
@@ -45,29 +69,6 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.eclipse.jetty</groupId>
-          <artifactId>jetty-maven-plugin</artifactId>
-          <version>${jetty.version}</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-enforcer-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>com.diffplug.spotless</groupId>
-        <artifactId>spotless-maven-plugin</artifactId>
-      </plugin>
-    </plugins>
-  </build>
 
   <modules>
     <module>webapp-by-example</module>
