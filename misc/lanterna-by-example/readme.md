@@ -1,4 +1,4 @@
-LanternaByExample
+Lanterna by example
 ==============================================================================
 
 Lanterna builds better xterm applications.
