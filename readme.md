@@ -1,4 +1,4 @@
-ByExample
+By Example
 ==============================================================================
 
 ![Java CI](https://github.com/RyanSkraba/byexample/workflows/Java%20CI/badge.svg)

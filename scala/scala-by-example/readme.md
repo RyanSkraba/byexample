@@ -1,4 +1,4 @@
-ScalaByExample
+Scala by example
 ==============================================================================
 
 There's a LOT to the Scala programming language.  This project includes some common and useful
