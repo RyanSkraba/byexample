@@ -40,5 +40,6 @@
 
   <modules>
     <module>jmh-by-example</module>
+    <module>to-profile-by-example</module>
   </modules>
 </project>
