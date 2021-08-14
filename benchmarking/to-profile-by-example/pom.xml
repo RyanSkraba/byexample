@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.skraba.byexample</groupId>
+    <artifactId>byexample-benchmarking-aggregator</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>to-profile-by-example</artifactId>
+
+  <name>By Example :: Benchmarking :: ToProfile</name>
+  <description>Example application and classes to use in profiling.</description>
+
+  <properties>
+    <maven.deploy.skip>false</maven.deploy.skip>
+    <scalafmt.conf.path>${project.basedir}/../../.scalafmt.conf</scalafmt.conf.path>
+    <!-- Launcher class -->
+    <exec.mainClass>com.skraba.byexample.benchmarking.toprofile.ToProfileGo</exec.mainClass>
+    <!-- other project dependency versions as properties -->
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.offbytwo</groupId>
+      <artifactId>docopt</artifactId>
+      <version>${docopt.version}</version>
+    </dependency>
+  </dependencies>
+</project>
