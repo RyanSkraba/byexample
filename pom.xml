@@ -171,6 +171,13 @@
           <version>${plugin.war.maven.version}</version>
         </plugin>
 
+        <plugin>
+          <groupId>io.fabric8</groupId>
+          <artifactId>docker-maven-plugin</artifactId>
+          <extensions>true</extensions>
+          <version>0.37.0</version>
+        </plugin>
+
         <!-- Build both java and scala classes, and they can rely on each other. -->
         <plugin>
           <groupId>net.alchim31.maven</groupId>
