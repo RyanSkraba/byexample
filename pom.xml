@@ -26,7 +26,7 @@
     <!-- Dependencies -->
     <docopt.version>0.6.0.20150202</docopt.version>
     <hamcrest.version>2.2</hamcrest.version>
-    <junit5.version>5.7.1</junit5.version>
+    <junit5.version>5.7.2</junit5.version>
     <scala.minor.version>2.12</scala.minor.version>
     <scala.version>2.12.13</scala.version>
     <scalafmt.version>2.7.5</scalafmt.version>
