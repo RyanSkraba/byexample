@@ -34,7 +34,7 @@
     <scalatest.version>3.2.2</scalatest.version>
 
     <!-- Plugins -->
-    <plugin.clean.maven.version>2.5</plugin.clean.maven.version>
+    <plugin.clean.maven.version>3.1.0</plugin.clean.maven.version>
     <plugin.compiler.maven.version>3.1</plugin.compiler.maven.version>
     <plugin.deploy.maven.version>2.7</plugin.deploy.maven.version>
     <plugin.enforcer.maven.version>3.0.0-M3</plugin.enforcer.maven.version>
@@ -43,10 +43,10 @@
     <plugin.jar.maven.version>3.2.0</plugin.jar.maven.version>
     <plugin.maven.scala.version>4.5.1</plugin.maven.scala.version>
     <plugin.maven.scalatest.version>2.0.2</plugin.maven.scalatest.version>
-    <plugin.resources.maven.version>2.6</plugin.resources.maven.version>
+    <plugin.resources.maven.version>3.2.0</plugin.resources.maven.version>
     <plugin.shade.maven.version>3.2.4</plugin.shade.maven.version>
     <plugin.site.maven.version>3.3</plugin.site.maven.version>
-    <plugin.spotless.version>2.11.1</plugin.spotless.version>
+    <plugin.spotless.version>2.12.2</plugin.spotless.version>
     <plugin.surefire.maven.version>3.0.0-M5</plugin.surefire.maven.version>
     <plugin.war.maven.version>2.2</plugin.war.maven.version>
 
