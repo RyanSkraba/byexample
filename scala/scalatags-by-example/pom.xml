@@ -22,7 +22,7 @@
     <!-- Launcher class -->
     <exec.mainClass>com.skraba.byexample.scalatags.ScalatagsGo</exec.mainClass>
     <!-- other project dependency versions as properties -->
-    <scalatags.version>0.9.2</scalatags.version>
+    <scalatags.version>0.9.4</scalatags.version>
   </properties>
 
   <dependencies>
