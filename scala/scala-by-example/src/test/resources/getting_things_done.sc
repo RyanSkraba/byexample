@@ -222,7 +222,9 @@ def newWeek(): Unit = {
     val headWeek = createHead(weekly.mds.collectFirst {
       case h2 @ Header(_, 2, _) => h2
     })
-    weekly.copy(mds = headWeek +: weekly.mds)
+    weekly.flatMapFirstIn(ifNotFound = headWeek +: weekly.mds) {
+      case h2 @ Header(_, 2, _) if h2 != headWeek => Seq(headWeek, h2)
+    }
   }
 
   write.over(StatusFile, newDoc.build().toString.trim() + "\n")
