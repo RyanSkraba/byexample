@@ -339,6 +339,7 @@
     <module>benchmarking</module>
     <module>misc</module>
     <module>scala</module>
+    <module>testing</module>
     <module>webapp</module>
   </modules>
 
