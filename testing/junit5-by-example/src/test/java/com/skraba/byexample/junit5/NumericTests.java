@@ -12,7 +12,7 @@ class NumericTests {
   @Test
   void testBasicDouble() {
     double piApprox = 355d / 113d;
-    assertThat(piApprox, not(closeTo(Math.PI, 0.0000003)));
+    assertThat(piApprox, not(closeTo(Math.PI, 0.0000002)));
     assertThat(piApprox, closeTo(Math.PI, 0.0000003));
   }
 }
