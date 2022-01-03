@@ -39,5 +39,6 @@
 
   <modules>
     <module>assertj-by-example</module>
+    <module>junit5-by-example</module>
   </modules>
 </project>
