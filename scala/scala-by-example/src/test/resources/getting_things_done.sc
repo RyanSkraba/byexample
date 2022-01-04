@@ -249,14 +249,17 @@ def pr(
 
   // The reference and task snippets to add to the file.
   val fullJira = if (jira != 0) Some(s"${prj.toUpperCase}-$jira") else None
-  val fullPr =
-    if (prNum != 0) Some(s"${prj.toLowerCase.capitalize} PR#$prNum") else None
+  val prjPretty = prj.toLowerCase.capitalize
+  val fullPr = if (prNum != 0) Some(s"$prjPretty PR#$prNum") else None
   val task = (fullJira, fullPr) match {
     case (Some(refJira), Some(refPr)) =>
-      s"  - **[$refJira]** | [$refPr] : $description `$status`"
-    case (Some(refJira), None) => s"  - **[$refJira]** : $description `$status`"
-    case (None, Some(refPr))   => s"  - [$refPr] : $description `$status`"
-    case (None, None)          => s"  - $description `$status`"
+      s"| 🔶$prjPretty   | **[$refJira]**:[$refPr] $description `$status` |"
+    case (Some(refJira), None) =>
+      s"| 🔶$prjPretty   | **[$refJira]** $description `$status` |"
+    case (None, Some(refPr))   =>
+      s"| 🔶$prjPretty   | [$refPr] $description `$status` |"
+    case (None, None)          =>
+      s"| 🔶$prjPretty   | $description `$status` |"
   }
 
   val docWithLinks = updateH1Weekly(doc) { topWeekly =>
