@@ -63,36 +63,6 @@ private def proposeGit(msg: String): String = {
      |""".stripMargin
 }
 
-/** Helper function to update only the weekly statuses section of the document, adding
-  * it if necessary.
-  *
-  * @param doc The entire status document.
-  * @param fn A function that modifies only the weekly statuses (a Header 1)
-  * @return The entire document with only the function applied to the weekly statuses.
-  */
-private def updateH1Weekly(
-    doc: Header
-)(fn: Header => Header): Header =
-  doc.mapFirstIn(ifNotFound = doc.mds :+ Header(1, H1Weekly)) {
-    case weekly @ Header(title, 1, _) if title.startsWith(H1Weekly) =>
-      fn(weekly)
-  }
-
-/** Helper function to update only the last week section of the statuses document, adding one
-  * if necessary.
-  *
-  * @param doc The entire status document.
-  * @param fn A function that modifies only the weekly statuses (a Header 2)
-  * @return The entire document with only the function applied to the last week.
-  */
-private def updateTopWeek(
-    doc: Header
-)(fn: Header => Header): Header = updateH1Weekly(doc) {
-  _.mapFirstIn(ifNotFound = doc.mds :+ Header(2, "1900/01/01")) {
-    case topWeek @ Header(_, 2, _) => fn(topWeek)
-  }
-}
-
 object ProjectParserCfg extends ParserCfg {
 
   /** Clean up the references at the end of a section. */
@@ -175,32 +145,13 @@ def clean(): Unit = {
 def newWeek(): Unit = {
   // Read the existing document.
   val doc = Header.parse(read ! StatusFile, ProjectParserCfg)
-
-  /** Calculate either next Monday or the monday 7 days after the Date in the String. */
-  def nextMonday(date: Option[String]): String = {
-    // Use the time classes to find the next date.
-    import java.time.format.DateTimeFormatter
-    import java.time.temporal.TemporalAdjusters
-    import java.time.{DayOfWeek, LocalDate}
-    val pattern = DateTimeFormatter.ofPattern("yyyy/MM/dd")
-    val monday = date
-      .map(ptn => LocalDate.parse(ptn.substring(0, 10), pattern))
-      .getOrElse(LocalDate.now)
-      .plusDays(1)
-      .`with`(TemporalAdjusters.previous(DayOfWeek.MONDAY))
-      .plusDays(7)
-      .format(pattern)
-    println(proposeGit(s"feat(status): Add new week $monday"))
-    monday
-  }
-
   /** Create the new head week from the last week, if any is present. */
   def createHead(oldWeek: Option[Header]): Header = {
     oldWeek
       .map { week =>
         // if there was a last week
         week
-          .copy(title = nextMonday(Some(week.title)))
+          .copy(title = GettingThingsDone.nextWeekStart(Some(week.title)))
           .replaceIn() {
             case (
                   Some(tb @ Table(_, Seq(TableRow(Seq("Stats", _*)), _*))),
@@ -214,11 +165,11 @@ def newWeek(): Unit = {
             }
           }
       }
-      .getOrElse(Header(2, nextMonday(None)))
+      .getOrElse(Header(2, GettingThingsDone.nextWeekStart(None)))
   }
 
   // Add the new head week to the weekly statuses.
-  val newDoc = updateH1Weekly(doc) { weekly =>
+  val newDoc = GettingThingsDone(doc).updateH1Weekly { weekly =>
     val headWeek = createHead(weekly.mds.collectFirst {
       case h2 @ Header(_, 2, _) => h2
     })
@@ -227,7 +178,7 @@ def newWeek(): Unit = {
     }
   }
 
-  write.over(StatusFile, newDoc.build().toString.trim() + "\n")
+  write.over(StatusFile, newDoc.doc.build().toString.trim() + "\n")
 }
 
 @arg(doc = "Start working on a new PR")
@@ -262,7 +213,7 @@ def pr(
       s"| 🔶$prjPretty   | $description `$status` |"
   }
 
-  val docWithLinks = updateH1Weekly(doc) { topWeekly =>
+  val docWithLinks = GettingThingsDone(doc).updateH1Weekly { topWeekly =>
     // Add the two JIRA to the weekly status section.  Their URLs will be filled in
     // automatically on cleanup.
     topWeekly.copyMds(
@@ -271,12 +222,12 @@ def pr(
     )
   }
 
-  val newDoc = updateTopWeek(docWithLinks) { weekly =>
+  val newDoc = docWithLinks.updateTopWeek { weekly =>
     // Update the most recent week.
     weekly.copyMds(weekly.mds :+ Paragraph(task))
   }
 
-  val cleanedNewDoc = Header.parse(newDoc.build().toString, ProjectParserCfg)
+  val cleanedNewDoc = Header.parse(newDoc.doc.build().toString, ProjectParserCfg)
 
   println(
     proposeGit(
@@ -318,7 +269,7 @@ def stat(
     )
   )
 
-  val newDoc = updateTopWeek(doc) { weekly =>
+  val newDoc = GettingThingsDone(doc).updateTopWeek { weekly =>
     weekly.mapFirstIn(ifNotFound = newTable +: weekly.mds) {
       // Matches the table with the given name.
       case tb @ Table(_, Seq(TableRow(Seq(a1: String, _*)), _*))
@@ -346,7 +297,7 @@ def stat(
     }
   }
 
-  val cleanedNewDoc = Header.parse(newDoc.build().toString, ProjectParserCfg)
+  val cleanedNewDoc = Header.parse(newDoc.doc.build().toString, ProjectParserCfg)
 
   println(
     proposeGit(
