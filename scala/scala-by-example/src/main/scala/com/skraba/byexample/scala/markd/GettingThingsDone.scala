@@ -42,6 +42,10 @@ object GettingThingsDone {
   /** The header with the weekly statuses. */
   val H1Weekly: String = "Weekly Status"
 
+  def apply(text: String): GettingThingsDone = {
+    GettingThingsDone(Header.parse(text))
+  }
+
   /** Calculate either next Monday or the monday 7 days after the Date in the String. */
   def nextWeekStart(
       date: Option[String],
