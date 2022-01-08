@@ -14,35 +14,40 @@ import java.time.{DayOfWeek, LocalDate}
   */
 class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
 
+  def preComment(text: String = "Hi")(h: Header) =
+    h.copyMds(Comment(text) +: h.mds)
+
   describe(s"Updating the $H1Weekly section") {
 
+    /** Next monday, which is the default week start when initializing the statuses. */
+    val defaultNextWeekStart = nextWeekStart(None)
+
     /** Some text to be parsed into an status document. */
-    val original = s"""
-       |# H1 One
-       |1
-       |# H1 Two
-       |2
-       |# H1 Three
-       |3""".stripMargin
+    val original =
+      s"""
+         |# H1 One
+         |1
+         |# H1 Two
+         |2
+         |# H1 Three
+         |3""".stripMargin
 
     it("should add itself to an empty document") {
       val empty = GettingThingsDone(text = "")
-      val updated =
-        empty.updateH1Weekly(weekly => weekly.copyMds(Seq(Comment("Hello"))))
-      updated.doc shouldBe Header(0, "", Header(1, H1Weekly, Comment("Hello")))
+      val updated = empty.updateH1Weekly(preComment("empty"))
+      updated.doc shouldBe Header(0, "", Header(1, H1Weekly, Comment("empty")))
     }
 
     it(s"should add itself document where the section doesn't exist") {
       val existing = GettingThingsDone(text = original)
-      val updated =
-        existing.updateH1Weekly(weekly => weekly.copyMds(Seq(Comment("Hello"))))
+      val updated = existing.updateH1Weekly(preComment("existing"))
       updated.doc shouldBe Header(
         0,
         "",
         Header(1, "H1 One", Paragraph("1")),
         Header(1, "H1 Two", Paragraph("2")),
         Header(1, "H1 Three", Paragraph("3")),
-        Header(1, H1Weekly, Comment("Hello"))
+        Header(1, H1Weekly, Comment("existing"))
       )
     }
 
@@ -50,14 +55,11 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
       it("at the start") {
         val existing =
           GettingThingsDone(text = original.replace("H1 One", H1Weekly))
-        val updated =
-          existing.updateH1Weekly(weekly =>
-            weekly.copyMds(weekly.mds :+ Comment("Hello"))
-          )
+        val updated = existing.updateH1Weekly(preComment("un"))
         updated.doc shouldBe Header(
           0,
           "",
-          Header(1, H1Weekly, Paragraph("1"), Comment("Hello")),
+          Header(1, H1Weekly, Comment("un"), Paragraph("1")),
           Header(1, "H1 Two", Paragraph("2")),
           Header(1, "H1 Three", Paragraph("3"))
         )
@@ -66,15 +68,12 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
       it("in the middle") {
         val existing =
           GettingThingsDone(text = original.replace("H1 Two", H1Weekly))
-        val updated =
-          existing.updateH1Weekly(weekly =>
-            weekly.copyMds(weekly.mds :+ Comment("Hello"))
-          )
+        val updated = existing.updateH1Weekly(preComment("deux"))
         updated.doc shouldBe Header(
           0,
           "",
           Header(1, "H1 One", Paragraph("1")),
-          Header(1, H1Weekly, Paragraph("2"), Comment("Hello")),
+          Header(1, H1Weekly, Comment("deux"), Paragraph("2")),
           Header(1, "H1 Three", Paragraph("3"))
         )
       }
@@ -82,18 +81,73 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
       it("at the end") {
         val existing =
           GettingThingsDone(text = original.replace("H1 Three", H1Weekly))
-        val updated =
-          existing.updateH1Weekly(weekly =>
-            weekly.copyMds(weekly.mds :+ Comment("Hello"))
-          )
+        val updated = existing.updateH1Weekly(preComment("trois"))
         updated.doc shouldBe Header(
           0,
           "",
           Header(1, "H1 One", Paragraph("1")),
           Header(1, "H1 Two", Paragraph("2")),
-          Header(1, H1Weekly, Paragraph("3"), Comment("Hello"))
+          Header(1, H1Weekly, Comment("trois"), Paragraph("3"))
         )
       }
+    }
+
+    it("should add the latest week to an empty document") {
+      val empty = GettingThingsDone(text = "")
+      val updated = empty.updateTopWeek(preComment("empty"))
+      updated.doc shouldBe Header(
+        0,
+        "",
+        Header(1, H1Weekly, Header(2, defaultNextWeekStart, Comment("empty")))
+      )
+    }
+
+    it("should add the latest week where one doesn't exist") {
+      val empty = GettingThingsDone(text = s"# $H1Weekly")
+      val updated = empty.updateTopWeek(preComment("existing"))
+      updated.doc shouldBe Header(
+        0,
+        "",
+        Header(
+          1,
+          H1Weekly,
+          Header(2, defaultNextWeekStart, Comment("existing"))
+        )
+      )
+    }
+
+    it("should add the update the latest week where it exists") {
+      val existing =
+        GettingThingsDone(text =
+          original.replace("H1 Two", s"$H1Weekly\n## Top week\n## Next week")
+        )
+      existing.doc shouldBe Header(
+        0,
+        "",
+        Header(1, "H1 One", Paragraph("1")),
+        Header(
+          1,
+          H1Weekly,
+          Header(2, "Top week"),
+          Header(2, "Next week", Paragraph("2"))
+        ),
+        Header(1, "H1 Three", Paragraph("3"))
+      )
+
+      val updated = existing.updateTopWeek(preComment("update"))
+      updated.doc shouldBe Header(
+        0,
+        "",
+        Header(1, "H1 One", Paragraph("1")),
+        Header(
+          1,
+          H1Weekly,
+          Header(2, "Top week", Comment("update")),
+          Header(2, "Next week", Paragraph("2"))
+        ),
+        Header(1, "H1 Three", Paragraph("3"))
+      )
+
     }
   }
 

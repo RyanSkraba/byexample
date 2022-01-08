@@ -28,9 +28,9 @@ case class GettingThingsDone(doc: Header) {
     * @return The entire document with only the function applied to the last week.
     */
   def updateTopWeek(fn: Header => Header): GettingThingsDone =
-    updateH1Weekly {
-      _.mapFirstIn(ifNotFound =
-        doc.mds :+ Header(2, GettingThingsDone.nextWeekStart(None))
+    updateH1Weekly { weeklies =>
+      weeklies.mapFirstIn(ifNotFound =
+        weeklies.mds :+ Header(2, GettingThingsDone.nextWeekStart(None))
       ) { case topWeek @ Header(_, 2, _) =>
         fn(topWeek)
       }
