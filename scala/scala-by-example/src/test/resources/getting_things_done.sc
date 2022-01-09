@@ -10,6 +10,7 @@
   */
 
 import ammonite.ops.{home, _}
+import com.skraba.byexample.scala.markd.GettingThingsDone.nextWeekStart
 import mainargs.{arg, main}
 
 import java.time.LocalDate
@@ -144,14 +145,14 @@ def clean(): Unit = {
 @main
 def newWeek(): Unit = {
   // Read the existing document.
-  val doc = Header.parse(read ! StatusFile, ProjectParserCfg)
+  val doc = GettingThingsDone(read ! StatusFile, ProjectParserCfg)
   /** Create the new head week from the last week, if any is present. */
   def createHead(oldWeek: Option[Header]): Header = {
     oldWeek
       .map { week =>
         // if there was a last week
         week
-          .copy(title = GettingThingsDone.nextWeekStart(Some(week.title)))
+          .copy(title = nextWeekStart(Some(week.title)))
           .replaceIn() {
             case (
                   Some(tb @ Table(_, Seq(TableRow(Seq("Stats", _*)), _*))),
@@ -165,11 +166,11 @@ def newWeek(): Unit = {
             }
           }
       }
-      .getOrElse(Header(2, GettingThingsDone.nextWeekStart(None)))
+      .getOrElse(Header(2, nextWeekStart(None)))
   }
 
   // Add the new head week to the weekly statuses.
-  val newDoc = GettingThingsDone(doc).updateH1Weekly { weekly =>
+  val newDoc = doc.updateH1Weekly { weekly =>
     val headWeek = createHead(weekly.mds.collectFirst {
       case h2 @ Header(_, 2, _) => h2
     })
@@ -196,7 +197,7 @@ def pr(
     status: String = "TOREVIEW"
 ): Unit = {
   // Read the existing document.
-  val doc = Header.parse(read ! StatusFile, ProjectParserCfg)
+  val doc = GettingThingsDone(read ! StatusFile, ProjectParserCfg)
 
   // The reference and task snippets to add to the file.
   val fullJira = if (jira != 0) Some(s"${prj.toUpperCase}-$jira") else None
@@ -213,7 +214,7 @@ def pr(
       s"| 🔶$prjPretty   | $description `$status` |"
   }
 
-  val docWithLinks = GettingThingsDone(doc).updateH1Weekly { topWeekly =>
+  val docWithLinks = doc.updateH1Weekly { topWeekly =>
     // Add the two JIRA to the weekly status section.  Their URLs will be filled in
     // automatically on cleanup.
     topWeekly.copyMds(
@@ -253,7 +254,7 @@ def stat(
     statTable: String = "Stats"
 ): Unit = {
   // Read the existing document.
-  val doc = Header.parse(read ! StatusFile, ProjectParserCfg)
+  val doc = GettingThingsDone(read ! StatusFile, ProjectParserCfg)
 
   lazy val newTable = Table.from(
     Seq.fill(8)(Align.LEFT),
@@ -269,7 +270,7 @@ def stat(
     )
   )
 
-  val newDoc = GettingThingsDone(doc).updateTopWeek { weekly =>
+  val newDoc = doc.updateTopWeek { weekly =>
     weekly.mapFirstIn(ifNotFound = newTable +: weekly.mds) {
       // Matches the table with the given name.
       case tb @ Table(_, Seq(TableRow(Seq(a1: String, _*)), _*))
