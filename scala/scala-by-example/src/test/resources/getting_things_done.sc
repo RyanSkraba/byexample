@@ -10,7 +10,6 @@
   */
 
 import ammonite.ops.{home, _}
-import com.skraba.byexample.scala.markd.GettingThingsDone.nextWeekStart
 import mainargs.{arg, main}
 
 import java.time.LocalDate
@@ -30,6 +29,7 @@ interp.repositories() ++= {
 // import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
 import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
 import com.skraba.byexample.scala.markd._
+import com.skraba.byexample.scala.markd.GettingThingsDone._
 
 /** A tag used to distinguish between documents. */
 val StatusTag: String = sys.env.getOrElse("GTD_TAG", "GTD")
