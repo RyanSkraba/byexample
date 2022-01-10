@@ -14,14 +14,18 @@ import java.time.{DayOfWeek, LocalDate}
   */
 class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
 
+  /** Next monday, which is the default week start when initializing the statuses. */
+  val defaultNextWeekStart: String = nextWeekStart(None)
+
+  /** The default day of the week. */
+  val todayDayOfWeek: String =
+    LocalDate.now.getDayOfWeek.toString.take(3).toLowerCase.capitalize
+
   /** Prepend a comment with a given text to the contents of the header. */
   def preComment(text: String = "Hi")(h: Header): Header =
     h.copyMds(Comment(text) +: h.mds)
 
   describe(s"Updating the $H1Weekly section") {
-
-    /** Next monday, which is the default week start when initializing the statuses. */
-    val defaultNextWeekStart = nextWeekStart(None)
 
     /** Some text to be parsed into an status document. */
     val original =
@@ -150,6 +154,111 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
       )
 
     }
+  }
+
+  describe(s"Updating statistics") {
+
+    val withWeeklyStats =
+      s"""Weekly Status
+         !==============================================================================
+         !
+         !Top week
+         !------------------------------------------------------------------------------
+         !
+         !| Stats  | Mon | Tue | Wed | Thu | Fri  | Sat | Sun   |
+         !|--------|-----|-----|-----|-----|------|-----|-------|
+         !| unread | 1   | 22  |     | 333 | 4444 |     | 55555 |
+         !""".stripMargin('!')
+
+    it("should add itself to an empty document") {
+      val empty = GettingThingsDone("")
+      val updated = empty.updateTopWeekStats("unread", "123", Some("Sun"))
+      updated.doc.build().toString() shouldBe
+        s"""Weekly Status
+           !==============================================================================
+           !
+           !$defaultNextWeekStart
+           !------------------------------------------------------------------------------
+           !
+           !| Stats  | Mon | Tue | Wed | Thu | Fri | Sat | Sun |
+           !|--------|-----|-----|-----|-----|-----|-----|-----|
+           !| unread |     |     |     |     |     |     | 123 |
+           !""".stripMargin('!')
+    }
+
+    it("should update an empty cell in an existing document") {
+      val existing = GettingThingsDone(withWeeklyStats)
+      val updated = existing.updateTopWeekStats("unread", "123", Some("Wed"))
+      updated.doc.build().toString() shouldBe
+        s"""Weekly Status
+           !==============================================================================
+           !
+           !Top week
+           !------------------------------------------------------------------------------
+           !
+           !| Stats  | Mon | Tue | Wed | Thu | Fri  | Sat | Sun   |
+           !|--------|-----|-----|-----|-----|------|-----|-------|
+           !| unread | 1   | 22  | 123 | 333 | 4444 |     | 55555 |
+           !""".stripMargin('!')
+    }
+
+    it("should update an existing cell in an existing document") {
+      val existing = GettingThingsDone(withWeeklyStats)
+      val updated = existing.updateTopWeekStats("unread", "123", Some("Wed"))
+      updated.doc.build().toString() shouldBe
+        s"""Weekly Status
+           !==============================================================================
+           !
+           !Top week
+           !------------------------------------------------------------------------------
+           !
+           !| Stats  | Mon | Tue | Wed | Thu | Fri  | Sat | Sun   |
+           !|--------|-----|-----|-----|-----|------|-----|-------|
+           !| unread | 1   | 22  | 123 | 333 | 4444 |     | 55555 |
+           !""".stripMargin('!')
+    }
+
+    it("should add itself to an empty document on today's day") {
+      val empty = GettingThingsDone("")
+      val updated = empty.updateTopWeekStats("unread", "987")
+      updated.doc.build().toString() should include("| 987 |")
+      // Calling without a day should be the same as calling with today's day of the week.
+      updated shouldBe empty.updateTopWeekStats(
+        "unread",
+        "987",
+        Some(todayDayOfWeek)
+      )
+    }
+
+    it("should add itself to an existing document on today's day") {
+      val existing = GettingThingsDone(withWeeklyStats)
+      val updated = existing.updateTopWeekStats("unread", "987")
+      updated.doc.build().toString() should include("| 987 |")
+      // Calling without a day should be the same as calling with today's day of the week.
+      updated shouldBe existing.updateTopWeekStats(
+        "unread",
+        "987",
+        Some(todayDayOfWeek)
+      )
+    }
+
+    it("should add a new row in an existing document") {
+      val existing = GettingThingsDone(withWeeklyStats)
+      val updated = existing.updateTopWeekStats("read", "99999", Some("Wed"))
+      updated.doc.build().toString() shouldBe
+        s"""Weekly Status
+           !==============================================================================
+           !
+           !Top week
+           !------------------------------------------------------------------------------
+           !
+           !| Stats  | Mon | Tue | Wed   | Thu | Fri  | Sat | Sun   |
+           !|--------|-----|-----|-------|-----|------|-----|-------|
+           !| unread | 1   | 22  |       | 333 | 4444 |     | 55555 |
+           !| read   |     |     | 99999 |     |      |     |       |
+           !""".stripMargin('!')
+    }
+
   }
 
   describe("Utility for calculating a new week") {

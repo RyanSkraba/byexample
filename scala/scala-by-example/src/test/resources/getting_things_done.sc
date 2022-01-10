@@ -27,6 +27,7 @@ interp.repositories() ++= {
 @
 // Intellij always removes the following line, which should be
 // import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
+
 import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
 import com.skraba.byexample.scala.markd._
 import com.skraba.byexample.scala.markd.GettingThingsDone._
@@ -113,23 +114,25 @@ object ProjectParserCfg extends ParserCfg {
 @main
 def help(): Unit = {
   val cmd = s"${GREEN}getting_things_done$RESET"
-  println(s"""$BOLD$cmd - Let's get things done!
-             |
-             |  $CYAN     clean$RESET : Rewrite the status document
-             |  $CYAN   newWeek$RESET : Add a new week to the status document
-             |  $CYAN        pr$RESET : Add a PR review to this week
-             |  $CYAN      stat$RESET : Add a statistic to the document ${RED_B}TODO$RESET
-             |  $CYAN      week$RESET : Print the last week status or a specific week
-             |
-             |Usage:
-             |
-             | $cmd ${CYAN}clean$RESET
-             | $cmd ${CYAN}newWeek$RESET
-             | $cmd ${CYAN}pr$RESET avro 9876 1234 "Implemented a thing" REVIEWED
-             | $cmd ${CYAN}stat$RESET unread 448 [Wed] [Stats]
-             | $cmd ${CYAN}week$RESET
-             | $cmd ${CYAN}week$RESET 2021/03/08
-             |""".stripMargin)
+  println(
+    s"""$BOLD$cmd - Let's get things done!
+       |
+       |  $CYAN     clean$RESET : Rewrite the status document
+       |  $CYAN   newWeek$RESET : Add a new week to the status document
+       |  $CYAN        pr$RESET : Add a PR review to this week
+       |  $CYAN      stat$RESET : Add or update a weekly statistic
+       |  $CYAN      task$RESET : Add or update a weekly task ${RED_B}TODO$RESET
+       |  $CYAN      week$RESET : Print the last week status or a specific week
+       |
+       |Usage:
+       |
+       | $cmd ${CYAN}clean$RESET
+       | $cmd ${CYAN}newWeek$RESET
+       | $cmd ${CYAN}pr$RESET avro 9876 1234 "Implemented a thing" REVIEWED
+       | $cmd ${CYAN}stat$RESET unread 448 [Wed]
+       | $cmd ${CYAN}week$RESET
+       | $cmd ${CYAN}week$RESET 2021/03/08
+       |""".stripMargin)
 }
 
 @arg(doc = "Clean the existing document")
@@ -146,6 +149,7 @@ def clean(): Unit = {
 def newWeek(): Unit = {
   // Read the existing document.
   val doc = GettingThingsDone(read ! StatusFile, ProjectParserCfg)
+
   /** Create the new head week from the last week, if any is present. */
   def createHead(oldWeek: Option[Header]): Header = {
     oldWeek
@@ -241,63 +245,15 @@ def pr(
 @arg(doc = "Update a statistic in a table, typically for the day of the week")
 @main
 def stat(
-    @arg(doc = "Update the statistic on this row (matches first element.")
-    rowStat: String,
-    @arg(doc = "The new value to put in the row")
-    cell: String,
-    @arg(doc = "The column to update or None for today")
-    colStat: Option[String] = None,
-    @arg(
-      doc =
-        "The first column header in the table to be updated, or None for today."
-    )
-    statTable: String = "Stats"
-): Unit = {
+          @arg(doc = "Update the statistic on this row (matches first element.")
+          rowStat: String,
+          @arg(doc = "The new value to put in the row")
+          cell: String,
+          @arg(doc = "The column to update or None for today")
+          colStat: Option[String] = None): Unit = {
   // Read the existing document.
   val doc = GettingThingsDone(read ! StatusFile, ProjectParserCfg)
-
-  lazy val newTable = Table.from(
-    Seq.fill(8)(Align.LEFT),
-    TableRow.from(
-      statTable,
-      "Mon",
-      "Tue",
-      "Wed",
-      "Thu",
-      "Fri",
-      "Sat",
-      "Sun"
-    )
-  )
-
-  val newDoc = doc.updateTopWeek { weekly =>
-    weekly.mapFirstIn(ifNotFound = newTable +: weekly.mds) {
-      // Matches the table with the given name.
-      case tb @ Table(_, Seq(TableRow(Seq(a1: String, _*)), _*))
-          if a1 == statTable =>
-        val statsRow =
-          tb.mds.indexWhere(_.cells.headOption.contains(rowStat))
-        val row = if (statsRow != -1) statsRow else tb.mds.size
-
-        val statsCol = colStat
-          .map(c =>
-            tb.mds.headOption
-              .map(_.cells.indexWhere(_ == c))
-              .getOrElse(-1)
-          )
-          .getOrElse(
-            LocalDate.now.getDayOfWeek.getValue
-          )
-        val col =
-          if (statsCol != -1) statsCol
-          else LocalDate.now.getDayOfWeek.getValue
-
-        if (statsRow == -1)
-          tb.updated(col, row, cell).updated(0, row, rowStat)
-        else tb.updated(col, row, cell)
-    }
-  }
-
+  val newDoc = doc.updateTopWeekStats(rowStat, cell, colStat)
   val cleanedNewDoc = Header.parse(newDoc.doc.build().toString, ProjectParserCfg)
 
   println(
