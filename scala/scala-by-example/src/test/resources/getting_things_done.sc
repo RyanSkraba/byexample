@@ -12,7 +12,6 @@
 import ammonite.ops.{home, _}
 import mainargs.{arg, main}
 
-import java.time.LocalDate
 import scala.io.AnsiColor._
 
 interp.repositories() ++= {
@@ -27,10 +26,9 @@ interp.repositories() ++= {
 @
 // Intellij always removes the following line, which should be
 // import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
-
 import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
-import com.skraba.byexample.scala.markd._
 import com.skraba.byexample.scala.markd.GettingThingsDone._
+import com.skraba.byexample.scala.markd._
 
 /** A tag used to distinguish between documents. */
 val StatusTag: String = sys.env.getOrElse("GTD_TAG", "GTD")
@@ -114,8 +112,7 @@ object ProjectParserCfg extends ParserCfg {
 @main
 def help(): Unit = {
   val cmd = s"${GREEN}getting_things_done$RESET"
-  println(
-    s"""$BOLD$cmd - Let's get things done!
+  println(s"""$BOLD$cmd - Let's get things done!
        |
        |  $CYAN     clean$RESET : Rewrite the status document
        |  $CYAN   newWeek$RESET : Add a new week to the status document
@@ -212,9 +209,9 @@ def pr(
       s"| 🔶$prjPretty   | **[$refJira]**:[$refPr] $description `$status` |"
     case (Some(refJira), None) =>
       s"| 🔶$prjPretty   | **[$refJira]** $description `$status` |"
-    case (None, Some(refPr))   =>
+    case (None, Some(refPr)) =>
       s"| 🔶$prjPretty   | [$refPr] $description `$status` |"
-    case (None, None)          =>
+    case (None, None) =>
       s"| 🔶$prjPretty   | $description `$status` |"
   }
 
@@ -232,7 +229,8 @@ def pr(
     weekly.copyMds(weekly.mds :+ Paragraph(task))
   }
 
-  val cleanedNewDoc = Header.parse(newDoc.doc.build().toString, ProjectParserCfg)
+  val cleanedNewDoc =
+    Header.parse(newDoc.doc.build().toString, ProjectParserCfg)
 
   println(
     proposeGit(
@@ -245,16 +243,18 @@ def pr(
 @arg(doc = "Update a statistic in a table, typically for the day of the week")
 @main
 def stat(
-          @arg(doc = "Update the statistic on this row (matches first element.")
-          rowStat: String,
-          @arg(doc = "The new value to put in the row")
-          cell: String,
-          @arg(doc = "The column to update or None for today")
-          colStat: Option[String] = None): Unit = {
+    @arg(doc = "Update the statistic on this row (matches first element.")
+    rowStat: String,
+    @arg(doc = "The new value to put in the row")
+    cell: String,
+    @arg(doc = "The column to update or None for today")
+    colStat: Option[String] = None
+): Unit = {
   // Read the existing document.
   val doc = GettingThingsDone(read ! StatusFile, ProjectParserCfg)
   val newDoc = doc.updateTopWeekStats(rowStat, cell, colStat)
-  val cleanedNewDoc = Header.parse(newDoc.doc.build().toString, ProjectParserCfg)
+  val cleanedNewDoc =
+    Header.parse(newDoc.doc.build().toString, ProjectParserCfg)
 
   println(
     proposeGit(
