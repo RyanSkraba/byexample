@@ -1,6 +1,7 @@
 package com.skraba.byexample.scala.markd
 
 import com.skraba.byexample.scala.markd.GettingThingsDone.{
+  DoneToDo,
   H1Weekly,
   nextWeekStart
 }
@@ -259,6 +260,55 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            !""".stripMargin('!')
     }
 
+  }
+
+  describe(s"Updating tasks to do") {
+
+    val withWeeklyToDo =
+      s"""Weekly Status
+         !==============================================================================
+         !
+         !Top week
+         !------------------------------------------------------------------------------
+         !
+         !| To Do  | Notes      |
+         !|--------|------------|
+         !| Baking | Make bread |
+         !""".stripMargin('!')
+
+    it("should add itself to an empty document") {
+      val empty = GettingThingsDone("")
+      val updated = empty.updateTopWeekToDo("Baking", "Make bread")
+      updated.doc.build().toString() shouldBe
+        s"""Weekly Status
+           !==============================================================================
+           !
+           !$defaultNextWeekStart
+           !------------------------------------------------------------------------------
+           !
+           !| To Do  | Notes      |
+           !|--------|------------|
+           !| Baking | Make bread |
+           !""".stripMargin('!')
+    }
+
+    it("should add itself in an existing document") {
+      val existing = GettingThingsDone(withWeeklyToDo)
+      val updated =
+        existing.updateTopWeekToDo("Baking", "Make muffins", DoneToDo)
+      updated.doc.build().toString() shouldBe
+        s"""Weekly Status
+           !==============================================================================
+           !
+           !Top week
+           !------------------------------------------------------------------------------
+           !
+           !| To Do    | Notes        |
+           !|----------|--------------|
+           !| Baking   | Make bread   |
+           !| 🟢Baking | Make muffins |
+           !""".stripMargin('!')
+    }
   }
 
   describe("Utility for calculating a new week") {
