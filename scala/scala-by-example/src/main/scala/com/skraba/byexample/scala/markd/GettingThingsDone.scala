@@ -74,19 +74,34 @@ case class GettingThingsDone(doc: Header) {
         else tb.updated(col, row, cell)
     }
   }
+
+  /** Add a To Do task in the top week.
+    * @param category The major category for the task.
+    * @param notes The notes to apply to the task.
+    * @param state The state of the task.
+    * @return This document with the To Do table updated.
+    */
+  def updateTopWeekToDo(
+      category: String,
+      notes: String,
+      state: ToDoState = NoToDoState
+  ): GettingThingsDone = updateTopWeek { weekly =>
+    weekly.mapFirstIn(ifNotFound = TableToDoEmpty +: weekly.mds) {
+      // Matches the table with the given name.
+      case tb @ Table(_, Seq(TableRow(Seq(a1: String, _*)), _*))
+          if a1 == TableToDo =>
+        val row = tb.mds.size
+        tb.updated(0, row, state.txt + category).updated(1, row, notes)
+    }
+  }
 }
 
 object GettingThingsDone {
 
-  /** The header with the weekly statuses. */
-  val H1Weekly: String = "Weekly Status"
-
-  val TableStats: String = "Stats"
-
   lazy val TableStatsEmpty: Table = Table.from(
     Seq.fill(8)(Align.LEFT),
     TableRow.from(
-      TableStats,
+      "Stats",
       "Mon",
       "Tue",
       "Wed",
@@ -97,6 +112,16 @@ object GettingThingsDone {
     )
   )
 
+  lazy val TableToDoEmpty: Table = Table.from(
+    Seq(Align.LEFT, Align.LEFT),
+    TableRow.from("To Do", "Notes")
+  )
+
+  /** The header with the weekly statuses. */
+  val H1Weekly: String = "Weekly Status"
+  val TableStats: String = TableStatsEmpty.mds.head.cells.head
+  val TableToDo: String = TableToDoEmpty.mds.head.cells.head
+
   def apply(
       content: String,
       cfg: ParserCfg = new ParserCfg()
@@ -104,15 +129,22 @@ object GettingThingsDone {
     GettingThingsDone(Header.parse(content, cfg))
   }
 
+  sealed class ToDoState(val txt: String)
+  case object NoToDoState extends ToDoState("")
+  case object DoneToDo extends ToDoState("🟢")
+  case object MaybeToDo extends ToDoState("🔶")
+  case object StoppedToDo extends ToDoState("🟥")
+  case object LaterToDO extends ToDoState("⤴️")
+
   /** Calculate either next Monday or the monday 7 days after the Date in the String. */
   def nextWeekStart(
       date: Option[String],
       dow: DayOfWeek = DayOfWeek.MONDAY
   ): String = {
     // Use the time classes to find the next date.
+    import java.time.LocalDate
     import java.time.format.DateTimeFormatter
     import java.time.temporal.TemporalAdjusters
-    import java.time.LocalDate
     val pattern = DateTimeFormatter.ofPattern("yyyy/MM/dd")
     val monday = date
       .map(ptn => LocalDate.parse(ptn.substring(0, 10), pattern))
