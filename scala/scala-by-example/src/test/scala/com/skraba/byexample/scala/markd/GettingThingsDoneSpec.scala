@@ -26,6 +26,34 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
   def preComment(text: String = "Hi")(h: Header): Header =
     h.copyMds(Comment(text) +: h.mds)
 
+  describe(s"Creating a clean document") {
+    it("should be readable and self-describing") {
+      GettingThingsDone().doc.build().toString() shouldBe
+        s"""Weekly Status
+           !==============================================================================
+           !
+           !<!--
+           !| To Do      | Notes                                                                     |
+           !|------------|---------------------------------------------------------------------------|
+           !| 🟢Tech     | **Do the thing** Notes on how it was done                                 |
+           !| 🔶Personal | **Maybe doable** Or paused, or to think about for next week, or in danger |
+           !| 🟥Health   | **Not done** Here's why                                                   |
+           !| ⤴️Personal | **Read Getting Things Done Chapter 4/12** Moved to next week              |
+           !| Pro        | **Another task** With some [details][YYYYMMDD-1]                          |
+           !-->
+           !
+           !$defaultNextWeekStart
+           !------------------------------------------------------------------------------
+           !
+           !| Stats   | Mon | Tue | Wed | Thu | Fri | Sat | Sun |
+           !|---------|-----|-----|-----|-----|-----|-----|-----|
+           !| pushups |     |     |     |     |     |     |     |
+           !
+           !* Something I did this week
+           !""".stripMargin('!')
+    }
+  }
+
   describe(s"Updating the $H1Weekly section") {
 
     /** Some text to be parsed into an status document. */
