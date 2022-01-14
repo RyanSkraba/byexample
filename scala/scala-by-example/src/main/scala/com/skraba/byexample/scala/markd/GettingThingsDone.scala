@@ -183,14 +183,55 @@ object GettingThingsDone {
   /** Create an instance from a markdown string.
     *
     * @param content The string contents
-    * @param cfg
-    * @return
+    * @param cfg Helper for configuring the model
+    * @return A [[GettingThingsDone]] based on the model
     */
   def apply(
       content: String,
       cfg: ParserCfg = new ParserCfg()
   ): GettingThingsDone = {
     GettingThingsDone(Header.parse(content, cfg))
+  }
+
+  /** @return A clean, useful status document to start from.
+    */
+  def apply(): GettingThingsDone = {
+    // Create an example table in a document
+    val tableToDoExample = GettingThingsDone("")
+      .updateTopWeekToDo(
+        "Tech",
+        "**Do the thing** Notes on how it was done",
+        DoneToDo
+      )
+      .updateTopWeekToDo(
+        "Personal",
+        "**Maybe doable** Or paused, or to think about for next week, or in danger",
+        MaybeToDo
+      )
+      .updateTopWeekToDo("Health", "**Not done** Here's why", StoppedToDo)
+      .updateTopWeekToDo(
+        "Personal",
+        "**Read Getting Things Done Chapter 4/12** Moved to next week",
+        LaterToDO
+      )
+      .updateTopWeekToDo(
+        "Pro",
+        "**Another task** With some [details][YYYYMMDD-1] "
+      )
+
+    // Extract the Table as text.
+    val tableToDoExampleComment = tableToDoExample.doc.mds
+      .collectFirst {
+        case Header(_, _, Seq(Header(_, _, Seq(tb @ Table(_, _))))) => tb
+      }
+      .map("\n" + _.build().toString)
+      .map(Comment)
+
+    GettingThingsDone(
+      Header(0, "", Header(1, H1Weekly, tableToDoExampleComment.get))
+    ).updateTopWeekStats("pushups", "").updateTopWeek { weekly =>
+      weekly.copyMds(weekly.mds :+ Paragraph("* Something I did this week"))
+    }
   }
 
   sealed class ToDoState(val txt: String)
