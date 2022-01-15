@@ -1,10 +1,6 @@
 package com.skraba.byexample.scala.markd
 
-import com.skraba.byexample.scala.markd.GettingThingsDone.{
-  DoneToDo,
-  H1Weekly,
-  nextWeekStart
-}
+import com.skraba.byexample.scala.markd.GettingThingsDone._
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
@@ -306,7 +302,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
 
     it("should add itself to an empty document") {
       val empty = GettingThingsDone("")
-      val updated = empty.updateTopWeekToDo("Baking", "Make bread")
+      val updated = empty.addTopWeekToDo("Baking", "Make bread")
       updated.doc.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
@@ -320,10 +316,10 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            !""".stripMargin('!')
     }
 
-    it("should add itself in an existing document") {
+    it("should add a task to an existing document") {
       val existing = GettingThingsDone(withWeeklyToDo)
       val updated =
-        existing.updateTopWeekToDo("Baking", "Make muffins", DoneToDo)
+        existing.addTopWeekToDo("Cuisine", "Make muffins", state = DoneToDo)
       updated.doc.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
@@ -331,11 +327,114 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            !Top week
            !------------------------------------------------------------------------------
            !
-           !| To Do    | Notes        |
-           !|----------|--------------|
-           !| Baking   | Make bread   |
-           !| 🟢Baking | Make muffins |
+           !| To Do     | Notes        |
+           !|-----------|--------------|
+           !| Baking    | Make bread   |
+           !| 🟢Cuisine | Make muffins |
            !""".stripMargin('!')
+
+      // These are all equivalent
+      val updated2 = existing.updateTopWeekToDo(
+        1,
+        Some("Cuisine"),
+        Some("Make muffins"),
+        Some(DoneToDo)
+      )
+      updated2 shouldBe updated
+      val updated3 = existing.updateTopWeekToDo(
+        10,
+        Some("Cuisine"),
+        Some("Make muffins"),
+        Some(DoneToDo)
+      )
+      updated3 shouldBe updated
+      val updated4 = existing.updateTopWeekToDo(
+        Int.MaxValue,
+        Some("Cuisine"),
+        Some("Make muffins"),
+        Some(DoneToDo)
+      )
+      updated4 shouldBe updated
+    }
+
+    it("should update a task in an existing document") {
+      val updated = GettingThingsDone(withWeeklyToDo).updateTopWeekToDo(
+        0,
+        Some("Cuisine"),
+        Some("Make muffins"),
+        Some(DoneToDo)
+      )
+      updated.doc.build().toString() shouldBe
+        s"""Weekly Status
+           !==============================================================================
+           !
+           !Top week
+           !------------------------------------------------------------------------------
+           !
+           !| To Do     | Notes        |
+           !|-----------|--------------|
+           !| 🟢Cuisine | Make muffins |
+           !""".stripMargin('!')
+    }
+
+    it("should update a task category in an existing document") {
+      val updated = GettingThingsDone(withWeeklyToDo).updateTopWeekToDo(
+        0,
+        category = Some("Cuisine")
+      )
+      updated.doc.build().toString() shouldBe
+        s"""Weekly Status
+           !==============================================================================
+           !
+           !Top week
+           !------------------------------------------------------------------------------
+           !
+           !| To Do   | Notes      |
+           !|---------|------------|
+           !| Cuisine | Make bread |
+           !""".stripMargin('!')
+    }
+
+    it("should update a task note in an existing document") {
+      val updated = GettingThingsDone(withWeeklyToDo).updateTopWeekToDo(
+        0,
+        notes = Some("Make muffins")
+      )
+      updated.doc.build().toString() shouldBe
+        s"""Weekly Status
+           !==============================================================================
+           !
+           !Top week
+           !------------------------------------------------------------------------------
+           !
+           !| To Do  | Notes        |
+           !|--------|--------------|
+           !| Baking | Make muffins |
+           !""".stripMargin('!')
+    }
+
+    it("should update a task state in an existing document") {
+      val updated = GettingThingsDone(withWeeklyToDo).updateTopWeekToDo(
+        0,
+        state = Some(DoneToDo)
+      )
+      updated.doc.build().toString() shouldBe
+        s"""Weekly Status
+           !==============================================================================
+           !
+           !Top week
+           !------------------------------------------------------------------------------
+           !
+           !| To Do    | Notes      |
+           !|----------|------------|
+           !| 🟢Baking | Make bread |
+           !""".stripMargin('!')
+
+      // It should remove the task state too
+      updated.updateTopWeekToDo(
+        0,
+        state = Some(NoToDoState)
+      ) shouldBe GettingThingsDone(withWeeklyToDo)
     }
   }
 
