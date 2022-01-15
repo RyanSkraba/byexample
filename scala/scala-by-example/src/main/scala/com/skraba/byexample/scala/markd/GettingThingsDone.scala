@@ -1,6 +1,10 @@
 package com.skraba.byexample.scala.markd
 
-import com.skraba.byexample.scala.markd.GettingThingsDone._
+import com.skraba.byexample.scala.markd.GettingThingsDone.{
+  NoToDoState,
+  ToDoState,
+  _
+}
 
 import java.time.DayOfWeek
 
@@ -137,17 +141,68 @@ case class GettingThingsDone(doc: Header) {
     * @param state The state of the task.
     * @return This document with the To Do table updated.
     */
-  def updateTopWeekToDo(
+  def addTopWeekToDo(
       category: String,
       notes: String,
       state: ToDoState = NoToDoState
+  ): GettingThingsDone =
+    updateTopWeekToDo(Int.MaxValue, Some(category), Some(notes), Some(state))
+
+  /** Add or updates a To Do task in the top week.
+    * @param row the number of the row to update. Add to the end if it doesn't exist, or to the start
+    *   if is it negative.
+    * @param category The major category for the task, or None to not update the category.
+    * @param notes The notes to apply to the task, or None to not update the notes.
+    * @param state The state of the task, or None to not update the state.
+    * @return This document with the To Do table updated.
+    */
+  def updateTopWeekToDo(
+      row: Int,
+      category: Option[String] = None,
+      notes: Option[String] = None,
+      state: Option[ToDoState] = None
   ): GettingThingsDone = updateTopWeek { weekly =>
     weekly.mapFirstIn(ifNotFound = TableToDoEmpty +: weekly.mds) {
       // Matches the table with the given name.
       case tb @ Table(_, Seq(TableRow(Seq(a1: String, _*)), _*))
           if a1 == TableToDo =>
-        val row = tb.mds.size
-        tb.updated(0, row, state.txt + category).updated(1, row, notes)
+        // Insert a new row if prepending to the top
+        val tbToUpdate =
+          if (row >= 0) tb
+          else tb.copyMds(tb.mds.patch(1, Seq(TableRow(Seq.empty)), 0))
+
+        // Find the actual row to be updated
+        val nRow = {
+          if (row == Int.MaxValue || row + 1 > tb.mds.size) tb.mds.size
+          else if (row < 0) 1
+          else row + 1
+        }
+
+        // TODO: This should probably be cleaned up!
+        val (oldState, oldCategory, oldNotes) = tb.mds.lift(nRow) match {
+          case Some(TableRow(Seq(cat, n, _*)))
+              if cat.startsWith(DoneToDo.txt) =>
+            (DoneToDo, cat.drop(DoneToDo.txt.length), n)
+          case Some(TableRow(Seq(cat, n, _*)))
+              if cat.startsWith(MaybeToDo.txt) =>
+            (MaybeToDo, cat.drop(MaybeToDo.txt.length), n)
+          case Some(TableRow(Seq(cat, n, _*)))
+              if cat.startsWith(StoppedToDo.txt) =>
+            (StoppedToDo, cat.drop(StoppedToDo.txt.length), n)
+          case Some(TableRow(Seq(cat, n, _*)))
+              if cat.startsWith(LaterToDO.txt) =>
+            (LaterToDO, cat.drop(1), n)
+          case Some(TableRow(Seq(cat, n, _*))) => (NoToDoState, cat, n)
+          case _                               => (NoToDoState, "", "")
+        }
+
+        tbToUpdate
+          .updated(
+            0,
+            nRow,
+            state.getOrElse(oldState).txt + category.getOrElse(oldCategory)
+          )
+          .updated(1, nRow, notes.getOrElse(oldNotes))
     }
   }
 }
@@ -198,23 +253,27 @@ object GettingThingsDone {
   def apply(): GettingThingsDone = {
     // Create an example table in a document
     val tableToDoExample = GettingThingsDone("")
-      .updateTopWeekToDo(
+      .addTopWeekToDo(
         "Tech",
         "**Do the thing** Notes on how it was done",
-        DoneToDo
+        state = DoneToDo
       )
-      .updateTopWeekToDo(
+      .addTopWeekToDo(
         "Personal",
         "**Maybe doable** Or paused, or to think about for next week, or in danger",
-        MaybeToDo
+        state = MaybeToDo
       )
-      .updateTopWeekToDo("Health", "**Not done** Here's why", StoppedToDo)
-      .updateTopWeekToDo(
+      .addTopWeekToDo(
+        "Health",
+        "**Not done** Here's why",
+        state = StoppedToDo
+      )
+      .addTopWeekToDo(
         "Personal",
         "**Read Getting Things Done Chapter 4/12** Moved to next week",
-        LaterToDO
+        state = LaterToDO
       )
-      .updateTopWeekToDo(
+      .addTopWeekToDo(
         "Pro",
         "**Another task** With some [details][YYYYMMDD-1] "
       )
@@ -240,6 +299,8 @@ object GettingThingsDone {
   case object MaybeToDo extends ToDoState("🔶")
   case object StoppedToDo extends ToDoState("🟥")
   case object LaterToDO extends ToDoState("⤴️")
+  val AllStates: Seq[ToDoState] =
+    Seq(DoneToDo, MaybeToDo, StoppedToDo, LaterToDO, NoToDoState)
 
   /** Calculate either next Monday or the monday 7 days after the Date in the String. */
   def nextWeekStart(
