@@ -1,10 +1,6 @@
 package com.skraba.byexample.scala.markd
 
-import com.skraba.byexample.scala.markd.GettingThingsDone.{
-  NoToDoState,
-  ToDoState,
-  _
-}
+import com.skraba.byexample.scala.markd.GettingThingsDone._
 
 import java.time.DayOfWeek
 
@@ -178,23 +174,13 @@ case class GettingThingsDone(doc: Header) {
           else row + 1
         }
 
-        // TODO: This should probably be cleaned up!
-        val (oldState, oldCategory, oldNotes) = tb.mds.lift(nRow) match {
-          case Some(TableRow(Seq(cat, n, _*)))
-              if cat.startsWith(DoneToDo.txt) =>
-            (DoneToDo, cat.drop(DoneToDo.txt.length), n)
-          case Some(TableRow(Seq(cat, n, _*)))
-              if cat.startsWith(MaybeToDo.txt) =>
-            (MaybeToDo, cat.drop(MaybeToDo.txt.length), n)
-          case Some(TableRow(Seq(cat, n, _*)))
-              if cat.startsWith(StoppedToDo.txt) =>
-            (StoppedToDo, cat.drop(StoppedToDo.txt.length), n)
-          case Some(TableRow(Seq(cat, n, _*)))
-              if cat.startsWith(LaterToDO.txt) =>
-            (LaterToDO, cat.drop(1), n)
-          case Some(TableRow(Seq(cat, n, _*))) => (NoToDoState, cat, n)
-          case _                               => (NoToDoState, "", "")
-        }
+        // Extract the state and category from the first row column
+        val (oldState, oldCategory, oldNotes) = (tb.mds.lift(nRow) match {
+          case Some(TableRow(Seq(cat, n, _*))) =>
+            (for (state <- AllStates if cat.startsWith(state.txt))
+              yield (state, cat.drop(state.txt.length), n)).headOption
+          case _ => None
+        }).getOrElse(NoToDoState, "", "")
 
         tbToUpdate
           .updated(
