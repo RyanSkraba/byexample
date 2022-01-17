@@ -6,6 +6,7 @@ import org.scalatest.matchers.should.Matchers
 
 import java.time.format.DateTimeFormatter
 import java.time.{DayOfWeek, LocalDate}
+import org.scalatest.OptionValues._
 
 /** Unit tests for [[GettingThingsDone]]
   */
@@ -18,7 +19,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
   val todayDayOfWeek: String =
     LocalDate.now.getDayOfWeek.toString.take(3).toLowerCase.capitalize
 
-  /** Prepend a comment with a given text to the contents of the header. */
+  /** A function to prepend a comment with a given text to the contents of the header. */
   def preComment(text: String = "Hi")(h: Header): Header =
     h.copyMds(Comment(text) +: h.mds)
 
@@ -64,13 +65,19 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
 
     it("should add itself to an empty document") {
       val empty = GettingThingsDone("")
+      empty.h1Weekly shouldBe None
+
       val updated = empty.updateH1Weekly(preComment("empty"))
+      updated.h1Weekly.value shouldBe Header(1, H1Weekly, Comment("empty"))
       updated.doc shouldBe Header(0, "", Header(1, H1Weekly, Comment("empty")))
     }
 
     it(s"should add itself document where the section doesn't exist") {
       val existing = GettingThingsDone(original)
+      existing.h1Weekly shouldBe None
+
       val updated = existing.updateH1Weekly(preComment("existing"))
+      updated.h1Weekly.value shouldBe Header(1, H1Weekly, Comment("existing"))
       updated.doc shouldBe Header(
         0,
         "",
@@ -124,7 +131,19 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
 
     it("should add the latest week to an empty document") {
       val empty = GettingThingsDone("")
+      empty.topWeek shouldBe None
+
       val updated = empty.updateTopWeek(preComment("empty"))
+      updated.h1Weekly.value shouldBe Header(
+        1,
+        H1Weekly,
+        Header(2, defaultNextWeekStart, Comment("empty"))
+      )
+      updated.topWeek.value shouldBe Header(
+        2,
+        defaultNextWeekStart,
+        Comment("empty")
+      )
       updated.doc shouldBe Header(
         0,
         "",
@@ -151,6 +170,13 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         GettingThingsDone(
           original.replace("H1 Two", s"$H1Weekly\n## Top week\n## Next week")
         )
+      existing.h1Weekly.value shouldBe Header(
+        1,
+        H1Weekly,
+        Header(2, "Top week"),
+        Header(2, "Next week", Paragraph("2"))
+      )
+      existing.topWeek.value shouldBe Header(2, "Top week")
       existing.doc shouldBe Header(
         0,
         "",
@@ -165,6 +191,13 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
       )
 
       val updated = existing.updateTopWeek(preComment("update"))
+      updated.h1Weekly.value shouldBe Header(
+        1,
+        H1Weekly,
+        Header(2, "Top week", Comment("update")),
+        Header(2, "Next week", Paragraph("2"))
+      )
+      updated.topWeek.value shouldBe Header(2, "Top week", Comment("update"))
       updated.doc shouldBe Header(
         0,
         "",
@@ -177,7 +210,6 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         ),
         Header(1, "H1 Three", Paragraph("3"))
       )
-
     }
   }
 
@@ -230,14 +262,8 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     it("should update an existing cell in an existing document") {
       val existing = GettingThingsDone(withWeeklyStats)
       val updated = existing.updateTopWeekStats("unread", "123", Some("Wed"))
-      updated.doc.build().toString() shouldBe
-        s"""Weekly Status
-           !==============================================================================
-           !
-           !Top week
-           !------------------------------------------------------------------------------
-           !
-           !| Stats  | Mon | Tue | Wed | Thu | Fri  | Sat | Sun   |
+      updated.topWeek.value.mds.headOption.value.build().toString() shouldBe
+        s"""| Stats  | Mon | Tue | Wed | Thu | Fri  | Sat | Sun   |
            !|--------|-----|-----|-----|-----|------|-----|-------|
            !| unread | 1   | 22  | 123 | 333 | 4444 |     | 55555 |
            !""".stripMargin('!')
@@ -270,20 +296,13 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     it("should add a new row in an existing document") {
       val existing = GettingThingsDone(withWeeklyStats)
       val updated = existing.updateTopWeekStats("read", "99999", Some("Wed"))
-      updated.doc.build().toString() shouldBe
-        s"""Weekly Status
-           !==============================================================================
-           !
-           !Top week
-           !------------------------------------------------------------------------------
-           !
-           !| Stats  | Mon | Tue | Wed   | Thu | Fri  | Sat | Sun   |
+      updated.topWeek.value.mds.headOption.value.build().toString() shouldBe
+        s"""| Stats  | Mon | Tue | Wed   | Thu | Fri  | Sat | Sun   |
            !|--------|-----|-----|-------|-----|------|-----|-------|
            !| unread | 1   | 22  |       | 333 | 4444 |     | 55555 |
            !| read   |     |     | 99999 |     |      |     |       |
            !""".stripMargin('!')
     }
-
   }
 
   describe(s"Updating tasks to do") {
@@ -320,14 +339,8 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
       val existing = GettingThingsDone(withWeeklyToDo)
       val updated =
         existing.addTopWeekToDo("Cuisine", "Make muffins", state = DoneToDo)
-      updated.doc.build().toString() shouldBe
-        s"""Weekly Status
-           !==============================================================================
-           !
-           !Top week
-           !------------------------------------------------------------------------------
-           !
-           !| To Do     | Notes        |
+      updated.topWeek.value.mds.headOption.value.build().toString() shouldBe
+        s"""| To Do     | Notes        |
            !|-----------|--------------|
            !| Baking    | Make bread   |
            !| 🟢Cuisine | Make muffins |
@@ -364,14 +377,8 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         Some("Make muffins"),
         Some(DoneToDo)
       )
-      updated.doc.build().toString() shouldBe
-        s"""Weekly Status
-           !==============================================================================
-           !
-           !Top week
-           !------------------------------------------------------------------------------
-           !
-           !| To Do     | Notes        |
+      updated.topWeek.value.mds.headOption.value.build().toString() shouldBe
+        s"""| To Do     | Notes        |
            !|-----------|--------------|
            !| 🟢Cuisine | Make muffins |
            !""".stripMargin('!')
@@ -382,14 +389,8 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         0,
         category = Some("Cuisine")
       )
-      updated.doc.build().toString() shouldBe
-        s"""Weekly Status
-           !==============================================================================
-           !
-           !Top week
-           !------------------------------------------------------------------------------
-           !
-           !| To Do   | Notes      |
+      updated.topWeek.value.mds.headOption.value.build().toString() shouldBe
+        s"""| To Do   | Notes      |
            !|---------|------------|
            !| Cuisine | Make bread |
            !""".stripMargin('!')
@@ -400,14 +401,8 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         0,
         notes = Some("Make muffins")
       )
-      updated.doc.build().toString() shouldBe
-        s"""Weekly Status
-           !==============================================================================
-           !
-           !Top week
-           !------------------------------------------------------------------------------
-           !
-           !| To Do  | Notes        |
+      updated.topWeek.value.mds.headOption.value.build().toString() shouldBe
+        s"""| To Do  | Notes        |
            !|--------|--------------|
            !| Baking | Make muffins |
            !""".stripMargin('!')
@@ -418,14 +413,8 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         0,
         state = Some(DoneToDo)
       )
-      updated.doc.build().toString() shouldBe
-        s"""Weekly Status
-           !==============================================================================
-           !
-           !Top week
-           !------------------------------------------------------------------------------
-           !
-           !| To Do    | Notes      |
+      updated.topWeek.value.mds.headOption.value.build().toString() shouldBe
+        s"""| To Do    | Notes      |
            !|----------|------------|
            !| 🟢Baking | Make bread |
            !""".stripMargin('!')

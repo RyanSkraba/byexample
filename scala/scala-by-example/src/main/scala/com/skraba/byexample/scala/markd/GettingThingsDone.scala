@@ -63,6 +63,20 @@ import java.time.DayOfWeek
   */
 case class GettingThingsDone(doc: Header) {
 
+  /** The major section containing all of the weekly statuses. */
+  lazy val h1Weekly: Option[Header] = {
+    doc.mds.collectFirst {
+      case weekly @ Header(title, 1, _) if title.startsWith(H1Weekly) => weekly
+    }
+  }
+
+  /** The last weekly status. */
+  lazy val topWeek: Option[Header] = {
+    h1Weekly
+      .map(_.mds.collectFirst { case weekly @ Header(title, 2, _) => weekly })
+      .flatten
+  }
+
   /** Helper function to update only the weekly statuses section of the document, adding
     * it if necessary.
     *
