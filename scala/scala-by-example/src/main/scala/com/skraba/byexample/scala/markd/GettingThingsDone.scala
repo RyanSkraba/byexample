@@ -11,7 +11,7 @@ import java.time.DayOfWeek
   *
   * The {{{getting_things_done.sc}}} ammonite script uses this class to provide a CLI.
   *
-  * =Weekly Status=
+  * =Weekly Status (a.k.a. weeklies)=
   *
   * A top level (Header 1) section that contains a subsection for each week. Some methods in
   * this class are used to update the latest or a specific week.
@@ -23,12 +23,13 @@ import java.time.DayOfWeek
   * 2021/09/13
   * ------------------------------------------------------------------------------
   *
-  * <... weekly status reported here ...>
+  * <... This weeks status reported here.  This can contain statistics tables,
+  * to do lists, notes, links, etc. ...>
   *
   * 2021/09/6
   * ------------------------------------------------------------------------------
   *
-  * <... weekly status reported here ...>
+  * <... This weeks status reported here. ...>
   * }}}
   *
   * =Statistic tables=
@@ -63,31 +64,33 @@ import java.time.DayOfWeek
   */
 case class GettingThingsDone(doc: Header) {
 
-  /** The major section containing all of the weekly statuses. */
-  lazy val h1Weekly: Option[Header] = {
+  /** The top heading (H1) section containing all of the weekly statuses. */
+  lazy val weeklies: Option[Header] = {
     doc.mds.collectFirst {
-      case weekly @ Header(title, 1, _) if title.startsWith(H1Weekly) => weekly
+      case weeklies @ Header(title, 1, _) if title.startsWith(H1Weeklies) =>
+        weeklies
     }
   }
 
   /** The last weekly status. */
   lazy val topWeek: Option[Header] = {
-    h1Weekly
-      .map(_.mds.collectFirst { case weekly @ Header(title, 2, _) => weekly })
-      .flatten
+    weeklies.flatMap(_.mds.collectFirst { case weekly @ Header(title, 2, _) =>
+      weekly
+    })
   }
 
   /** Helper function to update only the weekly statuses section of the document, adding
-    * it if necessary.
+    * the top-level section if necessary.  All of the weekly statuses should be contained in
+    * returned section.
     *
     * @param fn A function that modifies only the weekly statuses (a Header 1)
     * @return The entire document with only the function applied to the weekly statuses.
     */
-  def updateH1Weekly(fn: Header => Header): GettingThingsDone =
+  def updateWeeklies(fn: Header => Header): GettingThingsDone =
     GettingThingsDone(
-      doc.mapFirstIn(ifNotFound = doc.mds :+ Header(1, H1Weekly)) {
-        case weekly @ Header(title, 1, _) if title.startsWith(H1Weekly) =>
-          fn(weekly)
+      doc.mapFirstIn(ifNotFound = doc.mds :+ Header(1, H1Weeklies)) {
+        case weeklies @ Header(title, 1, _) if title.startsWith(H1Weeklies) =>
+          fn(weeklies)
       }
     )
 
@@ -98,7 +101,7 @@ case class GettingThingsDone(doc: Header) {
     * @return The entire document with only the function applied to the last week.
     */
   def updateTopWeek(fn: Header => Header): GettingThingsDone =
-    updateH1Weekly { weeklies =>
+    updateWeeklies { weeklies =>
       weeklies.mapFirstIn(ifNotFound =
         weeklies.mds :+ Header(2, GettingThingsDone.nextWeekStart(None))
       ) { case topWeek @ Header(_, 2, _) =>
@@ -231,7 +234,7 @@ object GettingThingsDone {
   )
 
   /** The header with the weekly statuses. */
-  val H1Weekly: String = "Weekly Status"
+  val H1Weeklies: String = "Weekly Status"
   val TableStats: String = TableStatsEmpty.mds.head.cells.head
   val TableToDo: String = TableToDoEmpty.mds.head.cells.head
 
@@ -287,7 +290,7 @@ object GettingThingsDone {
       .map(Comment)
 
     GettingThingsDone(
-      Header(0, "", Header(1, H1Weekly, tableToDoExampleComment.get))
+      Header(0, "", Header(1, H1Weeklies, tableToDoExampleComment.get))
     ).updateTopWeekStats("pushups", "").updateTopWeek { weekly =>
       weekly.copyMds(weekly.mds :+ Paragraph("* Something I did this week"))
     }

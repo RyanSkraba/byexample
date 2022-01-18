@@ -45,9 +45,6 @@ val StatusFile: Path = sys.env
   .map(Path(_))
   .getOrElse(StatusRepo / "todo" / "status.md")
 
-/** The header with the weekly statuses. */
-val H1Weekly: String = "Weekly Status"
-
 /** The list of apache projects. */
 val Projects = Set("avro", "beam", "flink", "parquet", "pulsar", "spark")
 
@@ -171,11 +168,11 @@ def newWeek(): Unit = {
   }
 
   // Add the new head week to the weekly statuses.
-  val newDoc = doc.updateH1Weekly { weekly =>
-    val headWeek = createHead(weekly.mds.collectFirst {
+  val newDoc = doc.updateWeeklies { weeklies =>
+    val headWeek = createHead(weeklies.mds.collectFirst {
       case h2 @ Header(_, 2, _) => h2
     })
-    weekly.flatMapFirstIn(ifNotFound = headWeek +: weekly.mds) {
+    weeklies.flatMapFirstIn(ifNotFound = headWeek +: weeklies.mds) {
       case h2 @ Header(_, 2, _) if h2 != headWeek => Seq(headWeek, h2)
     }
   }
@@ -215,7 +212,7 @@ def pr(
       s"| 🔶$prjPretty   | $description `$status` |"
   }
 
-  val docWithLinks = doc.updateH1Weekly { topWeekly =>
+  val docWithLinks = doc.updateWeeklies { topWeekly =>
     // Add the two JIRA to the weekly status section.  Their URLs will be filled in
     // automatically on cleanup.
     topWeekly.copyMds(
@@ -274,7 +271,7 @@ def week(
   // Read the existing document.
   val doc = Header.parse(read ! StatusFile, ProjectParserCfg)
   val topWeek: Seq[Markd] = doc.mds.flatMap {
-    case h @ Header(title, 1, _) if title.startsWith(H1Weekly) =>
+    case h @ Header(title, 1, _) if title.startsWith(H1Weeklies) =>
       h.mds.find {
         case Header(title, 2, _)
             if week.map(title.startsWith).getOrElse(title.length >= 10) =>
