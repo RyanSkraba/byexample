@@ -87,12 +87,10 @@ case class GettingThingsDone(doc: Header) {
     * @return The entire document with only the function applied to the weekly statuses.
     */
   def updateWeeklies(fn: Header => Header): GettingThingsDone =
-    GettingThingsDone(
-      doc.mapFirstIn(ifNotFound = doc.mds :+ Header(1, H1Weeklies)) {
-        case weeklies @ Header(title, 1, _) if title.startsWith(H1Weeklies) =>
-          fn(weeklies)
-      }
-    )
+    copy(doc = doc.mapFirstIn(ifNotFound = doc.mds :+ Header(1, H1Weeklies)) {
+      case weeklies @ Header(title, 1, _) if title.startsWith(H1Weeklies) =>
+        fn(weeklies)
+    })
 
   /** Helper function to update only the last week section of the statuses document, adding one
     * if necessary.
