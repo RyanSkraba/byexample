@@ -177,6 +177,8 @@ def newWeek(): Unit = {
     }
   }
 
+  println(proposeGit(s"feat(status): Add new week ${newDoc.topWeek.headOption.map(_.title).getOrElse("")}"))
+
   write.over(StatusFile, newDoc.doc.build().toString.trim() + "\n")
 }
 
