@@ -177,7 +177,11 @@ def newWeek(): Unit = {
     }
   }
 
-  println(proposeGit(s"feat(status): Add new week ${newDoc.topWeek.headOption.map(_.title).getOrElse("")}"))
+  println(
+    proposeGit(
+      s"feat(status): Add new week ${newDoc.topWeek.headOption.map(_.title).getOrElse("")}"
+    )
+  )
 
   write.over(StatusFile, newDoc.doc.build().toString.trim() + "\n")
 }
@@ -204,14 +208,10 @@ def pr(
   val prjPretty = prj.toLowerCase.capitalize
   val fullPr = if (prNum != 0) Some(s"$prjPretty PR#$prNum") else None
   val task = (fullJira, fullPr) match {
-    case (Some(refJira), Some(refPr)) =>
-      s"| 🔶$prjPretty   | **[$refJira]**:[$refPr] $description `$status` |"
-    case (Some(refJira), None) =>
-      s"| 🔶$prjPretty   | **[$refJira]** $description `$status` |"
-    case (None, Some(refPr)) =>
-      s"| 🔶$prjPretty   | [$refPr] $description `$status` |"
-    case (None, None) =>
-      s"| 🔶$prjPretty   | $description `$status` |"
+    case (Some(refJira), Some(refPr)) => s"**[$refJira]**:[$refPr]"
+    case (Some(refJira), None)        => s"**[$refJira]**"
+    case (None, Some(refPr))          => s"[$refPr]"
+    case (None, None)                 => ""
   }
 
   val docWithLinks = doc.updateWeeklies { topWeekly =>
@@ -223,10 +223,8 @@ def pr(
     )
   }
 
-  val newDoc = docWithLinks.updateTopWeek { weekly =>
-    // Update the most recent week.
-    weekly.copyMds(weekly.mds :+ Paragraph(task))
-  }
+  val newDoc =
+    docWithLinks.addTopWeekToDo(prjPretty, s"$task $description `$status`", MaybeToDo)
 
   val cleanedNewDoc =
     Header.parse(newDoc.doc.build().toString, ProjectParserCfg)
