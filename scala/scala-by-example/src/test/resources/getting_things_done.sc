@@ -56,7 +56,8 @@ private def proposeGit(msg: String): String = {
   s"""${GREEN}Commit:$RESET
      |  git -C $StatusRepo add ${StatusFile.relativeTo(StatusRepo)} &&
      |      git -C $StatusRepo difftool --staged
-     |  git -C $StatusRepo commit -m $BOLD"$msg"$RESET
+     |  git -C $StatusRepo add ${StatusFile.relativeTo(StatusRepo)} &&
+     |      git -C $StatusRepo commit -m $BOLD"$msg"$RESET
      |""".stripMargin
 }
 
