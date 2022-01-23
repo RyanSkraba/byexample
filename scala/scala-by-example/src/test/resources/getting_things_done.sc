@@ -26,6 +26,7 @@ interp.repositories() ++= {
 @
 // Intellij always removes the following line, which should be
 // import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
+
 import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
 import com.skraba.byexample.scala.markd.GettingThingsDone._
 import com.skraba.byexample.scala.markd._
@@ -47,6 +48,10 @@ val StatusFile: Path = sys.env
 
 /** The list of apache projects. */
 val Projects = Set("avro", "beam", "flink", "parquet", "pulsar", "spark")
+
+/** Some text that maps to to do task states */
+val TextToToDoStates: Map[String, GettingThingsDone.ToDoState] =
+  Map("MERGED" -> DoneToDo, "FIXED" -> DoneToDo, "DONE" -> DoneToDo)
 
 /** Propose a git commit message for the status page
   * @param msg The git message to propose
@@ -225,7 +230,11 @@ def pr(
   }
 
   val newDoc =
-    docWithLinks.addTopWeekToDo(prjPretty, s"$task $description `$status`", MaybeToDo)
+    docWithLinks.addTopWeekToDo(
+      prjPretty,
+      s"$task $description `$status`",
+      TextToToDoStates.getOrElse(status, MaybeToDo)
+    )
 
   val cleanedNewDoc =
     Header.parse(newDoc.doc.build().toString, ProjectParserCfg)
