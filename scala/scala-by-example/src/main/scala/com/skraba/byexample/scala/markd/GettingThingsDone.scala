@@ -210,11 +210,17 @@ case class GettingThingsDone(doc: Header) {
 
 object GettingThingsDone {
 
+  /** The name of the statistics table, the value found in the upper left column. */
+  val TableStats: String = "Stats"
+
+  /** The name of the tasks table, the value found in the upper left column. */
+  val TableToDo: String = "To Do"
+
   /** The structure of an empty Stats table, used to collect weekly statistics. */
   lazy val TableStatsEmpty: Table = Table.from(
     Seq.fill(8)(Align.LEFT),
     TableRow.from(
-      "Stats",
+      TableStats,
       "Mon",
       "Tue",
       "Wed",
@@ -228,13 +234,11 @@ object GettingThingsDone {
   /** The structure of an empty To Do table, used to collect stats. */
   lazy val TableToDoEmpty: Table = Table.from(
     Seq(Align.LEFT, Align.LEFT),
-    TableRow.from("To Do", "Notes")
+    TableRow.from(TableToDo, "Notes")
   )
 
   /** The header with the weekly statuses. */
   val H1Weeklies: String = "Weekly Status"
-  val TableStats: String = TableStatsEmpty.mds.head.cells.head
-  val TableToDo: String = TableToDoEmpty.mds.head.cells.head
 
   /** Create an instance from a markdown string.
     *
