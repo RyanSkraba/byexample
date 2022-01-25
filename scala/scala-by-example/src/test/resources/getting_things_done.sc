@@ -159,7 +159,7 @@ def newWeek(): Unit = {
           .copy(title = nextWeekStart(Some(week.title)))
           .replaceIn() {
             case (
-                  Some(tb @ Table(_, Seq(TableRow(Seq("Stats", _*)), _*))),
+                  Some(tb @ Table(_, Seq(TableRow(Seq(TableStats, _*)), _*))),
                   _
                 ) => {
               Seq(tb.replaceIn() {
