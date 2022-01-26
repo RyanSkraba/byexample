@@ -158,16 +158,27 @@ def newWeek(): Unit = {
         week
           .copy(title = nextWeekStart(Some(week.title)))
           .replaceIn() {
+            // Copy the Stats table, but empty out any values in the rows.
             case (
                   Some(tb @ Table(_, Seq(TableRow(Seq(TableStats, _*)), _*))),
                   _
-                ) => {
+                ) =>
               Seq(tb.replaceIn() {
                 case (Some(TableRow(cells)), row)
                     if row > 0 && cells.size > 1 =>
                   Seq(TableRow.from(cells.head))
               })
-            }
+            // Copy the To Do table, but remove any done elements.
+            case (
+                  Some(tb @ Table(_, Seq(TableRow(Seq(TableToDo, _*)), _*))),
+                  _
+                ) =>
+              Seq(tb.replaceIn() {
+                case (Some(TableRow(cells)), row)
+                    if row > 0 && cells.headOption
+                      .forall(_.startsWith(DoneToDo.txt)) =>
+                  Seq()
+              })
           }
       }
       .getOrElse(Header(2, nextWeekStart(None)))
