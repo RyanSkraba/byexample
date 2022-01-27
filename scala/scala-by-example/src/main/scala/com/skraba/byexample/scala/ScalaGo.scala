@@ -1,11 +1,7 @@
 package com.skraba.byexample.scala
 
 import org.docopt.{Docopt, DocoptExitException}
-
-import java.io.ByteArrayOutputStream
-import java.nio.charset.StandardCharsets
 import scala.collection.JavaConverters._
-import scala.reflect.io.Streamable
 
 class ScalaGo(params: Either[GreeterBean, ScalaCaseClass]) {
 
