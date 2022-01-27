@@ -6,10 +6,14 @@ import scalatags.Text.svgTags._
 
 /** Provides a swatch for a linear gradient in a circle.
   *
-  * @param name    The name of the gradient.
-  * @param hex1    The first colour to use (i.e. "FF0000")
-  * @param hex2    The second colour to use (i.e. "0000FF").
-  * @param textHex The colour of the text naming the gradient.
+  * @param name
+  *   The name of the gradient.
+  * @param hex1
+  *   The first colour to use (i.e. "FF0000")
+  * @param hex2
+  *   The second colour to use (i.e. "0000FF").
+  * @param textHex
+  *   The colour of the text naming the gradient.
   */
 case class ColourGradient(
     name: String,
@@ -18,7 +22,9 @@ case class ColourGradient(
     textHex: String
 ) {
 
-  /** @return the SVG gradient definitions that should be put in the {{<defs>}} tag. */
+  /** @return
+    *   the SVG gradient definitions that should be put in the {{<defs>}} tag.
+    */
   def toSvgDefs(size: Double = 50): Tag =
     linearGradient(
       id := name,
@@ -31,12 +37,19 @@ case class ColourGradient(
       stop(offset := 0.95, stopColor := s"#$hex2")
     )
 
-  /** @param size       The size of the swatch to be applied.
-    * @param scale      The circle will be scaled by this amount but remain centered in the area.
-    * @param textSize   The font size of the title (unaffected by the scale).
-    * @param textAdjust A helpful hint to push the text into a centered position.
-    * @param titleFont  The font to use for the gradient name.
-    * @return a group containing the gradient.
+  /** @param size
+    *   The size of the swatch to be applied.
+    * @param scale
+    *   The circle will be scaled by this amount but remain centered in the
+    *   area.
+    * @param textSize
+    *   The font size of the title (unaffected by the scale).
+    * @param textAdjust
+    *   A helpful hint to push the text into a centered position.
+    * @param titleFont
+    *   The font to use for the gradient name.
+    * @return
+    *   a group containing the gradient.
     */
   def toSvg(
       size: Double = 50,

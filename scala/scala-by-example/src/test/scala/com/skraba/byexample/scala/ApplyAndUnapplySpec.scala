@@ -3,10 +3,13 @@ package com.skraba.byexample.scala
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-/** The apply and unapply methods are used to create instances and pattern match.
+/** The apply and unapply methods are used to create instances and pattern
+  * match.
   *
-  * @see https://docs.scala-lang.org/overviews/scala-book/companion-objects.html
-  * @see https://dzone.com/articles/eta-expansion-and-partially-applied-functions-in-s
+  * @see
+  *   https://docs.scala-lang.org/overviews/scala-book/companion-objects.html
+  * @see
+  *   https://dzone.com/articles/eta-expansion-and-partially-applied-functions-in-s
   */
 class ApplyAndUnapplySpec extends AnyFunSpecLike with Matchers {
 
@@ -15,7 +18,9 @@ class ApplyAndUnapplySpec extends AnyFunSpecLike with Matchers {
 
   object Person {
 
-    /** A custom apply to create an anonymous person, with the age rounded down to the decade. */
+    /** A custom apply to create an anonymous person, with the age rounded down
+      * to the decade.
+      */
     def apply(birthYear: Int): Person =
       Person("Anonymous", birthYear / 10 * 10)
   }

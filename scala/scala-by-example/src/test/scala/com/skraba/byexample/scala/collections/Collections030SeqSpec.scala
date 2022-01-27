@@ -6,19 +6,24 @@ import org.scalatest.matchers.should.Matchers
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-/** Examples from the scala collections doc.  Each spec covers a page.
+/** Examples from the scala collections doc. Each spec covers a page.
   *
   * Seq is an Iterable with a length.
   *
-  * LinearSeq has efficient head and tail operations: linked list (List) / Stream
+  * LinearSeq has efficient head and tail operations: linked list (List) /
+  * Stream
   *
-  * IndexedSeq has efficient apply, length, and (if mutable) update: Array, ArrayBuffer, Vector
+  * IndexedSeq has efficient apply, length, and (if mutable) update: Array,
+  * ArrayBuffer, Vector
   *
-  * Buffer is a type of mutable sequence that permits removing items (among others): ListBuffer, ArrayBuffer
+  * Buffer is a type of mutable sequence that permits removing items (among
+  * others): ListBuffer, ArrayBuffer
   *
-  * Mutable sequences can have their elements changed, but not necessary grow or shrink.
+  * Mutable sequences can have their elements changed, but not necessary grow or
+  * shrink.
   *
-  * @see https://docs.scala-lang.org/overviews/collections/introduction.html
+  * @see
+  *   https://docs.scala-lang.org/overviews/collections/introduction.html
   */
 class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
 

@@ -11,13 +11,15 @@ import scala.reflect.io.File
 
 /** A vocabulary cheat sheet for duolingo chinese lessons.
   *
-  * @param vocab the list of words to include in the cheat sheet.
-  * @param cfg Configuration for drawing the sheet.
+  * @param vocab
+  *   the list of words to include in the cheat sheet.
+  * @param cfg
+  *   Configuration for drawing the sheet.
   */
 case class Cheatsheet(vocab: Seq[Vocab], cfg: Config = Config()) {
 
-  /** Draws the cheatsheet.  The first column of words is centered at 0, 0, and the entire page
-    * will likely need to be translated.
+  /** Draws the cheatsheet. The first column of words is centered at 0, 0, and
+    * the entire page will likely need to be translated.
     */
   def toSvg: Tag = {
     // Group the words according to their lesson
@@ -54,8 +56,8 @@ object Cheatsheet {
     for ((s, i) <- ToneVowels.zipWithIndex; c <- s) yield (c, i + 1)
   }.toMap
 
-  /**  A cheatsheet autoloaded with all the words and the default config.  This may make a call
-    *  out to a remote resource.
+  /** A cheatsheet autoloaded with all the words and the default config. This
+    * may make a call out to a remote resource.
     */
   lazy val All: Cheatsheet = all()
 
@@ -70,13 +72,19 @@ object Cheatsheet {
     lazy val lesson: String = info(2)
   }
 
-  /** @param toneHex An array of hex codes to colour tones for syllables and characters.  This
-    *                should be a five element array and the first value is used for no tone.
-    * @param text The text tag to use for writing.
-    * @param cnDx The width of the chinese text in the middle of the column.
-    * @param lineHeight The height of a drawn line.
-    * @param linesPerColumn The number of lines drawn per column.
-    * @param columnDx If more than one column, then the distance between the columns.
+  /** @param toneHex
+    *   An array of hex codes to colour tones for syllables and characters. This
+    *   should be a five element array and the first value is used for no tone.
+    * @param text
+    *   The text tag to use for writing.
+    * @param cnDx
+    *   The width of the chinese text in the middle of the column.
+    * @param lineHeight
+    *   The height of a drawn line.
+    * @param linesPerColumn
+    *   The number of lines drawn per column.
+    * @param columnDx
+    *   If more than one column, then the distance between the columns.
     */
   case class Config(
       toneHex: Seq[String] =
@@ -145,7 +153,8 @@ object Cheatsheet {
     }
   }
 
-  /** @return The TSV contents of the Duolingo classes.
+  /** @return
+    *   The TSV contents of the Duolingo classes.
     */
   private[this] def contents(): Seq[String] = {
     val cached = File("/tmp/duolingo-chinese-words-anki-deck.tsv")

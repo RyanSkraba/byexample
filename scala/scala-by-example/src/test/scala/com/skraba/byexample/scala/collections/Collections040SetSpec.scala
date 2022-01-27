@@ -5,9 +5,10 @@ import org.scalatest.matchers.should.Matchers
 
 import scala.collection.{SortedSet, immutable, mutable}
 
-/** Examples from the scala collections doc.  Each spec covers a page.
+/** Examples from the scala collections doc. Each spec covers a page.
   *
-  * @see https://docs.scala-lang.org/overviews/collections/introduction.html
+  * @see
+  *   https://docs.scala-lang.org/overviews/collections/introduction.html
   */
 class Collections040SetSpec extends AnyFunSpecLike with Matchers {
 
@@ -59,7 +60,7 @@ class Collections040SetSpec extends AnyFunSpecLike with Matchers {
       xs | ys shouldBe Set(1, 2, 3, 4)
       xs union ys shouldBe Set(1, 2, 3, 4) // alias
       xs &~ ys shouldBe Set(1)
-      xs diff ys shouldBe Set(1) //alias
+      xs diff ys shouldBe Set(1) // alias
     }
   }
 

@@ -8,7 +8,8 @@ import scala.collection.mutable
 
 /** Collections and [[CanBuildFrom]]
   *
-  * @see https://www.scala-lang.org/blog/2017/05/30/tribulations-canbuildfrom.html
+  * @see
+  *   https://www.scala-lang.org/blog/2017/05/30/tribulations-canbuildfrom.html
   */
 class CanBuildFromSpec extends AnyFunSpecLike with Matchers {
 
@@ -36,7 +37,9 @@ class CanBuildFromSpec extends AnyFunSpecLike with Matchers {
 
   /** A custom list implementation that I want to behave the same way.
     *
-    * @param dlg Delegate all of the actual logic here (but we'd probably actually want some custom logic).
+    * @param dlg
+    *   Delegate all of the actual logic here (but we'd probably actually want
+    *   some custom logic).
     */
   case class MagicList(private val dlg: Boolean*) extends Seq[Boolean] {
     override def apply(idx: Int): Boolean = dlg(idx)
@@ -98,12 +101,14 @@ class CanBuildFromSpec extends AnyFunSpecLike with Matchers {
     }
   }
 
-  /** Another custom list implementation that adds state to the list.  This requires some
-    * fussing with [[equals()]] and [[hashCode()]] and should probably be avoided by preferring
-    * composition to inheritance.
+  /** Another custom list implementation that adds state to the list. This
+    * requires some fussing with [[equals()]] and [[hashCode()]] and should
+    * probably be avoided by preferring composition to inheritance.
     *
-    * @param name the name of the list.
-    * @param dlg Delegate all of the list logic here.
+    * @param name
+    *   the name of the list.
+    * @param dlg
+    *   Delegate all of the list logic here.
     */
   case class NamedList(name: String, private val dlg: Boolean*)
       extends Seq[Boolean] {

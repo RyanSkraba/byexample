@@ -5,7 +5,8 @@ import org.scalatest.matchers.should.Matchers
 
 /** Basic FunSpec style specification to organise unit tests.
   *
-  * @see http://www.scalatest.org/getting_started_with_fun_spec
+  * @see
+  *   http://www.scalatest.org/getting_started_with_fun_spec
   */
 class BasicFunSpec extends AnyFunSpecLike with Matchers {
 

@@ -5,22 +5,24 @@ import com.skraba.byexample.scala.markd.Align.Align
 import scala.collection.GenSeq
 import scala.util.matching.Regex
 
-/** Markd is a model for simple markdown files.  It can be used to parse, modify and write
-  * markdown text.
+/** Markd is a model for simple markdown files. It can be used to parse, modify
+  * and write markdown text.
   *
   * The model is simple and includes many (but not all) features of markdown.
   *
-  * You can clean a markdown file by parsing it into a model then writing it out again.
+  * You can clean a markdown file by parsing it into a model then writing it out
+  * again.
   *
   * {{{
   * files
-  *  .foreach(f => {
-  *    val md = Header.parse(f.slurp())
-  *    f.writeAll(md.build().toString)
-  *  })
+  *   .foreach(f => {
+  *     val md = Header.parse(f.slurp())
+  *     f.writeAll(md.build().toString)
+  *   })
   * }}}
   *
-  * @see https://en.wikipedia.org/wiki/Markdown
+  * @see
+  *   https://en.wikipedia.org/wiki/Markdown
   */
 package object markd {
 
@@ -29,9 +31,12 @@ package object markd {
 
     /** Write some whitespace before this element.
       *
-      * @param sb   The builder to write to.
-      * @param prev The element before this element (if any).
-      * @return The builder passed in.
+      * @param sb
+      *   The builder to write to.
+      * @param prev
+      *   The element before this element (if any).
+      * @return
+      *   The builder passed in.
       */
     def buildPreSpace(
         sb: StringBuilder = new StringBuilder(),
@@ -40,15 +45,18 @@ package object markd {
 
     /** Write this element to the builder.
       *
-      * @param sb The builder to write to.
-      * @return The builder passed in.
+      * @param sb
+      *   The builder to write to.
+      * @return
+      *   The builder passed in.
       */
     def build(sb: StringBuilder = new StringBuilder()): StringBuilder = sb
   }
 
   /** A simple text paragraph of Markdown, containing any text content.
     *
-    * @param content the text contents for the paragraph.
+    * @param content
+    *   the text contents for the paragraph.
     */
   case class Paragraph(content: String) extends Markd {
     override def build(
@@ -57,7 +65,9 @@ package object markd {
       sb ++= content.trim() ++= "\n"
     }
 
-    /** Transforms this paragraph into another more specific [[Markd]] type if possible. */
+    /** Transforms this paragraph into another more specific [[Markd]] type if
+      * possible.
+      */
     def refine(): Markd =
       Table.parse(content).getOrElse(this)
 
@@ -69,7 +79,8 @@ package object markd {
     *   <!-- comment -->
     * }}}
     *
-    * @param content the contents of the comment.
+    * @param content
+    *   the contents of the comment.
     */
   case class Comment(content: String) extends Markd {
     override def build(
@@ -87,7 +98,8 @@ package object markd {
     * ```
     * }}}
     *
-    * @param content the contents of the comment.
+    * @param content
+    *   the contents of the comment.
     */
   case class Code(code_type: String, content: String) extends Markd {
     override def build(
@@ -103,9 +115,12 @@ package object markd {
     * [ref]: https://link.url "Optional description"
     * }}}
     *
-    * @param ref   the markdown tag used to reference the link
-    * @param url   the url that is being linked to
-    * @param title optionally a title or description of the link for hover text
+    * @param ref
+    *   the markdown tag used to reference the link
+    * @param url
+    *   the url that is being linked to
+    * @param title
+    *   optionally a title or description of the link for hover text
     */
   case class LinkRef(
       ref: String,
@@ -179,10 +194,13 @@ package object markd {
 
     /** Write this element to the builder.
       *
-      * @param sb   The builder to write to.
-      * @param prev If known, the previous element written to the builder.  This can be used to
-      *             adjust spacing.
-      * @return The builder passed in.
+      * @param sb
+      *   The builder to write to.
+      * @param prev
+      *   If known, the previous element written to the builder. This can be
+      *   used to adjust spacing.
+      * @return
+      *   The builder passed in.
       */
     def buildSub(
         sb: StringBuilder = new StringBuilder(),
@@ -202,20 +220,25 @@ package object markd {
     }
 
     /** Create a copy of the element with the new subelements.
-      * @param newMds The subelements to replace the existing ones in the copy.
+      * @param newMds
+      *   The subelements to replace the existing ones in the copy.
       */
     def copyMds(newMds: Seq[T]): Self
 
     /** Create a copy of the list of subelements, replacing some as necessary.
       *
-      * A partial function matches and replaces Markd subelements.  If the partial function is
-      * defined for one of the subelements, it supplies the list of replacements.  It matches
-      * on the element (or None to match the end of the list) and its index.
+      * A partial function matches and replaces Markd subelements. If the
+      * partial function is defined for one of the subelements, it supplies the
+      * list of replacements. It matches on the element (or None to match the
+      * end of the list) and its index.
       *
-      * @param filter True if non-matching subelements should be removed, false to leave
-      *               non-matching elements unchanged.
-      * @param pf A partial function to replace markd elements.
-      * @return A copy of this [[MultiMarkd]] with the replaced subelements
+      * @param filter
+      *   True if non-matching subelements should be removed, false to leave
+      *   non-matching elements unchanged.
+      * @param pf
+      *   A partial function to replace markd elements.
+      * @return
+      *   A copy of this [[MultiMarkd]] with the replaced subelements
       */
     def replaceIn(
         filter: Boolean = false
@@ -233,15 +256,20 @@ package object markd {
       )
     }
 
-    /** Copies this element, but flatMapping the first matching subelement to new values.
+    /** Copies this element, but flatMapping the first matching subelement to
+      * new values.
       *
-      * A partial function matches and replaces Markd subelements.  If the partial function is
-      * defined for one of the subelements, it supplies the list of replacements.
+      * A partial function matches and replaces Markd subelements. If the
+      * partial function is defined for one of the subelements, it supplies the
+      * list of replacements.
       *
-      * @param ifNotFound If nothing is matched, try again using this list instead.  This permits
-      *                   "insert and update" if not found.
-      * @param pf A partial function to replace markd elements.
-      * @return A copy of this [[MultiMarkd]] with the replaced subelements
+      * @param ifNotFound
+      *   If nothing is matched, try again using this list instead. This permits
+      *   "insert and update" if not found.
+      * @param pf
+      *   A partial function to replace markd elements.
+      * @return
+      *   A copy of this [[MultiMarkd]] with the replaced subelements
       */
     def flatMapFirstIn(
         ifNotFound: => Seq[T] = Seq.empty
@@ -263,15 +291,20 @@ package object markd {
       )
     }
 
-    /** Copies this element, but mapping the first matching subelement to a new value.
+    /** Copies this element, but mapping the first matching subelement to a new
+      * value.
       *
-      * A partial function matches and replaces Markd subelements.  If the partial function is
-      * defined for one of the subelements, it supplies the replacements.
+      * A partial function matches and replaces Markd subelements. If the
+      * partial function is defined for one of the subelements, it supplies the
+      * replacements.
       *
-      * @param ifNotFound If nothing is matched, try again using this list instead.  This permits
-      *                   "insert and update" if not found.
-      * @param pf A partial function to replace markd elements.
-      * @return A copy of this [[MultiMarkd]] with the replaced subelements
+      * @param ifNotFound
+      *   If nothing is matched, try again using this list instead. This permits
+      *   "insert and update" if not found.
+      * @param pf
+      *   A partial function to replace markd elements.
+      * @return
+      *   A copy of this [[MultiMarkd]] with the replaced subelements
       */
     def mapFirstIn(ifNotFound: => Seq[T] = Seq.empty)(
         pf: PartialFunction[T, T]
@@ -290,10 +323,13 @@ package object markd {
     * ### Header 3
     * }}}
     *
-    * @param level The level (from 1 to 9).  A level of 0 can be used to represent an entire
-    *              document.
-    * @param title The title of the section
-    * @param mds   The internal subsections and parsed [[Markd]] elements.
+    * @param level
+    *   The level (from 1 to 9). A level of 0 can be used to represent an entire
+    *   document.
+    * @param title
+    *   The title of the section
+    * @param mds
+    *   The internal subsections and parsed [[Markd]] elements.
     */
   case class Header(title: String, level: Int, mds: Seq[Markd])
       extends MultiMarkd[Markd] {
@@ -467,9 +503,11 @@ package object markd {
     * | col 3 is | right-aligned |    $1 |
     * }}}
     *
-    * @param aligns The alignment for each column.
-    * @param mds   The table rows, including the column headers (as the first row) and cell
-    *              values (all subsequent rows).
+    * @param aligns
+    *   The alignment for each column.
+    * @param mds
+    *   The table rows, including the column headers (as the first row) and cell
+    *   values (all subsequent rows).
     */
   case class Table(aligns: Seq[Align], mds: Seq[TableRow])
       extends MultiMarkd[TableRow] {
@@ -513,13 +551,17 @@ package object markd {
 
     override def copyMds(newMds: Seq[TableRow]): Self = copy(mds = newMds)
 
-    /** Creates a new table from this one with the given cell value updated.  Note that the zeroth
-      *  row is the column headers.
+    /** Creates a new table from this one with the given cell value updated.
+      * Note that the zeroth row is the column headers.
       *
-      * @param column The index of the column to update
-      * @param row The index of the row to update
-      * @param cell The new value
-      * @return A  table with the one cell updated to the given value
+      * @param column
+      *   The index of the column to update
+      * @param row
+      *   The index of the row to update
+      * @param cell
+      *   The new value
+      * @return
+      *   A table with the one cell updated to the given value
       */
     def updated(
         column: Int,
@@ -551,7 +593,9 @@ package object markd {
 
   object Table {
 
-    /** Split into cells by |, taking into account escaped pipes but not other constructions. */
+    /** Split into cells by |, taking into account escaped pipes but not other
+      * constructions.
+      */
     val CellRegex: Regex = raw"(?<!\\)\|".r
 
     val AlignmentCellRegex: Regex = raw"^\s*(:-+:|---+|:--+|-+-:)\s*$$".r
@@ -561,8 +605,11 @@ package object markd {
       Table(aligns, mds.toSeq)
 
     /** Determines if some content can be reasonably parsed into a [[Table]].
-      * @param content The string contents to parse.
-      * @return An [[Option]] containing a [[Table]] if it is possible to construct, or None if it isn't.
+      * @param content
+      *   The string contents to parse.
+      * @return
+      *   An [[Option]] containing a [[Table]] if it is possible to construct,
+      *   or None if it isn't.
       */
     def parse(content: String): Option[Table] = {
       val prelines = content.split("\n").map(parseRow)
@@ -595,7 +642,8 @@ package object markd {
       Some(Table(aligns, rows))
     }
 
-    /** Parses a string into cells, removing all trailing whitespace-only cells. */
+    /** Parses a string into cells, removing all trailing whitespace-only cells.
+      */
     def parseRow(content: String): Seq[String] = {
       val values = CellRegex.pattern.split(content, -1)
       if (values.last.nonEmpty) values
@@ -610,8 +658,10 @@ package object markd {
 
     /** Write this element to the builder.
       *
-      * @param sb The builder to write to.
-      * @return The builder passed in.
+      * @param sb
+      *   The builder to write to.
+      * @return
+      *   The builder passed in.
       */
     def buildRow(
         aligns: Seq[Align],

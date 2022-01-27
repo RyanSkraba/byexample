@@ -5,29 +5,44 @@ import scalatags.Text.implicits._
 import scalatags.Text.svgAttrs._
 import scalatags.Text.svgTags._
 
-/** Provides a swatch for a colour in the palette, including lighter shades in a series of steps.
+/** Provides a swatch for a colour in the palette, including lighter shades in a
+  * series of steps.
   *
-  * The swatch is organised vertically with the title and RGB (in hex) at the top, and the shades at the bottom.
+  * The swatch is organised vertically with the title and RGB (in hex) at the
+  * top, and the shades at the bottom.
   *
-  * @param name    The name of the colour
-  * @param hex     The colour to use (i.e. "FF0000")
-  * @param textHex The colour of the text naming the gradient.
+  * @param name
+  *   The name of the colour
+  * @param hex
+  *   The colour to use (i.e. "FF0000")
+  * @param textHex
+  *   The colour of the text naming the gradient.
   */
 case class ColourSwatch(name: String, hex: String, textHex: String) {
 
   /** @return a hex value that is f percent lighter than the actual colour. */
   def lightened(f: Double): String = ColourSwatch.lightened(hex, f)
 
-  /** @param dx         The width of the swatch.
-    * @param dy         The height of the swatch.
-    * @param textSize   The font size of the title.
-    * @param textAdjust A helpful hint to push the text into a centered position.
-    * @param shades     The number of shades to apply on the swatch.
-    * @param shadeStep  The proportion to lighten per shade.
-    * @param shadeDy    The height of each shade colour.
-    * @param titleFont  The font to use for the colour name.
-    * @param shadeFont  The font to use for RGB values.
-    * @return the swatch for the given colour.
+  /** @param dx
+    *   The width of the swatch.
+    * @param dy
+    *   The height of the swatch.
+    * @param textSize
+    *   The font size of the title.
+    * @param textAdjust
+    *   A helpful hint to push the text into a centered position.
+    * @param shades
+    *   The number of shades to apply on the swatch.
+    * @param shadeStep
+    *   The proportion to lighten per shade.
+    * @param shadeDy
+    *   The height of each shade colour.
+    * @param titleFont
+    *   The font to use for the colour name.
+    * @param shadeFont
+    *   The font to use for RGB values.
+    * @return
+    *   the swatch for the given colour.
     */
   def toSvg(
       dx: Double = 50,

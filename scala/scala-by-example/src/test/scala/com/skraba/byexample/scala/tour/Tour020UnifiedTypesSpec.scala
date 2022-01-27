@@ -8,28 +8,29 @@ import org.scalatest.matchers.should.Matchers
   * {{{
   * Any <-- AnyVal
   * AnyVal <-- Double <- Nothing
-  *        <-- Float
-  *        <-- Long
-  *        <-- Int
-  *        <-- Short
-  *        <-- Byte
-  *        <-- Unit
-  *        <-- Boolean
-  *        <-- Char
+  *         <-- Float
+  *         <-- Long
+  *         <-- Int
+  *         <-- Short
+  *         <-- Byte
+  *         <-- Unit
+  *         <-- Boolean
+  *         <-- Char
   * Any    <-- AnyRef (java.lang.object)
   * AnyRef <-- List <-- Null <-- Nothing
-  *        <-- Option
-  *        <-- YourClass
+  *         <-- Option
+  *         <-- YourClass
   * }}}
   *
   * Any is the base with equals() hashCode() and toString()
   *
-  * AnyVal has 9 predefined value types.
-  * * Unit is the equivalent of void, and is denoted `()`
+  * AnyVal has 9 predefined value types. * Unit is the equivalent of void, and
+  * is denoted `()`
   *
   * AnyRef is the reference type.
   *
-  * @see https://docs.scala-lang.org/tour/tour-of-scala.html
+  * @see
+  *   https://docs.scala-lang.org/tour/tour-of-scala.html
   */
 class Tour020UnifiedTypesSpec extends AnyFunSpecLike with Matchers {
 

@@ -7,7 +7,8 @@ import scala.collection.mutable.ArrayBuffer
 
 /** Examples from the scala tour.
   *
-  * @see https://docs.scala-lang.org/tour/tour-of-scala.html
+  * @see
+  *   https://docs.scala-lang.org/tour/tour-of-scala.html
   */
 class Tour100ForComprehensionsSpec extends AnyFunSpecLike with Matchers {
 
