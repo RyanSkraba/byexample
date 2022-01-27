@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -22,6 +20,14 @@
     <exec.mainClass>com.skraba.byexample.benchmarking.toprofile.ToProfileGo</exec.mainClass>
     <!-- other project dependency versions as properties -->
   </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.skraba.byexample</groupId>
+      <artifactId>to-profile-by-example</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
 
   <build>
     <plugins>
@@ -44,21 +50,13 @@
         <executions>
           <execution>
             <id>build</id>
-            <phase>package</phase>
             <goals>
               <goal>build</goal>
             </goals>
+            <phase>package</phase>
           </execution>
         </executions>
       </plugin>
     </plugins>
   </build>
-
-  <dependencies>
-    <dependency>
-      <groupId>com.skraba.byexample</groupId>
-      <artifactId>to-profile-by-example</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-  </dependencies>
 </project>
