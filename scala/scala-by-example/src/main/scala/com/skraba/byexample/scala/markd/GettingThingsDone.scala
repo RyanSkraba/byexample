@@ -6,15 +6,16 @@ import java.time.DayOfWeek
 
 /** A markdown document that helps organising yourself.
   *
-  * The document can contain any number of headers and sections using the [[Markd]] model, but
-  * provides some additional semantics.
+  * The document can contain any number of headers and sections using the
+  * [[Markd]] model, but provides some additional semantics.
   *
-  * The {{{getting_things_done.sc}}} ammonite script uses this class to provide a CLI.
+  * The {{{getting_things_done.sc}}} ammonite script uses this class to provide
+  * a CLI.
   *
   * =Weekly Status (a.k.a. weeklies)=
   *
-  * A top level (Header 1) section that contains a subsection for each week. Some methods in
-  * this class are used to update the latest or a specific week.
+  * A top level (Header 1) section that contains a subsection for each week.
+  * Some methods in this class are used to update the latest or a specific week.
   *
   * {{{
   * Weekly Status
@@ -34,8 +35,8 @@ import java.time.DayOfWeek
   *
   * =Statistic tables=
   *
-  * In a weekly status, you can have per-day statistics in a condensed table.  Helper methods
-  * make it easy to add a new row or update a value for today.
+  * In a weekly status, you can have per-day statistics in a condensed table.
+  * Helper methods make it easy to add a new row or update a value for today.
   *
   * {{{
   * 2021/09/13
@@ -79,12 +80,15 @@ case class GettingThingsDone(doc: Header) {
     })
   }
 
-  /** Helper function to update only the weekly statuses section of the document, adding
-    * the top-level section if necessary.  All of the weekly statuses should be contained in
-    * returned section.
+  /** Helper function to update only the weekly statuses section of the
+    * document, adding the top-level section if necessary. All of the weekly
+    * statuses should be contained in returned section.
     *
-    * @param fn A function that modifies only the weekly statuses (a Header 1)
-    * @return The entire document with only the function applied to the weekly statuses.
+    * @param fn
+    *   A function that modifies only the weekly statuses (a Header 1)
+    * @return
+    *   The entire document with only the function applied to the weekly
+    *   statuses.
     */
   def updateWeeklies(fn: Header => Header): GettingThingsDone =
     copy(doc = doc.mapFirstIn(ifNotFound = doc.mds :+ Header(1, H1Weeklies)) {
@@ -92,11 +96,13 @@ case class GettingThingsDone(doc: Header) {
         fn(weeklies)
     })
 
-  /** Helper function to update only the last week section of the statuses document, adding one
-    * if necessary.
+  /** Helper function to update only the last week section of the statuses
+    * document, adding one if necessary.
     *
-    * @param fn A function that modifies only the weekly statuses (a Header 2)
-    * @return The entire document with only the function applied to the last week.
+    * @param fn
+    *   A function that modifies only the weekly statuses (a Header 2)
+    * @return
+    *   The entire document with only the function applied to the last week.
     */
   def updateTopWeek(fn: Header => Header): GettingThingsDone =
     updateWeeklies { weeklies =>
@@ -108,10 +114,14 @@ case class GettingThingsDone(doc: Header) {
     }
 
   /** Update a statistics table in the top week.
-    * @param row The name of the row to update in the statistics table.
-    * @param cell The new value for that statistic.
-    * @param col The day to apply that new value to.
-    * @return This document with the statistics updated.
+    * @param row
+    *   The name of the row to update in the statistics table.
+    * @param cell
+    *   The new value for that statistic.
+    * @param col
+    *   The day to apply that new value to.
+    * @return
+    *   This document with the statistics updated.
     */
   def updateTopWeekStats(
       row: String,
@@ -147,10 +157,14 @@ case class GettingThingsDone(doc: Header) {
   }
 
   /** Add a To Do task in the top week.
-    * @param category The major category for the task.
-    * @param notes The notes to apply to the task.
-    * @param state The state of the task.
-    * @return This document with the To Do table updated.
+    * @param category
+    *   The major category for the task.
+    * @param notes
+    *   The notes to apply to the task.
+    * @param state
+    *   The state of the task.
+    * @return
+    *   This document with the To Do table updated.
     */
   def addTopWeekToDo(
       category: String,
@@ -160,12 +174,17 @@ case class GettingThingsDone(doc: Header) {
     updateTopWeekToDo(Int.MaxValue, Some(category), Some(notes), Some(state))
 
   /** Add or updates a To Do task in the top week.
-    * @param row the number of the row to update. Add to the end if it doesn't exist, or to the start
-    *   if is it negative.
-    * @param category The major category for the task, or None to not update the category.
-    * @param notes The notes to apply to the task, or None to not update the notes.
-    * @param state The state of the task, or None to not update the state.
-    * @return This document with the To Do table updated.
+    * @param row
+    *   the number of the row to update. Add to the end if it doesn't exist, or
+    *   to the start if is it negative.
+    * @param category
+    *   The major category for the task, or None to not update the category.
+    * @param notes
+    *   The notes to apply to the task, or None to not update the notes.
+    * @param state
+    *   The state of the task, or None to not update the state.
+    * @return
+    *   This document with the To Do table updated.
     */
   def updateTopWeekToDo(
       row: Int,
@@ -210,13 +229,16 @@ case class GettingThingsDone(doc: Header) {
 
 object GettingThingsDone {
 
-  /** The name of the statistics table, the value found in the upper left column. */
+  /** The name of the statistics table, the value found in the upper left
+    * column.
+    */
   val TableStats: String = "Stats"
 
   /** The name of the tasks table, the value found in the upper left column. */
   val TableToDo: String = "To Do"
 
-  /** The structure of an empty Stats table, used to collect weekly statistics. */
+  /** The structure of an empty Stats table, used to collect weekly statistics.
+    */
   lazy val TableStatsEmpty: Table = Table.from(
     Seq.fill(8)(Align.LEFT),
     TableRow.from(
@@ -242,9 +264,12 @@ object GettingThingsDone {
 
   /** Create an instance from a markdown string.
     *
-    * @param content The string contents
-    * @param cfg Helper for configuring the model
-    * @return A [[GettingThingsDone]] based on the model
+    * @param content
+    *   The string contents
+    * @param cfg
+    *   Helper for configuring the model
+    * @return
+    *   A [[GettingThingsDone]] based on the model
     */
   def apply(
       content: String,
@@ -253,7 +278,8 @@ object GettingThingsDone {
     GettingThingsDone(Header.parse(content, cfg))
   }
 
-  /** @return A clean, useful status document to start from.
+  /** @return
+    *   A clean, useful status document to start from.
     */
   def apply(): GettingThingsDone = {
     // Create an example table in a document
@@ -307,7 +333,9 @@ object GettingThingsDone {
   val AllStates: Seq[ToDoState] =
     Seq(DoneToDo, MaybeToDo, StoppedToDo, LaterToDO, NoToDoState)
 
-  /** Calculate either next Monday or the monday 7 days after the Date in the String. */
+  /** Calculate either next Monday or the monday 7 days after the Date in the
+    * String.
+    */
   def nextWeekStart(
       date: Option[String],
       dow: DayOfWeek = DayOfWeek.MONDAY

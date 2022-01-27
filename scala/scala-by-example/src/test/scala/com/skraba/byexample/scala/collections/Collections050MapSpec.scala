@@ -5,9 +5,10 @@ import org.scalatest.matchers.should.Matchers
 
 import scala.collection.{immutable, mutable}
 
-/** Examples from the scala collections doc.  Each spec covers a page.
+/** Examples from the scala collections doc. Each spec covers a page.
   *
-  * @see https://docs.scala-lang.org/overviews/collections/introduction.html
+  * @see
+  *   https://docs.scala-lang.org/overviews/collections/introduction.html
   */
 class Collections050MapSpec extends AnyFunSpecLike with Matchers {
 
@@ -37,7 +38,7 @@ class Collections050MapSpec extends AnyFunSpecLike with Matchers {
 
       // Get directly with an exception if not found.
       ms(1) shouldBe "one"
-      ms.apply(1) shouldBe "one" //alias
+      ms.apply(1) shouldBe "one" // alias
       intercept[NoSuchElementException] {
         ms(4)
       }

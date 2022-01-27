@@ -5,9 +5,10 @@ import org.scalatest.matchers.should.Matchers
 
 import scala.runtime.BoxedUnit
 
-/** Examples from the scala tour.  Each spec covers a page.
+/** Examples from the scala tour. Each spec covers a page.
   *
-  * @see https://docs.scala-lang.org/tour/tour-of-scala.html
+  * @see
+  *   https://docs.scala-lang.org/tour/tour-of-scala.html
   */
 class Tour010BasicsSpec extends AnyFunSpecLike with Matchers {
 

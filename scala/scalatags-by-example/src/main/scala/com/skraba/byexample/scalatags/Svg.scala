@@ -13,14 +13,20 @@ import scala.reflect.io.File
 
 object Svg {
 
-  /** Useful pointer to qualify attribute names, since they can conflict with common variables. */
+  /** Useful pointer to qualify attribute names, since they can conflict with
+    * common variables.
+    */
   val Attrs: scalatags.Text.svgAttrs.type = scalatags.Text.svgAttrs
 
-  /** Wraps the contents in an SVG tag.  If the content is already an svg tag, it isn't wrapped.
+  /** Wraps the contents in an SVG tag. If the content is already an svg tag, it
+    * isn't wrapped.
     *
-    * @param svgContents The tag or fragment to write to the file.
-    * @param viewBoxDx The width of the document and viewbox.
-    * @param viewBoxDy The height of the document and viewbox.
+    * @param svgContents
+    *   The tag or fragment to write to the file.
+    * @param viewBoxDx
+    *   The width of the document and viewbox.
+    * @param viewBoxDy
+    *   The height of the document and viewbox.
     */
   def wrapSvg(
       svgContents: Modifier,
@@ -39,13 +45,17 @@ object Svg {
     }
   }
 
-  /** Wraps the contents in an SVG tag and writes them to a file.  If the content is already an
-    * svg tag, it isn't wrapped.
+  /** Wraps the contents in an SVG tag and writes them to a file. If the content
+    * is already an svg tag, it isn't wrapped.
     *
-    * @param f The file to write or overwrite.
-    * @param svgContents The tag or fragment to write to the file.
-    * @param viewBoxDx The width of the document and viewbox.
-    * @param viewBoxDy The height of the document and viewbox.
+    * @param f
+    *   The file to write or overwrite.
+    * @param svgContents
+    *   The tag or fragment to write to the file.
+    * @param viewBoxDx
+    *   The width of the document and viewbox.
+    * @param viewBoxDy
+    *   The height of the document and viewbox.
     */
   def toFile(
       f: File,
@@ -59,11 +69,16 @@ object Svg {
     pw.close()
   }
 
-  /** Returns a group tag that can be used as an inkscape layer if at the top of the document.
+  /** Returns a group tag that can be used as an inkscape layer if at the top of
+    * the document.
     *
-    * @param n The unique number to use for the layer.  This should (probably) be sequential.
-    * @param label The visible name to use for the layer.
-    * @return The group tag to fill with contents.
+    * @param n
+    *   The unique number to use for the layer. This should (probably) be
+    *   sequential.
+    * @param label
+    *   The visible name to use for the layer.
+    * @return
+    *   The group tag to fill with contents.
     */
   def inkscapeLayer(n: Int, label: String): Tag =
     g(
@@ -74,19 +89,27 @@ object Svg {
 
   /** Returns an attribute that can be added to translate an element.
     *
-    * @param dx The number of pixels right to translate.
-    * @param label The number of pixels down to translate.
-    * @return The attribute to add to a tag.
+    * @param dx
+    *   The number of pixels right to translate.
+    * @param label
+    *   The number of pixels down to translate.
+    * @return
+    *   The attribute to add to a tag.
     */
   def attrTranslate(dx: Double, dy: Double): generic.Modifier[Builder] =
     Attrs.transform := s"translate($dx,$dy)"
 
   /** A text config stores information about how to create small text tags.
-    * @param fill The text colour.
-    * @param family The font-family attribute
-    * @param weight the font-weight attribute
-    * @param size The font-size attribute
-    * @param adjust A percentage to adjust text *downwards* based on the size.
+    * @param fill
+    *   The text colour.
+    * @param family
+    *   The font-family attribute
+    * @param weight
+    *   the font-weight attribute
+    * @param size
+    *   The font-size attribute
+    * @param adjust
+    *   A percentage to adjust text *downwards* based on the size.
     */
   case class Text(
       fill: String = "000000",

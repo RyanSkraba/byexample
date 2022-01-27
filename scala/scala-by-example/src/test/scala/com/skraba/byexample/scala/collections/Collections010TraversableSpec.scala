@@ -5,11 +5,12 @@ import org.scalatest.matchers.should.Matchers
 
 import scala.collection.mutable.ListBuffer
 
-/** Examples from the scala collections doc.  Each spec covers a page.
+/** Examples from the scala collections doc. Each spec covers a page.
   *
   * Traversable is the root trait for collections.
   *
-  * @see https://docs.scala-lang.org/overviews/collections/introduction.html
+  * @see
+  *   https://docs.scala-lang.org/overviews/collections/introduction.html
   */
 class Collections010TraversableSpec extends AnyFunSpecLike with Matchers {
 

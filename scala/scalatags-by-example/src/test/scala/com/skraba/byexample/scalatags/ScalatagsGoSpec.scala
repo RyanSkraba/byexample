@@ -98,12 +98,18 @@ class ScalatagsGoSpec extends AnyFunSpecLike with Matchers {
 
 object ScalatagsGoSpec {
 
-  /** A helper method used to capture the console and apply it to a partial function.
-    * @param thunk code to execute that may use Console.out and Console.err print streams
-    * @param pf A partial function to apply matchers
-    * @tparam T The return value type of the thunk code to execute
-    * @tparam U The return value type of the partial function to return.
-    * @return The return value of the partial function.
+  /** A helper method used to capture the console and apply it to a partial
+    * function.
+    * @param thunk
+    *   code to execute that may use Console.out and Console.err print streams
+    * @param pf
+    *   A partial function to apply matchers
+    * @tparam T
+    *   The return value type of the thunk code to execute
+    * @tparam U
+    *   The return value type of the partial function to return.
+    * @return
+    *   The return value of the partial function.
     */
   def withConsoleMatch[T, U](
       thunk: => T
@@ -127,12 +133,18 @@ object ScalatagsGoSpec {
     }
   }
 
-  /** A helper method used to capture the console of a ScalaGo execution and apply it to a partial function.
-    * @param args String arguments to pass to the ScalaGo.go method
-    * @param pf A partial function to apply matchers
-    * @tparam T The return value type of the thunk code to execute
-    * @tparam U The return value type of the partial function to return.
-    * @return The return value of the partial function.
+  /** A helper method used to capture the console of a ScalaGo execution and
+    * apply it to a partial function.
+    * @param args
+    *   String arguments to pass to the ScalaGo.go method
+    * @param pf
+    *   A partial function to apply matchers
+    * @tparam T
+    *   The return value type of the thunk code to execute
+    * @tparam U
+    *   The return value type of the partial function to return.
+    * @return
+    *   The return value of the partial function.
     */
   def withScalatagsGoMatch[T, U](
       args: String*
@@ -142,9 +154,12 @@ object ScalatagsGoSpec {
     }
   }
 
-  /** A helper method used to capture the console of a ScalaGo execution and return the output.
-    * @param args String arguments to pass to the ScalaGo.go method
-    * @return A tuple of the stdout and stderr
+  /** A helper method used to capture the console of a ScalaGo execution and
+    * return the output.
+    * @param args
+    *   String arguments to pass to the ScalaGo.go method
+    * @return
+    *   A tuple of the stdout and stderr
     */
   def withScalatagsGo(args: String*): (String, String) = {
     withScalatagsGoMatch(args: _*) { case any => any }

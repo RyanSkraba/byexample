@@ -13,10 +13,14 @@ object ScalatagsGo {
   val Version: String = "0.0.1-SNAPSHOT"
 
   /** The subcommands that this driver supports.
-    * @param doc The [[Docopt]] for the subcommand.
-    * @param cmd The subcommand token.
-    * @param description The short description for the subcommand.
-    * @param go The method to call with the argument map from the subcommand docopts.
+    * @param doc
+    *   The [[Docopt]] for the subcommand.
+    * @param cmd
+    *   The subcommand token.
+    * @param description
+    *   The short description for the subcommand.
+    * @param go
+    *   The method to call with the argument map from the subcommand docopts.
     */
   case class Task(
       doc: String,
@@ -53,10 +57,11 @@ object ScalatagsGo {
         .mkString("\n")
     }.trim
 
-  /** Runs the tool.  This does not handle any docopt exception automatically while parsing the
-    * command line.
+  /** Runs the tool. This does not handle any docopt exception automatically
+    * while parsing the command line.
     *
-    * @param args command-line arguments as described in [[Doc]]
+    * @param args
+    *   command-line arguments as described in [[Doc]]
     */
   @throws[DocoptExitException]
   @throws[InternalDocoptException]

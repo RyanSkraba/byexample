@@ -5,7 +5,8 @@ import org.scalatest.matchers.should.Matchers
 
 /** Basic matchers and assertions in the FunSpec style.
   *
-  * @see http://www.scalatest.org/user_guide/using_matchers
+  * @see
+  *   http://www.scalatest.org/user_guide/using_matchers
   */
 class BasicMatchersSpec extends AnyFunSpecLike with Matchers {
 
@@ -151,10 +152,10 @@ class BasicMatchersSpec extends AnyFunSpecLike with Matchers {
     it("can check properties") {
       p shouldBe 'golden
       p should have(
-        'name ("Betty White"),
-        'birthYear (1922),
-        'golden (true),
-        'century (19)
+        'name("Betty White"),
+        'birthYear(1922),
+        'golden(true),
+        'century(19)
       )
     }
 

@@ -10,7 +10,8 @@ import scala.reflect.io.Streamable
 
 /** Matchers and assertions on stdout, stderr streams.
   *
-  * See the helper methods in the StdoutSpec object for the technique to do this.
+  * See the helper methods in the StdoutSpec object for the technique to do
+  * this.
   */
 class StdoutSpec extends AnyFunSpecLike with Matchers {
 
@@ -53,12 +54,18 @@ object StdoutSpec {
     }
   }
 
-  /** A helper method used to capture the console and apply it to a partial function.
-    * @param thunk code to execute that may use Console.out and Console.err print streams
-    * @param pf A partial function to apply matchers
-    * @tparam T The return value type of the thunk code to execute
-    * @tparam U The return value type of the partial function to return.
-    * @return The return value of the partial function.
+  /** A helper method used to capture the console and apply it to a partial
+    * function.
+    * @param thunk
+    *   code to execute that may use Console.out and Console.err print streams
+    * @param pf
+    *   A partial function to apply matchers
+    * @tparam T
+    *   The return value type of the thunk code to execute
+    * @tparam U
+    *   The return value type of the partial function to return.
+    * @return
+    *   The return value of the partial function.
     */
   def withConsoleMatch[T, U](
       thunk: => T
@@ -82,12 +89,18 @@ object StdoutSpec {
     }
   }
 
-  /** A helper method used to capture the console of a method execution and apply it to a partial function.
-    * @param args String arguments to pass to the go method
-    * @param pf A partial function to apply matchers
-    * @tparam T The return value type of the thunk code to execute
-    * @tparam U The return value type of the partial function to return.
-    * @return The return value of the partial function.
+  /** A helper method used to capture the console of a method execution and
+    * apply it to a partial function.
+    * @param args
+    *   String arguments to pass to the go method
+    * @param pf
+    *   A partial function to apply matchers
+    * @tparam T
+    *   The return value type of the thunk code to execute
+    * @tparam U
+    *   The return value type of the partial function to return.
+    * @return
+    *   The return value of the partial function.
     */
   def withStdoutGoMatch[T, U](
       args: String*
@@ -97,9 +110,12 @@ object StdoutSpec {
     }
   }
 
-  /** A helper method used to capture the console of a method execution and return the output.
-    * @param args String arguments to pass to the go method
-    * @return A tuple of the stdout and stderr
+  /** A helper method used to capture the console of a method execution and
+    * return the output.
+    * @param args
+    *   String arguments to pass to the go method
+    * @return
+    *   A tuple of the stdout and stderr
     */
   def withStdoutGo(args: String*): (String, String) = {
     withStdoutGoMatch(args: _*) { case any => any }

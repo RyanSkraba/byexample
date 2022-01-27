@@ -3,18 +3,19 @@ package com.skraba.byexample.scala.collections
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-/** Examples from the scala collections doc.  Each spec covers a page.
+/** Examples from the scala collections doc. Each spec covers a page.
   *
-  * Iterable adds a hasNext/next methods and some functions that require this to have high
-  * performance.
+  * Iterable adds a hasNext/next methods and some functions that require this to
+  * have high performance.
   *
   * It has three major subclasses:
   *
   * Seq (PartialFunction, apply returns the element at that index, isDefinedAt)
-  * Map (PartialFunction, apply returns the value for that key, isDefinedAt)
-  * Set (apply returns whether or not the element exists.)
+  * Map (PartialFunction, apply returns the value for that key, isDefinedAt) Set
+  * (apply returns whether or not the element exists.)
   *
-  * @see https://docs.scala-lang.org/overviews/collections/introduction.html
+  * @see
+  *   https://docs.scala-lang.org/overviews/collections/introduction.html
   */
 class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
 

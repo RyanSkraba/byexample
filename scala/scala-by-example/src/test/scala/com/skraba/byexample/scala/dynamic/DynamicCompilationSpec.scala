@@ -9,7 +9,8 @@ import scala.tools.reflect.ToolBox
 
 /** Running a class dynamically compiled from a string.
   *
-  * @see https://stackoverflow.com/questions/39137175/dynamically-compiling-scala-class-files-at-runtime-in-scala-2-11
+  * @see
+  *   https://stackoverflow.com/questions/39137175/dynamically-compiling-scala-class-files-at-runtime-in-scala-2-11
   */
 class DynamicCompilationSpec
     extends AnyFunSpecLike
@@ -52,7 +53,9 @@ class DynamicCompilationSpec
 
 object DynamicCompilationSpec {
 
-  /** The string that we want to compile and reuse in calls.  It implements a well-known trait and returns an instance of that trait that can be called. */
+  /** The string that we want to compile and reuse in calls. It implements a
+    * well-known trait and returns an instance of that trait that can be called.
+    */
   val myGreeterClass =
     """
       |class CustomizableGreeter(prefix: String, postfix: String) extends com.skraba.byexample.scala.dynamic.DynamicCompilationSpec$Greeter {
