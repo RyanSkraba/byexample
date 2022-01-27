@@ -1,14 +1,21 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.skraba.byexample</groupId>
   <artifactId>byexample-root-aggregator</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
 
   <name>By Example :: Aggregator</name>
-  <packaging>pom</packaging>
+
+  <modules>
+    <module>benchmarking</module>
+    <module>misc</module>
+    <module>scala</module>
+    <module>testing</module>
+    <module>webapp</module>
+  </modules>
 
   <properties>
     <!-- specifies that the system uses Java 11 by default -->
@@ -51,6 +58,83 @@
     <plugin.war.maven.version>2.2</plugin.war.maven.version>
 
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.offbytwo</groupId>
+        <artifactId>docopt</artifactId>
+        <version>${docopt.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.scala-lang</groupId>
+        <artifactId>scala-compiler</artifactId>
+        <version>${scala.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.scala-lang</groupId>
+        <artifactId>scala-library</artifactId>
+        <version>${scala.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.scala-lang</groupId>
+        <artifactId>scala-reflect</artifactId>
+        <version>${scala.version}</version>
+      </dependency>
+
+      <!-- Tests -->
+      <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest-library</artifactId>
+        <version>${hamcrest.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-api</artifactId>
+        <version>${junit5.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-engine</artifactId>
+        <version>${junit5.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-params</artifactId>
+        <version>${junit5.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.scalatest</groupId>
+        <artifactId>scalatest_${scala.minor.version}</artifactId>
+        <version>${scalatest.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>${slf4j.version}</version>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <!-- Tests -->
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-library</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
   <build>
     <pluginManagement>
@@ -132,10 +216,10 @@
           <version>${plugin.shade.maven.version}</version>
           <executions>
             <execution>
-              <phase>package</phase>
               <goals>
                 <goal>shade</goal>
               </goals>
+              <phase>package</phase>
             </execution>
           </executions>
         </plugin>
@@ -174,8 +258,8 @@
         <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
-          <extensions>true</extensions>
           <version>0.37.0</version>
+          <extensions>true</extensions>
         </plugin>
 
         <!-- Build both java and scala classes, and they can rely on each other. -->
@@ -186,18 +270,18 @@
           <executions>
             <execution>
               <id>scala-compile-first</id>
-              <phase>process-resources</phase>
               <goals>
                 <goal>add-source</goal>
                 <goal>compile</goal>
               </goals>
+              <phase>process-resources</phase>
             </execution>
             <execution>
               <id>scala-test-compile</id>
-              <phase>process-test-resources</phase>
               <goals>
                 <goal>testCompile</goal>
               </goals>
+              <phase>process-test-resources</phase>
             </execution>
           </executions>
         </plugin>
@@ -209,8 +293,8 @@
           <version>${plugin.spotless.version}</version>
           <configuration>
             <java>
-              <removeUnusedImports />
-              <googleJavaFormat />
+              <removeUnusedImports/>
+              <googleJavaFormat/>
             </java>
             <pom>
               <sortPom>
@@ -254,69 +338,6 @@
     </plugins>
   </build>
 
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>com.offbytwo</groupId>
-        <artifactId>docopt</artifactId>
-        <version>${docopt.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.scala-lang</groupId>
-        <artifactId>scala-compiler</artifactId>
-        <version>${scala.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.scala-lang</groupId>
-        <artifactId>scala-library</artifactId>
-        <version>${scala.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.scala-lang</groupId>
-        <artifactId>scala-reflect</artifactId>
-        <version>${scala.version}</version>
-      </dependency>
-
-      <!-- Tests -->
-      <dependency>
-        <groupId>org.hamcrest</groupId>
-        <artifactId>hamcrest-library</artifactId>
-        <version>${hamcrest.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-api</artifactId>
-        <version>${junit5.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-engine</artifactId>
-        <version>${junit5.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-params</artifactId>
-        <version>${junit5.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.scalatest</groupId>
-        <artifactId>scalatest_${scala.minor.version}</artifactId>
-        <version>${scalatest.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-simple</artifactId>
-        <version>${slf4j.version}</version>
-        <scope>test</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
   <reporting>
     <plugins>
       <plugin>
@@ -325,27 +346,5 @@
       </plugin>
     </plugins>
   </reporting>
-
-  <dependencies>
-    <!-- Tests -->
-    <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest-library</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-
-  <modules>
-    <module>benchmarking</module>
-    <module>misc</module>
-    <module>scala</module>
-    <module>testing</module>
-    <module>webapp</module>
-  </modules>
 
 </project>

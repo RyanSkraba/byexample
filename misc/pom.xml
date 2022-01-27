@@ -1,6 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -10,9 +9,13 @@
   </parent>
 
   <artifactId>byexample-misc-aggregator</artifactId>
+  <packaging>pom</packaging>
 
   <name>By Example :: Misc :: Aggregator</name>
-  <packaging>pom</packaging>
+
+  <modules>
+    <module>lanterna-by-example</module>
+  </modules>
 
   <properties>
     <!-- skip the deployment for aggregators, not necessary.  Needs to be flipped to false
@@ -36,8 +39,4 @@
       </plugin>
     </plugins>
   </build>
-
-  <modules>
-    <module>lanterna-by-example</module>
-  </modules>
 </project>
