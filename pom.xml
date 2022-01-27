@@ -28,7 +28,6 @@
 
     <!-- Shared properties by all sub-projects -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <exec.mainClass>com.skraba.byexample.ToDoGo</exec.mainClass>
 
     <!-- Dependencies -->
     <docopt.version>0.6.0.20150202</docopt.version>
@@ -37,14 +36,18 @@
     <scala.minor.version>2.12</scala.minor.version>
     <scala.version>2.12.13</scala.version>
     <scalafmt.version>2.7.5</scalafmt.version>
-    <slf4j.version>1.7.30</slf4j.version>
     <scalatest.version>3.2.2</scalatest.version>
+    <slf4j.version>1.7.30</slf4j.version>
+
+    <!-- The main class that can be overridden in subprojects -->
+    <exec.mainClass>com.skraba.byexample.ToDoGo</exec.mainClass>
 
     <!-- Plugins -->
     <plugin.clean.maven.version>3.1.0</plugin.clean.maven.version>
     <plugin.compiler.maven.version>3.1</plugin.compiler.maven.version>
     <plugin.deploy.maven.version>2.7</plugin.deploy.maven.version>
     <plugin.enforcer.maven.version>3.0.0-M3</plugin.enforcer.maven.version>
+    <plugin.enforcer.required.maven.version>3.3.9</plugin.enforcer.required.maven.version>
     <plugin.failsafe.maven.version>3.0.0-M5</plugin.failsafe.maven.version>
     <plugin.install.maven.version>2.4</plugin.install.maven.version>
     <plugin.jar.maven.version>3.2.0</plugin.jar.maven.version>
@@ -56,7 +59,6 @@
     <plugin.spotless.version>2.20.0</plugin.spotless.version>
     <plugin.surefire.maven.version>3.0.0-M5</plugin.surefire.maven.version>
     <plugin.war.maven.version>2.2</plugin.war.maven.version>
-
   </properties>
 
   <dependencyManagement>
@@ -171,7 +173,7 @@
               <configuration>
                 <rules>
                   <requireMavenVersion>
-                    <version>3.5</version>
+                    <version>${plugin.enforcer.required.maven.version}</version>
                   </requireMavenVersion>
                   <requirePluginVersions>
                     <banLatest>true</banLatest>
