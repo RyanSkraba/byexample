@@ -174,14 +174,37 @@ def newWeek(): Unit = {
                   _
                 ) =>
               Seq(tb.replaceIn() {
-                case (Some(TableRow(cells)), row)
-                    if row > 0 && cells.headOption
-                      .forall(_.startsWith(DoneToDo.txt)) =>
+                case (Some(TableRow(Seq(taskText, _*))), row)
+                    if row > 0 && taskText.startsWith(DoneToDo.txt) =>
                   Seq()
               })
           }
       }
       .getOrElse(Header(2, nextWeekStart(None)))
+  }
+
+  /** Create the new head week from the last week, if any is present. */
+  def updateLastHead(oldWeek: Header): Header = {
+    oldWeek
+      .replaceIn() {
+        // Copy the To Do table, but update all Later tasks.
+        case (
+              Some(tb @ Table(_, Seq(TableRow(Seq(TableToDo, _*)), _*))),
+              _
+            ) =>
+          Seq(tb.replaceIn() {
+            case (Some(TableRow(cells @ Seq(taskText, _*))), row)
+                if row > 0 && taskText.startsWith(MaybeToDo.txt) =>
+              Seq(
+                TableRow(
+                  cells.updated(
+                    0,
+                    taskText.replaceAllLiterally(MaybeToDo.txt, LaterToDO.txt)
+                  )
+                )
+              )
+          })
+      }
   }
 
   // Add the new head week to the weekly statuses.
@@ -190,7 +213,8 @@ def newWeek(): Unit = {
       case h2 @ Header(_, 2, _) => h2
     })
     weeklies.flatMapFirstIn(ifNotFound = headWeek +: weeklies.mds) {
-      case h2 @ Header(_, 2, _) if h2 != headWeek => Seq(headWeek, h2)
+      case h2 @ Header(_, 2, _) if h2 != headWeek =>
+        Seq(headWeek, updateLastHead(h2))
     }
   }
 
