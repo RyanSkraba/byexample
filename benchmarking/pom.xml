@@ -23,7 +23,7 @@
     <!-- skip the deployment for aggregators, not necessary.  Needs to be flipped to false
      for project with artifacts. -->
     <maven.deploy.skip>true</maven.deploy.skip>
-    <jmh.version>1.27</jmh.version>
+    <jmh.version>1.34</jmh.version>
   </properties>
 
   <build>
