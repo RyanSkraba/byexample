@@ -43,7 +43,7 @@
     <dependency>
       <groupId>com.lihaoyi</groupId>
       <artifactId>ammonite_2.12.13</artifactId>
-      <version>2.3.8-54-a1dec1cf</version>
+      <version>2.5.1-6-5fce97fb</version>
       <scope>test</scope>
     </dependency>
 
