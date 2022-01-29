@@ -36,7 +36,7 @@
     <scala.minor.version>2.12</scala.minor.version>
     <scala.version>2.12.15</scala.version>
     <scalafmt.version>3.3.3</scalafmt.version>
-    <scalatest.version>3.2.3</scalatest.version>
+    <scalatest.version>3.2.10</scalatest.version>
     <slf4j.version>1.7.35</slf4j.version>
 
     <!-- The main class that can be overridden in subprojects -->
