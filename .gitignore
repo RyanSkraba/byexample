@@ -1,6 +1,3 @@
-Hadoop2ByExample/src/examples/
-Spark/SparkStreamingByExample/.attach_*
-Spark/SparkStreamingByExample/checkpoint
 **/*.iml
 **/.idea/
 **/target/
