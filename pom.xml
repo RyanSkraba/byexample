@@ -49,7 +49,7 @@
     <plugin.enforcer.maven.version>3.0.0</plugin.enforcer.maven.version>
     <plugin.enforcer.required.maven.version>3.5.0</plugin.enforcer.required.maven.version>
     <plugin.failsafe.maven.version>3.0.0-M5</plugin.failsafe.maven.version>
-    <plugin.install.maven.version>2.4</plugin.install.maven.version>
+    <plugin.install.maven.version>3.0.0-M1</plugin.install.maven.version>
     <plugin.jar.maven.version>3.2.2</plugin.jar.maven.version>
     <plugin.maven.docker.version>0.38.1</plugin.maven.docker.version>
     <plugin.maven.scala.version>4.5.6</plugin.maven.scala.version>
@@ -197,7 +197,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.2.0</version>
+          <version>${plugin.jar.maven.version}</version>
           <configuration>
             <archive>
               <manifest>
