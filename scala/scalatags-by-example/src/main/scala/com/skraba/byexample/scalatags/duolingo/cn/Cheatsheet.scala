@@ -89,7 +89,7 @@ object Cheatsheet {
   case class Config(
       toneHex: Seq[String] =
         Seq("000000", "6a245c", "498c13", "3543a6", "c8361e"),
-      text: Svg.Text = Svg.Text(family = "Source Han Sans CN"),
+      text: Svg.Text = Svg.Text(family = "Noto Sans SC"),
       cnDx: Double = 40,
       lineHeight: Double = 10,
       linesPerColumn: Int = Integer.MAX_VALUE,
