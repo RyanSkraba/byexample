@@ -12,14 +12,14 @@ object DuolingoCnCheatsheetTask {
     """Generate a simple vocabulary cheatsheet for Duolingo Chinese lessons.
     |
     |Usage:
-    |  ScalatagsGo cheatsheet [--section=NN] [--lesson=LESSION] [--words=WORDS]
+    |  ScalatagsGo cheatsheet [--section=NN] [--lesson=LESSON] [--words=WORDS]
     |
     |Options:
-    |  -h --help            Show this screen.
-    |  --version            Show version.
-    |  --section=NN         Only show words from the specified section.
-    |  --lesson=LESSION     Only show words from the specified lesson.
-    |  --words=WORDS        Only show the specified ideograms.
+    |  -h --help           Show this screen.
+    |  --version           Show version.
+    |  --section=NN        Only show words from the specified section.
+    |  --lesson=LESSON     Only show words from the specified lesson.
+    |  --words=WORDS       Only show the specified ideograms.
     |
     |""".stripMargin.trim
 
@@ -31,10 +31,10 @@ object DuolingoCnCheatsheetTask {
   def go(opts: java.util.Map[String, AnyRef]): Unit = {
 
     // Methods to apply if the section or lession filters are in use.
-    def filterOnSection(s: Any): Cheatsheet.Vocab => Boolean = _.section == s
-    def filterOnLesson(l: Any): Cheatsheet.Vocab => Boolean = _.lesson == l
+    def filterOnSection(s: Any): Vocab => Boolean = _.section == s
+    def filterOnLesson(l: Any): Vocab => Boolean = _.lesson == l
 
-    val vocab: Seq[Cheatsheet.Vocab] = Cheatsheet.All.vocab
+    val vocab: Seq[Vocab] = Cheatsheet.All.vocab
       .filter(
         Option(opts.get("--section")).map(filterOnSection).getOrElse(_ => true)
       )
@@ -50,7 +50,7 @@ object DuolingoCnCheatsheetTask {
         case _                                => Array()
       }
       .map(words => {
-        val byCn: Map[String, Cheatsheet.Vocab] =
+        val byCn: Map[String, Vocab] =
           vocab.map(v => v.cn -> v).toMap
         words.flatMap(byCn.get).toSeq
       })

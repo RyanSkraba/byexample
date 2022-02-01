@@ -9,6 +9,41 @@ import scalatags.Text.svgTags._
 import scala.io.Source
 import scala.reflect.io.File
 
+/** A single word in the cheatsheet
+  * @param cn
+  *   The symbol for the word
+  * @param pinyin
+  *   The representation of the word in pinyin
+  * @param en
+  *   The meaning of the word in english
+  * @param info
+  *   All of the downloaded columns.
+  */
+case class Vocab(
+    cn: String,
+    pinyin: String,
+    en: String,
+    info: Array[String]
+) {
+  lazy val section: String = info(1)
+  lazy val lesson: String = info(2)
+}
+
+/** A group of related worlds in the cheatsheet
+  * @param words
+  *   The list of related words
+  * @param title
+  *   A title for these words (or None to omit)
+  * @param offset
+  *   A helpful offset for laying out the words in relation to the upper-left
+  *   document corner, or the upper-left of the last laid out group of words.
+  */
+case class VocabGroup(
+    words: Seq[Vocab],
+    title: Option[String] = None,
+    offset: Option[(Double, Double)] = None
+);
+
 /** A vocabulary cheat sheet for duolingo chinese lessons.
   *
   * @param vocab
@@ -61,17 +96,6 @@ object Cheatsheet {
     */
   lazy val All: Cheatsheet = all()
 
-  /** A single word in the cheatsheet. */
-  case class Vocab(
-      cn: String,
-      pinyin: String,
-      en: String,
-      info: Array[String]
-  ) {
-    lazy val section: String = info(1)
-    lazy val lesson: String = info(2)
-  }
-
   /** @param toneHex
     *   An array of hex codes to colour tones for syllables and characters. This
     *   should be a five element array and the first value is used for no tone.
@@ -116,6 +140,10 @@ object Cheatsheet {
         .map { case ((txt, tone), i) =>
           tspan(Attrs.fill := s"#${toneHex(tone)}", txt)
         }
+    }
+
+    def title(title: String): Tag = {
+      text.center(0, 0)(Attrs.fontWeight := 1)(title)
     }
 
     def vocab(v: Vocab): Tag = {
