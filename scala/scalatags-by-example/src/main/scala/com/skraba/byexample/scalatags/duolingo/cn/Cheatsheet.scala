@@ -37,12 +37,28 @@ case class Vocab(
   * @param offset
   *   A helpful offset for laying out the words in relation to the upper-left
   *   document corner, or the upper-left of the last laid out group of words.
+  * @param cfg
+  *   Configuration for drawing the sheet.
   */
 case class VocabGroup(
     words: Seq[Vocab],
     title: Option[String] = None,
-    offset: Option[(Double, Double)] = None
-);
+    offset: Option[(Double, Double)] = None,
+    cfg: Config = Config()
+) {
+
+  /** Draws the vocab group, with the title on top moving down one line for each
+    * vocab.
+    */
+  def toSvg: Tag = {
+    g(
+      (title.map(cfg.title).toSeq ++ words.map(cfg.vocab)).zipWithIndex.map {
+        case (tag, y) => tag(Svg.attrTranslate(0, y * cfg.lineHeight))
+      }
+    )
+  }
+
+}
 
 /** A vocabulary cheat sheet for duolingo chinese lessons.
   *
@@ -125,6 +141,8 @@ object Cheatsheet {
     private[this] val cnTxt = text.center(0, 0)
     private[this] val enTxt = text.left(cnDx / 2, 0)
 
+    private[this] val titleTxt = text.copy(weight = "bold")
+
     def filledTspan(in: String, tones: Seq[Int]): Seq[Tag] = {
 
       val spans =
@@ -143,7 +161,7 @@ object Cheatsheet {
     }
 
     def title(title: String): Tag = {
-      text.center(0, 0)(Attrs.fontWeight := 1)(title)
+      titleTxt.center(0, 0)(title)
     }
 
     def vocab(v: Vocab): Tag = {

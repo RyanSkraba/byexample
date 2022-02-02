@@ -13,6 +13,28 @@ class CheatsheetSpec extends AnyFunSpecLike with Matchers {
     it("should detect tones") {
       Cheatsheet.tones("de yī líng wǔ èr") shouldBe Seq(0, 1, 2, 3, 4)
     }
+  }
+
+  describe("A VocabGroup") {
+
+    it("should write a pretty group of words") {
+      val vs: Map[String, Vocab] =
+        Cheatsheet.All.vocab.map(v => (v.cn, v)).toMap
+      val words = Seq()
+
+      val vg =
+        VocabGroup(
+          "你,好,再,见,再见".split(",").toSeq.map(vs.apply),
+          Some("Lesson 1")
+        )
+
+      Svg.toFile(
+        File("/tmp/duolingo.lesson1.svg"),
+        vg.toSvg(Svg.attrTranslate(50, 10)),
+        200,
+        1000
+      )
+    }
 
     it("writes a pretty image") {
       val s = Cheatsheet(vocab = Cheatsheet.All.vocab.filter(_.cn.nonEmpty))
