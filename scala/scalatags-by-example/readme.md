@@ -17,8 +17,8 @@ that can be used to demonstrate some SVG generation tools.
 
 ```bash
 mvn package
-# Using the uber jar
-alias byexample_go_scalatags='java -jar '$(pwd)'/target/scalatags-by-example-*-SNAPSHOT.jar'
+# Using the uber jar from the command line
+alias byexample_go_scalatags="java -jar $(find ~+ -name scalatags-by-example-*.jar)"
 byexample_go_scalatags --help
 
 # Dump Duolingo Chinese section 3 vocabulary into a cheatsheet.

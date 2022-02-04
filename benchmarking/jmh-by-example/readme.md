@@ -12,7 +12,7 @@ Resources
     - (http://tutorials.jenkov.com/java-performance/jmh.html)
 * [Online result visualizer](https://jmh.morethan.io) ([jzillmann/jmh-visualizer](https://github.com/jzillmann/jmh-visualizer)) Very pretty UI for visualizing jmh reports.
 
-JMH Options (`JmhGo -h`)
+JMH Options (`byexample_go_jmh -h`)
 ------------------------------------------------------------------------------
 
 | Option       | Explanation                                                                                                                                                                                      |
@@ -27,20 +27,20 @@ The easiest way to run a JMH benchmark is to create an uber-jar with the JMH dri
 
 ```bash
 mvn package
-# Using the uber jar
-alias JmhGo='java -jar '$(pwd)'/target/jmh-by-example-*-SNAPSHOT.jar'
+# Using the uber jar from the command line
+alias byexample_go_jmh="java -jar $(find ~+ -name jmh-by-example-*.jar)"
 # Get help on the tool.
-JmhGo --h
+byexample_go_jmh --h
 
 # Sanity check on the hash benchmarks
 # benchmark mode: single shot
 # time unit: nanoseconds
-JmhGo -bm ss -tu ns HashBenchmark.hash
+byexample_go_jmh -bm ss -tu ns HashBenchmark.hash
 
 # Run the whole benchmark in three processes, with 4 warmups and 5 iterations
-JmhGo -f 3 -wi 4 -i 5 -bm Throughput,AverageTime -tu ns
+byexample_go_jmh -f 3 -wi 4 -i 5 -bm Throughput,AverageTime -tu ns
 
 # Test one of the benchmark methods and generate a json report
 # This creates a jmh-result.json file that you can drop in the online visualiser.
-JmhGo -f 1 -wi 0 -i 1 -tu ns MaxPrecisionBenchmark -rf json
+byexample_go_jmh -f 1 -wi 0 -i 1 -tu ns MaxPrecisionBenchmark -rf json
 ```

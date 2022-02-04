@@ -13,7 +13,7 @@ Running the launcher
 
 ```bash
 mvn package
-# Using the uber jar
-alias byexample_go_lanterna='java -jar '$(pwd)'/target/lanterna-by-example-*-SNAPSHOT.jar'
+# Using the uber jar from the command line
+alias byexample_go_lanterna="java -jar $(find ~+ -name lanterna-by-example-*.jar)"
 byexample_go_lanterna --help
 ```
