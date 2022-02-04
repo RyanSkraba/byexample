@@ -16,7 +16,7 @@ import org.openjdk.jmh.infra.Blackhole;
  * as the hash lookup.
  *
  * <pre>
- * JmhGo -f 3 -wi 2 -i 10 -bm AverageTime -tu ns HashBenchmark
+ * byexample_go_jmh -f 3 -wi 2 -i 10 -bm AverageTime -tu ns HashBenchmark
  *  ...
  * Benchmark            Mode  Cnt   Score   Error  Units
  * HashBenchmark.array  avgt   30  30.497 ± 1.049  ns/op

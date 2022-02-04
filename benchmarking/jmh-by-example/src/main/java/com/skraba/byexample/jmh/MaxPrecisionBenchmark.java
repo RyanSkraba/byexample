@@ -16,7 +16,7 @@ import org.openjdk.jmh.infra.Blackhole;
  * benchmark attempts to answer which one is the most efficient.
  *
  * <pre>
- * JmhGo -f 3 -wi 2 -i 5 -bm AverageTime -tu ns MaxPrecisionBenchmark
+ * byexample_go_jmh -f 3 -wi 2 -i 5 -bm AverageTime -tu ns MaxPrecisionBenchmark
  *   ...
  * Benchmark                                            Mode  Cnt      Score      Error  Units
  * MaxPrecisionBenchmark.maxPrecisionBigInteger         avgt   15  59841.643 ± 3907.767  ns/op

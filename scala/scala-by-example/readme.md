@@ -62,8 +62,8 @@ that does a simple hello world mixing Java and Scala code.
 
 ```bash
 mvn package
-# Using the uber jar
-alias byexample_go_scala='java -jar '$(pwd)'/target/scala-by-example-*-SNAPSHOT.jar'
+# Using the uber jar from the command line
+alias byexample_go_scala="java -jar $(find ~+ -name scala-by-example-*.jar)"
 byexample_go_scala --help
 # Using the maven-generated classpath
 mvn exec:java -Dexec.args="--name=World --count=7"
@@ -71,7 +71,7 @@ mvn exec:java -Dexec.mainClass="com.skraba.byexample.scala.ScalaGo" -Dexec.args=
 
 # MarkdGo is another internal application to this project.
 
-alias byexample_go_markd='java -classpath '$(pwd)'/target/scala-by-example-*-SNAPSHOT.jar com.skraba.byexample.scala.markd.MarkdGo'
+alias byexample_go_markd="java -classpath $(find ~+ -name scala-by-example-*.jar) com.skraba.byexample.scala.markd.MarkdGo"
 byexample_go_markd beautify readme.md
 byexample_go_markd beautify $(find . -name \*.md)
 ```
