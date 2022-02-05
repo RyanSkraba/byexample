@@ -20,6 +20,7 @@
     <!-- Launcher class -->
     <exec.mainClass>com.skraba.byexample.scala.ScalaGo</exec.mainClass>
     <!-- other project dependency versions as properties -->
+    <play-json.version>2.9.2</play-json.version>
   </properties>
 
   <dependencies>
@@ -37,6 +38,13 @@
     <dependency>
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-compiler</artifactId>
+    </dependency>
+
+    <!-- Necessary for prettifying JSON code blocks -->
+    <dependency>
+      <groupId>com.typesafe.play</groupId>
+      <artifactId>play-json_${scala.minor.version}</artifactId>
+      <version>${play-json.version}</version>
     </dependency>
 
     <!-- Necessary for IDE integration with Ammonite -->

@@ -1,8 +1,10 @@
 package com.skraba.byexample.scala
 
 import com.skraba.byexample.scala.markd.Align.Align
+import play.api.libs.json.Json
 
 import scala.collection.GenSeq
+import scala.util.Try
 import scala.util.matching.Regex
 
 /** Markd is a model for simple markdown files. It can be used to parse, modify
@@ -102,10 +104,18 @@ package object markd {
     *   the contents of the comment.
     */
   case class Code(code_type: String, content: String) extends Markd {
+
+    lazy val builtContent: String = (code_type, content) match {
+      case ("json", json) =>
+        Try(Json.prettyPrint(Json.parse(json)) + "\n")
+          .getOrElse(content)
+      case _ => content
+    }
+
     override def build(
         sb: StringBuilder = new StringBuilder()
     ): StringBuilder = {
-      sb ++= "```" ++= code_type ++= "\n" ++= content ++= "```\n"
+      sb ++= "```" ++= code_type ++= "\n" ++= builtContent ++= "```\n"
     }
   }
 
