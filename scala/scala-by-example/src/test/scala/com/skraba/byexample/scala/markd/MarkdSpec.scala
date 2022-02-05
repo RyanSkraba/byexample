@@ -187,6 +187,41 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         cleaned shouldBe """echo ```Hello``` world"""
         Header.parse(cleaned) shouldBe md
       }
+
+      it("should prettify a JSON code block") {
+        val md = Header.parse("""
+            |```json
+            |{"id": 1, "names": ["One", "Un"]}
+            |```
+            |""".stripMargin.replaceAllLiterally(".", " "))
+
+        val cleaned = md.build().toString
+        cleaned shouldBe
+          """```json
+            |{
+            |  "id" : 1,
+            |  "names" : [ "One", "Un" ]
+            |}
+            |```
+            |""".stripMargin.replaceAllLiterally(".", " ")
+        Header.parse(cleaned).build().toString shouldBe cleaned
+      }
+
+      it("should not prettify a JSON code block with invalid JSON") {
+        val md = Header.parse("""
+            |```json
+            |{"id": ##, "names": ["One", "Un"]}
+            |```
+            |""".stripMargin.replaceAllLiterally(".", " "))
+
+        val cleaned = md.build().toString
+        cleaned shouldBe
+          """```json
+            |{"id": ##, "names": ["One", "Un"]}
+            |```
+            |""".stripMargin.replaceAllLiterally(".", " ")
+        Header.parse(cleaned) shouldBe md
+      }
     }
 
     describe("with a comment block") {
