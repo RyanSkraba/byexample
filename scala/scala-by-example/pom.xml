@@ -43,7 +43,7 @@
     <!-- Necessary for prettifying JSON code blocks -->
     <dependency>
       <groupId>com.typesafe.play</groupId>
-      <artifactId>play-json_${scala.minor.version}</artifactId>
+      <artifactId>play-json_${scala.binary.version}</artifactId>
       <version>${play-json.version}</version>
     </dependency>
 
