@@ -35,7 +35,7 @@
     </dependency>
     <dependency>
       <groupId>com.lihaoyi</groupId>
-      <artifactId>scalatags_${scala.minor.version}</artifactId>
+      <artifactId>scalatags_${scala.binary.version}</artifactId>
       <version>${scalatags.version}</version>
     </dependency>
   </dependencies>
