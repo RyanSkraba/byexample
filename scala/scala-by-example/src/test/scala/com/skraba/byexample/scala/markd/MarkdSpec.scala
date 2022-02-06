@@ -222,6 +222,46 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
             |""".stripMargin.replaceAllLiterally(".", " ")
         Header.parse(cleaned) shouldBe md
       }
+
+      it("should prettify a jsonline code block") {
+        val md = Header.parse("""
+            |```jsonline
+            |{"id": 1, "names": ["One", "Un"]}
+            |{"id": 2, "names": ["Two", "Deux"]}
+            |```
+            |""".stripMargin.replaceAllLiterally(".", " "))
+
+        val cleaned = md.build().toString
+        cleaned shouldBe
+          """```jsonline
+            |{"id":1,"names":["One","Un"]}
+            |{"id":2,"names":["Two","Deux"]}
+            |```
+            |""".stripMargin.replaceAllLiterally(".", " ")
+        Header.parse(cleaned).build().toString shouldBe cleaned
+      }
+
+      it("should not prettify a jsonline code block lines with invalid JSON") {
+        val md = Header.parse("""
+            |```jsonline
+            |{"id": 1,
+            | "names": ["One", "Un"]}
+            |{"id": ##, "names": ["One", "Un"]}
+            |{"id": 2, "names": ["Two", "Deux"]}
+            |```
+            |""".stripMargin.replaceAllLiterally(".", " "))
+
+        val cleaned = md.build().toString
+        cleaned shouldBe
+          """```jsonline
+            |{"id": 1,
+            | "names": ["One", "Un"]}
+            |{"id": ##, "names": ["One", "Un"]}
+            |{"id":2,"names":["Two","Deux"]}
+            |```
+            |""".stripMargin.replaceAllLiterally(".", " ")
+        Header.parse(cleaned).build().toString shouldBe cleaned
+      }
     }
 
     describe("with a comment block") {

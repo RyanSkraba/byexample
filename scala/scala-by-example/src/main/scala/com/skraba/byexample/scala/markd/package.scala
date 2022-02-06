@@ -108,7 +108,11 @@ package object markd {
     lazy val builtContent: String = (code_type, content) match {
       case ("json", json) =>
         Try(Json.prettyPrint(Json.parse(json)) + "\n")
-          .getOrElse(content)
+          .getOrElse(json)
+      case ("jsonline", jsonline) =>
+        jsonline.split("\n").map { json=>
+          Try(Json.stringify(Json.parse(json))).getOrElse(json)
+        }.mkString("", "\n", "\n")
       case _ => content
     }
 
