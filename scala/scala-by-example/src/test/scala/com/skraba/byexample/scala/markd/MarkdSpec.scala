@@ -241,23 +241,53 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         Header.parse(cleaned).build().toString shouldBe cleaned
       }
 
-      it("should not prettify a jsonline code block lines with invalid JSON") {
-        val md = Header.parse("""
-            |```jsonline
+      it(
+        "should prettify only the valid lines in jsonline or json line code blocks"
+      ) {
+        val md = Header.parse("""```jsonline
+            |jsonline can't be split over lines
             |{"id": 1,
             | "names": ["One", "Un"]}
             |{"id": ##, "names": ["One", "Un"]}
             |{"id": 2, "names": ["Two", "Deux"]}
+            |```
+            |```json line
+            |{"id": 3, "names": ["Three", "Trois"]}
+            |{"id": 4,     "names": ["Four", "Quatre"}
+            |```
+            |```jsonlines
+            |{"id": 5, "names": ["Five", "Cinq"]}
+            |{"id": 6,     "names": ["Six"}
+            |```
+            |```json lines
+            |{"id": 7, "names": ["Sept", "Seven"]}
+            |{"id": 8,     "names": ["Eight", "Huit"}
             |```
             |""".stripMargin.replaceAllLiterally(".", " "))
 
         val cleaned = md.build().toString
         cleaned shouldBe
           """```jsonline
+            |jsonline can't be split over lines
             |{"id": 1,
             | "names": ["One", "Un"]}
             |{"id": ##, "names": ["One", "Un"]}
             |{"id":2,"names":["Two","Deux"]}
+            |```
+            |
+            |```json line
+            |{"id":3,"names":["Three","Trois"]}
+            |{"id": 4,     "names": ["Four", "Quatre"}
+            |```
+            |
+            |```jsonlines
+            |{"id":5,"names":["Five","Cinq"]}
+            |{"id": 6,     "names": ["Six"}
+            |```
+            |
+            |```json lines
+            |{"id":7,"names":["Sept","Seven"]}
+            |{"id": 8,     "names": ["Eight", "Huit"}
             |```
             |""".stripMargin.replaceAllLiterally(".", " ")
         Header.parse(cleaned).build().toString shouldBe cleaned

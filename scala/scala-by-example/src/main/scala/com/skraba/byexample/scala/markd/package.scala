@@ -109,10 +109,13 @@ package object markd {
       case ("json", json) =>
         Try(Json.prettyPrint(Json.parse(json)) + "\n")
           .getOrElse(json)
-      case ("jsonline", jsonline) =>
-        jsonline.split("\n").map { json=>
-          Try(Json.stringify(Json.parse(json))).getOrElse(json)
-        }.mkString("", "\n", "\n")
+      case ("jsonline" | "jsonlines" | "json line" | "json lines", jsonline) =>
+        jsonline
+          .split("\n")
+          .map { json =>
+            Try(Json.stringify(Json.parse(json))).getOrElse(json)
+          }
+          .mkString("", "\n", "\n")
       case _ => content
     }
 
@@ -374,10 +377,10 @@ package object markd {
       */
     private[this] val Pass1Regex: Regex =
       raw"""(?x)(?s)
-            ( <!--(.*?)-->                                 # Comment
-            | (?<=(^|\n))```(\S*)\s*\n(.*?)```\s*(\n|$$)   # Code
-            | (?<=(^|\n))(\[[^\]]+\]:[^\n]*)               # LinkRef
-            | .*?(?=$$|<!--|```|\n\[[^\]]+\]:|\n\s*\n)     # All other text
+            ( <!--(.*?)-->                                     # Comment
+            | (?<=(^|\n))```([^\n]*?)\s*\n(.*?)```\s*(\n|$$)   # Code
+            | (?<=(^|\n))(\[[^\]]+\]:[^\n]*)                   # LinkRef
+            | .*?(?=$$|<!--|```|\n\[[^\]]+\]:|\n\s*\n)         # All other text
             )
          """.r
 
