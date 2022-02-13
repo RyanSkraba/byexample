@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.within;
 import org.junit.jupiter.api.Test;
 
 /** Simple assertions on numeric primitives. */
-class NumericTests {
+class NumericTest {
 
   @Test
   void testBasicDouble() {

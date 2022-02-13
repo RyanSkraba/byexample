@@ -7,7 +7,7 @@ import static org.hamcrest.Matchers.not;
 import org.junit.jupiter.api.Test;
 
 /** Simple assertions on numeric primitives. */
-class NumericTests {
+class NumericTest {
 
   @Test
   void testBasicDouble() {
