@@ -4,17 +4,17 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /** Simple assertions on string primitives. */
-class StringTests {
+class StringTest {
 
   @Test
   void testBasicString() {
-    String jira = "JIRA-1234";
-    Assertions.assertThat(jira)
+    String issue = "ABC-1234";
+    Assertions.assertThat(issue)
         .isNotBlank()
-        .isEqualTo("JIRA-1234")
-        .contains("A-1")
-        .startsWith("JIRA")
+        .isEqualTo("ABC-1234")
+        .contains("C-1")
+        .startsWith("ABC")
         .endsWith("1234")
-        .matches("[A-Z]+-\\\\d+");
+        .matches("[A-Z]+-\\d+");
   }
 }
