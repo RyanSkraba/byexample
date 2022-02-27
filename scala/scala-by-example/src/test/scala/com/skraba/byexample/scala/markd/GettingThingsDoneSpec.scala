@@ -34,13 +34,14 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            !==============================================================================
            !
            !<!--
-           !| To Do      | Notes                                                                     |
-           !|------------|---------------------------------------------------------------------------|
-           !| 🟢Tech     | **Do the thing** Notes on how it was done                                 |
-           !| 🔶Personal | **Maybe doable** Or paused, or to think about for next week, or in danger |
-           !| 🟥Health   | **Not done** Here's why                                                   |
-           !| ⤴️Personal | **Read Getting Things Done Chapter 4/12** Moved to next week              |
-           !| Pro        | **Another task** With some [details][YYYYMMDD-1]                          |
+           !| To Do      | Notes                                                       |
+           !|------------|-------------------------------------------------------------|
+           !| 🟢Tech     | **Did the thing** and some notes                            |
+           !| 🔶Personal | ****Ready to take** or paused, or to think about            |
+           !| 🟥Health   | **Won't do** and here's why                                 |
+           !| ⤴️Personal | **Read Getting Things Done Chapter 4/12** Moved to later    |
+           !| ⌛Proj      | **[PROJ-1234]**:[Proj PR#4321] Fix all the things `WAITING` |
+           !| Pro        | **Another task** With some [details][YYYYMMDD-1]            |
            !-->
            !
            !$defaultNextWeekStart
