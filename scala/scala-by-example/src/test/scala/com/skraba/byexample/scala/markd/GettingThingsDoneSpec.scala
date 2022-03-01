@@ -1,12 +1,12 @@
 package com.skraba.byexample.scala.markd
 
 import com.skraba.byexample.scala.markd.GettingThingsDone._
+import org.scalatest.OptionValues._
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
 import java.time.format.DateTimeFormatter
 import java.time.{DayOfWeek, LocalDate}
-import org.scalatest.OptionValues._
 
 /** Unit tests for [[GettingThingsDone]]
   */
@@ -433,6 +433,135 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         0,
         state = Some(NoToDoState)
       ) shouldBe GettingThingsDone(withWeeklyToDo)
+    }
+  }
+
+  describe("Extracting statistics") {
+    val withWeeklyStats = GettingThingsDone(s"""Weekly Status
+         !==============================================================================
+         !
+         !2022/02/28
+         !------------------------------------------------------------------------------
+         !
+         !| Stats  | Mon | Tue | Wed | Thu | Fri | Sat | Sun |
+         !|--------|-----|-----|-----|-----|-----|-----|-----|
+         !| read   | 30  | 12  | 13  |     | 20  |     | 30  |
+         !| unread | 52  | 51  | 50  | 58  | 46  | 57  | 38  |
+         !
+         !2022/02/21
+         !------------------------------------------------------------------------------
+         !
+         !| Stats  | Mon | Tue | Wed | Thu | Fri | Sat | Sun |
+         !|--------|-----|-----|-----|-----|-----|-----|-----|
+         !| unread | 14  | 24  | 31  |     | 59  | 60  | 72  |
+         !
+         !2022/02/14
+         !------------------------------------------------------------------------------
+         !
+         !| Stats  | Mon | Tue | Wed | Thu | Fri | Sat | Sun |
+         !|--------|-----|-----|-----|-----|-----|-----|-----|
+         !| read   |     | 12  | 13  |     | 20  |     | 30  |
+         !| unread | 1   |  2  |     | 13  | 2   |     | 3   |
+         !""".stripMargin('!'))
+
+    it("should ignore when no statistic is found") {
+      withWeeklyStats.extractStats("none") shouldBe empty
+    }
+
+    it("should find all the read and unread statistics") {
+      withWeeklyStats.extractStats("unread") shouldBe Seq(
+        ("2022/02/14", "1"),
+        ("2022/02/15", "2"),
+        ("2022/02/17", "13"),
+        ("2022/02/18", "2"),
+        ("2022/02/20", "3"),
+        ("2022/02/21", "14"),
+        ("2022/02/22", "24"),
+        ("2022/02/23", "31"),
+        ("2022/02/25", "59"),
+        ("2022/02/26", "60"),
+        ("2022/02/27", "72"),
+        ("2022/02/28", "52"),
+        ("2022/03/01", "51"),
+        ("2022/03/02", "50"),
+        ("2022/03/03", "58"),
+        ("2022/03/04", "46"),
+        ("2022/03/05", "57"),
+        ("2022/03/06", "38")
+      )
+      withWeeklyStats.extractStats("read") shouldBe Seq(
+        ("2022/02/15", "12"),
+        ("2022/02/16", "13"),
+        ("2022/02/18", "20"),
+        ("2022/02/20", "30"),
+        ("2022/02/28", "30"),
+        ("2022/03/01", "12"),
+        ("2022/03/02", "13"),
+        ("2022/03/04", "20"),
+        ("2022/03/06", "30")
+      )
+    }
+
+    it("should find all the read statistics after a date") {
+      withWeeklyStats.extractStats(
+        "read",
+        from = Some(LocalDate.parse("2022/02/18", Pattern))
+      ) shouldBe Seq(
+        ("2022/02/18", "20"),
+        ("2022/02/20", "30"),
+        ("2022/02/28", "30"),
+        ("2022/03/01", "12"),
+        ("2022/03/02", "13"),
+        ("2022/03/04", "20"),
+        ("2022/03/06", "30")
+      )
+    }
+
+    it("should find all the read statistics before a date") {
+      withWeeklyStats.extractStats(
+        "read",
+        to = Some(LocalDate.parse("2022/03/02", Pattern))
+      ) shouldBe Seq(
+        ("2022/02/15", "12"),
+        ("2022/02/16", "13"),
+        ("2022/02/18", "20"),
+        ("2022/02/20", "30"),
+        ("2022/02/28", "30"),
+        ("2022/03/01", "12"),
+        ("2022/03/02", "13")
+      )
+    }
+
+    it("should find all the read statistics between dates") {
+      withWeeklyStats.extractStats(
+        "read",
+        from = Some(LocalDate.parse("2022/02/18", Pattern)),
+          to = Some(LocalDate.parse("2022/03/02", Pattern))
+      ) shouldBe Seq(
+        ("2022/02/18", "20"),
+        ("2022/02/20", "30"),
+        ("2022/02/28", "30"),
+        ("2022/03/01", "12"),
+        ("2022/03/02", "13")
+      )
+    }
+
+    it("should find all the read statistics between large bounds") {
+      withWeeklyStats.extractStats(
+        "read",
+        from = Some(LocalDate.parse("1022/02/18", Pattern)),
+          to = Some(LocalDate.parse("3022/03/02", Pattern))
+      ) shouldBe Seq(
+        ("2022/02/15", "12"),
+        ("2022/02/16", "13"),
+        ("2022/02/18", "20"),
+        ("2022/02/20", "30"),
+        ("2022/02/28", "30"),
+        ("2022/03/01", "12"),
+        ("2022/03/02", "13"),
+        ("2022/03/04", "20"),
+        ("2022/03/06", "30")
+      )
     }
   }
 

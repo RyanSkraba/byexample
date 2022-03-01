@@ -2,7 +2,9 @@ package com.skraba.byexample.scala.markd
 
 import com.skraba.byexample.scala.markd.GettingThingsDone._
 
-import java.time.DayOfWeek
+import java.time.format.DateTimeFormatter
+import java.time.{DayOfWeek, LocalDate}
+import scala.util.Try
 
 /** A markdown document that helps organising yourself.
   *
@@ -226,9 +228,53 @@ case class GettingThingsDone(doc: Header) {
           .updated(1, nRow, notes.getOrElse(oldNotes))
     }
   }
+
+  def extractStats(
+      name: String,
+      from: Option[LocalDate] = None,
+      to: Option[LocalDate] = None
+  ): Seq[(String, String)] = {
+
+    // Find all of the weekly reports
+    weeklies.toSeq
+      .flatMap(_.mds.collect { case weekly @ Header(title, 2, _) =>
+        // If the title is a parseable date
+        Try {
+          LocalDate.parse(title.substring(0, 10), Pattern)
+        }.toOption.toSeq
+          .flatMap { startOfWeek: LocalDate =>
+            // Then find the Stats table in the weekly report
+            weekly.mds
+              .collectFirst {
+                case tb @ Table(_, Seq(TableRow(Seq(a1: String, _*)), _*))
+                    if a1 == TableStats =>
+                  // And the first row that matches the name
+                  tb.mds.collectFirst {
+                    case row if row.cells.headOption.contains(name) =>
+                      row.cells.zipWithIndex.collect {
+                        case (value, i) if (i > 0 && value.nonEmpty) =>
+                          // And all the non-empty values in the table
+                          (startOfWeek.plusDays(i - 1), value)
+                      }
+                  }
+              }
+              .flatten
+              .getOrElse(Nil)
+              // Filter by the dates if any are specified
+              .filter { case (d, _) => from.forall(_.compareTo(d) <= 0) }
+              .filter { case (d, _) => to.forall(_.compareTo(d) >= 0) }
+              .map { case (d, v) => (d.format(Pattern), v) }
+          }
+      })
+      .flatten
+      .sortBy(_._1)
+  }
 }
 
 object GettingThingsDone {
+
+  /** A date pattern */
+  val Pattern = DateTimeFormatter.ofPattern("yyyy/MM/dd")
 
   /** The name of the statistics table, the value found in the upper left
     * column.
@@ -349,16 +395,14 @@ object GettingThingsDone {
   ): String = {
     // Use the time classes to find the next date.
     import java.time.LocalDate
-    import java.time.format.DateTimeFormatter
     import java.time.temporal.TemporalAdjusters
-    val pattern = DateTimeFormatter.ofPattern("yyyy/MM/dd")
     val monday = date
-      .map(ptn => LocalDate.parse(ptn.substring(0, 10), pattern))
+      .map(ptn => LocalDate.parse(ptn.substring(0, 10), Pattern))
       .getOrElse(LocalDate.now)
       .plusDays(1)
       .`with`(TemporalAdjusters.previous(dow))
       .plusDays(7)
-      .format(pattern)
+      .format(Pattern)
     monday
   }
 
