@@ -536,7 +536,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
       withWeeklyStats.extractStats(
         "read",
         from = Some(LocalDate.parse("2022/02/18", Pattern)),
-          to = Some(LocalDate.parse("2022/03/02", Pattern))
+        to = Some(LocalDate.parse("2022/03/02", Pattern))
       ) shouldBe Seq(
         ("2022/02/18", "20"),
         ("2022/02/20", "30"),
@@ -550,7 +550,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
       withWeeklyStats.extractStats(
         "read",
         from = Some(LocalDate.parse("1022/02/18", Pattern)),
-          to = Some(LocalDate.parse("3022/03/02", Pattern))
+        to = Some(LocalDate.parse("3022/03/02", Pattern))
       ) shouldBe Seq(
         ("2022/02/15", "12"),
         ("2022/02/16", "13"),
