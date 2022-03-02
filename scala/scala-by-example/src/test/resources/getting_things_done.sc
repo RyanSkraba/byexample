@@ -117,12 +117,13 @@ def help(): Unit = {
   val cmd = s"${GREEN}getting_things_done$RESET"
   println(s"""$BOLD$cmd - Let's get things done!
        |
-       |  $CYAN     clean$RESET : Rewrite the status document
-       |  $CYAN   newWeek$RESET : Add a new week to the status document
-       |  $CYAN        pr$RESET : Add a PR review to this week
-       |  $CYAN      stat$RESET : Add or update a weekly statistic
-       |  $CYAN      task$RESET : Add or update a weekly task ${RED_B}TODO$RESET
-       |  $CYAN      week$RESET : Print the last week status or a specific week
+       |  $CYAN       clean$RESET : Rewrite the status document
+       |  $CYAN     newWeek$RESET : Add a new week to the status document
+       |  $CYAN          pr$RESET : Add a PR review to this week
+       |  $CYAN        stat$RESET : Add or update a weekly statistic
+       |  $CYAN statExtract$RESET : Extract a statistic from the document
+       |  $CYAN        task$RESET : Add or update a weekly task ${RED_B}TODO$RESET
+       |  $CYAN        week$RESET : Print the last week status or a specific week
        |
        |Usage:
        |
@@ -199,7 +200,7 @@ def newWeek(): Unit = {
                 TableRow(
                   cells.updated(
                     0,
-                    taskText.replaceAllLiterally(MaybeToDo.txt, LaterToDO.txt)
+                    taskText.replaceAllLiterally(MaybeToDo.txt, LaterToDo.txt)
                   )
                 )
               )
@@ -304,7 +305,19 @@ def stat(
     )
   )
   write.over(StatusFile, cleanedNewDoc.build().toString.trim() + "\n")
+}
 
+@arg(doc = "Extract a statistic in the table as a time-series")
+@main
+def statExtract(
+          @arg(doc = "Update the statistic on this row (matches first element.")
+          rowStat: String
+        ): Unit = {
+  // Read the existing document.
+  val doc = GettingThingsDone(read ! StatusFile, ProjectParserCfg)
+  println("date,value")
+  for ((date, value) <- doc.extractStats(rowStat))
+    println(s"$date,$value")
 }
 
 @arg(doc = "Print the status for this week")
