@@ -117,7 +117,7 @@ def help(): Unit = {
   val cmd = s"${GREEN}getting_things_done$RESET"
   println(s"""$BOLD$cmd - Let's get things done!
        |
-       |  $CYAN       clean$RESET : Rewrite the status document
+       |  $CYAN       clean$RESET : Beautify the status document
        |  $CYAN     newWeek$RESET : Add a new week to the status document
        |  $CYAN          pr$RESET : Add a PR review to this week
        |  $CYAN        stat$RESET : Add or update a weekly statistic
