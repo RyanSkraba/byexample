@@ -291,11 +291,12 @@ def stat(
     @arg(doc = "The new value to put in the row")
     cell: String,
     @arg(doc = "The column to update or None for today")
-    colStat: Option[String] = None
+    date: Option[String] = None
 ): Unit = {
   // Read the existing document.
   val doc = GettingThingsDone(read ! StatusFile, ProjectParserCfg)
-  val newDoc = doc.updateTopWeekStats(rowStat, cell, colStat)
+  // TODO: If date is in a YYYY/MM/DD format, then to the correct date
+  val newDoc = doc.updateTopWeekStats(rowStat, cell, date)
   val cleanedNewDoc =
     Header.parse(newDoc.doc.build().toString, ProjectParserCfg)
 

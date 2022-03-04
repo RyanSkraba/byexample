@@ -59,10 +59,10 @@ import scala.util.Try
   * | To Do      | Notes                                                       |
   * |------------|-------------------------------------------------------------|
   * | 🟢Tech     | **Did the thing** and some notes                            |
-  * | 🔶Personal | ****Ready to take** or paused, or to think about            |
-  * | 🟥Health   | **Won't do** and here's why                                 |
-  * | ⤴️Personal | **Read Getting Things Done Chapter 4/12** Moved to later    |
-  * | ⌛Proj      | **[PROJ-1234]**:[Proj PR#4321] Fix all the things `WAITING` |
+  * | 🔶Health   | ****Ready to take** or paused, or to think about            |
+  * | 🟥Personal | **Won't do** and here's why                                 |
+  * | ⤴Personal | **Read Getting Things Done Chapter 4/12** Moved to later    |
+  * | ⏳Proj      | **[PROJ-1234]**:[Proj PR#4321] Fix all the things `WAITING` |
   * | Pro        | **Another task** With some [details][YYYYMMDD-1]            |
   * }}}
   */
@@ -337,12 +337,12 @@ object GettingThingsDone {
         state = DoneToDo
       )
       .addTopWeekToDo(
-        "Personal",
+        "Health",
         "****Ready to take** or paused, or to think about",
         state = MaybeToDo
       )
       .addTopWeekToDo(
-        "Health",
+        "Personal",
         "**Won't do** and here's why",
         state = StoppedToDo
       )
@@ -381,7 +381,7 @@ object GettingThingsDone {
   case object DoneToDo extends ToDoState("🟢")
   case object MaybeToDo extends ToDoState("🔶")
   case object StoppedToDo extends ToDoState("🟥")
-  case object WaitingToDo extends ToDoState("⌛")
+  case object WaitingToDo extends ToDoState("🕒")
   case object LaterToDo extends ToDoState("⤴️")
   val AllStates: Seq[ToDoState] =
     Seq(DoneToDo, MaybeToDo, StoppedToDo, LaterToDo, NoToDoState)
