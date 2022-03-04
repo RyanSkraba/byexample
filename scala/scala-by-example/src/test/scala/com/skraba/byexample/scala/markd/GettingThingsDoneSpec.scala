@@ -37,10 +37,10 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            !| To Do      | Notes                                                       |
            !|------------|-------------------------------------------------------------|
            !| 🟢Tech     | **Did the thing** and some notes                            |
-           !| 🔶Personal | ****Ready to take** or paused, or to think about            |
-           !| 🟥Health   | **Won't do** and here's why                                 |
+           !| 🔶Health   | ****Ready to take** or paused, or to think about            |
+           !| 🟥Personal | **Won't do** and here's why                                 |
            !| ⤴️Personal | **Read Getting Things Done Chapter 4/12** Moved to later    |
-           !| ⌛Proj      | **[PROJ-1234]**:[Proj PR#4321] Fix all the things `WAITING` |
+           !| 🕒Proj     | **[PROJ-1234]**:[Proj PR#4321] Fix all the things `WAITING` |
            !| Pro        | **Another task** With some [details][YYYYMMDD-1]            |
            !-->
            !
