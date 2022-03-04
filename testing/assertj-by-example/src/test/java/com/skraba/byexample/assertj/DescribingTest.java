@@ -1,6 +1,7 @@
 package com.skraba.byexample.assertj;
 
-import com.skraba.byexample.assertj.Project.Issue;
+import com.skraba.byexample.scala.Project;
+import com.skraba.byexample.scala.Project.Issue;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
