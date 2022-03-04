@@ -27,7 +27,6 @@ class OptionalTest {
         .endsWith("1234")
         .matches("[A-Z]+-\\d+");
 
-
     // Checking for presence
     Optional<String> opt = Optional.of(issue);
     assertThat(opt).contains("ABC-1234");

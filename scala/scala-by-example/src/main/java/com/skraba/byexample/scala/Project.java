@@ -1,4 +1,4 @@
-package com.skraba.byexample.assertj;
+package com.skraba.byexample.scala;
 
 import java.util.Objects;
 

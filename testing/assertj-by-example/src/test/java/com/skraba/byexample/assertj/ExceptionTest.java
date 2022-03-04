@@ -3,6 +3,7 @@ package com.skraba.byexample.assertj;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.skraba.byexample.scala.Project;
 import org.junit.jupiter.api.Test;
 
 /** Simple assertions handling exceptions. */
