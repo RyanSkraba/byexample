@@ -11,9 +11,13 @@ JUnit5 by example
 [People]: https://github.com/junit-team/junit5/graphs/contributors
 [Wiki]: https://github.com/junit-team/junit5/wiki
 
-| How do I...          | Examples                                                                                                |
-|----------------------|---------------------------------------------------------------------------------------------------------|
-| Test String values?  | [com.skraba.byexample.junit5.StringTest](src/test/java/com/skraba/byexample/junit5/StringTests.java)   |
-| Test Numeric values? | [com.skraba.byexample.junit5.NumericTest](src/test/java/com/skraba/byexample/junit5/NumericTests.java) |
+| How do I...          | Examples                                                                                              |
+|----------------------|-------------------------------------------------------------------------------------------------------|
+| Test String values?  | [com.skraba.byexample.junit5.StringTest](src/test/java/com/skraba/byexample/junit5/StringTest.java)   |
+| Test Numeric values? | [com.skraba.byexample.junit5.NumericTest](src/test/java/com/skraba/byexample/junit5/NumericTest.java) |
+| Parameterize tests?  | [com.skraba.byexample.junit5.ParamTest](src/test/java/com/skraba/byexample/junit5/ParamTest.java)     |
+
+* Other resources:
+  - https://www.baeldung.com/parameterized-tests-junit-5
 
 
