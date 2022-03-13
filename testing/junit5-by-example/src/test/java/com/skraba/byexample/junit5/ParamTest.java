@@ -82,6 +82,23 @@ class ParamTest {
 
   @ParameterizedTest
   @CsvSource({
+    "SATURDAY, 1, SUNDAY, true",
+    "SUNDAY, 1, MONDAY, true",
+    "TUESDAY, 2, THURSDAY, true",
+    "WEDNESDAY, 9, FRIDAY, true",
+    "WEDNESDAY, 9, SATURDAY, false"
+  })
+  void testCsvSourceEnum(DayOfWeek in, int days, DayOfWeek out, boolean truth)
+      throws NoSuchAlgorithmException {
+    if (truth) {
+      assertThat(in.plus(days), is(out));
+    } else {
+      assertThat(in.plus(days), not(out));
+    }
+  }
+
+  @ParameterizedTest
+  @CsvSource({
     "apple,  d0be2dc421be4fcd0172e5afceea3970e2f3d940",
     "banana, 250e77f12a5ab6972a0895d290c4792f0a326ea8",
     "carrot, d8bfad4b74d554312313bd842f4d05364c1ffadd",
