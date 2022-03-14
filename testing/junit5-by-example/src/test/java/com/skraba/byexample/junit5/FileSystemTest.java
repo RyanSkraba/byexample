@@ -1,15 +1,5 @@
 package com.skraba.byexample.junit5;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.Writer;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsStringIgnoringCase;
 import static org.hamcrest.Matchers.not;
@@ -22,6 +12,15 @@ import static org.hamcrest.io.FileMatchers.aWritableFile;
 import static org.hamcrest.io.FileMatchers.anExistingDirectory;
 import static org.hamcrest.io.FileMatchers.anExistingFile;
 import static org.hamcrest.io.FileMatchers.anExistingFileOrDirectory;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /** Testing the file system. */
 class FileSystemTest {
@@ -51,7 +50,9 @@ class FileSystemTest {
 
     assertThat(hello, aFileNamed(containsStringIgnoringCase("hello")));
     assertThat(hello, aFileNamed(not(containsStringIgnoringCase(tmp.getFileName().toString()))));
-    assertThat(hello, aFileWithAbsolutePath(containsStringIgnoringCase(tmp.getFileName().toString())));
-    assertThat(hello, aFileWithCanonicalPath(containsStringIgnoringCase(tmp.getFileName().toString())));
+    assertThat(
+        hello, aFileWithAbsolutePath(containsStringIgnoringCase(tmp.getFileName().toString())));
+    assertThat(
+        hello, aFileWithCanonicalPath(containsStringIgnoringCase(tmp.getFileName().toString())));
   }
 }
