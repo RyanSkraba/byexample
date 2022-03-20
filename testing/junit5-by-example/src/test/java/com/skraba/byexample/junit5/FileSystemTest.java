@@ -1,7 +1,7 @@
 package com.skraba.byexample.junit5;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsStringIgnoringCase;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.io.FileMatchers.aFileNamed;
 import static org.hamcrest.io.FileMatchers.aFileWithAbsolutePath;
@@ -16,6 +16,7 @@ import static org.hamcrest.io.FileMatchers.anExistingFileOrDirectory;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.BeforeAll;
@@ -30,29 +31,44 @@ class FileSystemTest {
   @BeforeAll
   static void beforeAll() throws IOException {
     assertThat(tmp.toFile(), anExistingDirectory());
-    try (Writer w = Files.newBufferedWriter(tmp.resolve("hello.txt"))) {
+    Path hello = tmp.resolve("sub/hello.txt");
+    Files.createDirectories(hello.getParent());
+    try (Writer w = Files.newBufferedWriter(hello, StandardCharsets.UTF_8)) {
       w.write("Hello world!");
     }
   }
 
   @Test
-  void testFiles() {
-    // Only files are supported, not paths.
-    File hello = tmp.resolve("hello.txt").toFile();
+  void testFileAsFile() {
+    File file = tmp.resolve("sub/hello.txt").toFile();
 
-    assertThat(hello, anExistingFile());
-    assertThat(hello, anExistingFileOrDirectory());
-    assertThat(hello, not(anExistingDirectory()));
+    assertThat(file, anExistingFile());
+    assertThat(file, anExistingFileOrDirectory());
+    assertThat(file, not(anExistingDirectory()));
 
-    assertThat(hello, aReadableFile());
-    assertThat(hello, aWritableFile());
-    assertThat(hello, aFileWithSize(12));
+    assertThat(file, aReadableFile());
+    assertThat(file, aWritableFile());
+    assertThat(file, aFileWithSize(12));
 
-    assertThat(hello, aFileNamed(containsStringIgnoringCase("hello")));
-    assertThat(hello, aFileNamed(not(containsStringIgnoringCase(tmp.getFileName().toString()))));
-    assertThat(
-        hello, aFileWithAbsolutePath(containsStringIgnoringCase(tmp.getFileName().toString())));
-    assertThat(
-        hello, aFileWithCanonicalPath(containsStringIgnoringCase(tmp.getFileName().toString())));
+    assertThat(file, aFileNamed(containsString("hello")));
+    assertThat(file, aFileNamed(not(containsString(tmp.getFileName().toString()))));
+    assertThat(file, aFileWithAbsolutePath(containsString(tmp.getFileName().toString())));
+    assertThat(file, aFileWithCanonicalPath(containsString(tmp.getFileName().toString())));
+  }
+
+  @Test
+  void testFileAsDirectory() {
+    File dir = tmp.resolve("sub").toFile();
+
+    assertThat(dir, anExistingDirectory());
+    assertThat(dir, anExistingFileOrDirectory());
+    assertThat(dir, not(anExistingFile()));
+
+    assertThat(dir, aReadableFile());
+    assertThat(dir, aWritableFile());
+
+    assertThat(dir, aFileNamed(containsString("sub")));
+    assertThat(dir, aFileWithAbsolutePath(containsString(tmp.getFileName().toString())));
+    assertThat(dir, aFileWithCanonicalPath(containsString(tmp.getFileName().toString())));
   }
 }
