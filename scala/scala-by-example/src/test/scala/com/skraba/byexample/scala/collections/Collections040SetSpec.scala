@@ -130,6 +130,7 @@ class Collections040SetSpec extends AnyFunSpecLike with Matchers {
       // inclusive
       xs.from(3).toSeq shouldBe Seq(3, 4, 5)
       xs.to(4).toSeq shouldBe Seq(1, 2, 3, 4)
+      xs.until(4).toSeq shouldBe Seq(1, 2, 3)
     }
   }
 
