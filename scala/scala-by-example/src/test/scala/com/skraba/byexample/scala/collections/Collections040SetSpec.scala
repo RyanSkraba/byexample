@@ -115,6 +115,13 @@ class Collections040SetSpec extends AnyFunSpecLike with Matchers {
       xs.toSeq shouldBe Seq(1, 2, 3, 4, 5)
     }
 
+    it("can be created from an existing set") {
+      val xs = Set('z', 'a', 'b', '@', 'A')
+      val sortedXs = SortedSet.empty[Char] ++ xs
+      sortedXs shouldBe a[immutable.TreeSet[_]]
+      sortedXs.toSeq shouldBe Seq('@', 'A', 'a', 'b', 'z')
+    }
+
     it("supports ordering") {
       // Use the greater than operation for less than reverses the order.
       val myOrdering = Ordering.fromLessThan[Int](_ > _)
