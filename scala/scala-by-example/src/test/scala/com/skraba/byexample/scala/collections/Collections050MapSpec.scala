@@ -3,7 +3,7 @@ package com.skraba.byexample.scala.collections
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-import scala.collection.{immutable, mutable}
+import scala.collection.{SortedMap, immutable, mutable}
 
 /** Examples from the scala collections doc. Each spec covers a page.
   *
@@ -108,6 +108,16 @@ class Collections050MapSpec extends AnyFunSpecLike with Matchers {
       // both are map views
       ms.filterKeys(_ % 2 == 1) shouldBe Map(1 -> "one", 3 -> "three")
       ms.mapValues(_.reverse) shouldBe Map(1 -> "eno", 2 -> "owt", 3 -> "eerht")
+    }
+  }
+
+  describe("Sorted maps") {
+    it("has a default implementation of immutable.TreeMap") {
+      // Any smaller sets may have a specialized implementation.
+      val xs = SortedMap(5 -> "A", 4 -> "A", 3 -> "B", 2 -> "X", 1 -> "A")
+      xs shouldBe a[immutable.TreeMap[_, _]]
+      // And it has an order
+      xs.toSeq shouldBe Seq(1 -> "A", 2 -> "X", 3 -> "B", 4 -> "A", 5 -> "A")
     }
   }
 
