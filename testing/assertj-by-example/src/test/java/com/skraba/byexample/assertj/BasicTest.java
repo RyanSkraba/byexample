@@ -1,7 +1,8 @@
 package com.skraba.byexample.assertj;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Fail.fail;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.util.Objects;
 import org.junit.jupiter.api.Test;
@@ -22,5 +23,11 @@ class BasicTest {
     assertThatThrownBy(() -> fail("We arrived here"))
         .isInstanceOf(AssertionError.class)
         .hasMessage("We arrived here");
+
+    // Assertions also throw exceptions
+    assertThatThrownBy(() -> assertThat("X").isEqualTo("Y"))
+        .isInstanceOf(AssertionError.class)
+        .hasMessageContaining("expected: \"Y\"")
+        .hasMessageContaining("but was: \"X\"");
   }
 }
