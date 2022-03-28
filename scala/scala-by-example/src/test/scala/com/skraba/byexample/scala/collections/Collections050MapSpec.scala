@@ -119,6 +119,19 @@ class Collections050MapSpec extends AnyFunSpecLike with Matchers {
       // And it has an order
       xs.toSeq shouldBe Seq(1 -> "A", 2 -> "X", 3 -> "B", 4 -> "A", 5 -> "A")
     }
+
+    it("can be created from an existing map") {
+      val xs = SortedMap(5 -> "A", 4 -> "A", 3 -> "B", 2 -> "X", 1 -> "A")
+      val sortedXs = SortedMap.empty[Int, String] ++ xs
+      sortedXs shouldBe a[immutable.TreeMap[_, _]]
+      sortedXs.toSeq shouldBe Seq(
+        1 -> "A",
+        2 -> "X",
+        3 -> "B",
+        4 -> "A",
+        5 -> "A"
+      )
+    }
   }
 
   describe("Mutable maps") {
