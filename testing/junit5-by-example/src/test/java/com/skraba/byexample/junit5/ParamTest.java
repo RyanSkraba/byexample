@@ -2,13 +2,15 @@ package com.skraba.byexample.junit5;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.DayOfWeek;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Nested;
@@ -131,6 +133,22 @@ class ParamTest {
 
   private static Stream<Arguments> getSha1Examples() {
     return Stream.of(
+        Arguments.of("apple", "d0be2dc421be4fcd0172e5afceea3970e2f3d940"),
+        Arguments.of("banana", "250e77f12a5ab6972a0895d290c4792f0a326ea8"),
+        Arguments.of("carrot", "d8bfad4b74d554312313bd842f4d05364c1ffadd"),
+        Arguments.of("dog", "e49512524f47b4138d850c9d9d85972927281da0"));
+  }
+
+  @ParameterizedTest
+  @MethodSource("getSha1ExamplesXX")
+  void testMethodSourceByNameXX(String in, String out) throws NoSuchAlgorithmException {
+    MessageDigest dig = MessageDigest.getInstance("SHA-1");
+    dig.update(in.getBytes(StandardCharsets.UTF_8));
+    assertThat(new BigInteger(1, dig.digest()).toString(16), is(out));
+  }
+
+  private static Collection<Arguments> getSha1ExamplesXX() {
+    return Arrays.asList(
         Arguments.of("apple", "d0be2dc421be4fcd0172e5afceea3970e2f3d940"),
         Arguments.of("banana", "250e77f12a5ab6972a0895d290c4792f0a326ea8"),
         Arguments.of("carrot", "d8bfad4b74d554312313bd842f4d05364c1ffadd"),
