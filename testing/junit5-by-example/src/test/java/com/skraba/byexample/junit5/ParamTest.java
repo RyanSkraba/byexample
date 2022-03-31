@@ -139,15 +139,23 @@ class ParamTest {
         Arguments.of("dog", "e49512524f47b4138d850c9d9d85972927281da0"));
   }
 
-  @ParameterizedTest
-  @MethodSource("getSha1ExamplesXX")
-  void testMethodSourceByNameXX(String in, String out) throws NoSuchAlgorithmException {
+  @ParameterizedTest(name = "{displayName}-at-{index}")
+  @MethodSource("getSha1Examples")
+  void testMethodSourceWithDisplayName(String in, String out) throws NoSuchAlgorithmException {
     MessageDigest dig = MessageDigest.getInstance("SHA-1");
     dig.update(in.getBytes(StandardCharsets.UTF_8));
     assertThat(new BigInteger(1, dig.digest()).toString(16), is(out));
   }
 
-  private static Collection<Arguments> getSha1ExamplesXX() {
+  @ParameterizedTest
+  @MethodSource("getSha1ExamplesByCollectionOfArguments")
+  void testMethodSourceByCollectionOfArguments(String in, String out) throws NoSuchAlgorithmException {
+    MessageDigest dig = MessageDigest.getInstance("SHA-1");
+    dig.update(in.getBytes(StandardCharsets.UTF_8));
+    assertThat(new BigInteger(1, dig.digest()).toString(16), is(out));
+  }
+
+  private static Collection<Arguments> getSha1ExamplesByCollectionOfArguments() {
     return Arrays.asList(
         Arguments.of("apple", "d0be2dc421be4fcd0172e5afceea3970e2f3d940"),
         Arguments.of("banana", "250e77f12a5ab6972a0895d290c4792f0a326ea8"),
