@@ -147,9 +147,18 @@ class ParamTest {
     assertThat(new BigInteger(1, dig.digest()).toString(16), is(out));
   }
 
+  @ParameterizedTest(name = "Check SHA({0}) == {1}")
+  @MethodSource("getSha1Examples")
+  void testMethodSourceWithArgumentsName(String in, String out) throws NoSuchAlgorithmException {
+    MessageDigest dig = MessageDigest.getInstance("SHA-1");
+    dig.update(in.getBytes(StandardCharsets.UTF_8));
+    assertThat(new BigInteger(1, dig.digest()).toString(16), is(out));
+  }
+
   @ParameterizedTest
   @MethodSource("getSha1ExamplesByCollectionOfArguments")
-  void testMethodSourceByCollectionOfArguments(String in, String out) throws NoSuchAlgorithmException {
+  void testMethodSourceByCollectionOfArguments(String in, String out)
+      throws NoSuchAlgorithmException {
     MessageDigest dig = MessageDigest.getInstance("SHA-1");
     dig.update(in.getBytes(StandardCharsets.UTF_8));
     assertThat(new BigInteger(1, dig.digest()).toString(16), is(out));
