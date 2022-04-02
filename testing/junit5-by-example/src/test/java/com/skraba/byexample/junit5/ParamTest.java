@@ -90,13 +90,25 @@ class ParamTest {
     "WEDNESDAY, 9, FRIDAY, true",
     "WEDNESDAY, 9, SATURDAY, false"
   })
-  void testCsvSourceEnum(DayOfWeek in, int days, DayOfWeek out, boolean truth)
-      throws NoSuchAlgorithmException {
+  void testCsvSourceEnum(DayOfWeek in, int days, DayOfWeek out, boolean truth) {
     if (truth) {
       assertThat(in.plus(days), is(out));
     } else {
       assertThat(in.plus(days), not(out));
     }
+  }
+
+  /**
+   * A method to test.
+   *
+   * @param in An input string
+   * @return The SHA-1 digest of that string
+   * @throws NoSuchAlgorithmException If the JVM can't construct an SHA-1 message digest.
+   */
+  public static String getSha1Digest(String in) throws NoSuchAlgorithmException {
+    MessageDigest dig = MessageDigest.getInstance("SHA-1");
+    dig.update(in.getBytes(StandardCharsets.UTF_8));
+    return new BigInteger(1, dig.digest()).toString(16);
   }
 
   @ParameterizedTest
@@ -107,9 +119,7 @@ class ParamTest {
     "dog,    e49512524f47b4138d850c9d9d85972927281da0"
   })
   void testCsvSourceSHA1(String in, String out) throws NoSuchAlgorithmException {
-    MessageDigest dig = MessageDigest.getInstance("SHA-1");
-    dig.update(in.getBytes(StandardCharsets.UTF_8));
-    assertThat(new BigInteger(1, dig.digest()).toString(16), is(out));
+    assertThat(getSha1Digest(in), is(out));
   }
 
   // If the method isn't named, use the same as the test name.
@@ -126,9 +136,7 @@ class ParamTest {
   @ParameterizedTest
   @MethodSource("getSha1Examples")
   void testMethodSourceByName(String in, String out) throws NoSuchAlgorithmException {
-    MessageDigest dig = MessageDigest.getInstance("SHA-1");
-    dig.update(in.getBytes(StandardCharsets.UTF_8));
-    assertThat(new BigInteger(1, dig.digest()).toString(16), is(out));
+    assertThat(getSha1Digest(in), is(out));
   }
 
   private static Stream<Arguments> getSha1Examples() {
@@ -142,26 +150,20 @@ class ParamTest {
   @ParameterizedTest(name = "{displayName}-at-{index}")
   @MethodSource("getSha1Examples")
   void testMethodSourceWithDisplayName(String in, String out) throws NoSuchAlgorithmException {
-    MessageDigest dig = MessageDigest.getInstance("SHA-1");
-    dig.update(in.getBytes(StandardCharsets.UTF_8));
-    assertThat(new BigInteger(1, dig.digest()).toString(16), is(out));
+    assertThat(getSha1Digest(in), is(out));
   }
 
   @ParameterizedTest(name = "Check SHA({0}) == {1}")
   @MethodSource("getSha1Examples")
   void testMethodSourceWithArgumentsName(String in, String out) throws NoSuchAlgorithmException {
-    MessageDigest dig = MessageDigest.getInstance("SHA-1");
-    dig.update(in.getBytes(StandardCharsets.UTF_8));
-    assertThat(new BigInteger(1, dig.digest()).toString(16), is(out));
+    assertThat(getSha1Digest(in), is(out));
   }
 
   @ParameterizedTest
   @MethodSource("getSha1ExamplesByCollectionOfArguments")
   void testMethodSourceByCollectionOfArguments(String in, String out)
       throws NoSuchAlgorithmException {
-    MessageDigest dig = MessageDigest.getInstance("SHA-1");
-    dig.update(in.getBytes(StandardCharsets.UTF_8));
-    assertThat(new BigInteger(1, dig.digest()).toString(16), is(out));
+    assertThat(getSha1Digest(in), is(out));
   }
 
   private static Collection<Arguments> getSha1ExamplesByCollectionOfArguments() {
