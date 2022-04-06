@@ -1,7 +1,9 @@
 package com.skraba.byexample.assertj;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
 import com.skraba.byexample.scala.Project;
 import org.junit.jupiter.api.Test;
@@ -18,5 +20,10 @@ class ExceptionTest {
     assertThatThrownBy(() -> new Project.Issue(null, null))
         .isInstanceOf(Exception.class)
         .hasMessage("Issue.project is required");
+
+    NullPointerException npe =
+        catchThrowableOfType(() -> new Project.Issue(null, null), NullPointerException.class);
+
+    assertThat(npe).hasMessage("Issue.project is required");
   }
 }
