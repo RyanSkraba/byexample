@@ -132,6 +132,17 @@ class Collections050MapSpec extends AnyFunSpecLike with Matchers {
         5 -> "A"
       )
     }
+
+    it("supports ordering") {
+      // Use the greater than operation for less than reverses the order.
+      val myOrdering = Ordering.fromLessThan[Int](_ > _)
+      val xs = SortedMap.empty(myOrdering)
+      (xs + (5 -> "A", 4 -> "A", 3 -> "B")).toSeq shouldBe Seq(
+        5 -> "A",
+        4 -> "A",
+        3 -> "B"
+      )
+    }
   }
 
   describe("Mutable maps") {
