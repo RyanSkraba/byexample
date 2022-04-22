@@ -143,6 +143,17 @@ class Collections050MapSpec extends AnyFunSpecLike with Matchers {
         3 -> "B"
       )
     }
+
+    it("supports ranges") {
+      val xs = SortedMap(5 -> "A", 4 -> "A", 3 -> "B", 2 -> "X", 1 -> "A")
+      xs.toSeq shouldBe Seq(1 -> "A", 2 -> "X", 3 -> "B", 4 -> "A", 5 -> "A")
+      // inclusive start, exclusive end
+      xs.range(2, 4).toSeq shouldBe Seq(2 -> "X", 3 -> "B")
+      // inclusive
+      xs.from(3).toSeq shouldBe Seq(3 -> "B", 4 -> "A", 5 -> "A")
+      xs.to(4).toSeq shouldBe Seq(1 -> "A", 2 -> "X", 3 -> "B", 4 -> "A")
+      xs.until(4).toSeq shouldBe Seq(1 -> "A", 2 -> "X", 3 -> "B")
+    }
   }
 
   describe("Mutable maps") {
