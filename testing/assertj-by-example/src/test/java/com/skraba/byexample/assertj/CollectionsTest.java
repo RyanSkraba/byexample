@@ -15,6 +15,18 @@ import org.junit.jupiter.api.Test;
 class CollectionsTest {
 
   @Test
+  void testArray() {
+    String[] myArray = {"Apple", "Banana", "Carrot", "Dog"};
+    assertThat(myArray)
+        .hasSize(4)
+        .hasSizeBetween(0, 5)
+        .hasSizeGreaterThan(3)
+        .contains("Apple")
+        .containsAll(Arrays.asList("Apple", "Dog", "Banana"))
+        .containsOnly("Apple", "Banana", "Carrot", "Dog");
+  }
+
+  @Test
   void testList() {
     List<String> myList = Arrays.asList("Apple", "Banana", "Carrot", "Dog");
     assertThat(myList)
