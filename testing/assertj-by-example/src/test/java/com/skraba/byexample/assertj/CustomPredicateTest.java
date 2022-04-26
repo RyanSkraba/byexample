@@ -11,7 +11,10 @@ class CustomPredicateTest {
   @Test
   void testBasicString() {
     String issue = "ABC-1234";
-    assertThat(issue).is(new Size8Condition());
+    assertThat(issue)
+        .is(new Size8Condition())
+        // expressed as a lambda, requires a description
+        .is(new Condition<>(v -> v.length() == 8, "size is 8"));
   }
 
   /** This condition can be reused in all tests. */
