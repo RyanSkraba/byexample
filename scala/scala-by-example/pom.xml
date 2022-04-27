@@ -54,6 +54,12 @@
       <version>2.5.1-6-5fce97fb</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.lihaoyi</groupId>
+      <artifactId>ammonite-ops_2.12</artifactId>
+      <version>2.4.1-2-63e98591</version>
+      <scope>test</scope>
+    </dependency>
 
   </dependencies>
 

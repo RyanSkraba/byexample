@@ -1,4 +1,6 @@
-#!/usr/bin/env amm
+// #!/usr/bin/env amm
+// Disable the shebang before developing in IntelliJ
+// https://youtrack.jetbrains.com/issue/SCL-13279
 
 /** A user script for interacting with my Apache status sheet.
   *
@@ -26,7 +28,6 @@ interp.repositories() ++= {
 @
 // Intellij always removes the following line, which should be
 // import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
-
 import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
 import com.skraba.byexample.scala.markd.GettingThingsDone._
 import com.skraba.byexample.scala.markd._
@@ -47,7 +48,13 @@ val StatusFile: Path = sys.env
   .getOrElse(StatusRepo / "todo" / "status.md")
 
 /** The list of apache projects. */
-val Projects = Set("avro", "beam", "flink", "parquet", "pulsar", "spark")
+val Projects: Map[String, Int] = Map(
+  "avro" -> 1, // TODO: These will be replaced with project-specific info
+  "beam" -> 1,
+  "flink" -> 1,
+  "parquet" -> 1,
+  "pulsar" -> 1,
+  "spark" -> 1);
 
 /** Some text that maps to to do task states */
 val TextToToDoStates: Map[String, GettingThingsDone.ToDoState] =
@@ -74,7 +81,7 @@ object ProjectParserCfg extends ParserCfg {
     links
       .map {
         case LinkRef(LinkRef.JiraLinkRefRegex(prj, num), None, title)
-            if Projects(prj.toLowerCase) =>
+            if Projects.contains(prj.toLowerCase) =>
           (
             f"${prj.toUpperCase}-$num%9s",
             LinkRef(
@@ -88,7 +95,7 @@ object ProjectParserCfg extends ParserCfg {
         case l @ LinkRef(LinkRef.JiraLinkRefRegex(prj, num), _, _) =>
           (f"${prj.toUpperCase}-$num%9s", l)
         case LinkRef(LinkRef.GithubPrLinkRefRegex(prj, num), None, title)
-            if Projects(prj.toLowerCase) =>
+            if Projects.contains(prj.toLowerCase) =>
           (
             f"${prj.toUpperCase}-PR$num%9s",
             LinkRef(
