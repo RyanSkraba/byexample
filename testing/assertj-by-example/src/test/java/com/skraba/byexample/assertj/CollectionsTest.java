@@ -27,6 +27,12 @@ class CollectionsTest {
   }
 
   @Test
+  void testIterator() {
+    assertThat(Stream.of("x").iterator()).hasNext();
+    assertThat(Stream.empty().iterator()).isExhausted();
+  }
+
+  @Test
   void testList() {
     List<String> myList = Arrays.asList("Apple", "Banana", "Carrot", "Dog");
     assertThat(myList)
