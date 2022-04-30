@@ -98,13 +98,19 @@ case class Cheatsheet(vocab: Seq[Vocab], cfg: Config = Config()) {
 
 object Cheatsheet {
 
-  /** Memo of vowels with tone markings (from tone 1 to tone 4). */
+  /** Memo of vowels to tone markings. The first is the bare vowel, followed by
+    * the four tones.
+    */
   private[this] val ToneVowels: Seq[String] =
-    Seq("āēīōū", "áéíóú", "ǎěǐǒǔǚ", "àèìòùǜ")
+    Seq("aāáǎà", "eēéěè", "iīíǐì", "oōóǒò", "uūúǔù", "ü..ǚǜ")
 
   /** Memo map from tone-marked vowel to its tone. */
   private[this] lazy val Tones: Map[Char, Int] = {
-    for ((s, i) <- ToneVowels.zipWithIndex; c <- s) yield (c, i + 1)
+    for (
+      s <- ToneVowels;
+      (c, i) <- s.zipWithIndex if i > 0 && c != '.'
+    )
+      yield (c, i)
   }.toMap
 
   /** A cheatsheet autoloaded with all the words and the default config. This
