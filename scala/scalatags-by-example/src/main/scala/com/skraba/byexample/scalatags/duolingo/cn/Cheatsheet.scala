@@ -23,7 +23,7 @@ case class Vocab(
     cn: String,
     pinyin: String,
     en: String,
-    info: Array[String]
+    info: Array[String] = Array.empty
 ) {
   lazy val section: String = info(1)
   lazy val lesson: String = info(2)
@@ -100,7 +100,7 @@ object Cheatsheet {
 
   /** Memo of vowels with tone markings (from tone 1 to tone 4). */
   private[this] val ToneVowels: Seq[String] =
-    Seq("āēīōū", "áéíóú", "ǎěǐǒǔǚ", "àìèòùǜ")
+    Seq("āēīōū", "áéíóú", "ǎěǐǒǔǚ", "àèìòùǜ")
 
   /** Memo map from tone-marked vowel to its tone. */
   private[this] lazy val Tones: Map[Char, Int] = {
