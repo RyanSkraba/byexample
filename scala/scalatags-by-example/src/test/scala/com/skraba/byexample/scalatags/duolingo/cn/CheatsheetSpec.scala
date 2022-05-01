@@ -9,9 +9,17 @@ import scala.reflect.io.File
 class CheatsheetSpec extends AnyFunSpecLike with Matchers {
 
   describe("Creating a cheatsheet") {
-
     it("should detect tones") {
       Cheatsheet.tones("de yī líng wǔ èr") shouldBe Seq(0, 1, 2, 3, 4)
+    }
+
+    it("should translate numbered pinyin") {
+      Cheatsheet.toneNumbered(
+        "de yi1 li2ng wu3 e4r"
+      ) shouldBe "de yī líng wǔ èr"
+      Cheatsheet.toneNumbered(
+        "de yi¹ li²ng wu³ e⁴r"
+      ) shouldBe "de yī líng wǔ èr"
     }
   }
 

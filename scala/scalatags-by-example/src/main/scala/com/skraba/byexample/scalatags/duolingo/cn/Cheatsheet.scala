@@ -104,13 +104,13 @@ object Cheatsheet {
   private[this] val ToneVowels: Seq[String] =
     Seq("aāáǎà", "eēéěè", "iīíǐì", "oōóǒò", "uūúǔù", "ü..ǚǜ")
 
-  /** Memo map from tone-marked vowel to its tone. */
-  private[this] lazy val Tones: Map[Char, Int] = {
+  /** Memo map from tone-marked vowel to its bare character and tone. */
+  private[this] lazy val Tones: Map[Char, (Char, Int)] = {
     for (
       s <- ToneVowels;
       (c, i) <- s.zipWithIndex if i > 0 && c != '.'
     )
-      yield (c, i)
+      yield (c, (s(0), i))
   }.toMap
 
   /** A cheatsheet autoloaded with all the words and the default config. This
@@ -201,7 +201,22 @@ object Cheatsheet {
   def tones(pinyin: String): Seq[Int] = {
     // Luckily, the pinyin syllables are all split into separate words.
     pinyin.split("\\s+").map {
-      _.find(Tones.contains).map(Tones.apply).getOrElse(0)
+      _.find(Tones.contains).map(Tones(_)._2).getOrElse(0)
+    }
+  }
+
+  /** @return
+    *   convert all pinyin text with numbered vowels converted into unicode
+    *   accented characters
+    */
+  def toneNumbered(pinyin: String): String = {
+    // Move exponents to plain numbers
+    val unexponented: String = "⁰¹²³⁴".zipWithIndex.foldLeft(pinyin) {
+      case (acc: String, (c: Char, i: Int)) =>
+        acc.replaceAllLiterally(c.toString, i.toString)
+    }
+    Tones.foldLeft(unexponented) { case (acc, (accented, (bare, tone))) =>
+      acc.replaceAllLiterally(s"$bare$tone", accented.toString)
     }
   }
 
