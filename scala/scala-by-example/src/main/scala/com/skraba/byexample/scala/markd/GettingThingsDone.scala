@@ -394,16 +394,29 @@ object GettingThingsDone {
       dow: DayOfWeek = DayOfWeek.MONDAY
   ): String = {
     // Use the time classes to find the next date.
+    import java.time.LocalDate._
+    ofEpochDay(
+      nextWeekStartByEpoch(
+        date.map(ptn => parse(ptn.substring(0, 10), Pattern).toEpochDay),
+        dow
+      )
+    ).format(Pattern)
+  }
+
+  def nextWeekStartByEpoch(
+      epoch: Option[Long] = None,
+      dow: DayOfWeek = DayOfWeek.MONDAY
+  ): Long = {
+    // Use the time classes to find the next date.
     import java.time.LocalDate
     import java.time.temporal.TemporalAdjusters
-    val monday = date
-      .map(ptn => LocalDate.parse(ptn.substring(0, 10), Pattern))
+    val monday = epoch
+      .map(LocalDate.ofEpochDay)
       .getOrElse(LocalDate.now)
       .plusDays(1)
       .`with`(TemporalAdjusters.previous(dow))
       .plusDays(7)
-      .format(Pattern)
+      .toEpochDay
     monday
   }
-
 }
