@@ -610,6 +610,37 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
       ) shouldBe "2021/09/04"
     }
 
+    it(s"should work with epoch days as well") {
+      nextWeekStartByEpoch(
+        Some(18871L),
+        dow = DayOfWeek.SUNDAY
+      ) shouldBe 18875L
+      nextWeekStartByEpoch(
+        Some(18871L),
+        dow = DayOfWeek.MONDAY
+      ) shouldBe 18876L
+      nextWeekStartByEpoch(
+        Some(18871L),
+        dow = DayOfWeek.TUESDAY
+      ) shouldBe 18877L
+      nextWeekStartByEpoch(
+        Some(18871L),
+        dow = DayOfWeek.WEDNESDAY
+      ) shouldBe 18878L
+      nextWeekStartByEpoch(
+        Some(18871L),
+        dow = DayOfWeek.THURSDAY
+      ) shouldBe 18872L
+      nextWeekStartByEpoch(
+        Some(18871L),
+        dow = DayOfWeek.FRIDAY
+      ) shouldBe 18873L
+      nextWeekStartByEpoch(
+        Some(18871L),
+        dow = DayOfWeek.SATURDAY
+      ) shouldBe 18874L
+    }
+
     for (
       date <- Seq(
         "2021/08/30",
