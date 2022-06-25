@@ -29,6 +29,18 @@ case class Vocab(
   lazy val lesson: String = info(2)
 }
 
+object Vocab {
+  def apply(in: String): Vocab = {
+    val tokens: Array[String] = in.split(raw"\s*:\s*")
+    Vocab(
+      tokens(0),
+      Cheatsheet.toneNumbered(tokens(1)),
+      tokens(2),
+      tokens.drop(3)
+    )
+  }
+}
+
 /** A group of related worlds in the cheatsheet
   * @param words
   *   The list of related words
