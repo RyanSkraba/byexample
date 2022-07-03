@@ -4,13 +4,16 @@ import java.nio.CharBuffer;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.*;
+
 /** Simple assertions on string primitives. */
 class StringTest {
 
   @Test
   void testBasicString() {
     String issue = "ABC-1234";
-    Assertions.assertThat(issue)
+    assertThat(issue)
+        .hasSize(8)
         .isNotBlank()
         .isEqualTo("ABC-1234")
         .contains("C-1")
@@ -25,10 +28,11 @@ class StringTest {
     CharSequence issue = CharBuffer.wrap("ABC-1234");
 
     // The CharBuffer is not equal to the "same" String
-    Assertions.assertThat(issue).isNotEqualTo("ABC-1234");
+    assertThat(issue).isNotEqualTo("ABC-1234");
 
     // Unless you specify the Comparator explicitly.
-    Assertions.assertThat(issue)
+    assertThat(issue)
+        .hasSize(8)
         .usingComparator(CharSequence::compare)
         .isNotBlank()
         .isEqualTo("ABC-1234")

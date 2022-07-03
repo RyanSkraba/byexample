@@ -12,6 +12,7 @@ class StringTest {
   @Test
   void testBasicString() {
     String issue = "ABC-1234";
+    assertThat(issue, hasLength(8));
     assertThat(issue, not(emptyOrNullString()));
     assertThat(issue, is("ABC-1234"));
     assertThat(issue, containsString("C-1"));
@@ -24,6 +25,7 @@ class StringTest {
   void testCharSequence() {
     // Note that all CharSequence with the same contents aren't necessarily equal!
     CharSequence issue = CharBuffer.wrap("ABC-1234");
+    assertThat(issue, hasLength(8));
 
     // The CharBuffer is not equal to the "same" String
     assertThat(issue, not("ABC-1234"));
