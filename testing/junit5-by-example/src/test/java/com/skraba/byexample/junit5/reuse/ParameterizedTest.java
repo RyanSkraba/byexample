@@ -3,7 +3,7 @@ package com.skraba.byexample.junit5.reuse;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Nested;
 
-/** A basic parameterized test that resuses {@link AbstractParameterizedTestBase}. */
+/** Some basic parameterized tests that reuse {@link AbstractParameterizedTestBase}. */
 class ParameterizedTest {
 
   @Nested
