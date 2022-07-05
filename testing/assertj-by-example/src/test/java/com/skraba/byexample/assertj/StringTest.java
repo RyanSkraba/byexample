@@ -1,10 +1,9 @@
 package com.skraba.byexample.assertj;
 
-import java.nio.CharBuffer;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.*;
+
+import java.nio.CharBuffer;
+import org.junit.jupiter.api.Test;
 
 /** Simple assertions on string primitives. */
 class StringTest {
