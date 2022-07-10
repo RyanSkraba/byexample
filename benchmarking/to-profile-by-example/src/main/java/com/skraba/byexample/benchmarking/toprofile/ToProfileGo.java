@@ -47,14 +47,14 @@ public class ToProfileGo {
   public static void go(String... args) throws DocoptExitException, InternalDocoptException {
     Map<String, Object> opts = new Docopt(DOC).withVersion(VERSION).withExit(false).parse(args);
 
-    if (Boolean.valueOf(String.valueOf(opts.get("sieve")))) {
+    if (Boolean.parseBoolean(String.valueOf(opts.get("sieve")))) {
 
-      final int max = Integer.valueOf(String.valueOf(opts.get("<max>")));
-      final boolean onlySuper = Boolean.valueOf(String.valueOf(opts.get("--super")));
-      final boolean onlyHappy = Boolean.valueOf(String.valueOf(opts.get("--happy")));
-      final boolean onlySexy = Boolean.valueOf(String.valueOf(opts.get("--sexy")));
-      final boolean doPrint = Boolean.valueOf(String.valueOf(opts.get("--print")));
-      final boolean doCount = Boolean.valueOf(String.valueOf(opts.get("--count")));
+      final int max = Integer.parseInt(String.valueOf(opts.get("<max>")));
+      final boolean onlySuper = Boolean.parseBoolean(String.valueOf(opts.get("--super")));
+      final boolean onlyHappy = Boolean.parseBoolean(String.valueOf(opts.get("--happy")));
+      final boolean onlySexy = Boolean.parseBoolean(String.valueOf(opts.get("--sexy")));
+      final boolean doPrint = Boolean.parseBoolean(String.valueOf(opts.get("--print")));
+      final boolean doCount = Boolean.parseBoolean(String.valueOf(opts.get("--count")));
       AtomicInteger count = new AtomicInteger(0);
 
       sieveOfEratosthenes(
@@ -156,7 +156,7 @@ public class ToProfileGo {
    * @param onlySexy Only consume primes that are sexy (differ in 6 by another prime).
    * @param f a consumer that is called when a prime is found, after filtering.
    * @return all of the primes found, regardless of which were consumed.
-   * @link https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes
+   * @link <a href="https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes">Sieve of Erasthenes</a>
    */
   public static Set<Integer> sieveOfEratosthenes(
       int max, boolean onlySuper, boolean onlyHappy, boolean onlySexy, Consumer<Integer> f) {
@@ -182,7 +182,7 @@ public class ToProfileGo {
           // We may have missed a precedent sexy prime.
           continue;
         }
-        // If it is sexy, make sure that we printed out it's partner.  Note that this means they
+        // If it is sexy, make sure that we printed out its partner.  Note that this means they
         // might be accepted out of order!
         if (candidate > 6 && !primes.contains(candidate - 12)) {
           f.accept(candidate - 6);
