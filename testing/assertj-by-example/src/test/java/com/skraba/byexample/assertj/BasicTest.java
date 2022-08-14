@@ -52,6 +52,7 @@ class BasicTest {
     assertThat(Arrays.equals(value, new byte[] {0x12, 0x34, (byte) 0xFF})).isTrue();
 
     // Arrays contents are checked with the matcher
-    assertThat(value).isEqualTo(new byte[] {0x12, 0x34, (byte) 0xFF}).contains(0x12);
+    assertThat(value).isEqualTo(new byte[] {0x12, 0x34, (byte) 0xFF}).contains(0x12)
+      .contains(0x12, 0x34, 0xFF);
   }
 }
