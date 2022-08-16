@@ -18,6 +18,8 @@ object Svg {
     */
   val Attrs: scalatags.Text.svgAttrs.type = scalatags.Text.svgAttrs
 
+  val XmlNs = attr("xmlns") := "http://www.w3.org/2000/svg"
+
   /** Wraps the contents in an SVG tag. If the content is already an svg tag, it
     * isn't wrapped.
     *
@@ -40,7 +42,8 @@ object Svg {
         svg(
           Attrs.width := viewBoxDx,
           Attrs.height := viewBoxDy,
-          Attrs.viewBox := s"0 0 $viewBoxDx $viewBoxDy"
+          Attrs.viewBox := s"0 0 $viewBoxDx $viewBoxDy",
+          XmlNs
         )(svgContents)
     }
   }
@@ -61,10 +64,12 @@ object Svg {
       f: File,
       svgContents: Modifier,
       viewBoxDx: Int = 100,
-      viewBoxDy: Int = 100
+      viewBoxDy: Int = 100,
+      license: Option[String] = None
   ): Unit = {
     val pw: BufferedWriter = f.bufferedWriter()
     pw.write("""<?xml version="1.0"?>""")
+    license.foreach(l => pw.write(s"\n<!--\n\n$l\n\n-->\n"))
     pw.write(wrapSvg(svgContents, viewBoxDx, viewBoxDy).render)
     pw.close()
   }
@@ -96,7 +101,7 @@ object Svg {
     * @return
     *   The attribute to add to a tag.
     */
-  def attrTranslate(dx: Double, dy: Double): generic.Modifier[Builder] =
+  def attrTranslate(dx: Double = 0, dy: Double = 0): generic.Modifier[Builder] =
     Attrs.transform := s"translate($dx,$dy)"
 
   /** A text config stores information about how to create small text tags.
@@ -121,7 +126,7 @@ object Svg {
 
     /** The base tag with the attributes applied from the case class. */
     lazy val base: Tag = text(
-      Attrs.fill := s"#$fill",
+      Attrs.fill := s"#${fill.stripMargin('#')}",
       Attrs.fontFamily := family,
       Attrs.fontWeight := weight,
       Attrs.fontSize := size
@@ -155,12 +160,32 @@ object Svg {
       )
     }
 
+    /** A tag vertically and right-aligned on the given rectangle. */
+    def left(x: Double, y: Double, dx: Double, dy: Double): Tag = {
+      base(
+        Attrs.x := 0,
+        Attrs.y := y + dy / 2 + size * adjust,
+        Attrs.textAnchor := "start",
+        Attrs.dominantBaseline := "middle"
+      )
+    }
+
     /** A tag right-aligned at the given point. */
     def right(x: Double, y: Double): Tag = {
       base(
         Attrs.x := x,
         Attrs.y := y,
         Attrs.textAnchor := "end"
+      )
+    }
+
+    /** A tag vertically and right-aligned on the given rectangle. */
+    def right(x: Double, y: Double, dx: Double, dy: Double): Tag = {
+      base(
+        Attrs.x := x,
+        Attrs.y := y + dy / 2 + size * adjust,
+        Attrs.textAnchor := "end",
+        Attrs.dominantBaseline := "middle"
       )
     }
   }

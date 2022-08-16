@@ -42,7 +42,7 @@ class SvgSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterAll {
       val dstContents = dst.safeSlurp()
       dstContents.value shouldBe
         """<?xml version="1.0"?>
-          |<svg width="99" height="99" viewBox="0 0 99 99">
+          |<svg width="99" height="99" viewBox="0 0 99 99" xmlns="http://www.w3.org/2000/svg">
           |<g width="100"></g></svg>""".stripMargin.replaceAll("\n", "")
     }
   }
@@ -112,6 +112,15 @@ class SvgSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterAll {
           |LEFT
           |</text>""".stripMargin
           .replaceAll("\n", "")
+      Svg.Text().left(0, 0, 100, 100)("LEFT_IN_BOX").render shouldBe
+        """<text fill="#000000"
+          | font-family="San Serif"
+          | font-weight="normal"
+          | font-size="8.0"
+          | x="0" y="50.8" text-anchor="start" dominant-baseline="middle">
+          |LEFT_IN_BOX
+          |</text>""".stripMargin
+          .replaceAll("\n", "")
       Svg.Text().center(10, 10)("CENTER").render shouldBe
         """<text fill="#000000"
           | font-family="San Serif"
@@ -132,6 +141,15 @@ class SvgSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterAll {
           | y="10.0"
           | text-anchor="end">
           |RIGHT
+          |</text>""".stripMargin
+          .replaceAll("\n", "")
+      Svg.Text().right(0, 0, 100, 100)("RIGHT_IN_BOX").render shouldBe
+        """<text fill="#000000"
+          | font-family="San Serif"
+          | font-weight="normal"
+          | font-size="8.0"
+          | x="0.0" y="50.8" text-anchor="end" dominant-baseline="middle">
+          |RIGHT_IN_BOX
           |</text>""".stripMargin
           .replaceAll("\n", "")
     }
