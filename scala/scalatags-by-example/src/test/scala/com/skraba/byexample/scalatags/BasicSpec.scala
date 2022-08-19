@@ -2,7 +2,10 @@ package com.skraba.byexample.scalatags
 
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
+import scalatags.Text
+import scalatags.generic.AttrPair
 
+import scala.collection.immutable
 import scala.xml.XML
 
 class BasicSpec extends AnyFunSpecLike with Matchers {
@@ -35,6 +38,23 @@ class BasicSpec extends AnyFunSpecLike with Matchers {
       val h1Tag = h1(cls := "blue", id := "colourful")("Colourful")
       h1Tag.render shouldBe
         """<h1 class="blue" id="colourful">
+          |Colourful
+          |</h1>""".stripMargin.replaceAll("\n", "")
+    }
+
+    it("should be able to remove attributes") {
+      val h1Tag = h1(cls := "blue", id := "colourful")("Colourful")
+
+      // This is a trickier operation, going through the list of list of modifiers
+      val retagged = tag(h1Tag.tag)(h1Tag.modifiers.map(
+        t => t.filter {
+          case AttrPair(a, _, _) if a.name == "id" => false
+          case _ => true
+        }
+      ))
+
+      retagged.render shouldBe
+        """<h1 class="blue">
           |Colourful
           |</h1>""".stripMargin.replaceAll("\n", "")
     }
