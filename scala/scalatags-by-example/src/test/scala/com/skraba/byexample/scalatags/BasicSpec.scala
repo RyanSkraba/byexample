@@ -46,12 +46,14 @@ class BasicSpec extends AnyFunSpecLike with Matchers {
       val h1Tag = h1(cls := "blue", id := "colourful")("Colourful")
 
       // This is a trickier operation, going through the list of list of modifiers
-      val retagged = tag(h1Tag.tag)(h1Tag.modifiers.map(
-        t => t.filter {
-          case AttrPair(a, _, _) if a.name == "id" => false
-          case _ => true
-        }
-      ))
+      val retagged = tag(h1Tag.tag)(
+        h1Tag.modifiers.map(t =>
+          t.filter {
+            case AttrPair(a, _, _) if a.name == "id" => false
+            case _                                   => true
+          }
+        )
+      )
 
       retagged.render shouldBe
         """<h1 class="blue">

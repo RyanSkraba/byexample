@@ -117,7 +117,7 @@ class SvgSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterAll {
           | font-family="San Serif"
           | font-weight="normal"
           | font-size="8.0"
-          | x="0" y="50.8" text-anchor="start" dominant-baseline="middle">
+          | x="0.0" y="50.8" text-anchor="start" dominant-baseline="middle">
           |LEFT_IN_BOX
           |</text>""".stripMargin
           .replaceAll("\n", "")
