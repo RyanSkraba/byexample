@@ -57,4 +57,14 @@ class BasicTest {
         .contains(0x12)
         .contains(0x12, 0x34, 0xFF);
   }
+
+  @Test
+  void testAnyOf() {
+    int value = 123;
+    assertThat(value)
+        .satisfiesAnyOf(v -> assertThat(v).isEqualTo(123), v -> assertThat(v).isEqualTo(-123));
+    value = -123;
+    assertThat(value)
+        .satisfiesAnyOf(v -> assertThat(v).isEqualTo(123), v -> assertThat(v).isEqualTo(-123));
+  }
 }

@@ -1,6 +1,7 @@
 package com.skraba.byexample.junit5;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
@@ -74,5 +75,15 @@ class BasicTest {
     // Arrays contents are checked with the matcher
     // Doesn't work for bytes: assertThat(value, contains((byte)0x12));
     assertThat(value, is(new byte[] {0x12, 0x34, (byte) 0xFF}));
+  }
+
+  @Test
+  void testAnyOf() {
+    int value = 123;
+    assertThat(value, is(123));
+    assertThat(value, anyOf(is(123), is(-123)));
+
+    value = -123;
+    assertThat(value, anyOf(is(123), is(-123)));
   }
 }
