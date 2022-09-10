@@ -7,8 +7,8 @@
   * This assumes that https://ammonite.io/ is installed.
   *
   * Ammonite includes:
-  * - requests (https://github.com/lihaoyi/requests-scala)
-  * - upickle (https://github.com/lihaoyi/upickle)
+  *   - requests (https://github.com/lihaoyi/requests-scala)
+  *   - upickle (https://github.com/lihaoyi/upickle)
   */
 
 import ammonite.ops.{home, _}
@@ -54,15 +54,18 @@ val Projects: Map[String, Int] = Map(
   "flink" -> 1,
   "parquet" -> 1,
   "pulsar" -> 1,
-  "spark" -> 1);
+  "spark" -> 1
+);
 
 /** Some text that maps to to do task states */
 val TextToToDoStates: Map[String, GettingThingsDone.ToDoState] =
   Map("MERGED" -> DoneToDo, "FIXED" -> DoneToDo, "DONE" -> DoneToDo)
 
 /** Propose a git commit message for the status page
-  * @param msg The git message to propose
-  * @return A string to copy and paste to check the changes.
+  * @param msg
+  *   The git message to propose
+  * @return
+  *   A string to copy and paste to check the changes.
   */
 private def proposeGit(msg: String): String = {
   s"""${GREEN}Commit:$RESET
@@ -341,9 +344,9 @@ def statsToday(
 @arg(doc = "Extract a statistic in the table as a time-series")
 @main
 def statExtract(
-          @arg(doc = "Update the statistic on this row (matches first element.")
-          rowStat: String
-        ): Unit = {
+    @arg(doc = "Update the statistic on this row (matches first element.")
+    rowStat: String
+): Unit = {
   // Read the existing document.
   val doc = GettingThingsDone(read ! StatusFile, ProjectParserCfg)
   println("date,value")
