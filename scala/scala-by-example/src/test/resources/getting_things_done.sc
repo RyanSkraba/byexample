@@ -315,6 +315,29 @@ def stat(
   write.over(StatusFile, cleanedNewDoc.build().toString.trim() + "\n")
 }
 
+@arg(doc = "Update many statistics for today.")
+@main
+def statsToday(
+    @arg(doc = "Key/value list of statistics to be updated")
+    stats: String*
+): Unit = {
+  // Read the existing document.
+  val doc = GettingThingsDone(read ! StatusFile, ProjectParserCfg)
+  val newDoc = stats.grouped(2).foldLeft(doc) {
+    (gtd: GettingThingsDone, list: Seq[String]) =>
+      gtd.updateTopWeekStats(list.head, list.tail.headOption.getOrElse(""))
+  }
+  val cleanedNewDoc =
+    Header.parse(newDoc.doc.build().toString, ProjectParserCfg)
+
+  println(
+    proposeGit(
+      s"feat(status): Update ${stats.grouped(2).map(_.head).mkString(",")}"
+    )
+  )
+  write.over(StatusFile, cleanedNewDoc.build().toString.trim() + "\n")
+}
+
 @arg(doc = "Extract a statistic in the table as a time-series")
 @main
 def statExtract(
