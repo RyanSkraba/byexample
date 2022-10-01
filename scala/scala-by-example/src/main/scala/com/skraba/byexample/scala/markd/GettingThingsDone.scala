@@ -56,7 +56,7 @@ import scala.util.Try
   * 2021/09/13
   * ------------------------------------------------------------------------------
   *
-  * | To Do      | Notes                                                       |
+  * | To Do      | Notes 🟢🔶🟥⤴⏳                                            |
   * |------------|-------------------------------------------------------------|
   * | 🟢Tech     | **Did the thing** and some notes                            |
   * | 🔶Health   | **Ready to take** or paused, or to think about            |
@@ -303,7 +303,7 @@ object GettingThingsDone {
   /** The structure of an empty To Do table, used to collect stats. */
   lazy val TableToDoEmpty: Table = Table.from(
     Seq(Align.LEFT, Align.LEFT),
-    TableRow.from(TableToDo, "Notes")
+    TableRow.from(TableToDo, "Notes \uD83D\uDFE2\uD83D\uDD36\uD83D\uDFE5⤴⏳")
   )
 
   /** The header with the weekly statuses. */

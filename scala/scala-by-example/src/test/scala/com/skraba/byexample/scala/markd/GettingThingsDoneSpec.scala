@@ -34,7 +34,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            !==============================================================================
            !
            !<!--
-           !| To Do      | Notes                                                       |
+           !| To Do      | Notes 🟢🔶🟥⤴⏳                                              |
            !|------------|-------------------------------------------------------------|
            !| 🟢Tech     | **Did the thing** and some notes                            |
            !| 🔶Health   | **Ready to take** or paused, or to think about              |
@@ -323,9 +323,9 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
          !Top week
          !------------------------------------------------------------------------------
          !
-         !| To Do  | Notes      |
-         !|--------|------------|
-         !| Baking | Make bread |
+         !| To Do  | Notes 🟢🔶🟥⤴⏳ |
+         !|--------|----------------|
+         !| Baking | Make bread     |
          !""".stripMargin('!')
 
     it("should add itself to an empty document") {
@@ -338,9 +338,9 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            !$defaultNextWeekStart
            !------------------------------------------------------------------------------
            !
-           !| To Do  | Notes      |
-           !|--------|------------|
-           !| Baking | Make bread |
+           !| To Do  | Notes 🟢🔶🟥⤴⏳ |
+           !|--------|----------------|
+           !| Baking | Make bread     |
            !""".stripMargin('!')
     }
 
@@ -349,10 +349,10 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
       val updated =
         existing.addTopWeekToDo("Cuisine", "Make muffins", state = DoneToDo)
       updated.topWeek.value.mds.headOption.value.build().toString() shouldBe
-        s"""| To Do     | Notes        |
-           !|-----------|--------------|
-           !| Baking    | Make bread   |
-           !| 🟢Cuisine | Make muffins |
+        s"""| To Do     | Notes 🟢🔶🟥⤴⏳ |
+           !|-----------|----------------|
+           !| Baking    | Make bread     |
+           !| 🟢Cuisine | Make muffins   |
            !""".stripMargin('!')
 
       // These are all equivalent
@@ -387,9 +387,9 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         Some(DoneToDo)
       )
       updated.topWeek.value.mds.headOption.value.build().toString() shouldBe
-        s"""| To Do     | Notes        |
-           !|-----------|--------------|
-           !| 🟢Cuisine | Make muffins |
+        s"""| To Do     | Notes 🟢🔶🟥⤴⏳ |
+           !|-----------|----------------|
+           !| 🟢Cuisine | Make muffins   |
            !""".stripMargin('!')
     }
 
@@ -399,9 +399,9 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         category = Some("Cuisine")
       )
       updated.topWeek.value.mds.headOption.value.build().toString() shouldBe
-        s"""| To Do   | Notes      |
-           !|---------|------------|
-           !| Cuisine | Make bread |
+        s"""| To Do   | Notes 🟢🔶🟥⤴⏳ |
+           !|---------|----------------|
+           !| Cuisine | Make bread     |
            !""".stripMargin('!')
     }
 
@@ -411,9 +411,9 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         notes = Some("Make muffins")
       )
       updated.topWeek.value.mds.headOption.value.build().toString() shouldBe
-        s"""| To Do  | Notes        |
-           !|--------|--------------|
-           !| Baking | Make muffins |
+        s"""| To Do  | Notes 🟢🔶🟥⤴⏳ |
+           !|--------|----------------|
+           !| Baking | Make muffins   |
            !""".stripMargin('!')
     }
 
@@ -423,9 +423,9 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         state = Some(DoneToDo)
       )
       updated.topWeek.value.mds.headOption.value.build().toString() shouldBe
-        s"""| To Do    | Notes      |
-           !|----------|------------|
-           !| 🟢Baking | Make bread |
+        s"""| To Do    | Notes 🟢🔶🟥⤴⏳ |
+           !|----------|----------------|
+           !| 🟢Baking | Make bread     |
            !""".stripMargin('!')
 
       // It should remove the task state too
