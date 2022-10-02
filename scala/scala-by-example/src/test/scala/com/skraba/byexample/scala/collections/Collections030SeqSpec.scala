@@ -186,4 +186,42 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
       c should not be theSameInstanceAs(buf)
     }
   }
+
+  describe("Queue") {
+
+    it("supports additions") {
+      val buf = mutable.Queue(1, 2, 3)
+
+      // These operations return itself.
+
+      // Append
+      (buf += 4) shouldBe mutable.Queue(1, 2, 3, 4)
+      (buf += (5, 6, 7)) shouldBe mutable.Queue(1, 2, 3, 4, 5, 6, 7)
+      (buf ++= Seq(8, 9)) shouldBe mutable.Queue(1, 2, 3, 4, 5, 6, 7, 8, 9)
+
+      // Prepend
+      (0 +=: buf) shouldBe mutable.Queue(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+
+      // Enqueue does not return itself
+      buf enqueue (2, 100)
+      buf shouldBe mutable.Queue(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 2, 100)
+    }
+
+    it("supports removal") {
+      val buf = mutable.Queue(-2, -1, 97, 98, 99, 100, 0, 1, 2)
+
+      buf.dequeue() shouldBe -2
+      buf.dequeue() shouldBe -1
+      buf.dequeue() shouldBe 97
+
+      buf shouldBe mutable.Queue(98, 99, 100, 0, 1, 2)
+      buf.dequeueFirst(_ % 10 != 0) shouldBe Some(98)
+      buf.dequeueAll(_ % 10 != 0) shouldBe mutable.Queue(99, 1, 2)
+
+      buf shouldBe mutable.Queue(100, 0)
+      buf.clear
+      buf shouldBe empty
+    }
+
+  }
 }
