@@ -39,6 +39,7 @@ class BasicTest {
 
     // Careful with casting
     assertThat(value).isNotEqualTo(0x12).isEqualTo((byte) 0x12).isGreaterThan((byte) 0x00);
+    //noinspection AssertBetweenInconvertibleTypes
     assertThat(boxed).isNotEqualTo(0x12).isEqualTo((byte) 0x12).isGreaterThan((byte) 0x00);
   }
 
@@ -47,7 +48,7 @@ class BasicTest {
     byte[] value = {0x12, 0x34, (byte) 0xFF};
 
     // Array equality in Java is same instance unless you use the helper method.
-    //noinspection ArrayEquals
+    //noinspection ArrayEquals,AssertThatObjectExpression
     assertThat(value.equals(new byte[] {0x12, 0x34, (byte) 0xFF})).isFalse();
     assertThat(Arrays.equals(value, new byte[] {0x12, 0x34, (byte) 0xFF})).isTrue();
 
