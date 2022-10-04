@@ -84,8 +84,9 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
       xs.padTo(2, 99) shouldBe Seq(1, 2, 3)
     }
 
-    it("support updates") {
+    it("support inserts and updates") {
       xs patch (0, Seq(99, 98, 97), 2) shouldBe Seq(99, 98, 97, 3)
+      xs patch (1, Seq(99, 98, 97), 0) shouldBe Seq(1, 99, 98, 97, 2, 3)
       xs patch (1, Seq(99, 98, 97, 96), 1) shouldBe Seq(1, 99, 98, 97, 96, 3)
       xs updated (2, 99) shouldBe Seq(1, 2, 99)
 
