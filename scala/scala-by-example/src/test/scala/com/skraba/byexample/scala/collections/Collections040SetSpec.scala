@@ -43,6 +43,7 @@ class Collections040SetSpec extends AnyFunSpecLike with Matchers {
       xs + 4 shouldBe Set(1, 2, 3, 4)
       xs + (3, 4) shouldBe Set(1, 2, 3, 4)
       xs ++ Set(4) shouldBe Set(1, 2, 3, 4)
+      xs ++ Seq(3, 6) shouldBe Set(1, 2, 3, 6)
     }
 
     it("supports removals") {
