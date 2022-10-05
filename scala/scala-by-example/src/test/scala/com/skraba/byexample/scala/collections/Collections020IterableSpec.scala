@@ -15,7 +15,7 @@ import org.scalatest.matchers.should.Matchers
   * (apply returns whether or not the element exists.)
   *
   * @see
-  *   https://docs.scala-lang.org/overviews/collections/introduction.html
+  *   [[https://docs.scala-lang.org/overviews/collections/introduction.html]]
   */
 class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
 

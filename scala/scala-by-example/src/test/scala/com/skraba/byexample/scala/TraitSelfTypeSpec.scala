@@ -18,9 +18,9 @@ import org.scalatest.matchers.should.Matchers
   * }}}
   *
   * @see
-  *   https://softwareengineering.stackexchange.com/questions/219038/what-is-the-difference-between-self-types-and-trait-inheritance-in-scala
+  *   [[https://softwareengineering.stackexchange.com/questions/219038/what-is-the-difference-between-self-types-and-trait-inheritance-in-scala]]
   * @see
-  *   https://alvinalexander.com/scala/how-to-define-scala-trait-subclassed-certain-self-types
+  *   [[https://alvinalexander.com/scala/how-to-define-scala-trait-subclassed-certain-self-types]]
   */
 class TraitSelfTypeSpec
     extends AnyFunSpecLike

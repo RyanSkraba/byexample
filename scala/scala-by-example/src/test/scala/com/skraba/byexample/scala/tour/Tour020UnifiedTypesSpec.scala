@@ -30,7 +30,7 @@ import org.scalatest.matchers.should.Matchers
   * AnyRef is the reference type.
   *
   * @see
-  *   https://docs.scala-lang.org/tour/tour-of-scala.html
+  *   [[https://docs.scala-lang.org/tour/tour-of-scala.html]]
   */
 class Tour020UnifiedTypesSpec extends AnyFunSpecLike with Matchers {
 

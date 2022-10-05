@@ -7,9 +7,9 @@ import org.scalatest.matchers.should.Matchers
   * match.
   *
   * @see
-  *   https://docs.scala-lang.org/overviews/scala-book/companion-objects.html
+  *   [[https://docs.scala-lang.org/overviews/scala-book/companion-objects.html]]
   * @see
-  *   https://dzone.com/articles/eta-expansion-and-partially-applied-functions-in-s
+  *   [[https://dzone.com/articles/eta-expansion-and-partially-applied-functions-in-s]]
   */
 class ApplyAndUnapplySpec extends AnyFunSpecLike with Matchers {
 

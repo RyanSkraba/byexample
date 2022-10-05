@@ -10,7 +10,7 @@ import scala.collection.mutable.ListBuffer
   * Traversable is the root trait for collections.
   *
   * @see
-  *   https://docs.scala-lang.org/overviews/collections/introduction.html
+  *   [[https://docs.scala-lang.org/overviews/collections/introduction.html]]
   */
 class Collections010TraversableSpec extends AnyFunSpecLike with Matchers {
 

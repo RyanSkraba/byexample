@@ -8,7 +8,7 @@ import scala.collection.{SortedMap, immutable, mutable}
 /** Examples from the scala collections doc. Each spec covers a page.
   *
   * @see
-  *   https://docs.scala-lang.org/overviews/collections/introduction.html
+  *   [[https://docs.scala-lang.org/overviews/collections/introduction.html]]
   */
 class Collections050MapSpec extends AnyFunSpecLike with Matchers {
 

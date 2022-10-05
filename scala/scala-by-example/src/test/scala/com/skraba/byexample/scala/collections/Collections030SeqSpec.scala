@@ -23,7 +23,7 @@ import scala.collection.mutable.ArrayBuffer
   * shrink.
   *
   * @see
-  *   https://docs.scala-lang.org/overviews/collections/introduction.html
+  *   [[https://docs.scala-lang.org/overviews/collections/introduction.html]]
   */
 class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
 

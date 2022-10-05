@@ -6,7 +6,7 @@ import org.scalatest.matchers.should.Matchers
 /** Examples from the scala tour.
   *
   * @see
-  *   https://docs.scala-lang.org/tour/tour-of-scala.html
+  *   [[https://docs.scala-lang.org/tour/tour-of-scala.html]]
   */
 class Tour110GenericClassesVariancesSpec extends AnyFunSpecLike with Matchers {
 

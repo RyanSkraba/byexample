@@ -24,7 +24,7 @@ import scala.util.matching.Regex
   * }}}
   *
   * @see
-  *   https://en.wikipedia.org/wiki/Markdown
+  *   [[https://en.wikipedia.org/wiki/Markdown]]
   */
 package object markd {
 

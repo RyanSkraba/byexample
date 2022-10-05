@@ -39,7 +39,7 @@ package com.skraba.byexample.scala
   * @todo
   *   [[https://docs.scala-lang.org/overviews/scaladoc/for-library-authors.html#tags]]
   * @see
-  *   https://en.wikipedia.org/
+  *   [[https://en.wikipedia.org/]]
   */
 class ScalaDocExample {
 

@@ -12,7 +12,7 @@ import sys.process._
 /** Running a system process in Scala
   *
   * @see
-  *   https://alvinalexander.com/scala/how-to-handle-stdout-stderr-external-system-commands-scala/
+  *   [[https://alvinalexander.com/scala/how-to-handle-stdout-stderr-external-system-commands-scala/]]
   */
 class SysProcessSpec extends AnyFunSpecLike with Matchers {
 

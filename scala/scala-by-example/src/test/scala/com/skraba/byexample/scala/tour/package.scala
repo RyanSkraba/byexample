@@ -1,7 +1,7 @@
 package com.skraba.byexample.scala
 
 /** @see
-  *   https://docs.scala-lang.org/tour/tour-of-scala.html
+  *   [[https://docs.scala-lang.org/tour/tour-of-scala.html]]
   */
 package object tour {
   // You can put functions, classes, traits, etc. In a package object and they will be available

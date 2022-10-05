@@ -9,7 +9,7 @@ import scala.collection.mutable
 /** Collections and [[CanBuildFrom]]
   *
   * @see
-  *   https://www.scala-lang.org/blog/2017/05/30/tribulations-canbuildfrom.html
+  *   [[https://www.scala-lang.org/blog/2017/05/30/tribulations-canbuildfrom.html]]
   */
 class CanBuildFromSpec extends AnyFunSpecLike with Matchers {
 
