@@ -2,6 +2,7 @@ package com.skraba.byexample.scala.scalatest
 
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.tagobjects.Slow
 
 /** Basic FunSpec style specification to organise unit tests.
   *
@@ -38,6 +39,14 @@ class BasicFunSpec extends AnyFunSpecLike with Matchers {
       it("or this one") {
         fail("I never get here")
       }
+    }
+
+    it("can be configured to be ignored with a tag", Slow) {
+      // This is ignored by default in the maven build.
+
+      // IntelliJ can be configured to ignore these tests by putting
+      // -l org.scalatest.tags.Slow
+      // in the Program arguments of the Run/Debug configuration
     }
   }
 

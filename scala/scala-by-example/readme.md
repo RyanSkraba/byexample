@@ -75,3 +75,11 @@ alias byexample_go_markd="java -classpath $(find ~+ -name scala-by-example-*.jar
 byexample_go_markd beautify readme.md
 byexample_go_markd beautify $(find . -name \*.md)
 ```
+
+By default, all of the slow tests (tagged with `org.scalatest.tags.Slow`) are excluded, but you can run them using the command line:
+
+```bash
+mvn package -Dplugin.maven.scalatest.exclude=
+```
+
+In an IDE like IntelliJ, set the **Program arguments** in the Run/Debug Configuration to `-l org.scalatest.tags.Slow` to exclude slow tests.
