@@ -97,6 +97,14 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
       xsMut shouldBe Seq(1, 98, 99)
     }
 
+    it("support removals") {
+      // As a patch to remove by index
+      xs.patch( 1, Seq.empty, 1) shouldBe Seq(1,3)
+      // Diff or filter to remove an element
+      xs diff Seq(3) shouldBe Seq(1, 2)
+      xs.filter(_ == 1)  shouldBe Seq(2, 3)
+    }
+
     it("supports sorting") {
       xs.sorted shouldBe Seq(1, 2, 3)
       (100 +: xs).sortWith(_ < _) shouldBe Seq(1, 2, 3, 100)
