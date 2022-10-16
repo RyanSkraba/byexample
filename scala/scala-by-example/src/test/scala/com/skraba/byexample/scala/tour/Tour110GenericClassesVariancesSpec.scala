@@ -155,12 +155,12 @@ class Tour110GenericClassesVariancesSpec extends AnyFunSpecLike with Matchers {
       catIdentity(Cat("Whiskers")).name shouldBe "Whiskers"
 
       // This is not acceptable, because Any is not a subtype of Animal.
-      // val anyIdentity: Function[Any, Animal] = identity
+      "val anyIdentity: Function[Any, Animal] = identity" shouldNot typeCheck
 
       // This is acceptable because the return type is covariant.
       // Animal is an Any, Therefore Function[_, Animal] is a Function[_, Any]
       val anyIdentity: Function[Cat, Any] = identity
-      catIdentity(Cat("Whiskers")) shouldBe a[Cat]
+      anyIdentity(Cat("Whiskers")) shouldBe a[Cat]
 
       // This is not acceptable, because Animal is not a subtype of Cat.
       "val check: Function[Animal, Cat] = identity" shouldNot typeCheck
