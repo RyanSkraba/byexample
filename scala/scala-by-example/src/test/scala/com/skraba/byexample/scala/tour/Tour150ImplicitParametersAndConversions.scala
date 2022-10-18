@@ -8,7 +8,9 @@ import org.scalatest.matchers.should.Matchers
   * @see
   *   [[https://docs.scala-lang.org/tour/tour-of-scala.html]]
   */
-class Tour150ImplicitParametersAndConversions extends AnyFunSpecLike with Matchers {
+class Tour150ImplicitParametersAndConversions
+    extends AnyFunSpecLike
+    with Matchers {
 
   describe("Implicit/contextual parameters") {
     describe("are automatically injected into method calls") {
@@ -62,12 +64,14 @@ class Tour150ImplicitParametersAndConversions extends AnyFunSpecLike with Matche
     case class Greeting(greet: String)
 
     case class Repeater(statement: String, number: Int) {
-      def exclaim() : String = statement * number
+      def exclaim(): String = statement * number
     }
 
     object Augmenter {
-      implicit def turnGreetingToRepeater(in: Greeting): Repeater = Repeater(in.greet, 1)
-      implicit def turnRepeaterToGreeting(in: Repeater): Greeting = Greeting(in.exclaim())
+      implicit def turnGreetingToRepeater(in: Greeting): Repeater =
+        Repeater(in.greet, 1)
+      implicit def turnRepeaterToGreeting(in: Repeater): Greeting =
+        Greeting(in.exclaim())
     }
 
     import Augmenter._
