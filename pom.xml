@@ -43,24 +43,24 @@
     <exec.mainClass>com.skraba.byexample.ToDoGo</exec.mainClass>
 
     <!-- Plugins -->
-    <plugin.clean.maven.version>3.1.0</plugin.clean.maven.version>
-    <plugin.compiler.maven.version>3.9.0</plugin.compiler.maven.version>
-    <plugin.deploy.maven.version>3.0.0-M2</plugin.deploy.maven.version>
-    <plugin.enforcer.maven.version>3.0.0</plugin.enforcer.maven.version>
+    <plugin.clean.maven.version>3.2.0</plugin.clean.maven.version>
+    <plugin.compiler.maven.version>3.10.1</plugin.compiler.maven.version>
+    <plugin.deploy.maven.version>3.0.0</plugin.deploy.maven.version>
+    <plugin.enforcer.maven.version>3.1.0</plugin.enforcer.maven.version>
     <plugin.enforcer.required.maven.version>3.5.0</plugin.enforcer.required.maven.version>
-    <plugin.failsafe.maven.version>3.0.0-M5</plugin.failsafe.maven.version>
-    <plugin.install.maven.version>3.0.0-M1</plugin.install.maven.version>
-    <plugin.jar.maven.version>3.2.2</plugin.jar.maven.version>
-    <plugin.maven.docker.version>0.38.1</plugin.maven.docker.version>
-    <plugin.maven.scala.version>4.5.6</plugin.maven.scala.version>
-    <plugin.maven.scalatest.version>2.0.2</plugin.maven.scalatest.version>
+    <plugin.failsafe.maven.version>3.0.0-M7</plugin.failsafe.maven.version>
+    <plugin.install.maven.version>3.0.1</plugin.install.maven.version>
+    <plugin.jar.maven.version>3.3.0</plugin.jar.maven.version>
+    <plugin.maven.docker.version>0.40.2</plugin.maven.docker.version>
+    <plugin.maven.scala.version>4.7.2</plugin.maven.scala.version>
+    <plugin.maven.scalatest.version>2.2.0</plugin.maven.scalatest.version>
     <plugin.maven.scalatest.exclude>org.scalatest.tags.Slow</plugin.maven.scalatest.exclude>
-    <plugin.report.surefire.maven.version>3.0.0-M5</plugin.report.surefire.maven.version>
-    <plugin.resources.maven.version>3.2.0</plugin.resources.maven.version>
-    <plugin.shade.maven.version>3.2.4</plugin.shade.maven.version>
-    <plugin.site.maven.version>3.10.0</plugin.site.maven.version>
-    <plugin.spotless.version>2.20.0</plugin.spotless.version>
-    <plugin.surefire.maven.version>3.0.0-M5</plugin.surefire.maven.version>
+    <plugin.report.surefire.maven.version>3.0.0-M7</plugin.report.surefire.maven.version>
+    <plugin.resources.maven.version>3.3.0</plugin.resources.maven.version>
+    <plugin.shade.maven.version>3.4.0</plugin.shade.maven.version>
+    <plugin.site.maven.version>3.12.1</plugin.site.maven.version>
+    <plugin.maven.spotless.version>2.20.0</plugin.maven.spotless.version>
+    <plugin.surefire.maven.version>3.0.0-M7</plugin.surefire.maven.version>
     <plugin.war.maven.version>3.3.2</plugin.war.maven.version>
   </properties>
 
@@ -295,7 +295,7 @@
         <plugin>
           <groupId>com.diffplug.spotless</groupId>
           <artifactId>spotless-maven-plugin</artifactId>
-          <version>${plugin.spotless.version}</version>
+          <version>${plugin.maven.spotless.version}</version>
           <configuration>
             <java>
               <removeUnusedImports/>
