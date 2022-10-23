@@ -21,13 +21,15 @@ class Tour150ImplicitParametersAndConversions
       }
 
       object Comparator {
+
+        /** The implicit comparator can be an object */
         implicit object IntComparator extends Comparator[Int] {
           def compare(x: Int, y: Int): Int = Integer.compare(x, y)
         }
 
-        implicit object StringComparator extends Comparator[String] {
-          def compare(x: String, y: String): Int = x.compareTo(y)
-        }
+        /** The implicit comparator can be a method */
+        implicit def stringComparator: Comparator[String] =
+          (x: String, y: String) => x.compareTo(y)
       }
 
       def max[A](x: A, y: A)(implicit comparator: Comparator[A]): A =
@@ -44,9 +46,8 @@ class Tour150ImplicitParametersAndConversions
         implicit object BooleanComparator extends Comparator[Boolean] {
           override def compare(x: Boolean, y: Boolean): Int = x.compareTo(y)
         }
-        implicit object ReverseIntComparator extends Comparator[Int] {
-          override def compare(x: Int, y: Int): Int = y.compareTo(x)
-        }
+        implicit def ReverseIntComparator: Comparator[Int] =
+          (x: Int, y: Int) => y.compareTo(x)
         max(10, 6) shouldBe 6
         max("hello", "world") shouldBe "world" // still from companion
         max(true, false) shouldBe true
