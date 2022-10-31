@@ -21,16 +21,16 @@ class TrySpec extends AnyFunSpecLike with Matchers {
   /** A bug id with a project and a number. */
   case class BugId(prj: String, num: Int) {
     def next: BugId = if (num < Int.MaxValue) copy(num = num + 1)
-    else throw InvalidBugIdException("Overflow")
+    else throw BadBugIdException("Overflow")
 
     def prev: BugId = if (num > 1) copy(num = num - 1)
-    else throw InvalidBugIdException("Underflow")
+    else throw BadBugIdException("Underflow")
 
     /** Equivalent to [[prev]] but wrapped in a Try */
     def prevTry: Try[BugId] = Try(prev)
   }
 
-  case class InvalidBugIdException(msg: String) extends Exception(msg)
+  case class BadBugIdException(msg: String) extends Exception(msg)
 
   describe("Catching an exception in a test") {
 
@@ -40,7 +40,7 @@ class TrySpec extends AnyFunSpecLike with Matchers {
         try {
           BugId("XYZ", 1).prev.num
         } catch {
-          case InvalidBugIdException(msg) =>
+          case BadBugIdException(msg) =>
             msg shouldBe "Underflow"
             Int.MinValue
           case _: Throwable => fail()
@@ -50,12 +50,12 @@ class TrySpec extends AnyFunSpecLike with Matchers {
 
     it("can be expected") {
       // This doesn't see the exception but ensures that it was thrown
-      assertThrows[InvalidBugIdException] {
+      assertThrows[BadBugIdException] {
         BugId("ABC", 1).prev
       }
 
-      an[InvalidBugIdException] should be thrownBy BugId("ABC", 1).prev
-      the[InvalidBugIdException] thrownBy {
+      an[BadBugIdException] should be thrownBy BugId("ABC", 1).prev
+      the[BadBugIdException] thrownBy {
         BugId("ABC", 1).prev
       } should have message "Underflow"
       noException should be thrownBy BugId("ABC", 999).prev
@@ -63,7 +63,7 @@ class TrySpec extends AnyFunSpecLike with Matchers {
 
     it("can be intercepted") {
       // Or better yet, intercept and test the exception
-      val ex = intercept[InvalidBugIdException] {
+      val ex = intercept[BadBugIdException] {
         BugId("ABC", 1).prev
       }
       ex.msg shouldBe "Underflow"
@@ -96,29 +96,27 @@ class TrySpec extends AnyFunSpecLike with Matchers {
     }
 
     it("can apply some collection methods") {
-      val prevSuccess = BugId("ABC", 3).prevTry
-      prevSuccess shouldBe 'success
-      prevSuccess shouldBe Success(BugId("ABC", 2))
+      val good = BugId("ABC", 3).prevTry
+      good shouldBe 'success
+      good shouldBe Success(BugId("ABC", 2))
 
-      val prevFailure = BugId("ABC", 1).prevTry
-      prevFailure shouldBe 'failure
-      prevFailure shouldBe Failure(InvalidBugIdException("Underflow"))
+      val bad = BugId("ABC", 1).prevTry
+      bad shouldBe 'failure
+      bad shouldBe Failure(BadBugIdException("Underflow"))
 
       // Mapping on the value if successful
-      prevSuccess.map(_.prev) shouldBe Success(BugId("ABC", 1))
-      prevSuccess.map(_.next.prev) shouldBe Success(BugId("ABC", 2))
-      prevSuccess.map(_.prev.prev) shouldBe Failure(
-        InvalidBugIdException("Underflow")
-      )
+      good.map(_.prev) shouldBe Success(BugId("ABC", 1))
+      good.map(_.next.prev) shouldBe Success(BugId("ABC", 2))
+      good.map(_.prev.prev) shouldBe Failure(BadBugIdException("Underflow"))
 
       // Ignored entirely if it's already a failure
-      prevFailure.map(_.next) shouldBe prevFailure
+      bad.map(_.next) shouldBe bad
 
       // When chaining methods objects, map can be diffult, but flatMap works as expected
-      val prev2TryMap: Try[Try[BugId]] = prevSuccess.map(b => b.prevTry)
-      prev2TryMap shouldBe Success(Success(BugId("ABC", 1)))
-      val prev2Try: Try[BugId] = prevSuccess.flatMap(b => b.prevTry)
-      prev2Try shouldBe Success(BugId("ABC", 1))
+      val goodNestMap: Try[Try[BugId]] = good.map(b => b.prevTry)
+      goodNestMap shouldBe Success(Success(BugId("ABC", 1)))
+      val goodNest: Try[BugId] = good.flatMap(b => b.prevTry)
+      goodNest shouldBe Success(BugId("ABC", 1))
     }
 
   }
