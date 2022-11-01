@@ -75,6 +75,9 @@ class TrySpec extends AnyFunSpecLike with Matchers {
       val prevTry = BugId("ABC", 1).prevTry
       prevTry.isFailure shouldBe true
       prevTry.isSuccess shouldBe false
+
+      // Getting the value should cause the exception to be thrown
+      intercept[BadBugIdException] {prevTry.get} should have message "Underflow"
     }
 
     it("can be recoverable") {
@@ -84,6 +87,9 @@ class TrySpec extends AnyFunSpecLike with Matchers {
       prevTry.isFailure shouldBe false
       prevTry.isSuccess shouldBe true
       prevTry shouldBe Success(BugId("ABC", 999))
+
+      // Getting the value on a success just returns it
+      prevTry.get shouldBe BugId("ABC", 999)
     }
 
     it("can recover by throwing another exception") {
@@ -112,11 +118,29 @@ class TrySpec extends AnyFunSpecLike with Matchers {
       // Ignored entirely if it's already a failure
       bad.map(_.next) shouldBe bad
 
-      // When chaining methods objects, map can be diffult, but flatMap works as expected
+      // When chaining methods objects, map can be difficult, but flatMap works as expected
       val goodNestMap: Try[Try[BugId]] = good.map(b => b.prevTry)
       goodNestMap shouldBe Success(Success(BugId("ABC", 1)))
       val goodNest: Try[BugId] = good.flatMap(b => b.prevTry)
       goodNest shouldBe Success(BugId("ABC", 1))
+
+      // Filter only works on success
+      bad.filter(_.num %2 ==0) shouldBe bad
+      good.filter(_.num %2 ==0) shouldBe good
+      good.filter(_.num %2 ==1) shouldBe 'failure
+    }
+
+    it("can invert the success/failure") {
+      val good = BugId("ABC", 3).prevTry
+      good shouldBe Success(BugId("ABC", 2))
+      val bad = BugId("ABC", 1).prevTry
+      bad shouldBe Failure(BadBugIdException("Underflow"))
+
+      // Calling .failed causes a failure to be a Success (containing it's own exception)
+      bad.failed shouldBe Success(BadBugIdException("Underflow"))
+      // And the good to be a failure containing an UnsupportedOperationException
+      good.failed shouldBe 'failure
+      intercept[UnsupportedOperationException] {good.failed.get} should have message "Success.failed"
     }
 
   }
