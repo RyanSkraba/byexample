@@ -71,13 +71,34 @@ class TrySpec extends AnyFunSpecLike with Matchers {
   }
 
   describe("Try type") {
+
+    val good = BugId("ABC", 999).prevTry
+    val bad = BugId("ABC", 1).prevTry
+
+    it("can be a success") {
+      good.isFailure shouldBe false
+      good.isSuccess shouldBe true
+      good shouldBe 'success
+      good shouldBe Success(BugId("ABC", 998))
+
+      // Getting the value on a success just returns it
+      good.get shouldBe BugId("ABC", 998)
+      good.getOrElse(BugId("DEF", 1)) shouldBe BugId("ABC", 998)
+      good.orElse(Try(BugId("DEF", 1))) shouldBe good
+    }
+
     it("can be a failure") {
-      val prevTry = BugId("ABC", 1).prevTry
-      prevTry.isFailure shouldBe true
-      prevTry.isSuccess shouldBe false
+      bad.isFailure shouldBe true
+      bad.isSuccess shouldBe false
+      bad shouldBe 'failure
+      bad shouldBe Failure(BadBugIdException("Underflow"))
 
       // Getting the value should cause the exception to be thrown
-      intercept[BadBugIdException] {prevTry.get} should have message "Underflow"
+      intercept[BadBugIdException] {
+        bad.get
+      } should have message "Underflow"
+      bad.getOrElse(BugId("DEF", 1)) shouldBe BugId("DEF", 1)
+      bad.orElse(Try(BugId("DEF", 1))) shouldBe Success(BugId("DEF", 1))
     }
 
     it("can be recoverable") {
@@ -87,9 +108,6 @@ class TrySpec extends AnyFunSpecLike with Matchers {
       prevTry.isFailure shouldBe false
       prevTry.isSuccess shouldBe true
       prevTry shouldBe Success(BugId("ABC", 999))
-
-      // Getting the value on a success just returns it
-      prevTry.get shouldBe BugId("ABC", 999)
     }
 
     it("can recover by throwing another exception") {
@@ -102,46 +120,45 @@ class TrySpec extends AnyFunSpecLike with Matchers {
     }
 
     it("can apply some collection methods") {
-      val good = BugId("ABC", 3).prevTry
-      good shouldBe 'success
-      good shouldBe Success(BugId("ABC", 2))
-
-      val bad = BugId("ABC", 1).prevTry
-      bad shouldBe 'failure
-      bad shouldBe Failure(BadBugIdException("Underflow"))
-
       // Mapping on the value if successful
-      good.map(_.prev) shouldBe Success(BugId("ABC", 1))
-      good.map(_.next.prev) shouldBe Success(BugId("ABC", 2))
-      good.map(_.prev.prev) shouldBe Failure(BadBugIdException("Underflow"))
+      good.map(_.prev) shouldBe Success(BugId("ABC", 997))
+      good.map(_.next.prev) shouldBe Success(BugId("ABC", 998))
+      good.map(_.copy(num = 1).prev) shouldBe Failure(
+        BadBugIdException("Underflow")
+      )
 
       // Ignored entirely if it's already a failure
       bad.map(_.next) shouldBe bad
 
       // When chaining methods objects, map can be difficult, but flatMap works as expected
       val goodNestMap: Try[Try[BugId]] = good.map(b => b.prevTry)
-      goodNestMap shouldBe Success(Success(BugId("ABC", 1)))
+      goodNestMap shouldBe Success(Success(BugId("ABC", 997)))
       val goodNest: Try[BugId] = good.flatMap(b => b.prevTry)
-      goodNest shouldBe Success(BugId("ABC", 1))
+      goodNest shouldBe Success(BugId("ABC", 997))
+
+      goodNestMap.flatten shouldBe goodNest
 
       // Filter only works on success
-      bad.filter(_.num %2 ==0) shouldBe bad
-      good.filter(_.num %2 ==0) shouldBe good
-      good.filter(_.num %2 ==1) shouldBe 'failure
+      bad.filter(_.num % 2 == 0) shouldBe bad
+      good.filter(_.num % 2 == 0) shouldBe good
+      good.filter(_.num % 2 == 1) shouldBe 'failure
     }
 
     it("can invert the success/failure") {
-      val good = BugId("ABC", 3).prevTry
-      good shouldBe Success(BugId("ABC", 2))
-      val bad = BugId("ABC", 1).prevTry
-      bad shouldBe Failure(BadBugIdException("Underflow"))
-
       // Calling .failed causes a failure to be a Success (containing it's own exception)
       bad.failed shouldBe Success(BadBugIdException("Underflow"))
       // And the good to be a failure containing an UnsupportedOperationException
       good.failed shouldBe 'failure
-      intercept[UnsupportedOperationException] {good.failed.get} should have message "Success.failed"
+      intercept[UnsupportedOperationException] {
+        good.failed.get
+      } should have message "Success.failed"
     }
 
+    it("can use fold to turn a success or failure into a known type") {
+      // First method is applied to a failure, second to a success.
+      // They both have a String return value.
+      good.fold(_.getMessage, _.toString) shouldBe "BugId(ABC,998)"
+      bad.fold(_.getMessage, _.toString) shouldBe "Underflow"
+    }
   }
 }
