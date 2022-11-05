@@ -102,12 +102,21 @@ class TrySpec extends AnyFunSpecLike with Matchers {
     }
 
     it("can be recoverable") {
-      val prevTry = BugId("ABC", 1).prevTry.recover { case _ =>
-        BugId("ABC", 999)
+      // recover returns a value that will be a success
+      val recovered = bad.recover { case BadBugIdException(msg) =>
+        BugId(msg, 999)
       }
-      prevTry.isFailure shouldBe false
-      prevTry.isSuccess shouldBe true
-      prevTry shouldBe Success(BugId("ABC", 999))
+      recovered.isFailure shouldBe false
+      recovered.isSuccess shouldBe true
+      recovered shouldBe Success(BugId("Underflow", 999))
+
+      // recoverWith returns a Try that will replace the failure
+      val recoverWith = bad.recoverWith { case BadBugIdException(msg) =>
+        Try(BugId(msg, 999))
+      }
+      recoverWith.isFailure shouldBe false
+      recoverWith.isSuccess shouldBe true
+      recoverWith shouldBe Success(BugId("Underflow", 999))
     }
 
     it("can recover by throwing another exception") {
