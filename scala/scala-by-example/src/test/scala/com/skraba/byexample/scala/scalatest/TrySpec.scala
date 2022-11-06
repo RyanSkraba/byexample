@@ -169,5 +169,12 @@ class TrySpec extends AnyFunSpecLike with Matchers {
       good.fold(_.getMessage, _.toString) shouldBe "BugId(ABC,998)"
       bad.fold(_.getMessage, _.toString) shouldBe "Underflow"
     }
+
+    it("can be an either") {
+      // Equivalent to a success on the right, failure on the left.
+      good.toEither shouldBe Right(good.get)
+      bad.toEither shouldBe Left(BadBugIdException("Underflow"))
+    }
+
   }
 }
