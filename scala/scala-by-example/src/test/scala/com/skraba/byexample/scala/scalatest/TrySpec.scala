@@ -176,5 +176,10 @@ class TrySpec extends AnyFunSpecLike with Matchers {
       bad.toEither shouldBe Left(BadBugIdException("Underflow"))
     }
 
+    it("can be an option") {
+      // Equivalent to a success as a Some, and failure as a None
+      good.toOption shouldBe Some(good.get)
+      bad.toOption shouldBe None
+    }
   }
 }
