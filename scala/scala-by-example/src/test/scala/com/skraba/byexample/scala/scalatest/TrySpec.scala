@@ -163,11 +163,25 @@ class TrySpec extends AnyFunSpecLike with Matchers {
       } should have message "Success.failed"
     }
 
-    it("can use fold to turn a success or failure into a known type") {
-      // First method is applied to a failure, second to a success.
+    it(
+      "can use fold/transform to turn a success or failure into a known type"
+    ) {
+      // Fold provides two methods that can either turn an failure exception or a success value into a common type.
+      // The first method acts on the failure, and the second acts on the success.
       // They both have a String return value.
       good.fold(_.getMessage, _.toString) shouldBe "BugId(ABC,998)"
       bad.fold(_.getMessage, _.toString) shouldBe "Underflow"
+
+      // Transform provides two methods that act on the failure or success, turning them into another Try.
+      // The first method acts on the success, and the second acts on the failure.
+      good.transform(
+        _.prevTry,
+        t => BugId(t.getMessage, 100).prevTry
+      ) shouldBe BugId("ABC", 997)
+      bad.transform(
+        _.prevTry,
+        t => BugId(t.getMessage, 100).prevTry
+      ) shouldBe BugId("Underflow", 99)
     }
 
     it("can be an either") {
