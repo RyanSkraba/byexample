@@ -177,11 +177,11 @@ class TrySpec extends AnyFunSpecLike with Matchers {
       good.transform(
         _.prevTry,
         t => BugId(t.getMessage, 100).prevTry
-      ) shouldBe BugId("ABC", 997)
+      ) shouldBe Success(BugId("ABC", 997))
       bad.transform(
         _.prevTry,
         t => BugId(t.getMessage, 100).prevTry
-      ) shouldBe BugId("Underflow", 99)
+      ) shouldBe Success(BugId("Underflow", 99))
     }
 
     it("can be an either") {
