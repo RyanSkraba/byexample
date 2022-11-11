@@ -195,5 +195,17 @@ class TrySpec extends AnyFunSpecLike with Matchers {
       good.toOption shouldBe Some(good.get)
       bad.toOption shouldBe None
     }
+
+    it("has product methods") {
+      // Equivalent to a success as a Some, and failure as a None
+      good.productArity shouldBe 1
+      good.productElement(0) shouldBe BugId("ABC",998)
+      good.productPrefix shouldBe "Success"
+      good.productIterator.toSeq shouldBe Seq(BugId("ABC",998))
+      bad.productArity shouldBe 1
+      bad.productElement(0) shouldBe BadBugIdException("Underflow")
+      bad.productPrefix shouldBe "Failure"
+      bad.productIterator.toSeq shouldBe Seq( BadBugIdException("Underflow"))
+    }
   }
 }
