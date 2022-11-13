@@ -26,7 +26,21 @@ class EitherSpec extends AnyFunSpecLike with Matchers {
       // An exception is thrown if we try to get the wrong side
       intercept[NoSuchElementException] { left.right.get }
       intercept[NoSuchElementException] { right.left.get }
+    }
 
+    it("is right-biased") {
+      // Note: by convention, right is success and left is the failure value.
+
+      val rightInt: Either[Int, Int] = Right(123)
+      val leftInt: Either[Int, Int] = Left(123)
+
+      // Note that map and flatMap don't change the value of Lefts
+      rightInt.map(_ + 1) shouldBe Right(124)
+      leftInt.map(_ + 1) shouldBe Left(123)
+      rightInt.flatMap(v => Right(v + 1)) shouldBe Right(124)
+      rightInt.flatMap(v => Left(v + 1)) shouldBe Left(124)
+      leftInt.flatMap(v => Right(v + 1)) shouldBe leftInt
+      leftInt.flatMap(v => Left(v + 1)) shouldBe leftInt
     }
 
     it("can use EitherValues for more complex expressions") {
