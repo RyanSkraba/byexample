@@ -41,6 +41,27 @@ class EitherSpec extends AnyFunSpecLike with Matchers {
       rightInt.flatMap(v => Left(v + 1)) shouldBe Left(124)
       leftInt.flatMap(v => Right(v + 1)) shouldBe leftInt
       leftInt.flatMap(v => Left(v + 1)) shouldBe leftInt
+
+      // Lefts are ignored even for contains and filters
+      rightInt.contains(123) shouldBe true
+      leftInt.contains(123) shouldBe false
+      rightInt.filterOrElse(_ == 123, -1) shouldBe Right(123)
+      rightInt.filterOrElse(_ == 124, -1) shouldBe Left(-1)
+      leftInt.filterOrElse(_ == 123, -1) shouldBe Left(123)
+
+      // foreach only operates on rights
+      val acc = new StringBuilder()
+      rightInt.foreach(acc.append)
+      acc.mkString shouldBe "123"
+      acc.clear()
+      leftInt.foreach(acc.append)
+      acc.mkString shouldBe ""
+
+      // Weirdly enough, forall is true for lefts
+      rightInt.forall(_ == 123) shouldBe true
+      rightInt.forall(_ == 124) shouldBe false
+      leftInt.forall(_ == 123) shouldBe true
+      leftInt.forall(_ == 124) shouldBe true
     }
 
     it("can use EitherValues for more complex expressions") {
