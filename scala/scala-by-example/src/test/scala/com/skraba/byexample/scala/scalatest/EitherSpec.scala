@@ -4,6 +4,8 @@ import org.scalatest.exceptions.TestFailedException
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
+import scala.util.{Failure, Success}
+
 /** Handling options with the [[Either]] class.
   *
   * @see
@@ -26,6 +28,21 @@ class EitherSpec extends AnyFunSpecLike with Matchers {
       // An exception is thrown if we try to get the wrong side
       intercept[NoSuchElementException] { left.right.get }
       intercept[NoSuchElementException] { right.left.get }
+    }
+
+    it("can use EitherValues for more complex expressions") {
+      import org.scalatest.EitherValues._
+
+      // Tests that something is defined then applies the test to the value
+      left.left.value should (be > 100 and be < 200)
+      right.right.value should (be > "AAA" and be < "BBB")
+
+      intercept[TestFailedException] {
+        left.right.value
+      }
+      intercept[TestFailedException] {
+        right.left.value
+      }
     }
 
     it("is right-biased") {
@@ -64,15 +81,11 @@ class EitherSpec extends AnyFunSpecLike with Matchers {
       leftInt.forall(_ == 124) shouldBe true
     }
 
-    it("can use EitherValues for more complex expressions") {
-      import org.scalatest.EitherValues._
-
-      // Tests that something is defined then applies the test to the value
-      left.left.value should (be > 100 and be < 200)
-      right.right.value should (be > "AAA" and be < "BBB")
-
-      intercept[TestFailedException] { left.right.value }
-      intercept[TestFailedException] { right.left.value }
+    it("can be an try") {
+      val good: Either[Exception, Int] = Right(100)
+      val bad: Either[Exception, Int] = Left(new IllegalArgumentException())
+      good.toTry shouldBe Success(100)
+      bad.toTry shouldBe Failure(bad.left.get)
     }
   }
 }
