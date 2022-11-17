@@ -81,6 +81,14 @@ class EitherSpec extends AnyFunSpecLike with Matchers {
       leftInt.forall(_ == 124) shouldBe true
     }
 
+    it("can use turn a left or right into a known type") {
+      // Fold provides two methods that can either turn a left or a right value into a common type.
+      // The first method acts on the left, and the second acts on the right.
+      // They both have a Int return value.
+      left.fold(_ + 1, _.length) shouldBe 124
+      right.fold(_ + 1, _.length) shouldBe 3
+    }
+
     it("can be an try") {
       val good: Either[Exception, Int] = Right(100)
       val bad: Either[Exception, Int] = Left(new IllegalArgumentException())

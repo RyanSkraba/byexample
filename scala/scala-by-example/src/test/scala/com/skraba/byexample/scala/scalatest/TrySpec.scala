@@ -163,9 +163,7 @@ class TrySpec extends AnyFunSpecLike with Matchers {
       } should have message "Success.failed"
     }
 
-    it(
-      "can use fold/transform to turn a success or failure into a known type"
-    ) {
+    it("can use turn a success or failure into a known type") {
       // Fold provides two methods that can either turn an failure exception or a success value into a common type.
       // The first method acts on the failure, and the second acts on the success.
       // They both have a String return value.
