@@ -14,39 +14,39 @@ import scala.util.{Failure, Success}
 class EitherSpec extends AnyFunSpecLike with Matchers {
 
   describe("Eithers") {
-    val left: Either[Int, String] = Left(123)
-    val right: Either[Int, String] = Right("ABC")
+    val l123: Either[Int, String] = Left(123)
+    val rAbc: Either[Int, String] = Right("ABC")
 
     it("can be asserted as Left or Right") {
-      left shouldBe Left(123)
-      left shouldBe 'left
-      left.left.get shouldBe 123
-      right shouldBe Right("ABC")
-      right shouldBe 'right
-      right.right.get shouldBe "ABC"
+      l123 shouldBe Left(123)
+      l123 shouldBe 'left
+      l123.left.get shouldBe 123
+      rAbc shouldBe Right("ABC")
+      rAbc shouldBe 'right
+      rAbc.right.get shouldBe "ABC"
 
       // An exception is thrown if we try to get the wrong side
-      intercept[NoSuchElementException] { left.right.get }
-      intercept[NoSuchElementException] { right.left.get }
+      intercept[NoSuchElementException] { l123.right.get }
+      intercept[NoSuchElementException] { rAbc.left.get }
     }
 
     it("can use EitherValues for more complex expressions") {
       import org.scalatest.EitherValues._
 
       // Tests that something is defined then applies the test to the value
-      left.left.value should (be > 100 and be < 200)
-      right.right.value should (be > "AAA" and be < "BBB")
+      l123.left.value should (be > 100 and be < 200)
+      rAbc.right.value should (be > "AAA" and be < "BBB")
 
       intercept[TestFailedException] {
-        left.right.value
+        l123.right.value
       }
       intercept[TestFailedException] {
-        right.left.value
+        rAbc.left.value
       }
     }
 
     it("is right-biased") {
-      // Note: by convention, right is success and left is the failure value.
+      // Note: by convention, right is success and num123 is the failure value.
 
       val rightInt: Either[Int, Int] = Right(123)
       val leftInt: Either[Int, Int] = Left(123)
@@ -81,12 +81,12 @@ class EitherSpec extends AnyFunSpecLike with Matchers {
       leftInt.forall(_ == 124) shouldBe true
     }
 
-    it("can use turn a left or right into a known type") {
-      // Fold provides two methods that can either turn a left or a right value into a common type.
-      // The first method acts on the left, and the second acts on the right.
+    it("can use turn a num123 or right into a known type") {
+      // Fold provides two methods that can either turn a num123 or a right value into a common type.
+      // The first method acts on the num123, and the second acts on the right.
       // They both have a Int return value.
-      left.fold(_ + 1, _.length) shouldBe 124
-      right.fold(_ + 1, _.length) shouldBe 3
+      l123.fold(_ + 1, _.length) shouldBe 124
+      rAbc.fold(_ + 1, _.length) shouldBe 3
     }
 
     it("can be an try") {
