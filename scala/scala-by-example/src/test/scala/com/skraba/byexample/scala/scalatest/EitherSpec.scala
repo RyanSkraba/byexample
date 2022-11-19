@@ -45,6 +45,28 @@ class EitherSpec extends AnyFunSpecLike with Matchers {
       }
     }
 
+    it("is right-biased in for comprehensions") {
+      val rDef: Either[Int, String] = Right("DEF")
+      val rGhi = Right("GHI"): Right[Int, String]
+      val l456: Either[Int, String] = Left(456)
+
+      // In a for comprehension, if all of the arguments are right, they can be used in the yield
+      (for { x <- rAbc; y <- rDef; z <- rGhi } yield x + y + z) shouldBe Right(
+        "ABCDEFGHI"
+      )
+
+      // If any turn out to be a left, the first one is the return value of the comprehension, no matter what
+      (for { x <- l123; y <- rDef; z <- rGhi } yield x + y + z) shouldBe l123
+      (for { x <- rAbc; y <- l123; z <- l456 } yield x + y + z) shouldBe l123
+      (for { x <- rAbc; y <- rDef; z <- l123 } yield x + y + z) shouldBe l123
+
+      // Guard expressions are not supported.
+      """for { i <- rAbc if i > 0 } yield i""" shouldNot compile
+
+      // Similarly, refutable patterns are not supported.
+      """for (x: String <- rAbc) yield x""" shouldNot compile
+    }
+
     it("is right-biased") {
       // Note: by convention, right is success and num123 is the failure value.
 
