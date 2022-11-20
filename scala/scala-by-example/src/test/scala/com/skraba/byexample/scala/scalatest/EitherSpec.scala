@@ -68,7 +68,9 @@ class EitherSpec extends AnyFunSpecLike with Matchers {
     }
 
     it("is right-biased") {
-      // Note: by convention, right is success and num123 is the failure value.
+      // Note: by convention, right is success and left is the failure value.
+      l123.getOrElse("HEY") shouldBe "HEY"
+      rAbc.getOrElse("HEY") shouldBe "ABC"
 
       val rightInt: Either[Int, Int] = Right(123)
       val leftInt: Either[Int, Int] = Left(123)
@@ -103,9 +105,9 @@ class EitherSpec extends AnyFunSpecLike with Matchers {
       leftInt.forall(_ == 124) shouldBe true
     }
 
-    it("can use turn a num123 or right into a known type") {
-      // Fold provides two methods that can either turn a num123 or a right value into a common type.
-      // The first method acts on the num123, and the second acts on the right.
+    it("can use turn a left or right into a known type") {
+      // Fold provides two methods that can either turn a left or a right value into a common type.
+      // The first method acts on the left, and the second acts on the right.
       // They both have a Int return value.
       l123.fold(_ + 1, _.length) shouldBe 124
       rAbc.fold(_ + 1, _.length) shouldBe 3
