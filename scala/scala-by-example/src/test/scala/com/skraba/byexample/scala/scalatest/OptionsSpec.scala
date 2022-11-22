@@ -5,7 +5,7 @@ import org.scalatest.matchers.should.Matchers
 
 /** Matchers and assertions on collections.
   *
-  * Remember, strings, Option and Array are also collections.
+  * Remember, strings, [[Option]] and [[Array]] are also collections.
   *
   * @see
   *   [[http://www.scalatest.org/user_guide/using_matchers]]
@@ -48,6 +48,19 @@ class OptionsSpec extends AnyFunSpecLike with Matchers {
 
       // Tests that something is defined then applies the test to the value
       something.value should (be > 0 and be < 10)
+    }
+
+    it("has product methods") {
+      val nothing: Option[Int] = None
+      val something: Option[Int] = Some(1)
+
+      nothing.productArity shouldBe 0
+      nothing.productPrefix shouldBe "None"
+      nothing.productIterator.toSeq shouldBe Nil
+      something.productArity shouldBe 1
+      something.productElement(0) shouldBe 1
+      something.productPrefix shouldBe "Some"
+      something.productIterator.toSeq shouldBe Seq(1)
     }
   }
 }

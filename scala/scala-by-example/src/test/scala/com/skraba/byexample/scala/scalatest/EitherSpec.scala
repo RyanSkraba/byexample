@@ -119,5 +119,17 @@ class EitherSpec extends AnyFunSpecLike with Matchers {
       good.toTry shouldBe Success(100)
       bad.toTry shouldBe Failure(bad.left.get)
     }
+
+    it("has product methods") {
+      l123.productArity shouldBe 1
+      l123.productElement(0) shouldBe 123
+      l123.productPrefix shouldBe "Left"
+      l123.productIterator.toSeq shouldBe Seq(123)
+
+      rAbc.productArity shouldBe 1
+      rAbc.productElement(0) shouldBe "ABC"
+      rAbc.productPrefix shouldBe "Right"
+      rAbc.productIterator.toSeq shouldBe Seq("ABC")
+    }
   }
 }
