@@ -4,7 +4,7 @@ import org.scalatest.exceptions.TestFailedException
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-import scala.util.{Failure, Success}
+import scala.util.{Either, Failure, Success}
 
 /** Handling options with the [[Either]] class.
   *
@@ -86,6 +86,8 @@ class EitherSpec extends AnyFunSpecLike with Matchers {
       // Lefts are ignored even for contains and filters
       rightInt.contains(123) shouldBe true
       leftInt.contains(123) shouldBe false
+      rightInt.exists(_ > 100) shouldBe true
+      leftInt.exists(_ > 100) shouldBe false
       rightInt.filterOrElse(_ == 123, -1) shouldBe Right(123)
       rightInt.filterOrElse(_ == 124, -1) shouldBe Left(-1)
       leftInt.filterOrElse(_ == 123, -1) shouldBe Left(123)
@@ -98,7 +100,7 @@ class EitherSpec extends AnyFunSpecLike with Matchers {
       leftInt.foreach(acc.append)
       acc.mkString shouldBe ""
 
-      // Weirdly enough, forall is true for lefts
+      // Weirdly enough, forall is true for all lefts
       rightInt.forall(_ == 123) shouldBe true
       rightInt.forall(_ == 124) shouldBe false
       leftInt.forall(_ == 123) shouldBe true
