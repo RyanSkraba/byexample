@@ -115,6 +115,28 @@ class EitherSpec extends AnyFunSpecLike with Matchers {
       rAbc.fold(_ + 1, _.length) shouldBe 3
     }
 
+    it("can join to flatten nested Eithers") {
+      // When the left type is also an Either where the nested Right matches the outer Right
+      type JoinLeftEither = Either[Either[Int, String], String]
+      val leftInnerLeft: JoinLeftEither = Left(Left(123))
+      val leftInnerRight: JoinLeftEither = Left(Right("ABC"))
+      val rightOuter: JoinLeftEither = Right("DEF")
+
+      leftInnerLeft.joinLeft shouldBe Left(123)
+      leftInnerRight.joinLeft shouldBe Right("ABC")
+      rightOuter.joinLeft shouldBe Right("DEF")
+
+      // When the right type is also an Either where the nested Left matches the outer Left
+      type JoinRightEither = Either[Int, Either[Int, String]]
+      val leftOuter: JoinRightEither = Left(123)
+      val rightInnerLeft: JoinRightEither = Right(Left(456))
+      val rightInnerRight: JoinRightEither = Right(Right("ABC"))
+
+      leftOuter.joinRight shouldBe Left(123)
+      rightInnerLeft.joinRight shouldBe Left(456)
+      rightInnerRight.joinRight shouldBe Right("ABC")
+    }
+
     it("can be an try") {
       val good: Either[Exception, Int] = Right(100)
       val bad: Either[Exception, Int] = Left(new IllegalArgumentException())
