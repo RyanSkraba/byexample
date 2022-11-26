@@ -25,6 +25,10 @@ class EitherSpec extends AnyFunSpecLike with Matchers {
       rAbc shouldBe 'right
       rAbc.right.get shouldBe "ABC"
 
+      // And the directions can be reversed
+      l123.swap shouldBe Right(123)
+      rAbc.swap shouldBe Left("ABC")
+
       // An exception is thrown if we try to get the wrong side
       intercept[NoSuchElementException] { l123.right.get }
       intercept[NoSuchElementException] { rAbc.left.get }
@@ -142,6 +146,13 @@ class EitherSpec extends AnyFunSpecLike with Matchers {
       val bad: Either[Exception, Int] = Left(new IllegalArgumentException())
       good.toTry shouldBe Success(100)
       bad.toTry shouldBe Failure(bad.left.get)
+    }
+
+    it("can be an option or a sequence") {
+      l123.toOption shouldBe None
+      rAbc.toOption shouldBe Some("ABC")
+      l123.toSeq shouldBe empty
+      rAbc.toSeq shouldBe Seq("ABC")
     }
 
     it("has product methods") {
