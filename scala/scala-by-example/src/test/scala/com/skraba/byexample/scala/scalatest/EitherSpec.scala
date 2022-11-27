@@ -111,6 +111,15 @@ class EitherSpec extends AnyFunSpecLike with Matchers {
       leftInt.forall(_ == 124) shouldBe true
     }
 
+    it("can be projected as a left") {
+      // The yield expects _only_ a String value (this is string multiplication), and any left value is passed through unaffected
+      (for (s <- l123) yield s * 2) shouldBe Left(123)
+      (for (s <- rAbc) yield s * 2) shouldBe Right("ABCABC")
+      // This yield expects _only_ a Int value (this is numeric multiplication), and any right value is passed through unaffected
+      (for (s <- l123.left) yield s * 2) shouldBe Left(246)
+      (for (s <- rAbc.left) yield s * 2) shouldBe Right("ABC")
+    }
+
     it("can use turn a left or right into a known type") {
       // Fold provides two methods that can either turn a left or a right value into a common type.
       // The first method acts on the left, and the second acts on the right.
