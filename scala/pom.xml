@@ -14,6 +14,7 @@
   <name>By Example :: Scala :: Aggregator</name>
 
   <modules>
+    <module>hack-by-example</module>
     <module>scala-by-example</module>
     <module>scalatags-by-example</module>
   </modules>
