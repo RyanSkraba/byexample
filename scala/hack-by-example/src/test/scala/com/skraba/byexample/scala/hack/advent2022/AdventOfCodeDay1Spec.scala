@@ -7,11 +7,13 @@ import org.scalatest.matchers.should.Matchers
 
 /** =Advent of Code 2022 Day 1 Solutions in scala=
   *
-  * Input:
+  * Input: List of numbers that correspond to the calories of the snacks that
+  * elves are carrying. Consecutive lines belong to the same elf, a blank line
+  * is the next elf.
   *
-  * Part 1:
+  * Part 1: Find the maximum total number of calories carried by an elf.
   *
-  * Part 2:
+  * Part 2: Find the sum of the top three elves (by total number of calories).
   *
   * @see
   *   Rephrased from https://adventofcode.com/2022/day/1
@@ -23,33 +25,57 @@ class AdventOfCodeDay1Spec
 
   object Solution {
 
-    case class ABC(a: Long) {}
+    def elfWithMostCalories(in: String*): Long = {
+      val acc = in.foldLeft((0L, 0L))((acc, str) =>
+        str match {
+          case n if str.nonEmpty => (acc._1, acc._2 + n.toLong)
+          case _                 => (Math.max(acc._1, acc._2), 0)
+        }
+      )
+      Math.max(acc._1, acc._2)
+    }
 
-    def parse(in: String): Option[ABC] = None
-
-    def part1(in: String*): Long = 100
-
-    def part2(in: String*): Long = 200
+    def threeElvesWithMostCalories(in: String*): Long = {
+      val acc = in.foldLeft[(List[Long], Long)](Nil, 0L)((acc, str) =>
+        str match {
+          case n if str.nonEmpty => (acc._1, acc._2 + n.toLong)
+          case _                 => (acc._1 :+ acc._2, 0)
+        }
+      )
+      (acc._1 :+ acc._2).sorted.reverse.take(3).sum
+    }
   }
 
   import Solution._
 
   describe("Example case") {
     val input =
-      """
-      |""".stripMargin.split("\n")
+      """1000
+        |2000
+        |3000
+        |
+        |4000
+        |
+        |5000
+        |6000
+        |
+        |7000
+        |8000
+        |9000
+        |
+        |10000""".stripMargin.split("\n")
 
     it("should match the puzzle description") {
-      part1(input: _*) shouldBe 100
-      part2(input: _*) shouldBe 200
+      elfWithMostCalories(input: _*) shouldBe 24000
+      threeElvesWithMostCalories(input: _*) shouldBe 45000
     }
   }
 
   describe("Solution") {
     val input = puzzleInput("Day1Input.txt")
     it("should have answers") {
-      part1(input: _*) shouldBe 100
-      part2(input: _*) shouldBe 200
+      elfWithMostCalories(input: _*) shouldBe 75501
+      threeElvesWithMostCalories(input: _*) shouldBe 215594
     }
   }
 }
