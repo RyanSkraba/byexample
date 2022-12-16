@@ -16,7 +16,7 @@ import org.scalatest.matchers.should.Matchers
   * Part 2: An image to be displayed on the CPU.
   *
   * @see
-  *   Rephrased from https://adventofcode.com/2022/day/10
+  *   Rephrased from [[https://adventofcode.com/2022/day/10]]
   */
 class AdventOfCodeDay10Spec
     extends AnyFunSpecLike

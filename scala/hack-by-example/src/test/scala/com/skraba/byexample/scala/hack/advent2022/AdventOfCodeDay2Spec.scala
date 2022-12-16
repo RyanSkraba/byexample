@@ -22,7 +22,7 @@ import org.scalatest.matchers.should.Matchers
   * respectively, find the total number of points.
   *
   * @see
-  *   Rephrased from https://adventofcode.com/2022/day/2
+  *   Rephrased from [[https://adventofcode.com/2022/day/2]]
   */
 class AdventOfCodeDay2Spec
     extends AnyFunSpecLike

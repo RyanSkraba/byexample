@@ -14,7 +14,7 @@ import org.scalatest.matchers.should.Matchers
   * Part 2:
   *
   * @see
-  *   Rephrased from https://adventofcode.com/2022/day/ZERO
+  *   Rephrased from [[https://adventofcode.com/2022/day/ZERO]]
   */
 class AdventOfCodeDay0Spec
     extends AnyFunSpecLike

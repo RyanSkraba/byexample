@@ -21,7 +21,7 @@ object Svg {
   val XmlNs = attr("xmlns") := "http://www.w3.org/2000/svg"
 
   /** The Apache2 license header
-    * https://www.apache.org/licenses/LICENSE-2.0#apply
+    * [[https://www.apache.org/licenses/LICENSE-2.0#apply]]
     */
   val Apache2: String =
     s"""  Licensed to the Apache Software Foundation (ASF) under one or more

@@ -18,7 +18,7 @@ import scala.annotation.tailrec
   * the source of the sand is blocked.
   *
   * @see
-  *   Rephrased from https://adventofcode.com/2022/day/14
+  *   Rephrased from [[https://adventofcode.com/2022/day/14]]
   */
 class AdventOfCodeDay14Spec
     extends AnyFunSpecLike

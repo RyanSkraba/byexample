@@ -16,7 +16,7 @@ import org.scalatest.matchers.should.Matchers
   * Part 2: Find the length of the any path from 'a' to 'E'
   *
   * @see
-  *   Rephrased from https://adventofcode.com/2022/day/12
+  *   Rephrased from [[https://adventofcode.com/2022/day/12]]
   */
 class AdventOfCodeDay12Spec
     extends AnyFunSpecLike

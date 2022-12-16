@@ -19,7 +19,7 @@ import scala.util.Random
   * closest bigger-or-same tree to the north/south/east/west.
   *
   * @see
-  *   Rephrased from https://adventofcode.com/2022/day/8
+  *   Rephrased from [[https://adventofcode.com/2022/day/8]]
   */
 class AdventOfCodeDay8Spec
     extends AnyFunSpecLike

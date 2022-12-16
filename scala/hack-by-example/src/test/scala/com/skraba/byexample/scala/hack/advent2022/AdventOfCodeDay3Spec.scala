@@ -20,7 +20,7 @@ import org.scalatest.matchers.should.Matchers
   * backpacks and sum the priorities.
   *
   * @see
-  *   Rephrased from https://adventofcode.com/2022/day/3
+  *   Rephrased from [[https://adventofcode.com/2022/day/3]]
   */
 class AdventOfCodeDay3Spec
     extends AnyFunSpecLike

@@ -18,7 +18,7 @@ import org.scalatest.matchers.should.Matchers
   * the other's cleaning areas.
   *
   * @see
-  *   Rephrased from https://adventofcode.com/2022/day/4
+  *   Rephrased from [[https://adventofcode.com/2022/day/4]]
   */
 class AdventOfCodeDay4Spec
     extends AnyFunSpecLike

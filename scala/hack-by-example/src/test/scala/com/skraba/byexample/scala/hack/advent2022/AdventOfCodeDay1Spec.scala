@@ -16,7 +16,7 @@ import org.scalatest.matchers.should.Matchers
   * Part 2: Find the sum of the top three elves (by total number of calories).
   *
   * @see
-  *   Rephrased from https://adventofcode.com/2022/day/1
+  *   Rephrased from [[https://adventofcode.com/2022/day/1]]
   */
 class AdventOfCodeDay1Spec
     extends AnyFunSpecLike

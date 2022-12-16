@@ -17,7 +17,7 @@ import scala.util.matching.Regex
   * Part 2: Given some bounds, the first empty place found
   *
   * @see
-  *   Rephrased from https://adventofcode.com/2022/day/15
+  *   Rephrased from [[https://adventofcode.com/2022/day/15]]
   */
 class AdventOfCodeDay15Spec
     extends AnyFunSpecLike
@@ -60,6 +60,7 @@ class AdventOfCodeDay15Spec
           (i1 max lower, i2 min upper, if (by == row) Some(bx) else None)
         }
 
+      // merge the intervals
       val intervals = sensors.sortBy(_._1).foldLeft(List.empty[(Int, Int)]) {
         case (Nil, (i1, i2, _)) => (i1, i2) :: Nil
         case ((acc1, acc2) :: rest, (i1, i2, _)) if i1 <= (acc2 + 1) =>

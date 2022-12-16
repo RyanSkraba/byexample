@@ -20,7 +20,7 @@ import scala.util.matching.Regex
   * N crates moves them all at once (keeping the top at the top).
   *
   * @see
-  *   Rephrased from https://adventofcode.com/2022/day/5
+  *   Rephrased from [[https://adventofcode.com/2022/day/5]]
   */
 class AdventOfCodeDay5Spec
     extends AnyFunSpecLike

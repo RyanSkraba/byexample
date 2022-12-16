@@ -16,7 +16,7 @@ import scala.collection.mutable
   * Part 2:
   *
   * @see
-  *   Rephrased from https://adventofcode.com/2022/day/11
+  *   Rephrased from [[https://adventofcode.com/2022/day/11]]
   */
 class AdventOfCodeDay11Spec
     extends AnyFunSpecLike

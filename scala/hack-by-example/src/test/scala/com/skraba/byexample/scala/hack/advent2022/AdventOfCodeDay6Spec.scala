@@ -18,7 +18,7 @@ import scala.util.matching.Regex
   * consecutive different letters
   *
   * @see
-  *   Rephrased from https://adventofcode.com/2022/day/6
+  *   Rephrased from [[https://adventofcode.com/2022/day/6]]
   */
 class AdventOfCodeDay6Spec
     extends AnyFunSpecLike

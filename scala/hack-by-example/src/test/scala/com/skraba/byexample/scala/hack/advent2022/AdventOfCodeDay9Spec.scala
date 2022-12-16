@@ -17,7 +17,7 @@ import org.scalatest.matchers.should.Matchers
   * the 10th knot visits.
   *
   * @see
-  *   Rephrased from https://adventofcode.com/2022/day/9
+  *   Rephrased from [[https://adventofcode.com/2022/day/9]]
   */
 class AdventOfCodeDay9Spec
     extends AnyFunSpecLike

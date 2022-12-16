@@ -20,7 +20,7 @@ import scala.util.matching.Regex
   * space?
   *
   * @see
-  *   Rephrased from https://adventofcode.com/2022/day/7
+  *   Rephrased from [[https://adventofcode.com/2022/day/7]]
   */
 class AdventOfCodeDay7Spec
     extends AnyFunSpecLike
