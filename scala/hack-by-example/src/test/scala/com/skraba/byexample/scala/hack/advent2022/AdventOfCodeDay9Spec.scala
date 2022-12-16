@@ -4,6 +4,7 @@ import com.skraba.byexample.scala.hack.advent2022.AdventUtils.puzzleInput
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.tagobjects.Slow
 
 /** =Advent of Code 2022 Day 9 Solutions in scala=
   *
@@ -135,7 +136,7 @@ class AdventOfCodeDay9Spec
 
   describe("Solution") {
     val input = puzzleInput("Day9Input.txt").filter(_.nonEmpty)
-    ignore("should have answers") {
+    it("should have answers (10 seconds)", Slow) {
       part1(input: _*) shouldBe 6464
       part2(10, input: _*) shouldBe 2604
     }
