@@ -4,6 +4,7 @@ import com.skraba.byexample.scala.hack.advent2022.AdventUtils.puzzleInput
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.tagobjects.Slow
 
 /** =Advent of Code 2022 Day 17 Solutions in scala=
   *
@@ -24,7 +25,7 @@ class AdventOfCodeDay17Spec
   object Solution {
 
     val EmptyRow = "|.......|"
-    val BottomRow = "+-------+"
+    val EmptyTower: Seq[String] = Seq("+-------+")
 
     case class Rock(
         height: Int,
@@ -52,48 +53,77 @@ class AdventOfCodeDay17Spec
       Rock(2, Seq((3, 0), (4, 0), (3, 1), (4, 1)))
     )
 
-    def addRock(winds: String)(
-        towerAndWind: (Seq[String], Int),
-        i: Int
-    ): (Seq[String], Int) = {
+    def addRock(
+        jets: String
+    )(acc: (Seq[String], Int), rockI: Int): (Seq[String], Int) = {
+      val (tower, jet0) = acc
 
       // The rock and the initial tower with enough space for the rock
-      val rock0 = Rocks(i % Rocks.length)
-      val tower0 = Seq.fill(rock0.height + 3)(EmptyRow) ++ towerAndWind._1
+      val rock0 = Rocks(rockI % Rocks.length)
+      val tower0 = Seq.fill(rock0.height + 3)(EmptyRow) ++ tower
 
-      val Some((newTower, _, newWind)) = Stream
-        .iterate((Option.empty[Seq[String]], rock0, towerAndWind._2)) {
-          case (tower, rock, wind) =>
+      val Some((towerNext, _, jetNext)) = Stream
+        .iterate((Option.empty[Seq[String]], rock0, jet0)) {
+          case (None, rock, jetN) =>
             val rockDx =
               rock
-                .copy(ox = rock.ox + (if (winds(wind) == '<') -1 else 1))
+                .copy(ox = rock.ox + (if (jets(jetN) == '<') -1 else 1))
                 .ifNoOverlap(tower0)
                 .getOrElse(rock)
             val rockDy = rockDx
               .copy(oy = rock.oy + 1)
               .ifNoOverlap(tower0)
-
             (
               if (rockDy.isEmpty) Some(rockDx.drawOnTower(tower0)) else None,
               rockDy.getOrElse(rockDx),
-              (wind + 1) % winds.length
+              (jetN + 1) % jets.length
             )
         }
         .find(_._1.nonEmpty)
 
-      newTower.get -> newWind
+      (towerNext.get, jetNext)
     }
 
     def part1(
-               jets: String,
-               tower: Seq[String] = Seq(BottomRow),
-               rocksToDrop: Int = 2022
+        jets: String,
+        rocksToDrop: Int = 2022
     ): Seq[String] = {
-      (0 until rocksToDrop).foldLeft(tower -> 0)(addRock(jets))._1
+      Stream
+        .from(0)
+        .scanLeft(EmptyTower -> 0)(addRock(jets))
+        .drop(rocksToDrop)
+        .head
+        ._1
     }
 
-    def part2(winds: String, rocksToDrop: Long = 1000000000000L): Long = {
-      1514285714288L
+    def part2(jets: String, rocksToDrop: Long = 1000000000000L): Long = {
+
+      // The endless stream of dropped rocks
+      val dropped: Seq[(Seq[String], Int)] =
+        Stream.from(0).scanLeft(EmptyTower -> 0)(addRock(jets))
+
+      // These were calculated by investigation...
+      val targetJetI = if (jets.length == 40) 2 else 1
+
+      // Find the cycles in the towers at the target jet indices
+      val cycle: Seq[(Int, Int)] = dropped.zipWithIndex
+        .filter { case ((_, jetI), rockI) =>
+          jetI == targetJetI && rockI % Rocks.length == 0
+        }
+        .map { case ((tower, _), rockI) =>
+          (rockI, tower.length - 1)
+        }
+        .take(3)
+
+      // This is used to calculate, in a cycle, how many rocks provide what height
+      val (r1, h1) = cycle.dropRight(1).last
+      val (r2, h2) = cycle.last
+
+      // This is the additional height to take into account from the remainder and the rocks before r1
+      val remainder = (rocksToDrop - r1) % (r2 - r1)
+      val initTower = dropped(r1 + remainder.toInt)._1.length - 1
+
+      initTower + (rocksToDrop - r1) / (r2 - r1) * (h2 - h1)
     }
   }
 
@@ -102,7 +132,7 @@ class AdventOfCodeDay17Spec
   describe("Example case") {
     val input =
       """>>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>
-      |""".stripMargin.trim
+        |""".stripMargin.trim
 
     it("should match the puzzle description for part 1") {
       part1(input).length - 1 shouldBe 3068
@@ -118,8 +148,8 @@ class AdventOfCodeDay17Spec
     it("should have answers for part 1") {
       part1(input.head).length - 1 shouldBe 3209
     }
-    it("should have answers for part 2") {
-      part2(input.head) shouldBe 1514285714288L
+    it("should have answers for part 2", Slow) {
+      part2(input.head) shouldBe 1580758017509L
     }
   }
 }
