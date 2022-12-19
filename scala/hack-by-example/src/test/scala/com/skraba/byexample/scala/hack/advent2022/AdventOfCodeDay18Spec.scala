@@ -5,6 +5,8 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
+import scala.collection.{Seq, mutable}
+
 /** =Advent of Code 2022 Day 18 Solutions in scala=
   *
   * Input:
@@ -23,33 +25,111 @@ class AdventOfCodeDay18Spec
 
   object Solution {
 
-    case class ABC(a: Long) {}
+    case class Pos(x: Int, y: Int, z: Int) {
+      def neighbours: Seq[Pos] = Seq(
+        Pos(x + 1, y, z),
+        Pos(x - 1, y, z),
+        Pos(x, y + 1, z),
+        Pos(x, y - 1, z),
+        Pos(x, y, z + 1),
+        Pos(x, y, z - 1)
+      )
 
-    def parse(in: String): Option[ABC] = None
+      def within(bMin: Pos, bMax: Pos): Boolean =
+        x >= bMin.x && x <= bMax.x && y >= bMin.y && y <= bMax.y && z >= bMin.z && z <= bMax.z
+    }
 
-    def part1(in: String*): Long = 100
+    object Pos {
+      def parse(in: String*): Seq[Pos] = {
+        in.map(_.split(',') match {
+          case Array(x, y, z) => Pos(x.toInt, y.toInt, z.toInt)
+        })
+      }
+    }
 
-    def part2(in: String*): Long = 200
+    def part1(ds: Seq[Pos]): Long = {
+      val dset = ds.toSet
+      val neighbours = ds.map(_.neighbours.count(dset))
+      // There are 6 surfaces per droplet, removing one for every neighbour
+      dset.size * 6 - neighbours.sum
+    }
+
+    def part2(ds: Seq[Pos]): Long = {
+
+      // Find the bounds of the droplets with a margin of 1
+      val bMin = Pos(
+        ds.minBy(_.x).x - 1,
+        ds.minBy(_.y).y - 1,
+        ds.minBy(_.z).z - 1
+      )
+      val bMax = Pos(
+        ds.maxBy(_.x).x + 1,
+        ds.maxBy(_.y).y + 1,
+        ds.maxBy(_.z).z + 1
+      )
+
+      // Flood fill an external block defined by the bounds, excluding the droplet
+      val inside = ds.toSet
+      val outside = {
+        val filled = mutable.Set[Pos](bMin)
+        val next = mutable.Queue[Pos](bMin)
+
+        while (next.nonEmpty) {
+          val pos = next.dequeue()
+          for (
+            n <- pos.neighbours
+              .filterNot(filled)
+              .filterNot(inside)
+            if n.within(bMin, bMax)
+          ) {
+            filled += n
+            next.enqueue(n)
+          }
+        }
+
+        filled.toSeq
+      }
+
+      // The total surface of the external block, minus the rectangular outsides
+      part1(outside) -
+        2 * (bMax.x - bMin.x + 1) * (bMax.y - bMin.y + 1) -
+        2 * (bMax.x - bMin.x + 1) * (bMax.z - bMin.z + 1) -
+        2 * (bMax.y - bMin.y + 1) * (bMax.z - bMin.z + 1)
+    }
   }
 
   import Solution._
 
   describe("Example case") {
     val input =
-      """
-      |""".stripMargin.split("\n")
+      """2,2,2
+        |1,2,2
+        |3,2,2
+        |2,1,2
+        |2,3,2
+        |2,2,1
+        |2,2,3
+        |2,2,4
+        |2,2,6
+        |1,2,5
+        |3,2,5
+        |2,1,5
+        |2,3,5
+        |""".stripMargin.split("\n").filter(_.nonEmpty)
 
     it("should match the puzzle description") {
-      part1(input: _*) shouldBe 100
-      part2(input: _*) shouldBe 200
+      part1(Pos.parse("1,1,1", "2,1,1")) shouldBe 10
+      part2(Pos.parse("1,1,1", "2,1,1")) shouldBe 10
+      part1(Pos.parse(input: _*)) shouldBe 64
+      part2(Pos.parse(input: _*)) shouldBe 58
     }
   }
 
   describe("Solution") {
-    val input = puzzleInput("Day18Input.txt")
+    val input = puzzleInput("Day18Input.txt").filter(_.nonEmpty)
     it("should have answers") {
-      part1(input: _*) shouldBe 100
-      part2(input: _*) shouldBe 200
+      part1(Pos.parse(input: _*)) shouldBe 4320
+      part2(Pos.parse(input: _*)) shouldBe 2456
     }
   }
 }
