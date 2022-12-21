@@ -12,7 +12,8 @@ import org.scalatest.tagobjects.Slow
   *
   * Part 1: The quality index for the blueprints combined.
   *
-  * Part 2:
+  * Part 2: Given more time but fewer blueprints, find the product of the first
+  * three blueprints.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/19]]

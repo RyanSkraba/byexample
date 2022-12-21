@@ -8,11 +8,15 @@ import org.scalatest.tagobjects.Slow
 
 /** =Advent of Code 2022 Day 20 Solutions in scala=
   *
-  * Input:
+  * Input: A circular buffer of integers.
   *
-  * Part 1:
+  * Part 1: Going through the original buffer in order, move every element
+  * forward backwards or forwards a distance equal to the element value,
+  * wrapping around the buffer if necessary. This is called a mix. After mixing,
+  * add the 1000th, 2000th and 3000th value after the value 0.
   *
-  * Part 2:
+  * Part 2: Mix the original buffer 10 times and add the 1000th, 2000th and
+  * 3000th value after the value 0.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/20]]
@@ -48,7 +52,7 @@ class AdventOfCodeDay20Spec
     }
 
     def part2(in: Seq[Long]): Long = {
-      val withIndex = in.map(_*811589153L).zipWithIndex
+      val withIndex = in.map(_ * 811589153L).zipWithIndex
       val mixed = Stream.iterate(withIndex)(in.indices.foldLeft(_)(mix))(10)
 
       val zeroIndex = mixed.indexWhere(_._1 == 0)
@@ -65,8 +69,8 @@ class AdventOfCodeDay20Spec
     val input = Seq(1L, 2, -3, 3, -2, 0, 4)
 
     it("should mix the given examples") {
-      mix(Seq(4L, 5, 6, 1, 7, 8, 9).zipWithIndex, 3).map(_._1) shouldBe Seq(4, 5,
-        6, 7, 1, 8, 9)
+      mix(Seq(4L, 5, 6, 1, 7, 8, 9).zipWithIndex, 3).map(_._1) shouldBe Seq(4,
+        5, 6, 7, 1, 8, 9)
       mix(Seq(4L, -2, 5, 6, 7, 8, 9).zipWithIndex, 1).map(_._1) shouldBe Seq(4,
         5, 6, 7, 8, -2, 9)
     }
