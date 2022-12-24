@@ -7,9 +7,9 @@ import org.scalatest.matchers.should.Matchers
 
 /** =Advent of Code 2022 Day 22 Solutions in scala=
   *
-  * Input:
+  * Input: A map with obstacles and instructions for moving around the map.
   *
-  * Part 1:
+  * Part 1: The final coordinates after following the instructions
   *
   * Part 2:
   *
