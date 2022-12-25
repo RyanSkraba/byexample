@@ -11,7 +11,7 @@ import org.scalatest.matchers.should.Matchers
   *
   * Part 1: The final coordinates after following the instructions
   *
-  * Part 2:
+  * Part 2: If the map were wrapped around a box
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/22]]
