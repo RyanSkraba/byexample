@@ -7,11 +7,16 @@ import org.scalatest.matchers.should.Matchers
 
 /** =Advent of Code 2022 Day 22 Solutions in scala=
   *
-  * Input: A map with obstacles and instructions for moving around the map.
+  * Input: A map with obstacles and instructions for moving around the map. The
+  * map is not square, but an unfolded box (although we don't know that for part
+  * 1). Open spaces are periods, and blocked spaces are #. The last line is the
+  * instructions to follow in the form of turns and number of spaces to advance.
   *
-  * Part 1: The final coordinates after following the instructions
+  * Part 1: The final coordinates after following the instructions, where we
+  * wrap around rows and columns.
   *
-  * Part 2: If the map were wrapped around a box
+  * Part 2: The final coordinates after following the instructions, where we
+  * wrap the map around a box.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/22]]
