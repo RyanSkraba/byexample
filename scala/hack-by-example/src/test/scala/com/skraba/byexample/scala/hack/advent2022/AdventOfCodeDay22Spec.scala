@@ -88,17 +88,14 @@ class AdventOfCodeDay22Spec
       val plan = parse(in.dropRight(1): _*)
       val pos0 = Pos(plan = plan, x = plan.head.indexOf('.'))
 
-      val instructions: Seq[Either[Int, Char]] =
-        in.last.split("((?<=\\D)|(?=\\D))").filter(_.nonEmpty).map {
-          case adv if adv.head.isDigit => Left(adv.toInt)
-          case turn                    => Right(turn.head)
-        }
+      val instructions: Seq[String] =
+        in.last.split("((?<=\\D)|(?=\\D))").filter(_.nonEmpty)
 
       val posEnd = instructions.foldLeft(pos0) {
-        case (pos, Left(adv)) => pos.move(adv)
-        case (pos, Right(turn)) if turn == 'R' =>
+        case (pos, adv) if adv.head.isDigit => pos.move(adv.toInt)
+        case (pos, "R") =>
           pos.copy(facing = Dir((pos.facing.id + 1 + Dir.maxId) % Dir.maxId))
-        case (pos, Right(turn)) if turn == 'L' =>
+        case (pos, _) =>
           pos.copy(facing = Dir((pos.facing.id - 1 + Dir.maxId) % Dir.maxId))
       }
 
