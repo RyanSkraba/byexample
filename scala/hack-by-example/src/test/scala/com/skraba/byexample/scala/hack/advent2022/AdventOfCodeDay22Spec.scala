@@ -211,26 +211,6 @@ class AdventOfCodeDay22Spec
     it("should match the puzzle description for part 2") {
       val (init, moves) = Pos.parse(input: _*)
 
-      //             ┌─1a◄─┐
-      //             │     │
-      //             │     │
-      //             ▼2a 3a▲
-      //             │     │
-      //             │     │
-      // ┌─1b►─┬─2b►─┼─────┤
-      // │     │     │     │
-      // │     │     │     │
-      // ▲7a   │     │   4a▲
-      // │     │     │     │
-      // │     │     │     │
-      // └─6b◄─┴─5a◄─┼─────┼─4b►─┐
-      //             │     │     │
-      //             │     │     │
-      //             ▼5b   │   3b▼
-      //             │     │     │
-      //             │     │     │
-      //             └─6a►─┴─7b►─┘
-
       //             ┌─a1◄─┐
       //             │     │
       //             │     │
@@ -343,9 +323,14 @@ class AdventOfCodeDay22Spec
 
   describe("Solution") {
     val input = puzzleInput("Day22Input.txt")
+
     it("should have answers for part 1") {
       val (init, moves) = Pos.parse(input: _*)
       solve(init, moves) shouldBe 164014
+    }
+
+    it("should have answers for part 2") {
+      val (init, moves) = Pos.parse(input: _*)
 
       //       ┌─b1►─┬─c1►─┐
       //       │     │     │
@@ -391,19 +376,15 @@ class AdventOfCodeDay22Spec
       val e2 = init.plan.line(2, 2, 50, East).reverse
       val g1 = init.plan.line(3, 1, 50, East).reverse
 
-      val part2 = init.copy(plan = init.plan.copy())
-      part2.plan.warp =
+      init.plan.warp =
         Seq(f2, f1, e1, e2, a2, a1, g2, g1, d1, d2, b1, b2, c1, c2)
           .grouped(2)
           .flatMap { case Seq(lineA, lineB) =>
-            lineA.zip(lineB.map(_.cw.cw)) ++ lineB.zip(
-              lineA.map(_.cw.cw)
-            )
+            lineA.zip(lineB.map(_.cw.cw)) ++ lineB.zip(lineA.map(_.cw.cw))
           }
           .toMap
 
-      // 179023 too high
-      solve(part2, moves) shouldBe 179023
+      solve(init, moves) shouldBe 47525
     }
   }
 }
