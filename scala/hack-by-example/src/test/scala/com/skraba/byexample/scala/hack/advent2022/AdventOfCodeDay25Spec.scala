@@ -37,18 +37,24 @@ class AdventOfCodeDay25Spec
   describe("Example case") {
     val input =
       """
-      |""".stripMargin.split("\n")
+        |""".stripMargin.split("\n")
 
-    it("should match the puzzle description") {
+    it("should match the puzzle description for part 1") {
       part1(input: _*) shouldBe 100
+    }
+
+    it("should match the puzzle description for part 2") {
       part2(input: _*) shouldBe 200
     }
   }
 
   describe("Solution") {
     val input = puzzleInput("Day25Input.txt")
-    it("should have answers") {
+    it("should have answers for part 1") {
       part1(input: _*) shouldBe 100
+    }
+
+    it("should have answers for part 2") {
       part2(input: _*) shouldBe 200
     }
   }
