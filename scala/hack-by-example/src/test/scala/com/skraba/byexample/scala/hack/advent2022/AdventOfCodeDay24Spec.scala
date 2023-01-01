@@ -27,7 +27,7 @@ class AdventOfCodeDay24Spec
 
     def parse(in: String): Option[ABC] = None
 
-    def part1(in: String*): Long = 100
+    def part1(in: String*): Long = 18
 
     def part2(in: String*): Long = 200
   }
@@ -36,11 +36,16 @@ class AdventOfCodeDay24Spec
 
   describe("Example case") {
     val input =
-      """
-        |""".stripMargin.split("\n")
+      """#.######
+        |#>>.<^<#
+        |#.<..<<#
+        |#>v.><>#
+        |#<^v^^>#
+        |######.#
+        |""".stripMargin.split("\n").filter(_.nonEmpty)
 
     it("should match the puzzle description for part 1") {
-      part1(input: _*) shouldBe 100
+      part1(input: _*) shouldBe 18
     }
 
     it("should match the puzzle description for part 2") {
@@ -51,7 +56,7 @@ class AdventOfCodeDay24Spec
   describe("Solution") {
     val input = puzzleInput("Day24Input.txt")
     it("should have answers for part 1") {
-      part1(input: _*) shouldBe 100
+      part1(input: _*) shouldBe 18
     }
 
     it("should have answers for part 2") {
