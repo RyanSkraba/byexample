@@ -110,6 +110,15 @@ class AdventOfCodeDay23Spec
         val plan10 = Stream.from(0).scanLeft(this)(_.part1Iterate(_)).apply(10)
         plan10.width * plan10.height - elves.size
       }
+
+      def part2(): Int = {
+        1 + Stream
+          .from(0)
+          .scanLeft(this)(_.part1Iterate(_))
+          .sliding(2)
+          .takeWhile(_.distinct.length == 2)
+          .length
+      }
     }
 
     object Plan {
@@ -273,7 +282,10 @@ class AdventOfCodeDay23Spec
       plan.part1() shouldBe 110
     }
 
-    it("should match the puzzle description for part 2") {}
+    it("should match the puzzle description for part 2") {
+      val plan = Plan(input: _*)
+      plan.part2() shouldBe 20
+    }
   }
 
   describe("Solution") {
@@ -286,6 +298,9 @@ class AdventOfCodeDay23Spec
       plan.part1() shouldBe 4123
     }
 
-    it("should have answers for part 2") {}
+    it("should have answers for part 2 (2 seconds)", Slow) {
+      val plan = Plan(input: _*)
+      plan.part2() shouldBe 1029
+    }
   }
 }
