@@ -4,6 +4,7 @@ import com.skraba.byexample.scala.hack.advent2022.AdventUtils.puzzleInput
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.tagobjects.Slow
 
 import scala.collection.immutable
 
@@ -26,15 +27,19 @@ class AdventOfCodeDay23Spec
 
   object Solution {
 
+    /** The directions of the compass in the order they are tried. */
     object Dir extends Enumeration {
       type Dir = Value
       val North, South, West, East = Value
     }
     import Dir._
 
+    /** Lookup table for the priorities in a cycle. */
     val Priorities: Seq[Seq[Dir]] =
       for (i <- 0 until Dir.maxId)
         yield (0 until Dir.maxId).map(i + _).map(_ % 4).map(Dir(_))
+
+    /** A position of an elf.  The coordinate can be positive or negative. */
     case class Pos(x: Int, y: Int) {
       lazy val nw: Pos = Pos(x - 1, y - 1)
       lazy val n: Pos = Pos(x, y - 1)
@@ -45,6 +50,7 @@ class AdventOfCodeDay23Spec
       lazy val sw: Pos = Pos(x - 1, y + 1)
       lazy val w: Pos = Pos(x - 1, y)
 
+      /** The neighbours, with the direct followed by the diagonals */
       lazy val north: Seq[Pos] = Seq(n, nw, ne)
       lazy val south: Seq[Pos] = Seq(s, sw, se)
       lazy val west: Seq[Pos] = Seq(w, nw, sw)
@@ -62,6 +68,7 @@ class AdventOfCodeDay23Spec
         unblocked(ps)(North) && unblocked(ps)(South) && !ps(e) && !ps(w)
     }
 
+    /** All of the elves positions on the plain. */
     case class Plan(elves: Set[Pos]) {
       lazy val (minX: Int, maxX: Int, minY: Int, maxY: Int) = elves.foldLeft(
         (Int.MaxValue, Int.MinValue, Int.MaxValue, Int.MinValue)
@@ -74,11 +81,6 @@ class AdventOfCodeDay23Spec
 
       def part1Iterate(i: Int): Plan = {
         val newElves = collection.mutable.Set[Pos]()
-        var newMinX = Int.MaxValue
-        var newMaxX = Int.MinValue
-        var newMinY = Int.MaxValue
-        var newMaxY = Int.MinValue
-
         val priorities = Priorities(i % Dir.maxId)
         for (e <- elves) {
           priorities.find(e.unblocked(elves)) match {
@@ -89,10 +91,6 @@ class AdventOfCodeDay23Spec
                 newElves += e
                 newElves += newPos.neighbours(dir).head
               } else newElves += newPos
-              newMinX = newMinX min newPos.x
-              newMaxX = newMaxX max newPos.x
-              newMinY = newMinY min newPos.y
-              newMaxY = newMaxY max newPos.y
             case _ => newElves += e
           }
         }
@@ -108,9 +106,8 @@ class AdventOfCodeDay23Spec
           .mkString("\n")
       }
 
-      def part1(): Long = {
-        val plans = Stream.from(0).map { part1Iterate }
-        val plan10 = plans(10)
+      def part1(): Int = {
+        val plan10 = Stream.from(0).scanLeft(this)(_.part1Iterate(_)).apply(10)
         plan10.width * plan10.height - elves.size
       }
     }
@@ -186,7 +183,6 @@ class AdventOfCodeDay23Spec
 
     it("should iterate correctly on the sample") {
       val plan0 = Plan(input: _*)
-      // val plans = (0 to 10 ).scanLeft(plan0) { (p, i) => p.part1Iterate(i)}
       val plans = Stream.from(0).scanLeft(plan0) { _.part1Iterate(_) }
 
       plans.head.width shouldBe 7
@@ -257,20 +253,38 @@ class AdventOfCodeDay23Spec
           |.#.........
           |.........#.
           |...#..#....""".stripMargin.trim
+
+      plans(10).mkString shouldBe
+        """......#.....
+          |..........#.
+          |.#.#..#.....
+          |.....#......
+          |..#.....#..#
+          |#......##...
+          |....##......
+          |.#........#.
+          |...#.#..#...
+          |............
+          |...#..#..#..""".stripMargin.trim
     }
 
     it("should match the puzzle description for part 1") {
       val plan = Plan(input: _*)
-      // This isn't the right answer...
-      plan.part1() shouldBe 50
+      plan.part1() shouldBe 110
     }
 
     it("should match the puzzle description for part 2") {}
   }
 
   describe("Solution") {
-    val input = puzzleInput("Day24Input.txt")
-    it("should have answers for part 1") {}
+    val input = puzzleInput("Day23Input.txt")
+    it("should have answers for part 1") {
+      val plan = Plan(input: _*)
+      plan.elves.size shouldBe 2683
+      plan.width shouldBe 73
+      plan.height shouldBe 73
+      plan.part1() shouldBe 4123
+    }
 
     it("should have answers for part 2") {}
   }
