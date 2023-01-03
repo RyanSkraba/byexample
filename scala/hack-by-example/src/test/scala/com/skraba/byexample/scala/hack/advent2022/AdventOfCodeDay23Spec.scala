@@ -15,7 +15,8 @@ import scala.collection.immutable
   * Part 1: After 10 moves, the number of empty spaces in the smallest bounding
   * rectangle.
   *
-  * Part 2:
+  * Part 2: The number of moves necessary for the elves to stabilize their
+  * positions.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/23]]
