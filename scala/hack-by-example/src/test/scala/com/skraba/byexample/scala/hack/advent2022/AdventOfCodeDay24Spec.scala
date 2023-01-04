@@ -91,10 +91,12 @@ class AdventOfCodeDay24Spec
         time: Int = 0,
         x: Int = 0,
         y: Int = -1,
+        dstX: Int,
+        dstY: Int,
         blizzards: Blizzards
     ) extends State[MoveState] {
       override def isValid: Boolean = init ||
-        (x == blizzards.width - 1 && y == blizzards.height) ||
+        (x == dstX && y == dstY) ||
         !blizzards(time, x, y)
 
       override def nextStates: Iterable[MoveState] = Seq(
@@ -106,7 +108,7 @@ class AdventOfCodeDay24Spec
       ).filter(_.isValid)
 
       def dfsTimeToDestination(best: Int = Int.MaxValue): Int = {
-        if (x == blizzards.width - 1 && y == blizzards.height)
+        if (x == dstX && y == dstY)
           return time
         if (time + blizzards.width - x + blizzards.height - y - 2 >= best)
           return best
@@ -119,7 +121,7 @@ class AdventOfCodeDay24Spec
         val bfs = mutable.SortedSet(this)(Ordering.by(x => (x.time, x.x, x.y)))
         while (bfs.nonEmpty) {
           val next = bfs.head
-          if (next.x == blizzards.width - 1 && next.y == blizzards.height)
+          if (next.x == dstX && next.y == dstY)
             return next.time
           bfs ++= next.nextStates
           bfs -= next
@@ -129,7 +131,24 @@ class AdventOfCodeDay24Spec
       }
     }
 
-    def part2(in: String*): Long = 200
+    object MoveState {
+      def apply(b: Blizzards): MoveState =
+        MoveState(blizzards = b, dstX = b.width - 1, dstY = b.height)
+      def apply(
+          b: Blizzards,
+          time: Int,
+          src: (Int, Int),
+          dst: (Int, Int)
+      ): MoveState = MoveState(
+        blizzards = b,
+        time = time,
+        x = src._1,
+        y = src._2,
+        dstX = dst._1,
+        dstY = dst._2
+      )
+
+    }
   }
 
   import Solution._
@@ -234,12 +253,17 @@ class AdventOfCodeDay24Spec
       b.height shouldBe 4
       b.width shouldBe 6
       // Compare the depth first search to breadth-first search
-      MoveState(blizzards = b).dfsTimeToDestination() shouldBe 18
-      MoveState(blizzards = b).bfsTimeToDestination() shouldBe 18
+      MoveState(b).dfsTimeToDestination() shouldBe 18
+      MoveState(b).bfsTimeToDestination() shouldBe 18
     }
 
     it("should match the puzzle description for part 2") {
-      part2(input) shouldBe 200
+      val b = Blizzards(input)
+      MoveState(b).bfsTimeToDestination() shouldBe 18
+      MoveState(b, 18, (b.width - 1, b.height), (0, -1))
+        .bfsTimeToDestination() shouldBe 41
+      MoveState(b, 41, (0, -1), (b.width - 1, b.height))
+        .bfsTimeToDestination() shouldBe 54
     }
   }
 
@@ -251,11 +275,16 @@ class AdventOfCodeDay24Spec
       b.width shouldBe 120
       // DFS doesn't finish
       // MoveState(blizzards = b).dfsTimeToDestination() shouldBe 253
-      MoveState(blizzards = b).bfsTimeToDestination() shouldBe 253
+      MoveState(b).bfsTimeToDestination() shouldBe 253
     }
 
     it("should have answers for part 2") {
-      part2(input) shouldBe 200
+      val b = Blizzards(input)
+      MoveState(b).bfsTimeToDestination() shouldBe 253
+      MoveState(b, 253, (b.width - 1, b.height), (0, -1))
+        .bfsTimeToDestination() shouldBe 521
+      MoveState(b, 521, (0, -1), (b.width - 1, b.height))
+        .bfsTimeToDestination() shouldBe 794
     }
   }
 }
