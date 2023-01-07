@@ -50,6 +50,7 @@ mvn install
 # without rebuilding with maven.
 src/test/resources/getting_things_done.sc help
 src/test/resources/file_renamer.sc help
+src/test/resources/ammonite_example.sc help
 ```
 
 [Ammonite]: https://ammonite.io/
