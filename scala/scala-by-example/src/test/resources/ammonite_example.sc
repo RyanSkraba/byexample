@@ -36,10 +36,12 @@ def help(): Unit = {
   println(s"""$BOLD$Cli - Demonstrate how to script with Ammonite
              |
              |$CYAN    argTest$RESET: Show how ammonite arguments are used
+             |$CYAN  githubApi$RESET: Get contribution info from the GitHub API
              |
              |Usage:
              |
-             | $Cli ${CYAN}argTest$RESET [user] [greeting]
+             | $Cli ${CYAN}argTest$RESET [USER] [GREETING]
+             | $Cli ${CYAN}githubApi$RESET USER
              |""".stripMargin)
 }
 
@@ -64,3 +66,36 @@ def argTest(
        |$BOLD$MAGENTA greeting: $RESET$greeting
        |""".stripMargin)
 }
+
+@arg(doc = "Save the contribution JSON from the GitHub API to a file")
+@main
+def githubApi(user: String): Unit = {
+  val token = %%("gh", "auth", "token")(pwd)
+  val contributions = requests.post(
+    url = "https://api.github.com/graphql",
+    headers = Seq(
+      ("Authorization", s"Bearer ${token.out.lines.head.trim}"),
+      ("Content-Type", "application/json")
+    ),
+    data = s"""{"query":"query($$userName:String!) {
+              |  user(login: $$userName) {
+              |    contributionsCollection {
+              |      contributionCalendar {
+              |        totalContributions
+              |        weeks {
+              |          contributionDays {
+              |            contributionCount
+              |            date
+              |          }
+              |        }
+              |      }
+              |    }
+              |  }
+              |}",
+              |"variables":{"userName":"$user"}}""".stripMargin
+      .replace('\n', ' ')
+  )
+
+  println(contributions.text())
+}
+
