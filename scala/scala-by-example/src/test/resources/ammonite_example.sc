@@ -69,7 +69,7 @@ def argTest(
 
 @arg(doc = "Save the contribution JSON from the GitHub API to a file")
 @main
-def githubApi(user: String): Unit = {
+def githubApi(user: String, dstFile: String = "/tmp/github_contributions.json"): Unit = {
   val token = %%("gh", "auth", "token")(pwd)
   val contributions = requests.post(
     url = "https://api.github.com/graphql",
@@ -96,6 +96,6 @@ def githubApi(user: String): Unit = {
       .replace('\n', ' ')
   )
 
-  println(contributions.text())
+  write.over(Path(dstFile), contributions.text())
 }
 
