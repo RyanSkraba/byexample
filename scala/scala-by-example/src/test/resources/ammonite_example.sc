@@ -3,7 +3,7 @@
 /** Some examples on using ammonite for scripting in scala. */
 
 import ammonite.ops._
-import mainargs.{arg, main}
+import mainargs.{Flag, arg, main}
 
 import scala.io.AnsiColor._
 
@@ -45,34 +45,46 @@ def help(): Unit = {
              |""".stripMargin)
 }
 
+/** @see
+  *   [[https://index.scala-lang.org/com-lihaoyi/mainargs]]
+  */
 @arg(doc = "Test arguments and defaults")
 @main
 def argTest(
     @arg(doc = "The user running the script, or current user if not present")
     user: String = sys.env("USER"),
     @arg(doc = "A string value")
-    greeting: Option[String] = None
+    greeting: Option[String] = None,
+    @arg(doc = "Verbose for extra output")
+    verbose: Flag
 ): Unit = {
-  println(s"""${BOLD}Try running these commands:$RESET
-       |
-       |$Cli argTest
-       |$Cli argTest Me
-       |$Cli argTest Me Hello
-       |$Cli argTest Me Hello Invalid
-       |$Cli argTest --greeting Hey
-       |$BOLD
-       |Actual arguments
-       |$BOLD$MAGENTA     user: $RESET$user
-       |$BOLD$MAGENTA greeting: $RESET$greeting
-       |""".stripMargin)
+  println(s"""$YELLOW${greeting.getOrElse("Hello")}, $BOLD$user$RESET""")
+  if (verbose.value) {
+    println(s"""$RESET
+         |Try running these commands:
+         |$Cli argTest
+         |$Cli argTest Me
+         |$Cli argTest --verbose Me
+         |$Cli argTest Me Hey
+         |$Cli argTest Me "Hello there" Invalid
+         |$Cli argTest --greeting Yo
+         |
+         |Actual arguments
+         |$BOLD$MAGENTA     user: $RESET$user
+         |$BOLD$MAGENTA greeting: $RESET$greeting
+         |""".stripMargin)
+  }
 }
 
 @arg(doc = "Save the contribution JSON from the GitHub API to a file")
 @main
 def githubApi(
+    @arg(doc = "GitHub user to fetch contribution information")
     user: String,
+    @arg(doc = "The destination file to save the JSON")
     dstFile: String = "/tmp/github_contributions.json",
-    verbose: Boolean = false
+    @arg(doc = "Verbose for extra output")
+    verbose: Flag
 ): Unit = {
   val token = %%("gh", "auth", "token")(pwd)
   val contributions = requests.post(
@@ -100,10 +112,9 @@ def githubApi(
       .replace('\n', ' ')
   )
 
-  if (verbose)
-    println(contributions.text())
-  else
-    println(s"${GREEN}Writing to $BOLD$dstFile$RESET")
   write.over(Path(dstFile), contributions.text())
+  if (verbose.value) {
+    println(contributions.text())
+  }
+  println(s"${GREEN}Writing to $BOLD$dstFile$RESET")
 }
-
