@@ -4,6 +4,7 @@
 
 import ammonite.ops._
 import mainargs.{Flag, arg, main}
+import ujson.Obj
 
 import scala.io.AnsiColor._
 
@@ -37,11 +38,13 @@ def help(): Unit = {
              |
              |$CYAN    argTest$RESET: Show how ammonite arguments are used
              |$CYAN  githubApi$RESET: Get contribution info from the GitHub API
+             |$CYAN githubJson$RESET: Parse and use the github JSON with ujson
              |
              |Usage:
              |
-             | $Cli ${CYAN}argTest$RESET [USER] [GREETING]
-             | $Cli ${CYAN}githubApi$RESET USER
+             | $Cli ${CYAN}argTest$RESET [USER] [GREETING] [--verbose]
+             | $Cli ${CYAN}githubApi$RESET USER [DSTFILE] [--verbose]
+             | $Cli ${CYAN}githubJson$RESET [DSTFILE] [--verbose]
              |""".stripMargin)
 }
 
@@ -117,4 +120,30 @@ def githubApi(
     println(contributions.text())
   }
   println(s"${GREEN}Writing to $BOLD$dstFile$RESET")
+}
+
+@arg(doc = "Read the contribution JSON and print some markdown")
+@main
+def githubJson(
+    @arg(doc = "The source file to read the JSON from")
+    srcFile: String = "/tmp/github_contributions.json",
+    @arg(doc = "Verbose for extra output")
+    verbose: Flag
+): Unit = {
+  val contribs = ujson.read(read ! Path(srcFile)).asInstanceOf[Obj]
+  val weeks = contribs("data")("user")("contributionsCollection")(
+    "contributionCalendar"
+  )("weeks").arr
+  val githubContribsByDate =
+    for (x <- weeks; y <- x("contributionDays").arr)
+      yield (
+        y("date").str,
+        y("contributionCount").num.toInt
+      )
+  println(s"| Date       | # |")
+  println(s"|------------|-- |")
+  for (
+    (contribDay, contribNum) <- githubContribsByDate.filter(_._2 != 0).sorted
+  )
+    println(s"| $contribDay | $contribNum |")
 }
