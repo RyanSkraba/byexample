@@ -6,6 +6,7 @@ import ammonite.ops._
 import mainargs.{Flag, arg, main}
 import ujson.Obj
 
+import scala.collection.SortedMap
 import scala.io.AnsiColor._
 
 // ==========================================================================
@@ -131,19 +132,27 @@ def githubJson(
     verbose: Flag
 ): Unit = {
   val contribs = ujson.read(read ! Path(srcFile)).asInstanceOf[Obj]
+  val githubContribsByDate = githubJsonParse(contribs)
+  println(s"| Date       | # |")
+  println(s"|------------|-- |")
+  for ((contribDay, contribNum) <- githubContribsByDate.filter(_._2 != 0))
+    println(s"| $contribDay | $contribNum |")
+}
+
+/** Parse the JSON from the GitHub GraphQL API return the days and the number of
+  * contributions for that day.
+  * @param contribs
+  *   The API results.
+  * @return
+  *   A SortedMap containing all of the days mapped to their number of
+  *   contributions.
+  */
+private def githubJsonParse(contribs: Obj): SortedMap[String, Int] = {
   val weeks = contribs("data")("user")("contributionsCollection")(
     "contributionCalendar"
   )("weeks").arr
-  val githubContribsByDate =
+  val byDate: scala.collection.mutable.Seq[(String, Int)] =
     for (x <- weeks; y <- x("contributionDays").arr)
-      yield (
-        y("date").str,
-        y("contributionCount").num.toInt
-      )
-  println(s"| Date       | # |")
-  println(s"|------------|-- |")
-  for (
-    (contribDay, contribNum) <- githubContribsByDate.filter(_._2 != 0).sorted
-  )
-    println(s"| $contribDay | $contribNum |")
+      yield (y("date").str, y("contributionCount").num.toInt)
+  SortedMap.empty[String, Int] ++ byDate.toSeq.toMap
 }
