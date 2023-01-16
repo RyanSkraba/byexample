@@ -6,6 +6,8 @@ import ammonite.ops._
 import mainargs.{Flag, arg, main}
 import ujson.Obj
 
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import scala.collection.SortedMap
 import scala.io.AnsiColor._
 
@@ -27,6 +29,8 @@ import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
 // ==========================================================================
 // Top level variables available to the script
 
+val YyyyMmDd = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+val MonthDay = DateTimeFormatter.ofPattern("MMM d")
 val Cli = s"${GREEN}ammonite_example.sc$RESET"
 
 // ==========================================================================
@@ -136,7 +140,7 @@ def githubJson(
   println(s"| Date       | # |")
   println(s"|------------|-- |")
   for ((contribDay, contribNum) <- githubContribsByDate.filter(_._2 != 0))
-    println(s"| $contribDay | $contribNum |")
+    println(s"| ${LocalDate.ofEpochDay(contribDay).format(MonthDay) } | $contribNum |")
 }
 
 /** Parse the JSON from the GitHub GraphQL API return the days and the number of
@@ -147,12 +151,15 @@ def githubJson(
   *   A SortedMap containing all of the days mapped to their number of
   *   contributions.
   */
-private def githubJsonParse(contribs: Obj): SortedMap[String, Int] = {
+private def githubJsonParse(contribs: Obj): SortedMap[Long, Int] = {
   val weeks = contribs("data")("user")("contributionsCollection")(
     "contributionCalendar"
   )("weeks").arr
-  val byDate: scala.collection.mutable.Seq[(String, Int)] =
+  val byDate =
     for (x <- weeks; y <- x("contributionDays").arr)
-      yield (y("date").str, y("contributionCount").num.toInt)
-  SortedMap.empty[String, Int] ++ byDate.toSeq.toMap
+      yield (
+        LocalDate.parse(y("date").str, YyyyMmDd).toEpochDay,
+        y("contributionCount").num.toInt
+      )
+  SortedMap.empty[Long, Int] ++ byDate.toSeq.toMap
 }
