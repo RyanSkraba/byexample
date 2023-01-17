@@ -6,7 +6,7 @@ import ammonite.ops._
 import mainargs.{Flag, arg, main}
 import ujson.Obj
 
-import java.time.LocalDate
+import java.time.{DayOfWeek, LocalDate}
 import java.time.format.DateTimeFormatter
 import scala.collection.SortedMap
 import scala.io.AnsiColor._
@@ -25,6 +25,7 @@ interp.repositories() ++= {
 
 @
 import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
+import com.skraba.byexample.scala.markd._
 
 // ==========================================================================
 // Top level variables available to the script
@@ -136,11 +137,8 @@ def githubJson(
     verbose: Flag
 ): Unit = {
   val contribs = ujson.read(read ! Path(srcFile)).asInstanceOf[Obj]
-  val githubContribsByDate = githubJsonParse(contribs)
-  println(s"| Date       | # |")
-  println(s"|------------|-- |")
-  for ((contribDay, contribNum) <- githubContribsByDate.filter(_._2 != 0))
-    println(s"| ${LocalDate.ofEpochDay(contribDay).format(MonthDay) } | $contribNum |")
+  val githubContribsByDate = githubJsonParse(contribs).filter(_._2 != 0)
+  println(calendarize(githubContribsByDate).build())
 }
 
 /** Parse the JSON from the GitHub GraphQL API return the days and the number of
@@ -162,4 +160,43 @@ private def githubJsonParse(contribs: Obj): SortedMap[Long, Int] = {
         y("contributionCount").num.toInt
       )
   SortedMap.empty[Long, Int] ++ byDate.toSeq.toMap
+}
+
+/** Make a pretty Markdown calendar from a map of epoch days.
+  * @param in
+  *   A map of epoch day mapping to a value.
+  * @param default
+  *   The default value to use if there isn't any value for the date in the map.
+  * @return
+  *   The Markd [[Table]] element containing a weekly wrapped calendar of the
+  *   string values from the map, from the minimum date to the maximum date.
+  */
+private def calendarize(
+    in: SortedMap[Long, Any],
+    default: String = ""
+): Table = {
+  val start = GettingThingsDone.nextWeekStartByEpoch(
+    Some(in.keySet.min),
+    DayOfWeek.SUNDAY
+  ) - 7
+  val rows = (start to in.keySet.max by 7)
+    .map(sunday => (sunday, in.range(sunday, sunday + 7)))
+    .map { case (sunday, week) =>
+      LocalDate.ofEpochDay(sunday).format(MonthDay) +: (sunday until sunday + 7)
+        .map(week.get(_).map(_.toString).getOrElse(default))
+    }
+    .map(TableRow.from)
+  Table.from(
+    Seq.fill(8)(Align.LEFT),
+    TableRow.from(
+      "",
+      "Sun",
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat"
+    ) +: rows: _*
+  )
 }
