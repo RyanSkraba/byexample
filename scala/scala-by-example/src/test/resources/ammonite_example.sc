@@ -6,10 +6,11 @@ import ammonite.ops._
 import mainargs.{Flag, arg, main}
 import ujson.Obj
 
-import java.time.{DayOfWeek, LocalDate}
 import java.time.format.DateTimeFormatter
+import java.time.{DayOfWeek, LocalDate}
 import scala.collection.SortedMap
 import scala.io.AnsiColor._
+import scala.util._
 
 // ==========================================================================
 // This is how you would add artifacts coming from the local maven repository
@@ -45,12 +46,14 @@ def help(): Unit = {
              |$CYAN    argTest$RESET: Show how ammonite arguments are used
              |$CYAN  githubApi$RESET: Get contribution info from the GitHub API
              |$CYAN githubJson$RESET: Parse and use the github JSON with ujson
+             |$CYAN    gitExec$RESET: Run a system call (git) and get the results
              |
              |Usage:
              |
              | $Cli ${CYAN}argTest$RESET [USER] [GREETING] [--verbose]
              | $Cli ${CYAN}githubApi$RESET USER [DSTFILE] [--verbose]
              | $Cli ${CYAN}githubJson$RESET [DSTFILE] [--verbose]
+             | $Cli ${CYAN}gitExec$RESET [DSTREPO] [--verbose]
              |""".stripMargin)
 }
 
@@ -82,6 +85,28 @@ def argTest(
          |$BOLD$MAGENTA     user: $RESET$user
          |$BOLD$MAGENTA greeting: $RESET$greeting
          |""".stripMargin)
+  }
+}
+
+@arg(doc = "Make a system call")
+@main
+def gitExec(repo: String): Unit = {
+  Try(
+    %%(
+      "git",
+      "--no-pager",
+      "log",
+      "--pretty=format:\"%h%x09%an%x09%ad%x09%s\"",
+      "--date=short"
+    )(Path(repo))
+  ) match {
+    case Success(result) if result.exitCode == 0 =>
+      result.out.lines.map(_.replace("\"", "")).foreach(println)
+    case Success(result) =>
+      println(s"Unsuccessful ${result.exitCode}")
+    case Failure(ex) =>
+      println("Failure!")
+      ex.printStackTrace()
   }
 }
 
