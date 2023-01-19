@@ -8,7 +8,7 @@ import ujson.Obj
 
 import java.time.format.DateTimeFormatter
 import java.time.{DayOfWeek, LocalDate}
-import scala.collection.SortedMap
+import scala.collection.{SortedMap, mutable}
 import scala.io.AnsiColor._
 import scala.util._
 
@@ -224,4 +224,32 @@ private def calendarize(
       "Sat"
     ) +: rows: _*
   )
+}
+
+/**
+ * An experiment to decorate a git contribution calendar with private information.
+ */
+@main
+def gitJsonDecorated( srcFile: String = "/tmp/github_contributions.json", spec: Seq[String] = Nil): Unit = {
+  val contribs = ujson.read(read ! Path(srcFile)).asInstanceOf[Obj]
+  val byDate = mutable.SortedMap.empty[Long, Int] ++ githubJsonParse(contribs)
+    .filter(_._2 != 0)
+    .mapValues(_.toString)
+
+  def git(prj: String): Seq[String] = {
+    %%("git", "--no-pager", "log", "--pretty=format:\"%ad\"", "--date=short")(
+      Path(prj)
+    ).out.lines.map(_.replace("\"", ""))
+  }
+
+  def augment(tag: String, repo: String, minDate: Long = byDate.keySet.min): Unit =
+    git(repo)
+      .map(LocalDate.parse(_, YyyyMmDd).toEpochDay)
+      .filter(_ > minDate)
+      .foreach(day =>
+        byDate += (day -> byDate.get(day).map(_ + s" $tag").getOrElse(tag))
+      )
+
+  spec.map(_.split(":")).foreach {        case Array(tag,repo) => augment(tag,repo)      }
+  println(calendarize(byDate, "**0**").build())
 }
