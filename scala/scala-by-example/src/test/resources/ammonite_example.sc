@@ -7,7 +7,8 @@ import mainargs.{Flag, arg, main}
 import ujson.Obj
 
 import java.time.format.DateTimeFormatter
-import java.time.{DayOfWeek, LocalDate}
+import java.time.temporal.ChronoUnit
+import java.time.{DayOfWeek, LocalDate, LocalDateTime}
 import scala.collection.{SortedMap, mutable}
 import scala.io.AnsiColor._
 import scala.util._
@@ -184,7 +185,7 @@ private def githubJsonParse(contribs: Obj): SortedMap[Long, Int] = {
         LocalDate.parse(y("date").str, YyyyMmDd).toEpochDay,
         y("contributionCount").num.toInt
       )
-  SortedMap.empty[Long, Int] ++ byDate.toSeq.toMap
+  SortedMap.empty[Long, Int] ++ byDate.toMap
 }
 
 /** Make a pretty Markdown calendar from a map of epoch days.
@@ -226,11 +227,14 @@ private def calendarize(
   )
 }
 
-/**
- * An experiment to decorate a git contribution calendar with private information.
- */
+/** An experiment to decorate a git contribution calendar with private
+  * information.
+  */
 @main
-def gitJsonDecorated( srcFile: String = "/tmp/github_contributions.json", spec: Seq[String] = Nil): Unit = {
+def gitJsonDecorated(
+    srcFile: String = "/tmp/github_contributions.json",
+    spec: Seq[String] = Nil
+): Unit = {
   val contribs = ujson.read(read ! Path(srcFile)).asInstanceOf[Obj]
   val byDate = mutable.SortedMap.empty[Long, Int] ++ githubJsonParse(contribs)
     .filter(_._2 != 0)
@@ -242,7 +246,11 @@ def gitJsonDecorated( srcFile: String = "/tmp/github_contributions.json", spec: 
     ).out.lines.map(_.replace("\"", ""))
   }
 
-  def augment(tag: String, repo: String, minDate: Long = byDate.keySet.min): Unit =
+  def augment(
+      tag: String,
+      repo: String,
+      minDate: Long = byDate.keySet.min
+  ): Unit =
     git(repo)
       .map(LocalDate.parse(_, YyyyMmDd).toEpochDay)
       .filter(_ > minDate)
@@ -250,6 +258,110 @@ def gitJsonDecorated( srcFile: String = "/tmp/github_contributions.json", spec: 
         byDate += (day -> byDate.get(day).map(_ + s" $tag").getOrElse(tag))
       )
 
-  spec.map(_.split(":")).foreach {        case Array(tag,repo) => augment(tag,repo)      }
+  spec.map(_.split(":")).foreach { case Array(tag, repo) => augment(tag, repo) }
   println(calendarize(byDate, "**0**").build())
+}
+
+/** An experiment to rewrite a git date on the last commit. */
+@main
+def gitRewriteDate(
+    prj: String,
+    cmd: String = "next1day",
+    timeZone: String = ":Europe/Paris",
+    fuzz: Double = 0.1,
+    @arg(doc = "Verbose for extra output")
+    verbose: Flag
+): Unit = {
+
+  // Regex to match command that adjust a base date with a certain number of units.
+  val RelativeCommand = "(next|add|sub)(\\d+)(min|hour|day|week)".r
+
+  val baseDate = Try(cmd match {
+    // If the command matches a relative shift, then the base date
+    // is from the git history.
+    case RelativeCommand(cmd, _, _) =>
+      LocalDateTime.parse(
+        %%(
+          "git",
+          "log",
+          if (cmd == "next") "-2" else "-1",
+          "--pretty=format:%cI"
+        )(Path(prj)).out.lines.last.trim,
+        DateTimeFormatter.ISO_OFFSET_DATE_TIME
+      )
+
+    // If the command matches a day of the week, then use the most
+    // recent date of that day with the current time
+    case cmd if Try(DayOfWeek.valueOf(cmd.toUpperCase())).isSuccess =>
+      val now = LocalDateTime.now()
+      now.plusDays(
+        (DayOfWeek.valueOf(cmd.toUpperCase).ordinal() -
+          now.getDayOfWeek.ordinal() - 7) % 7
+      )
+
+    // Otherwise try and parse the command as a ISO-8601 string.
+    case _ => LocalDateTime.parse(cmd)
+  })
+
+  // Get an adjusted, fuzzed date off of the base date.
+  val fuzzedDate = baseDate.map(bd => {
+    val adjusted = cmd match {
+      case RelativeCommand("next" | "add", time, "min") =>
+        bd.plusMinutes(time.toInt)
+      case RelativeCommand("sub", time, "min") =>
+        bd.minusMinutes(time.toInt)
+      case RelativeCommand("next" | "add", time, "hour") =>
+        bd.plusHours(time.toInt)
+      case RelativeCommand("sub", time, "hour") =>
+        bd.minusHours(time.toInt)
+      case RelativeCommand("next" | "add", time, "day") =>
+        bd.plusDays(time.toInt)
+      case RelativeCommand("sub", time, "day") =>
+        bd.minusDays(time.toInt)
+      case RelativeCommand("next" | "add", time, "week") =>
+        bd.plusWeeks(time.toInt)
+      case RelativeCommand("sub", time, "week") =>
+        bd.minusWeeks(time.toInt)
+      case _ => bd
+    }
+
+    import ChronoUnit.SECONDS
+    val relativeRandomFuzz = 1 + fuzz - fuzz * 2 * Random.nextDouble()
+    val fuzzed =
+      bd.plusSeconds((bd.until(adjusted, SECONDS) * relativeRandomFuzz).toLong)
+
+    if (verbose.value) {
+      val adjustedDiff = bd.until(adjusted, SECONDS)
+      val fuzzedDiff = bd.until(fuzzed, SECONDS)
+      println(s"""$BOLD$MAGENTA      fuzz: $RESET$fuzz
+          |$BOLD$MAGENTA  relative: $RESET$relativeRandomFuzz
+          |$BOLD$MAGENTA base date: $RESET$bd
+          |$BOLD$MAGENTA  adjusted: $RESET$adjusted (${adjustedDiff}s)
+          |$BOLD$MAGENTA    fuzzed: $RESET$fuzzed (${fuzzedDiff}s)
+          |""".stripMargin)
+    }
+
+    fuzzed
+  })
+
+  // Apply the fuzzed date to the head of the repo
+  fuzzedDate.fold(
+    dtpe => {
+      if (verbose.value) dtpe.printStackTrace()
+      println(s"$RED${BOLD}Unexpected command: $cmd")
+    },
+    fuzzed =>
+      println(
+        %%(
+          TZ = timeZone,
+          GIT_COMMITTER_DATE = fuzzedDate.toString,
+          "git",
+          "commit",
+          "--amend",
+          "--no-edit",
+          "--date",
+          fuzzedDate.toString
+        )(Path(prj)).out.lines.mkString
+      )
+  )
 }
