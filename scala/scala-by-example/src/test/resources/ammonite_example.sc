@@ -365,3 +365,23 @@ def gitRewriteDate(
       )
   )
 }
+
+/** An experiment to rewrite a git date on the last commit. */
+@main
+def gitRewriteDates(
+    prj: String,
+    commit: String = "HEAD",
+    dstBranch: String = "tmp",
+    @arg(doc = "Verbose for extra output")
+    verbose: Flag
+): Unit = {
+
+  val revList = %%("git", "rev-list", s"$commit..HEAD")(Path(prj)).out.lines
+  %%("git", "switch", "-c", dstBranch, commit)(Path(prj))
+
+  revList.reverse.foreach { rev =>
+    println(s"Cherry picking $rev")
+    %%("git", "cherry-pick", rev)(Path(prj))
+    gitRewriteDate(prj, "next1day", verbose = verbose)
+  }
+}
