@@ -265,7 +265,7 @@ def gitJsonDecorated(
 /** An experiment to rewrite a git date on the last commit. */
 @main
 def gitRewriteDate(
-    prj: String,
+    prj: String = pwd.toString(),
     cmd: String = "next1day",
     timeZone: String = ":Europe/Paris",
     fuzz: Double = 0.1,
@@ -354,13 +354,13 @@ def gitRewriteDate(
       println(
         %%(
           TZ = timeZone,
-          GIT_COMMITTER_DATE = fuzzedDate.toString,
+          GIT_COMMITTER_DATE = fuzzed.toString,
           "git",
           "commit",
           "--amend",
           "--no-edit",
           "--date",
-          fuzzedDate.toString
+          fuzzed.toString
         )(Path(prj)).out.lines.mkString
       )
   )
