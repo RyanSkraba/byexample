@@ -265,8 +265,8 @@ def gitJsonDecorated(
 /** An experiment to rewrite a git date on the last commit. */
 @main
 def gitRewriteDate(
-    prj: String = pwd.toString(),
     cmd: String = "next1day",
+    prj: String = pwd.toString(),
     timeZone: String = ":Europe/Paris",
     fuzz: Double = 0.1,
     @arg(doc = "Verbose for extra output")
@@ -369,8 +369,9 @@ def gitRewriteDate(
 /** An experiment to rewrite a git date on the last commit. */
 @main
 def gitRewriteDates(
-    prj: String,
     commit: String = "HEAD",
+    cmd: String = "next1day",
+    prj: String = pwd.toString(),
     dstBranch: String = "tmp",
     @arg(doc = "Verbose for extra output")
     verbose: Flag
@@ -382,6 +383,6 @@ def gitRewriteDates(
   revList.reverse.foreach { rev =>
     println(s"Cherry picking $rev")
     %%("git", "cherry-pick", rev)(Path(prj))
-    gitRewriteDate(prj, "next1day", verbose = verbose)
+    gitRewriteDate(cmd, prj, verbose = verbose)
   }
 }
