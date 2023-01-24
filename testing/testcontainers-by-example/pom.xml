@@ -19,8 +19,6 @@
     <!-- Launcher class -->
     <exec.mainClass/>
     <!-- other project dependency versions as properties -->
-    <assertj.version>3.22.0</assertj.version>
-    <testcontainers.version>1.17.6</testcontainers.version>
   </properties>
 
   <dependencyManagement>
@@ -39,8 +37,6 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>${assertj.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
