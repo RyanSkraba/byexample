@@ -19,6 +19,7 @@ import org.testcontainers.utility.DockerImageName;
 class BasicTest {
 
   @Container
+  @SuppressWarnings("resource")
   public GenericContainer<?> httpd =
       new GenericContainer<>(DockerImageName.parse("httpd:2.4")).withExposedPorts(80);
 
