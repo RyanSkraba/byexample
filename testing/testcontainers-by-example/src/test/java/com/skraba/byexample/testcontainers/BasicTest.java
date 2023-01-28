@@ -8,7 +8,9 @@ import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -21,11 +23,17 @@ class BasicTest {
   @Container
   @SuppressWarnings("resource")
   public GenericContainer<?> httpd =
-      new GenericContainer<>(DockerImageName.parse("httpd:2.4")).withExposedPorts(80);
+      new GenericContainer<>(DockerImageName.parse("httpd:2.4"))
+          .withFileSystemBind(
+              System.getProperty("user.dir") + "/src/test/resources/htdocs/",
+              "/usr/local/apache2/htdocs/",
+              BindMode.READ_ONLY)
+          .withExposedPorts(80);
 
   @Test
   public void testBasic() throws IOException, URISyntaxException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
+    String x = Paths.get(".").toAbsolutePath().toString();
 
     HttpRequest request =
         HttpRequest.newBuilder()
