@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -33,12 +34,16 @@ class BasicTest {
               BindMode.READ_ONLY)
           .withExposedPorts(80);
 
-  private URI getHttdUri() throws IOException, URISyntaxException {
-    return new URL("http", httpd.getHost(), httpd.getFirstMappedPort(), "/").toURI();
+  private URI getHttdUri() throws RuntimeException {
+    try {
+      return new URL("http", httpd.getHost(), httpd.getFirstMappedPort(), "/").toURI();
+    } catch (URISyntaxException | MalformedURLException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Test
-  void testBasic() throws IOException, URISyntaxException, InterruptedException {
+  void testBasic() throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
     HttpRequest request =
         HttpRequest.newBuilder().uri(getHttdUri()).header("Accept", "text/html").GET().build();
@@ -49,7 +54,7 @@ class BasicTest {
   }
 
   @Test
-  public void testJson() throws IOException, URISyntaxException {
+  public void testJson() {
     given()
         .baseUri(getHttdUri().toString())
         .when()
