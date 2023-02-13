@@ -326,7 +326,7 @@ def gitRewriteDate(
     }
 
     import ChronoUnit.SECONDS
-    val relativeRandomFuzz = 1 + fuzz - fuzz * 2 * Random.nextDouble()
+    val relativeRandomFuzz = 1 + fuzz * Random.nextGaussian()
     val fuzzed =
       bd.plusSeconds((bd.until(adjusted, SECONDS) * relativeRandomFuzz).toLong)
 
