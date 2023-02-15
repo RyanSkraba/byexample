@@ -326,15 +326,16 @@ def gitRewriteDate(
     }
 
     import ChronoUnit.SECONDS
-    val relativeRandomFuzz = 1 + fuzz * Random.nextGaussian()
+    val adjustedDiff = bd.until(adjusted, SECONDS)
+    val fuzzDev = (15 * 60d) min (fuzz * adjustedDiff)
+    val fuzzSeconds = (fuzzDev * Random.nextGaussian()).toLong
+
     val fuzzed =
-      bd.plusSeconds((bd.until(adjusted, SECONDS) * relativeRandomFuzz).toLong)
+      bd.plusSeconds(adjustedDiff + fuzzSeconds)
 
     if (verbose.value) {
-      val adjustedDiff = bd.until(adjusted, SECONDS)
       val fuzzedDiff = bd.until(fuzzed, SECONDS)
-      println(s"""$BOLD$MAGENTA      fuzz: $RESET$fuzz
-          |$BOLD$MAGENTA  relative: $RESET$relativeRandomFuzz
+      println(s"""$BOLD$MAGENTA      fuzz: $RESET$fuzz / $fuzzDev / ${fuzzSeconds}s
           |$BOLD$MAGENTA base date: $RESET$bd
           |$BOLD$MAGENTA  adjusted: $RESET$adjusted (${adjustedDiff}s)
           |$BOLD$MAGENTA    fuzzed: $RESET$fuzzed (${fuzzedDiff}s)
