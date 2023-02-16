@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 
 import io.restassured.RestAssured;
+import io.restassured.response.Response;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -61,11 +62,26 @@ class BasicTest {
   }
 
   @Test
-  public void testJson() {
+  public void testBasicJson() {
     when()
         .get("/lotto/{id}.json", 5)
         .then()
         .statusCode(200)
         .body("lotto.lottoId", equalTo(5), "lotto.winners.winnerId", hasItems(23, 54));
+  }
+
+  @Test
+  public void testBasicJsonBreakdown() {
+    // Get the response of the GET
+    Response r = when().get("/lotto/{id}.json", 5);
+
+    // Use JSON assertions on the response
+    r.then()
+        .statusCode(200)
+        .body("lotto.lottoId", equalTo(5), "lotto.winners.winnerId", hasItems(23, 54));
+
+    // But you can also get the response as a String (for example)
+    String body = r.asString();
+    assertThat(body).contains("\"lottoId\":5");
   }
 }
