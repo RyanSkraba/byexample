@@ -1,13 +1,13 @@
 #!/usr/bin/env amm
 
-/** A user script for renaming files that are close together in time.  This is useful for
-  * photos that were taken in close proximity.
+/** A user script for renaming files that are close together in time. This is
+  * useful for photos that were taken in close proximity.
   *
   * This assumes that https://ammonite.io/ is installed.
   *
   * Ammonite includes:
-  * - requests (https://github.com/lihaoyi/requests-scala)
-  * - upickle (https://github.com/lihaoyi/upickle)
+  *   - requests (https://github.com/lihaoyi/requests-scala)
+  *   - upickle (https://github.com/lihaoyi/upickle)
   */
 
 import ammonite.ops._
@@ -15,6 +15,7 @@ import mainargs.{arg, main}
 
 import scala.concurrent.duration.DurationInt
 import scala.io.AnsiColor._
+import scala.util.matching.Regex
 
 val DefaultTimeGap = 30.seconds
 
@@ -25,14 +26,16 @@ def help(): Unit = {
   println(s"""$BOLD$cmd - Let's clean up some files!
              |
              |  $CYAN     group$RESET : Rename files grouped by time.
-             |
+             |  $CYAN   payslip$RESET : Rename payslip files.
+             |             |
              |Usage:
              |
              | $cmd ${CYAN}group$RESET /run/media/$$USER/MyDisk/ToSort
+             | $cmd ${CYAN}payslip$RESET /run/media/$$USER/MyDisk/ToSort
              |""".stripMargin)
 }
 
-@arg(doc = "Perform the renaming action")
+@arg(doc = "Group the files by time and rename them with the same root name ")
 @main
 def group(
     dir: Option[Path] = None,
@@ -63,15 +66,17 @@ def group(
 
   // And the grouped files.
   val groupedByTime: List[List[Path]] =
-    files.foldLeft[List[List[Path]]](Nil)(foldGroupByTime).reverse.map(_.reverse)
+    files
+      .foldLeft[List[List[Path]]](Nil)(foldGroupByTime)
+      .reverse
+      .map(_.reverse)
 
   // This just asks for a name and prints out the mv command.
   val commands: Seq[String] = groupedByTime.flatMap { files =>
-
     // Print to the screen
     println(s"$RED${BOLD}========================================$RESET")
     println(s"$RED${BOLD}Group ${files.head.mtime}$RESET")
-    files.foreach { f=> println(s"  ${BOLD}${f.mtime}:$RESET ${f.last}")}
+    files.foreach { f => println(s"  ${BOLD}${f.mtime}:$RESET ${f.last}") }
 
     // Prompt for a new name
     val prompt1: String = scala.io.StdIn.readLine(
@@ -92,4 +97,34 @@ def group(
   println(s"$GREEN${BOLD}========================================$RESET")
   for (cmd <- commands)
     println(s"${BOLD}$cmd$RESET")
+}
+
+@arg(doc = "Renames payslip files to a standard format")
+@main
+def payslip(
+    dir: Option[Path] = None
+): Unit = {
+
+  // Error if the directory doesn't exist.
+  val src: Path = dir.getOrElse(pwd)
+  if (!(exists ! src)) {
+    println(s"$RED${BOLD}ERROR:$RESET $src does not exist.")
+    System.exit(1)
+  }
+
+  // The two file names that are commonly sent as payslip files
+  val fileRe1: Regex = raw"Bulletins (\d\d)_(\d\d\d\d).pdf".r
+  val fileRe2: Regex = raw"(\d\d)-(\d\d\d\d)_bulletin_de_paie.pdf".r
+
+  // All of the files in the directory
+  val files: List[Path] = (ls ! src).toList
+  files.map { file =>
+    file.last match {
+      case fileRe1(mm, yyyy) => s"""mv "$file" "${file / os.up}/$yyyy${mm}Payslip.pdf""""
+      case fileRe2(mm, yyyy) => s"""mv "$file" "${file / os.up}/$yyyy${mm}Payslip.pdf""""
+      case _                 => s"# unmatched NO $file"
+    }
+  }.sorted.foreach(println(_))
+
+  // TODO: Verify that no files are deleted or removed by this operation
 }
