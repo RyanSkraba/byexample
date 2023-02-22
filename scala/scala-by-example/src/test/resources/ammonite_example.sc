@@ -276,6 +276,25 @@ def gitRewriteDate(
   // Regex to match command that adjust a base date with a certain number of units.
   val RelativeCommand = "(next|add|sub)(\\d+)(min|hour|day|week)".r
 
+  val Formatters: Seq[(String, DateTimeFormatter)] = Seq(
+    "ISO" -> DateTimeFormatter.ISO_LOCAL_DATE_TIME,
+    "RFC1123" -> DateTimeFormatter.RFC_1123_DATE_TIME,
+    "yyyyMMddHHmmss" -> DateTimeFormatter.ofPattern("yyyyMMddHHmmss"),
+    "yyyy-MM-dd HH:mm:ss" -> DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"),
+    "Git default" -> DateTimeFormatter.ofPattern(
+      "[EEE ]MMM dd HH:mm:ss yyyy[ Z]"
+    ),
+    "Git default-like 1" -> DateTimeFormatter.ofPattern(
+      "[EEE ]dd MMM HH:mm:ss yyyy[ Z]"
+    ),
+    "Git default-like 3" -> DateTimeFormatter.ofPattern(
+      "[EEE ]MMM dd yyyy HH:mm:ss[ Z]"
+    ),
+    "Git default-like 2" -> DateTimeFormatter.ofPattern(
+      "[EEE ]dd MMM yyyy HH:mm:ss[ Z]"
+    )
+  )
+
   val baseDate = Try(cmd match {
     // If the command matches a relative shift, then the base date
     // is from the git history.
@@ -299,8 +318,18 @@ def gitRewriteDate(
           now.getDayOfWeek.ordinal() - 7) % 7
       )
 
-    // Otherwise try and parse the command as a ISO-8601 string.
-    case _ => LocalDateTime.parse(cmd)
+    // Otherwise try and parse the command using a variety of formatters.
+    case _ =>
+      val attempts = Formatters.toStream.map(fmt => {
+        val attempt = Try {LocalDateTime.parse(cmd, fmt._2)}
+        if (attempt.isSuccess)
+          println(s"${GREEN}Succeeded parsing ${fmt._1}\n")
+        else
+          println(s"${RED}Failure trying ${fmt._1}")
+        attempt
+      }
+      )
+      attempts.find(_.isSuccess).map(_.get).getOrElse { attempts.head.get }
   })
 
   // Get an adjusted, fuzzed date off of the base date.
@@ -335,11 +364,13 @@ def gitRewriteDate(
 
     if (verbose.value) {
       val fuzzedDiff = bd.until(fuzzed, SECONDS)
-      println(s"""$BOLD$MAGENTA      fuzz: $RESET$fuzz / $fuzzDev / ${fuzzSeconds}s
+      println(
+        s"""$BOLD$MAGENTA      fuzz: $RESET$fuzz / $fuzzDev / ${fuzzSeconds}s
           |$BOLD$MAGENTA base date: $RESET$bd
           |$BOLD$MAGENTA  adjusted: $RESET$adjusted (${adjustedDiff}s)
           |$BOLD$MAGENTA    fuzzed: $RESET$fuzzed (${fuzzedDiff}s)
-          |""".stripMargin)
+          |""".stripMargin
+      )
     }
 
     fuzzed
