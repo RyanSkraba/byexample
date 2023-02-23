@@ -2,7 +2,6 @@
 
 /** Some examples on using ammonite for scripting in scala. */
 
-import ammonite.ops._
 import mainargs.{Flag, arg, main}
 import ujson.Obj
 
@@ -18,9 +17,9 @@ import scala.util._
 
 interp.repositories() ++= {
   // Get the local Maven repository.
-  val localM2: Path = Option(sys.props("maven.repo.local"))
-    .map(Path(_))
-    .getOrElse(home / ".m2" / "repository")
+  val localM2: os.Path = Option(sys.props("maven.repo.local"))
+    .map(os.Path(_))
+    .getOrElse(os.home / ".m2" / "repository")
 
   Seq(coursierapi.MavenRepository.of(localM2.toIO.toURI.toString))
 }
@@ -93,13 +92,13 @@ def argTest(
 @main
 def gitExec(repo: String): Unit = {
   Try(
-    %%(
+    os.proc(
       "git",
       "--no-pager",
       "log",
       "--pretty=format:\"%h%x09%an%x09%ad%x09%s\"",
       "--date=short"
-    )(Path(repo))
+    ).call(os.Path(repo))
   ) match {
     case Success(result) if result.exitCode == 0 =>
       result.out.lines.map(_.replace("\"", "")).foreach(println)
@@ -121,7 +120,7 @@ def githubApi(
     @arg(doc = "Verbose for extra output")
     verbose: Flag
 ): Unit = {
-  val token = %%("gh", "auth", "token")(pwd)
+  val token = os.proc("gh", "auth", "token").call(os.pwd)
   val contributions = requests.post(
     url = "https://api.github.com/graphql",
     headers = Seq(
@@ -147,7 +146,7 @@ def githubApi(
       .replace('\n', ' ')
   )
 
-  write.over(Path(dstFile), contributions.text())
+  os.write.over(os.Path(dstFile), contributions.text())
   if (verbose.value) {
     println(contributions.text())
   }
@@ -162,7 +161,7 @@ def githubJson(
     @arg(doc = "Verbose for extra output")
     verbose: Flag
 ): Unit = {
-  val contribs = ujson.read(read ! Path(srcFile)).asInstanceOf[Obj]
+  val contribs = ujson.read(os.read(os.Path(srcFile))).asInstanceOf[Obj]
   val githubContribsByDate = githubJsonParse(contribs).filter(_._2 != 0)
   println(calendarize(githubContribsByDate).build())
 }
@@ -235,15 +234,22 @@ def gitJsonDecorated(
     srcFile: String = "/tmp/github_contributions.json",
     spec: Seq[String] = Nil
 ): Unit = {
-  val contribs = ujson.read(read ! Path(srcFile)).asInstanceOf[Obj]
+  val contribs = ujson.read(os.read(os.Path(srcFile))).asInstanceOf[Obj]
   val byDate = mutable.SortedMap.empty[Long, Int] ++ githubJsonParse(contribs)
     .filter(_._2 != 0)
     .mapValues(_.toString)
 
   def git(prj: String): Seq[String] = {
-    %%("git", "--no-pager", "log", "--pretty=format:\"%ad\"", "--date=short")(
-      Path(prj)
-    ).out.lines.map(_.replace("\"", ""))
+    os.proc(
+      "git",
+      "--no-pager",
+      "log",
+      "--pretty=format:\"%ad\"",
+      "--date=short"
+    ).call(os.Path(prj))
+      .out
+      .lines
+      .map(_.replace("\"", ""))
   }
 
   def augment(
@@ -266,7 +272,7 @@ def gitJsonDecorated(
 @main
 def gitRewriteDate(
     cmd: String = "next1day",
-    prj: String = pwd.toString(),
+    prj: String = os.pwd.toString(),
     timeZone: String = ":Europe/Paris",
     fuzz: Double = 0.1,
     @arg(doc = "Verbose for extra output")
@@ -300,12 +306,16 @@ def gitRewriteDate(
     // is from the git history.
     case RelativeCommand(cmd, _, _) =>
       LocalDateTime.parse(
-        %%(
+        os.proc(
           "git",
           "log",
           if (cmd == "next") "-2" else "-1",
           "--pretty=format:%cI"
-        )(Path(prj)).out.lines.last.trim,
+        ).call(os.Path(prj))
+          .out
+          .lines
+          .last
+          .trim,
         DateTimeFormatter.ISO_OFFSET_DATE_TIME
       )
 
@@ -321,14 +331,13 @@ def gitRewriteDate(
     // Otherwise try and parse the command using a variety of formatters.
     case _ =>
       val attempts = Formatters.toStream.map(fmt => {
-        val attempt = Try {LocalDateTime.parse(cmd, fmt._2)}
+        val attempt = Try { LocalDateTime.parse(cmd, fmt._2) }
         if (attempt.isSuccess)
           println(s"${GREEN}Succeeded parsing ${fmt._1}\n")
         else
           println(s"${RED}Failure trying ${fmt._1}")
         attempt
-      }
-      )
+      })
       attempts.find(_.isSuccess).map(_.get).getOrElse { attempts.head.get }
   })
 
@@ -384,16 +393,19 @@ def gitRewriteDate(
     },
     fuzzed =>
       println(
-        %%(
-          TZ = timeZone,
-          GIT_COMMITTER_DATE = fuzzed.toString,
+        os.proc(
           "git",
           "commit",
           "--amend",
           "--no-edit",
           "--date",
           fuzzed.toString
-        )(Path(prj)).out.lines.mkString
+        ).call(
+          os.Path(prj),
+          env = Map("TZ" -> timeZone, "GIT_COMMITTER_DATE" -> fuzzed.toString)
+        ).out
+          .lines
+          .mkString
       )
   )
 }
@@ -403,18 +415,19 @@ def gitRewriteDate(
 def gitRewriteDates(
     commit: String = "HEAD",
     cmd: String = "next1day",
-    prj: String = pwd.toString(),
+    prj: String = os.pwd.toString(),
     dstBranch: String = "tmp",
     @arg(doc = "Verbose for extra output")
     verbose: Flag
 ): Unit = {
 
-  val revList = %%("git", "rev-list", s"$commit..HEAD")(Path(prj)).out.lines
-  %%("git", "switch", "-c", dstBranch, commit)(Path(prj))
+  val revList =
+    os.proc("git", "rev-list", s"$commit..HEAD").call(os.Path(prj)).out.lines
+  os.proc("git", "switch", "-c", dstBranch, commit).call(os.Path(prj))
 
   revList.reverse.foreach { rev =>
     println(s"Cherry picking $rev")
-    %%("git", "cherry-pick", rev)(Path(prj))
+    os.proc("git", "cherry-pick", rev).call(os.Path(prj))
     gitRewriteDate(cmd, prj, verbose = verbose)
   }
 }
