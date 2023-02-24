@@ -10,7 +10,6 @@
   *   - upickle (https://github.com/lihaoyi/upickle)
   */
 
-import ammonite.ops._
 import mainargs.{arg, main}
 
 import scala.concurrent.duration.DurationInt
@@ -27,7 +26,7 @@ def help(): Unit = {
              |
              |  $CYAN     group$RESET : Rename files grouped by time.
              |  $CYAN   payslip$RESET : Rename payslip files.
-             |             |
+             |
              |Usage:
              |
              | $cmd ${CYAN}group$RESET /run/media/$$USER/MyDisk/ToSort
@@ -38,36 +37,36 @@ def help(): Unit = {
 @arg(doc = "Group the files by time and rename them with the same root name ")
 @main
 def group(
-    dir: Option[Path] = None,
+    dir: Option[os.Path] = None,
     gap: Long = DefaultTimeGap.toMillis
 ): Unit = {
   // The source path to analyse
-  val src: Path = dir.getOrElse(pwd)
-  if (!(exists ! src)) {
+  val src: os.Path = dir.getOrElse(os.pwd)
+  if (!(os.exists(src))) {
     println(s"$RED${BOLD}ERROR:$RESET $src does not exist.")
     System.exit(1)
   }
 
   // All of the files and their creation dates.
-  val files: List[Path] = (ls ! src).toList.sortBy(_.mtime)
+  val files: List[os.Path] = os.list(src).toList.sortBy(os.mtime(_))
 
   // A fold function that groups elements that are in the same "window" (i.e. separated by less
   // than the gap).
-  val foldGroupByTime: (List[List[Path]], Path) => List[List[Path]] =
+  val foldGroupByTime: (List[List[os.Path]], os.Path) => List[List[os.Path]] =
     (acc, file) =>
       acc match {
         // If there is already a head group within the gap, then add this one before in the same group.
         case headGroup :: rest
-            if (file.mtime.toMillis - headGroup.head.mtime.toMillis) < gap =>
+            if (os.mtime(file) - os.mtime(headGroup.head)) < gap =>
           (file :: headGroup) :: rest
         // If there isn't a list, or the head element is outside the gap then add it as a new group
         case rest => List(file) :: rest
       }
 
   // And the grouped files.
-  val groupedByTime: List[List[Path]] =
+  val groupedByTime: List[List[os.Path]] =
     files
-      .foldLeft[List[List[Path]]](Nil)(foldGroupByTime)
+      .foldLeft[List[List[os.Path]]](Nil)(foldGroupByTime)
       .reverse
       .map(_.reverse)
 
@@ -75,8 +74,8 @@ def group(
   val commands: Seq[String] = groupedByTime.flatMap { files =>
     // Print to the screen
     println(s"$RED${BOLD}========================================$RESET")
-    println(s"$RED${BOLD}Group ${files.head.mtime}$RESET")
-    files.foreach { f => println(s"  ${BOLD}${f.mtime}:$RESET ${f.last}") }
+    println(s"$RED${BOLD}Group ${os.mtime(files.head)}$RESET")
+    files.foreach { f => println(s"  ${BOLD}${os.mtime(f)}:$RESET ${f.last}") }
 
     // Prompt for a new name
     val prompt1: String = scala.io.StdIn.readLine(
@@ -102,12 +101,12 @@ def group(
 @arg(doc = "Renames payslip files to a standard format")
 @main
 def payslip(
-    dir: Option[Path] = None
+    dir: Option[os.Path] = None
 ): Unit = {
 
   // Error if the directory doesn't exist.
-  val src: Path = dir.getOrElse(pwd)
-  if (!(exists ! src)) {
+  val src: os.Path = dir.getOrElse(os.pwd)
+  if (!(os.exists(src))) {
     println(s"$RED${BOLD}ERROR:$RESET $src does not exist.")
     System.exit(1)
   }
@@ -117,14 +116,19 @@ def payslip(
   val fileRe2: Regex = raw"(\d\d)-(\d\d\d\d)_bulletin_de_paie.pdf".r
 
   // All of the files in the directory
-  val files: List[Path] = (ls ! src).toList
-  files.map { file =>
-    file.last match {
-      case fileRe1(mm, yyyy) => s"""mv "$file" "${file / os.up}/$yyyy${mm}Payslip.pdf""""
-      case fileRe2(mm, yyyy) => s"""mv "$file" "${file / os.up}/$yyyy${mm}Payslip.pdf""""
-      case _                 => s"# unmatched NO $file"
+  val files: List[os.Path] = os.list(src).toList
+  files
+    .map { file =>
+      file.last match {
+        case fileRe1(mm, yyyy) =>
+          s"""mv "$file" "${file / os.up}/$yyyy${mm}Payslip.pdf""""
+        case fileRe2(mm, yyyy) =>
+          s"""mv "$file" "${file / os.up}/$yyyy${mm}Payslip.pdf""""
+        case _ => s"# unmatched NO $file"
+      }
     }
-  }.sorted.foreach(println(_))
+    .sorted
+    .foreach(println(_))
 
   // TODO: Verify that no files are deleted or removed by this operation
 }
