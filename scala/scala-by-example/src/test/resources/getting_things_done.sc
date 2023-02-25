@@ -2,7 +2,7 @@
 // Disable the shebang before developing in IntelliJ
 // https://youtrack.jetbrains.com/issue/SCL-13279
 
-/** A user script for interacting with my Apache status sheet.
+/** A user script for interacting with status sheets and todo lists.
   *
   * This assumes that https://ammonite.io/ is installed.
   *
@@ -11,16 +11,15 @@
   *   - upickle (https://github.com/lihaoyi/upickle)
   */
 
-import ammonite.ops.{home, _}
 import mainargs.{arg, main}
 
 import scala.io.AnsiColor._
 
 interp.repositories() ++= {
   // Get the local Maven repository.
-  val localM2: Path = Option(sys.props("maven.repo.local"))
-    .map(Path(_))
-    .getOrElse(home / ".m2" / "repository")
+  val localM2: os.Path = Option(sys.props("maven.repo.local"))
+    .map(os.Path(_))
+    .getOrElse(os.home / ".m2" / "repository")
 
   Seq(coursierapi.MavenRepository.of(localM2.toIO.toURI.toString))
 }
@@ -36,15 +35,15 @@ import com.skraba.byexample.scala.markd._
 val StatusTag: String = sys.env.getOrElse("GTD_TAG", "GTD")
 
 /** Git root directory for the status file. */
-val StatusRepo: Path = sys.env
+val StatusRepo: os.Path = sys.env
   .get(s"${StatusTag}_STATUS_REPO")
-  .map(Path(_))
-  .getOrElse(home / "Documents")
+  .map(os.Path(_))
+  .getOrElse(os.home / "Documents")
 
 /** The actual status file to update. */
-val StatusFile: Path = sys.env
+val StatusFile: os.Path = sys.env
   .get(s"${StatusTag}_STATUS_FILE")
-  .map(Path(_))
+  .map(os.Path(_))
   .getOrElse(StatusRepo / "todo" / "status.md")
 
 /** The list of apache projects. */
@@ -150,8 +149,8 @@ def help(): Unit = {
 @main
 def clean(): Unit = {
   // Read and overwrite the existing document without making any changes.
-  val doc = Header.parse(read ! StatusFile, ProjectParserCfg)
-  write.over(StatusFile, doc.build().toString)
+  val doc = Header.parse(os.read(StatusFile), ProjectParserCfg)
+  os.write.over(StatusFile, doc.build().toString)
   println(proposeGit(s"feat(status): Beautify the document"))
 }
 
@@ -159,7 +158,7 @@ def clean(): Unit = {
 @main
 def newWeek(): Unit = {
   // Read the existing document.
-  val doc = GettingThingsDone(read ! StatusFile, ProjectParserCfg)
+  val doc = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
 
   /** Create the new head week from the last week, if any is present. */
   def createHead(oldWeek: Option[Header]): Header = {
@@ -235,7 +234,7 @@ def newWeek(): Unit = {
     )
   )
 
-  write.over(StatusFile, newDoc.doc.build().toString.trim() + "\n")
+  os.write.over(StatusFile, newDoc.doc.build().toString.trim() + "\n")
 }
 
 @arg(doc = "Start working on a new PR")
@@ -253,7 +252,7 @@ def pr(
     status: String = "TOREVIEW"
 ): Unit = {
   // Read the existing document.
-  val doc = GettingThingsDone(read ! StatusFile, ProjectParserCfg)
+  val doc = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
 
   // The reference and task snippets to add to the file.
   val fullJira = if (jira != 0) Some(s"${prj.toUpperCase}-$jira") else None
@@ -290,7 +289,7 @@ def pr(
       s"feat(status): PR ${fullJira.orElse(fullPr).getOrElse("")} $description"
     )
   )
-  write.over(StatusFile, cleanedNewDoc.build().toString.trim() + "\n")
+  os.write.over(StatusFile, cleanedNewDoc.build().toString.trim() + "\n")
 }
 
 @arg(doc = "Update a statistic in a table, typically for the day of the week")
@@ -304,7 +303,7 @@ def stat(
     date: Option[String] = None
 ): Unit = {
   // Read the existing document.
-  val doc = GettingThingsDone(read ! StatusFile, ProjectParserCfg)
+  val doc = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
   // TODO: If date is in a YYYY/MM/DD format, then to the correct date
   val newDoc = doc.updateTopWeekStats(rowStat, cell, date)
   val cleanedNewDoc =
@@ -315,7 +314,7 @@ def stat(
       s"feat(status): Update $rowStat"
     )
   )
-  write.over(StatusFile, cleanedNewDoc.build().toString.trim() + "\n")
+  os.write.over(StatusFile, cleanedNewDoc.build().toString.trim() + "\n")
 }
 
 @arg(doc = "Update many statistics for today.")
@@ -325,7 +324,7 @@ def statsToday(
     stats: String*
 ): Unit = {
   // Read the existing document.
-  val doc = GettingThingsDone(read ! StatusFile, ProjectParserCfg)
+  val doc = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
   val newDoc = stats.grouped(2).foldLeft(doc) {
     (gtd: GettingThingsDone, list: Seq[String]) =>
       gtd.updateTopWeekStats(list.head, list.tail.headOption.getOrElse(""))
@@ -338,7 +337,7 @@ def statsToday(
       s"feat(status): Update ${stats.grouped(2).map(_.head).mkString(",")}"
     )
   )
-  write.over(StatusFile, cleanedNewDoc.build().toString.trim() + "\n")
+  os.write.over(StatusFile, cleanedNewDoc.build().toString.trim() + "\n")
 }
 
 @arg(doc = "Extract a statistic in the table as a time-series")
@@ -348,7 +347,7 @@ def statExtract(
     rowStat: String
 ): Unit = {
   // Read the existing document.
-  val doc = GettingThingsDone(read ! StatusFile, ProjectParserCfg)
+  val doc = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
   println("date,value")
   for ((date, value) <- doc.extractStats(rowStat))
     println(s"$date,$value")
@@ -361,7 +360,7 @@ def week(
     week: Option[String] = None
 ): Unit = {
   // Read the existing document.
-  val doc = Header.parse(read ! StatusFile, ProjectParserCfg)
+  val doc = Header.parse(os.read(StatusFile), ProjectParserCfg)
   val topWeek: Seq[Markd] = doc.mds.flatMap {
     case h @ Header(title, 1, _) if title.startsWith(H1Weeklies) =>
       h.mds.find {
