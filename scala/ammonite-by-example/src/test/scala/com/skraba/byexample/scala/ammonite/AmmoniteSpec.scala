@@ -1,4 +1,4 @@
-package com.skraba.byexample.scala
+package com.skraba.byexample.scala.ammonite
 
 import com.skraba.byexample.scala.scalatest.StdoutSpec.withConsoleMatch
 import org.scalatest.BeforeAndAfterAll
