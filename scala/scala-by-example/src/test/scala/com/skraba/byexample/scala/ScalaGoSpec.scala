@@ -6,10 +6,6 @@ import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 
-import java.io.ByteArrayOutputStream
-import java.nio.charset.StandardCharsets
-import scala.reflect.io.Streamable
-
 /** Unit tests for [[ScalaGo]]
   */
 class ScalaGoSpec
@@ -109,40 +105,7 @@ class ScalaGoSpec
 
 object ScalaGoSpec {
 
-  /** A helper method used to capture the console and apply it to a partial
-    * function.
-    * @param thunk
-    *   code to execute that may use Console.out and Console.err print streams
-    * @param pf
-    *   A partial function to apply matchers
-    * @tparam T
-    *   The return value type of the thunk code to execute
-    * @tparam U
-    *   The return value type of the partial function to return.
-    * @return
-    *   The return value of the partial function.
-    */
-  def withConsoleMatch[T, U](
-      thunk: => T
-  )(pf: scala.PartialFunction[(T, String, String), U]): U = {
-    Streamable.closing(new ByteArrayOutputStream()) { out =>
-      Streamable.closing(new ByteArrayOutputStream()) { err =>
-        Console.withOut(out) {
-          Console.withErr(err) {
-            val t = thunk
-            Console.out.flush()
-            Console.err.flush()
-            // The return value
-            pf(
-              t,
-              new String(out.toByteArray, StandardCharsets.UTF_8),
-              new String(err.toByteArray, StandardCharsets.UTF_8)
-            )
-          }
-        }
-      }
-    }
-  }
+  import com.skraba.byexample.scala.scalatest.StdoutSpec.withConsoleMatch
 
   /** A helper method used to capture the console of a ScalaGo execution and
     * apply it to a partial function.

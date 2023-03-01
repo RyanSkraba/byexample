@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.skraba.byexample.scala.scalatest.StdoutSpec;
 import org.docopt.DocoptExitException;
 import org.junit.jupiter.api.Test;
 import scala.PartialFunction;
@@ -89,9 +90,8 @@ public class JavaScalaGoTest {
     assertThat(out[1], is(""));
   }
 
-  @Test
   public String[] withConsoleMatch(String... args) {
-    return ScalaGoSpec.withConsoleMatch(
+    return StdoutSpec.withConsoleMatch(
         () -> {
           JavaScalaGo.go(args);
           return null;
