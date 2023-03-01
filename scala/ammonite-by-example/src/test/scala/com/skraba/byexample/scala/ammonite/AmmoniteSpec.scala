@@ -1,17 +1,17 @@
 package com.skraba.byexample.scala.ammonite
 
-import com.skraba.byexample.scala.scalatest.StdoutSpec.withConsoleMatch
+import com.skraba.byexample.scala.ammonite.AmmoniteSpec.withConsoleMatch
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-import java.io.ByteArrayInputStream
+import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
+import java.nio.charset.StandardCharsets
 import java.nio.file.Paths
 import scala.reflect.io.{Directory, Path, Streamable}
 
-/**
- * Testing ammonite scripts can be a bit tricky!
- */
+/** Testing ammonite scripts can be a bit tricky!
+  */
 class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 
   /** The path containing ammonite scripts. */
@@ -58,4 +58,44 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
       }
     }
   }
+}
+
+object AmmoniteSpec {
+
+  /** A helper method used to capture the console and apply it to a partial
+    * function.
+    *
+    * @param thunk
+    *   code to execute that may use Console.out and Console.err print streams
+    * @param pf
+    *   A partial function to apply matchers
+    * @tparam T
+    *   The return value type of the thunk code to execute
+    * @tparam U
+    *   The return value type of the partial function to return.
+    * @return
+    *   The return value of the partial function.
+    */
+  def withConsoleMatch[T, U](
+      thunk: => T
+  )(pf: scala.PartialFunction[(T, String, String), U]): U = {
+    Streamable.closing(new ByteArrayOutputStream()) { out =>
+      Streamable.closing(new ByteArrayOutputStream()) { err =>
+        Console.withOut(out) {
+          Console.withErr(err) {
+            val t = thunk
+            Console.out.flush()
+            Console.err.flush()
+            // The return value
+            pf(
+              t,
+              new String(out.toByteArray, StandardCharsets.UTF_8),
+              new String(err.toByteArray, StandardCharsets.UTF_8)
+            )
+          }
+        }
+      }
+    }
+  }
+
 }
