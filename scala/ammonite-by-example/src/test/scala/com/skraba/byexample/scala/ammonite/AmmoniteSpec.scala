@@ -24,20 +24,82 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
   ).parent
 
   /** Create a temporary directory to use for all tests. */
-  val TempFolder: Path = Directory.makeTemp(getClass.getSimpleName)
+  val HomeFolder: Path = Directory.makeTemp(getClass.getSimpleName)
 
   /** And delete it after the tests. */
   override protected def afterAll(): Unit =
     try {
-      TempFolder.deleteRecursively()
+      HomeFolder.deleteRecursively()
     } catch {
       case ex: Exception =>
         ex.printStackTrace()
     }
 
-  describe("Running the ammonite example script in memory") {
+  /** A helper method for running the ammonite example script.
+    *
+    * @param args
+    *   The arguments to apply to the ammonite example script
+    * @param pf
+    *   A partial function taking the result, the stdout and stderr strings from
+    *   the ammonite call
+    * @tparam U
+    *   If any, the type of output of the partial function
+    * @return
+    *   The output of the partial function
+    */
+  def withAmmoniteExample[U](args: String*)(
+      pf: scala.PartialFunction[(Boolean, String, String), U]
+  ): U = Streamable.closing(new ByteArrayInputStream(Array.empty[Byte])) { in =>
+    Console.withIn(in) {
+      withConsoleMatch(
+        ammonite.AmmoniteMain.main0(
+          List(
+            "--silent",
+            "--home",
+            HomeFolder.toString,
+            (ScriptPath / "ammonite_example.sc").toString()
+          ) ++ args,
+          in,
+          Console.out,
+          Console.err
+        )
+      )(pf)
+    }
+  }
 
-    it("should print help") {
+  describe("Running the ammonite_example help") {
+
+    it("should print a useful message") {
+      // with helpers
+      withAmmoniteExample("help") { case (result, stdout, stderr) =>
+        result shouldBe true
+        stderr shouldBe empty
+        stdout should startWith(
+          s"$BOLD${GREEN}ammonite_example.sc$RESET - Demonstrate how to script with Ammonite"
+        )
+      }
+    }
+
+    it(
+      "should print a useful message (medium form, permitting ammonite parameters)"
+    ) {
+      // with helpers
+      withAmmoniteMain0AndNoStdIn(
+        HomeFolder,
+        (ScriptPath / "ammonite_example.sc").toString,
+        "help"
+      ) { case (result, stdout, stderr) =>
+        result shouldBe true
+        stderr shouldBe empty
+        stdout should startWith(
+          s"$BOLD${GREEN}ammonite_example.sc$RESET - Demonstrate how to script with Ammonite"
+        )
+      }
+    }
+
+    it(
+      "should print a useful message (long form, allows customizing the input stream)"
+    ) {
       // Long form
       Streamable.closing(new ByteArrayInputStream(Array.empty[Byte])) { in =>
         Console.withIn(in) {
@@ -46,7 +108,7 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
               List(
                 "--silent",
                 "--home",
-                TempFolder.toString,
+                HomeFolder.toString,
                 (ScriptPath / "ammonite_example.sc").toString,
                 "help"
               ),
@@ -61,21 +123,9 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
           }
         }
       }
-
-      // with helpers
-      withAmmoniteMain0AndNoStdIn(
-        TempFolder,
-        (ScriptPath / "ammonite_example.sc").toString,
-        "help"
-      ) { case (result, stdout, stderr) =>
-        result shouldBe true
-        stderr shouldBe empty
-        stdout should startWith(
-          s"$BOLD${GREEN}ammonite_example.sc$RESET - Demonstrate how to script with Ammonite"
-        )
-      }
     }
   }
+
 }
 
 object AmmoniteSpec {
@@ -118,8 +168,6 @@ object AmmoniteSpec {
 
   /** A helper method for running an ammonite script.
     *
-    * @param tmp
-    *   The home directory for reusing compiled ammonite examples.
     * @param args
     *   The arguments to apply to the ammonite executable, starting with the
     *   script name.
