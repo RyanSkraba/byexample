@@ -73,12 +73,15 @@ def argTest(
   println(s"""$YELLOW${greeting.getOrElse("Hello")}, $BOLD$user$RESET""")
   if (verbose.value) {
     println(s"""$RESET
+         |The --verbose flag was set!
+         |
          |Try running these commands:
          |$Cli argTest
          |$Cli argTest Me
          |$Cli argTest --verbose Me
          |$Cli argTest Me Hey
-         |$Cli argTest Me "Hello there" Invalid
+         |$Cli argTest You "Hello there" VerboseFlag
+         |$Cli argTest You "Hello there" VerboseFlag Invalid
          |$Cli argTest --greeting Yo
          |
          |Actual arguments

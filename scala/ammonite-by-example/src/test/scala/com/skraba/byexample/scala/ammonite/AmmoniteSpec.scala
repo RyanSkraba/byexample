@@ -12,6 +12,7 @@ import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import java.nio.charset.StandardCharsets
 import java.nio.file.Paths
 import scala.Console._
+import scala.io.AnsiColor.{BOLD, RESET, YELLOW}
 import scala.reflect.io.{Directory, Path, Streamable}
 
 /** Testing ammonite scripts can be a bit tricky!
@@ -126,6 +127,100 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
     }
   }
 
+  describe("Running the ammonite_example argTest") {
+
+    val ExpectedSignature = """Expected Signature: argTest
+                              |  --user <str>      The user running the script, or current user if not present
+                              |  --greeting <str>  A string value
+                              |  --verbose         Verbose for extra output
+                              |
+                              |
+                              |""".stripMargin
+
+    it("should print hello without any arguments") {
+      withAmmoniteExample("argTest") { case (result, stdout, stderr) =>
+        result shouldBe true
+        stderr shouldBe empty
+        stdout shouldBe s"${YELLOW}Hello, $BOLD${scala.util.Properties.userName}$RESET\n"
+        stdout should not include (s"\nThe --verbose flag was set!\n")
+      }
+    }
+
+    it("with one argument (Me)") {
+      withAmmoniteExample("argTest", "Me") { case (result, stdout, stderr) =>
+        result shouldBe true
+        stderr shouldBe empty
+        stdout shouldBe s"${YELLOW}Hello, ${BOLD}Me$RESET\n"
+        stdout should not include (s"\nThe --verbose flag was set!\n")
+      }
+    }
+
+    it("with one argument and the --verbose flag") {
+      withAmmoniteExample("argTest", "--verbose", "Me") {
+        case (result, stdout, stderr) =>
+          result shouldBe true
+          stderr shouldBe empty
+          stdout should startWith(s"${YELLOW}Hello, ${BOLD}Me$RESET")
+          stdout should include(s"\nThe --verbose flag was set!\n")
+      }
+    }
+
+    it("with two arguments (Me Hey)") {
+      withAmmoniteExample("argTest", "Me", "Hey") {
+        case (result, stdout, stderr) =>
+          result shouldBe true
+          stderr shouldBe empty
+          stdout shouldBe s"${YELLOW}Hey, ${BOLD}Me$RESET\n"
+          stdout should not include (s"\nThe --verbose flag was set!\n")
+      }
+    }
+
+    it("with three arguments (You 'Hello there' VerboseFlag)") {
+      withAmmoniteExample("argTest", "You", "Hello there", "VerboseFlag") {
+        case (result, stdout, stderr) =>
+          result shouldBe true
+          stderr shouldBe empty
+          stdout should startWith(s"${YELLOW}Hello there, ${BOLD}You$RESET\n")
+          stdout should include(s"\nThe --verbose flag was set!\n")
+      }
+    }
+
+    it("with a named argument (--greeting Yo)") {
+      withAmmoniteExample("argTest", "--greeting", "Yo") {
+        case (result, stdout, stderr) =>
+          result shouldBe true
+          stderr shouldBe empty
+          stdout shouldBe s"${YELLOW}Yo, $BOLD${scala.util.Properties.userName}$RESET\n"
+
+          stdout should not include (s"\nThe --verbose flag was set!\n")
+      }
+    }
+
+    it("should fail with an unknown flag (--help)") {
+      withAmmoniteExample("argTest", "--help") {
+        case (result, stdout, stderr) =>
+          result shouldBe false
+          stderr shouldBe s"""Unknown argument: "--help"\n$ExpectedSignature"""
+          stdout shouldBe empty
+      }
+    }
+
+    it(
+      "should fail with too many arguments (Me 'Hello there' VerboseFlag Invalid)"
+    ) {
+      withAmmoniteExample(
+        "argTest",
+        "You",
+        "Hello there",
+        "VerboseFlag",
+        "Invalid"
+      ) { case (result, stdout, stderr) =>
+        result shouldBe false
+        stderr shouldBe s"""Unknown argument: "Invalid"\n$ExpectedSignature"""
+        stdout shouldBe empty
+      }
+    }
+  }
 }
 
 object AmmoniteSpec {
