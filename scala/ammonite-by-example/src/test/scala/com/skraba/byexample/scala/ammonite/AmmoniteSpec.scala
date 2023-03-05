@@ -1,9 +1,6 @@
 package com.skraba.byexample.scala.ammonite
 
-import com.skraba.byexample.scala.ammonite.AmmoniteSpec.{
-  withAmmoniteMain0AndNoStdIn,
-  withConsoleMatch
-}
+import com.skraba.byexample.scala.ammonite.AmmoniteSpec._
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
@@ -14,6 +11,7 @@ import java.nio.file.Paths
 import scala.Console._
 import scala.io.AnsiColor.{BOLD, RESET, YELLOW}
 import scala.reflect.io.{Directory, Path, Streamable}
+import scala.util.Properties
 
 /** Testing ammonite scripts can be a bit tricky!
   */
@@ -24,13 +22,17 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
     Paths.get(getClass.getResource("/ammonite_example.sc").toURI).toFile
   ).parent
 
-  /** Create a temporary directory to use for all tests. */
-  val HomeFolder: Path = Directory.makeTemp(getClass.getSimpleName)
+  /** Either create a new home directory reused across this suite, or use the
+    * common one.
+    */
+  val HomeFolder: Path =
+    if (ReuseAmmoniteHome) ReusableAmmoniteHome
+    else Directory.makeTemp(getClass.getSimpleName)
 
   /** And delete it after the tests. */
   override protected def afterAll(): Unit =
     try {
-      HomeFolder.deleteRecursively()
+      if (!ReuseAmmoniteHome) HomeFolder.deleteRecursively()
     } catch {
       case ex: Exception =>
         ex.printStackTrace()
@@ -141,7 +143,7 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
       withAmmoniteExample("argTest") { case (result, stdout, stderr) =>
         result shouldBe true
         stderr shouldBe empty
-        stdout shouldBe s"${YELLOW}Hello, $BOLD${scala.util.Properties.userName}$RESET\n"
+        stdout shouldBe s"${YELLOW}Hello, $BOLD${Properties.userName}$RESET\n"
         stdout should not include (s"\nThe --verbose flag was set!\n")
       }
     }
@@ -190,7 +192,7 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
         case (result, stdout, stderr) =>
           result shouldBe true
           stderr shouldBe empty
-          stdout shouldBe s"${YELLOW}Yo, $BOLD${scala.util.Properties.userName}$RESET\n"
+          stdout shouldBe s"${YELLOW}Yo, $BOLD${Properties.userName}$RESET\n"
 
           stdout should not include (s"\nThe --verbose flag was set!\n")
       }
@@ -224,6 +226,14 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 }
 
 object AmmoniteSpec {
+
+  /** Set this to true to attempt to reuse the ammonite cache across calls to
+    * tests
+    */
+  val ReuseAmmoniteHome = true
+
+  lazy val ReusableAmmoniteHome: Directory =
+    (Directory(Properties.tmpDir) / getClass.getSimpleName).createDirectory()
 
   /** A helper method used to capture the console and apply it to a partial
     * function.
