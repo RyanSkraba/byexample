@@ -23,4 +23,11 @@ src/test/resources/file_renamer.sc help
 src/test/resources/ammonite_example.sc help
 ```
 
+The script can be unit tested using scalatest, as demonstrated by [AmmoniteSpec], which tests [ammonite_example.sc].
+The unit test needs to compile the script, which can take more than 10 seconds. You can set the `AMMONITESPEC_HOME`
+environment variable to anything non-empty to create and reuse compiled scripts, which can speed up performance on 
+subsequent runs.
+
 [Ammonite]: https://ammonite.io/
+[AmmoniteSpec]: src/test/scala/com/skraba/byexample/scala/ammonite/AmmoniteSpec.scala
+[ammonite_example.sc]: src/test/resources/ammonite_example.sc
