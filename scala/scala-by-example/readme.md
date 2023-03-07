@@ -28,7 +28,6 @@ Other useful resources to learn more about Scala and functional programming:
 * [Cheat sheet](https://docs.scala-lang.org/cheatsheets/)
 * [Functional Programming for Mortals](https://leanpub.com/fpmortals)
 
-
 Running the driver
 ------------------------------------------------------------------------------
 
