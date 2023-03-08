@@ -16,21 +16,24 @@ import scala.concurrent.duration.DurationInt
 import scala.io.AnsiColor._
 import scala.util.matching.Regex
 
+// ==========================================================================
+// Top level variables available to the script
+
+val Cli = s"${GREEN}file_renamer.sc$RESET"
 val DefaultTimeGap = 30.seconds
 
 @arg(doc = "Print help to the console.")
 @main
 def help(): Unit = {
-  val cmd = s"${GREEN}file_renamer$RESET"
-  println(s"""$BOLD$cmd - Let's clean up some files!
+  println(s"""$BOLD$Cli - Let's clean up some files!
              |
-             |  $CYAN     group$RESET : Rename files grouped by time.
-             |  $CYAN   payslip$RESET : Rename payslip files.
+             |$CYAN  group$RESET : Rename files grouped by time.
+             |$CYAN payslip$RESET : Rename payslip files.
              |
              |Usage:
              |
-             | $cmd ${CYAN}group$RESET /run/media/$$USER/MyDisk/ToSort
-             | $cmd ${CYAN}payslip$RESET /run/media/$$USER/MyDisk/ToSort
+             | $Cli ${CYAN}group$RESET /run/media/$$USER/MyDisk/ToSort
+             | $Cli ${CYAN}payslip$RESET /run/media/$$USER/MyDisk/ToSort
              |""".stripMargin)
 }
 
