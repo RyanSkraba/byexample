@@ -11,7 +11,25 @@ import scala.util._
 // ==========================================================================
 // Top level variables available to the script
 
-val Cli = s"${GREEN}git_checker$RESET"
+class ColourCfg {
+  def ok(in: Any): String = in.toString
+  def warn(in: Any): String = in.toString
+  def error(in: Any): String = in.toString
+  def bold(in: Any): String = in.toString
+  def left(in: Any): String = in.toString
+  def right(in: Any): String = in.toString
+}
+
+object AnsiColourCfg extends ColourCfg {
+  override def ok(in: Any): String = s"$GREEN$in$RESET"
+  override def warn(in: Any): String = s"$YELLOW$in$RESET"
+  override def error(in: Any): String = s"$RED$in$RESET"
+  override def bold(in: Any): String = s"$BOLD$in$RESET"
+  override def left(in: Any): String = s"$CYAN$in$RESET"
+  override def right(in: Any): String = s"$MAGENTA$in$RESET"
+}
+
+val Cli = AnsiColourCfg.ok("git_checker.sc")
 
 // ==========================================================================
 // Help
@@ -19,15 +37,19 @@ val Cli = s"${GREEN}git_checker$RESET"
 @arg(doc = "Print help to the console.")
 @main
 def help(): Unit = {
-  println(s"""$BOLD$Cli - Do some analysis on git repositories.
+  val cfg = AnsiColourCfg
+  println(s"""${cfg.bold(Cli)} - Do some analysis on git repositories.
              |
-             |  $CYAN cherryPick$RESET : Get a status report on two branches
+             | ${cfg.left("cherryPick")} : Get a status report on two branches
              |
              |Usage:
              |
-             | $Cli ${CYAN}cherryPick$RESET [repo] [main] [branch]
+             | $Cli ${cfg.left("cherryPick")} [repo] [main] [branch]
              |""".stripMargin)
 }
+
+// ==========================================================================
+// Cherry pick report
 
 /** Contains information about one git commit
   * @param commit
@@ -99,14 +121,15 @@ case class CherryPickerReport(
     lBranch: String,
     rBranch: String,
     left: Seq[Commit],
-    right: Seq[Commit]
+    right: Seq[Commit],
+    cfg: ColourCfg = AnsiColourCfg
 ) {
 
   /** The left branch name with colour and indicator. */
-  lazy val lTag = s"$lBranch (LEFT)"
+  lazy val lTag = cfg.left(s"$lBranch (LEFT)")
 
   /** The right branch name with colour and indicator. */
-  lazy val RTag = s"$rBranch (RIGHT)"
+  lazy val RTag = cfg.right(s"$lBranch (RIGHT)")
 
   lazy val leftSubjects = left.groupBy(_.subject)
   lazy val rightSubjects = right.groupBy(_.subject)
@@ -117,7 +140,7 @@ case class CherryPickerReport(
       tag: String
   ): String = {
     if (s.size != commits.size) {
-      s"* Found duplicate subjects on $tag (${s.size} unique subjects)\n" +
+      s"* Found duplicate subjects on $tag (${cfg.warn(s.size)} unique subjects)\n" +
         s.map {
           case (subject, commits) if commits.size > 1 =>
             s"  - $subject (${commits.size})\n"
@@ -129,9 +152,11 @@ case class CherryPickerReport(
   }
 
   def summarize(): Unit = {
-    println(s"\n\nSummary:")
-    println(s"* There are ${left.size} on $lTag")
-    println(s"* There are ${right.size} on $RTag")
+    println()
+    println()
+    println(cfg.bold("Summary"))
+    println(s"* There are ${cfg.ok(left.size)} on $lTag")
+    println(s"* There are ${cfg.ok(right.size)} on $RTag")
 
     print(summarizeSubjects(left, leftSubjects, lTag))
     print(summarizeSubjects(right, rightSubjects, RTag))
@@ -139,7 +164,7 @@ case class CherryPickerReport(
     val actuallyCherryPicked =
       leftSubjects.keySet.intersect(rightSubjects.keySet)
     println(
-      s"* There were ${actuallyCherryPicked.size} commits that look cherrypicked:"
+      s"* There were ${cfg.warn(actuallyCherryPicked.size)} commits that look cherrypicked:"
     )
     print(actuallyCherryPicked.map(msg => s"  - $msg\n").mkString)
 
@@ -147,8 +172,8 @@ case class CherryPickerReport(
 
     left.foreach {
       case cmt if actuallyCherryPicked(cmt.subject) =>
-        println(s"--> $cmt")
-      case cmt => println(s"$cmt")
+        println(cfg.ok(cmt))
+      case cmt => println(cmt)
     }
   }
 }
