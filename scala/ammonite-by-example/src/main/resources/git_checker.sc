@@ -12,21 +12,34 @@ import scala.util._
 // Top level variables available to the script
 
 class ColourCfg {
-  def ok(in: Any): String = in.toString
-  def warn(in: Any): String = in.toString
-  def error(in: Any): String = in.toString
+  def black(in: Any): String = in.toString
+  def red(in: Any): String = in.toString
+  def green(in: Any): String = in.toString
+  def yellow(in: Any): String = in.toString
+  def blue(in: Any): String = in.toString
+  def magenta(in: Any): String = in.toString
+  def cyan(in: Any): String = in.toString
+  def white(in: Any): String = in.toString
+
   def bold(in: Any): String = in.toString
-  def left(in: Any): String = in.toString
-  def right(in: Any): String = in.toString
+
+  def ok(in: Any): String = green(in)
+  def warn(in: Any): String = yellow(in)
+  def error(in: Any): String = red(in)
+  def left(in: Any): String = cyan(in)
+  def right(in: Any): String = magenta(in)
 }
 
 object AnsiColourCfg extends ColourCfg {
-  override def ok(in: Any): String = s"$GREEN$in$RESET"
-  override def warn(in: Any): String = s"$YELLOW$in$RESET"
-  override def error(in: Any): String = s"$RED$in$RESET"
+  override def black(in: Any): String = s"$BLACK$in$RESET"
+  override def red(in: Any): String = s"$RED$in$RESET"
+  override def green(in: Any): String = s"$GREEN$in$RESET"
+  override def yellow(in: Any): String = s"$YELLOW$in$RESET"
+  override def blue(in: Any): String = s"$BLUE$in$RESET"
+  override def magenta(in: Any): String = s"$MAGENTA$in$RESET"
+  override def cyan(in: Any): String = s"$CYAN$in$RESET"
+  override def white(in: Any): String = s"$WHITE$in$RESET"
   override def bold(in: Any): String = s"$BOLD$in$RESET"
-  override def left(in: Any): String = s"$CYAN$in$RESET"
-  override def right(in: Any): String = s"$MAGENTA$in$RESET"
 }
 
 val Cli = AnsiColourCfg.ok("git_checker.sc")
@@ -179,14 +192,20 @@ case class CherryPickerReport(
 }
 
 object CherryPickerReport {
-  /**
-   * Given a git repo and two branchs (left and right), produces a report of how the branches have diverged.
-   *
-   * @param repo The root directory of the git repo on the local disk.
-   * @param lTag The name of the left banch (usually main)
-   * @param rTag The name of the right branch (usually branch-1.x)
-   * @return The [[CherryPickerReport]] if successful, or the git command output if it failed.
-   */
+
+  /** Given a git repo and two branchs (left and right), produces a report of
+    * how the branches have diverged.
+    *
+    * @param repo
+    *   The root directory of the git repo on the local disk.
+    * @param lTag
+    *   The name of the left banch (usually main)
+    * @param rTag
+    *   The name of the right branch (usually branch-1.x)
+    * @return
+    *   The [[CherryPickerReport]] if successful, or the git command output if
+    *   it failed.
+    */
   def fromGit(
       repo: String,
       lTag: String,
@@ -218,7 +237,7 @@ object CherryPickerReport {
 def cherryPick(
     repo: String,
     lTag: String = "main",
-    rTag: String = "branch",
+    rTag: String = "branch"
 ): Unit = {
   CherryPickerReport.fromGit(repo, lTag, rTag) match {
     case Left(status) =>
