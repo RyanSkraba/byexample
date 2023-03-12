@@ -227,7 +227,9 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 
 object AmmoniteSpec {
 
-  /** Set this to true to attempt to reuse the ammonite cache across calls to tests */
+  /** Set this to true to attempt to reuse the ammonite cache across calls to
+    * tests
+    */
   val ReuseAmmoniteHome = sys.env.getOrElse("AMMONITESPEC_REUSE", "").nonEmpty
 
   lazy val ReusableAmmoniteHome: Directory =
