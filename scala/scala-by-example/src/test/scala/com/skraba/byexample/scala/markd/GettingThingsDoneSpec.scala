@@ -27,6 +27,16 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
   def preComment(text: String = "Hi")(h: Header): Header =
     h.copyMds(Comment(text) +: h.mds)
 
+  /** Some text to be parsed into an status document. */
+  val original =
+    s"""
+       |# H1 One
+       |1
+       |# H1 Two
+       |2
+       |# H1 Three
+       |3""".stripMargin
+
   describe(s"Creating a clean document") {
     it("should be readable and self-describing") {
       GettingThingsDone().doc.build().toString() shouldBe
@@ -56,17 +66,74 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     }
   }
 
-  describe(s"Updating the $H1Weeklies section") {
+  describe(s"Updating a top-level section") {
 
-    /** Some text to be parsed into an status document. */
-    val original =
-      s"""
-         |# H1 One
-         |1
-         |# H1 Two
-         |2
-         |# H1 Three
-         |3""".stripMargin
+    it("should add itself to an empty document") {
+      val empty = GettingThingsDone("")
+      empty.doc shouldBe Header(0, "")
+
+      val updated = empty.updateHeader1("New")(preComment("empty"))
+      updated.doc shouldBe Header(
+        0,
+        "",
+        Header(1, "New", Comment("empty"))
+      )
+    }
+
+    it(s"should add itself document where the section doesn't exist") {
+      val updated =
+        GettingThingsDone(original).updateHeader1("New")(preComment("add"))
+      updated.doc shouldBe Header(
+        0,
+        "",
+        Header(1, "H1 One", Paragraph("1")),
+        Header(1, "H1 Two", Paragraph("2")),
+        Header(1, "H1 Three", Paragraph("3")),
+        Header(1, "New", Comment("add"))
+      )
+    }
+
+    describe("should update an existing section") {
+      it("at the start") {
+        val updated =
+          GettingThingsDone(original).updateHeader1("H1 One")(preComment("one"))
+        updated.doc shouldBe Header(
+          0,
+          "",
+          Header(1, "H1 One", Comment("one"), Paragraph("1")),
+          Header(1, "H1 Two", Paragraph("2")),
+          Header(1, "H1 Three", Paragraph("3"))
+        )
+      }
+
+      it("in the middle") {
+        val updated =
+          GettingThingsDone(original).updateHeader1("H1 Two")(preComment("two"))
+        updated.doc shouldBe Header(
+          0,
+          "",
+          Header(1, "H1 One", Paragraph("1")),
+          Header(1, "H1 Two", Comment("two"), Paragraph("2")),
+          Header(1, "H1 Three", Paragraph("3"))
+        )
+      }
+
+      it("at the end") {
+        val updated = GettingThingsDone(original).updateHeader1("H1 Three")(
+          preComment("three")
+        )
+        updated.doc shouldBe Header(
+          0,
+          "",
+          Header(1, "H1 One", Paragraph("1")),
+          Header(1, "H1 Two", Paragraph("2")),
+          Header(1, "H1 Three", Comment("three"), Paragraph("3"))
+        )
+      }
+    }
+  }
+
+  describe(s"Updating the $H1Weeklies section") {
 
     it("should add itself to an empty document") {
       val empty = GettingThingsDone("")

@@ -99,6 +99,21 @@ case class GettingThingsDone(doc: Header) {
         fn(weeklies)
     })
 
+  /** Helper function to update or add a top-level section (Header 1) that
+    * exactly matches the given name. If it isn't present, it will be added to
+    * the bottom of the document.
+    * @param name
+    *   The name of the top level section
+    * @param fn
+    *   A function to apply to the section.
+    * @return
+    *   The entire document with the function applied to that top-level section.
+    */
+  def updateHeader1(name: String)(fn: Header => Header): GettingThingsDone =
+    copy(doc = doc.mapFirstIn(ifNotFound = doc.mds :+ Header(1, name)) {
+      case h1 @ Header(`name`, 1, _) => fn(h1)
+    })
+
   /** Helper function to update only the last week section of the statuses
     * document, adding one if necessary.
     *
