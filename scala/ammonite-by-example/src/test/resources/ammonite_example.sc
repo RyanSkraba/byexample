@@ -381,6 +381,8 @@ def gitRewriteDate(
           |$BOLD$MAGENTA base date: $RESET$bd
           |$BOLD$MAGENTA  adjusted: $RESET$adjusted (${adjustedDiff}s)
           |$BOLD$MAGENTA    fuzzed: $RESET$fuzzed (${fuzzedDiff}s)
+          |
+          |$BOLD${BLUE}GIT_COMMITTER_DATE="$fuzzed" git commit --amend --no-edit --date $fuzzed$RESET
           |""".stripMargin
       )
     }
