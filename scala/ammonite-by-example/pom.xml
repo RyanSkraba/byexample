@@ -39,11 +39,6 @@
       <version>2.5.8</version>
     </dependency>
     <dependency>
-      <groupId>com.lihaoyi</groupId>
-      <artifactId>ammonite_2.12.13</artifactId>
-      <version>2.5.8</version>
-    </dependency>
-    <dependency>
       <groupId>com.skraba.byexample</groupId>
       <artifactId>scala-by-example</artifactId>
       <version>${project.version}</version>
