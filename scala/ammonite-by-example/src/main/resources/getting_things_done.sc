@@ -265,12 +265,12 @@ def pr(
     case (None, None)                 => ""
   }
 
-  val docWithLinks = doc.updateWeeklies { topWeekly =>
+  val docWithLinks = doc.updateHeader1("References") { refSection =>
     // Add the two JIRA to the weekly status section.  Their URLs will be filled in
     // automatically on cleanup.
-    topWeekly.copyMds(
+    refSection.copyMds(
       fullJira.map(LinkRef(_, None, Some(description))).toSeq ++
-        fullPr.map(LinkRef(_, None, Some(description))) ++ topWeekly.mds
+        fullPr.map(LinkRef(_, None, Some(description))) ++ refSection.mds
     )
   }
 
