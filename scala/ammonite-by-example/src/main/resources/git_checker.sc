@@ -174,12 +174,11 @@ case class CherryPickerReport(
     right: Seq[Commit],
     cfg: ColourCfg = AnsiColourCfg
 ) {
-
   /** The left branch name with colour and indicator. */
   lazy val lTag = cfg.left(s"$lBranch (LEFT)")
 
   /** The right branch name with colour and indicator. */
-  lazy val RTag = cfg.right(s"$lBranch (RIGHT)")
+  lazy val rTag = cfg.right(s"$rBranch (RIGHT)")
 
   lazy val leftSubjects = left.groupBy(_.subject)
   lazy val rightSubjects = right.groupBy(_.subject)
@@ -206,10 +205,10 @@ case class CherryPickerReport(
     println()
     println(cfg.bold("Summary:"))
     println(s"* There are ${cfg.ok(left.size)} on $lTag")
-    println(s"* There are ${cfg.ok(right.size)} on $RTag")
+    println(s"* There are ${cfg.ok(right.size)} on $rTag")
 
     print(summarizeSubjects(left, leftSubjects, lTag))
-    print(summarizeSubjects(right, rightSubjects, RTag))
+    print(summarizeSubjects(right, rightSubjects, rTag))
 
     val actuallyCherryPicked =
       leftSubjects.keySet.intersect(rightSubjects.keySet)
@@ -218,9 +217,15 @@ case class CherryPickerReport(
     )
     print(actuallyCherryPicked.map(msg => s"  - $msg\n").mkString)
 
-    println(s"\n# $lBranch (LEFT)\n")
-
+    println(s"\n# $lTag\n")
     left.foreach {
+      case cmt if actuallyCherryPicked(cmt.subject) =>
+        println(cfg.ok(cmt))
+      case cmt => println(cmt)
+    }
+
+    println(s"\n# $rTag\n")
+    right.foreach {
       case cmt if actuallyCherryPicked(cmt.subject) =>
         println(cfg.ok(cmt))
       case cmt => println(cmt)
@@ -294,8 +299,10 @@ def cherryPick(
       status.summarize()
     case Right(Success(result)) =>
       println(s"Unsuccessful ${result.exitCode}")
+      sys.exit(result.exitCode)
     case Right(Failure(ex)) =>
       println("Failure!")
       ex.printStackTrace()
+      sys.exit(1)
   }
 }
