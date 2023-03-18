@@ -235,6 +235,8 @@ case class CherryPickerReport(
 
 object CherryPickerReport {
 
+  val Cmd: Seq[String] = Seq("git",    "--no-pager",    "log",    "--left-right",    "--graph",    "--cherry-pick",    Commit.LogFormat)
+
   /** Given a git repo and two branchs (left and right), produces a report of
     * how the branches have diverged.
     *
@@ -254,16 +256,7 @@ object CherryPickerReport {
       rTag: String
   ): Either[CherryPickerReport, Try[CommandResult]] = {
     Try(
-      os.proc(
-        "git",
-        "--no-pager",
-        "log",
-        "--left-right",
-        "--graph",
-        "--cherry-pick",
-        Commit.LogFormat,
-        s"$lTag...$rTag"
-      ).call(os.Path(repo))
+      os.proc(Cmd :+ s"$lTag...$rTag").call(os.Path(repo))
     ) match {
       case Success(result) if result.exitCode == 0 =>
         // result.out.lines.foreach(println)
@@ -292,6 +285,8 @@ def cherryPick(
     println(cfg.kv("      lTag", lTag))
     println(cfg.kv("      rTag", rTag))
     println(cfg.kv(" statusDoc", statusDoc))
+    println(cfg.bold("Git command:"))
+    println((CherryPickerReport.Cmd :+ s"$lTag...$rTag").mkString(" "))
   }
 
   CherryPickerReport.fromGit(repo, lTag, rTag) match {
