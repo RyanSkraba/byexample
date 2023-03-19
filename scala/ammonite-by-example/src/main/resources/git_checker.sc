@@ -27,14 +27,14 @@ import com.skraba.byexample.scala.markd._
 // Top level variables available to the script
 
 class ColourCfg {
-  val Black: String =""
-  val Red: String =""
-  val Green: String =""
-  val Yellow: String =""
-  val Blue: String =""
-  val Magenta: String =""
-  val Cyan: String =""
-  val White: String =""
+  val Black: String = ""
+  val Red: String = ""
+  val Green: String = ""
+  val Yellow: String = ""
+  val Blue: String = ""
+  val Magenta: String = ""
+  val Cyan: String = ""
+  val White: String = ""
 
   val BlackB: String = ""
   val RedB: String = ""
@@ -45,21 +45,34 @@ class ColourCfg {
   val CyanB: String = ""
   val WhiteB: String = ""
 
-  val Bold: String =""
-  val Reset: String =""
+  val Bold: String = ""
+  val Reset: String = ""
 
-  def style(in: Any, colour:String = White, reset:Boolean=true, bold:Boolean=false): String = s"${if (bold) Bold else ""}$colour$in${if (reset) Reset else ""}"
+  def style(
+      in: Any,
+      colour: String = White,
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String = s"${if (bold) Bold else ""}$colour$in${if (reset) Reset else ""}"
 
-  def black(in: Any, reset:Boolean=true, bold:Boolean=false): String = style(in, Black, reset, bold)
-  def red(in: Any, reset:Boolean=true, bold:Boolean=false): String = style(in, Red, reset, bold)
-  def green(in: Any, reset:Boolean=true, bold:Boolean=false): String = style(in, Green, reset, bold)
-  def yellow(in: Any, reset:Boolean=true, bold:Boolean=false): String = style(in, Yellow, reset, bold)
-  def blue(in: Any, reset:Boolean=true, bold:Boolean=false): String = style(in, Blue, reset, bold)
-  def magenta(in: Any, reset:Boolean=true, bold:Boolean=false): String = style(in, Magenta, reset, bold)
-  def cyan(in: Any, reset:Boolean=true, bold:Boolean=false): String = style(in, Cyan, reset, bold)
-  def white(in: Any, reset:Boolean=true, bold:Boolean=false): String = style(in, White, reset, bold)
+  def black(in: Any, reset: Boolean = true, bold: Boolean = false): String =
+    style(in, Black, reset, bold)
+  def red(in: Any, reset: Boolean = true, bold: Boolean = false): String =
+    style(in, Red, reset, bold)
+  def green(in: Any, reset: Boolean = true, bold: Boolean = false): String =
+    style(in, Green, reset, bold)
+  def yellow(in: Any, reset: Boolean = true, bold: Boolean = false): String =
+    style(in, Yellow, reset, bold)
+  def blue(in: Any, reset: Boolean = true, bold: Boolean = false): String =
+    style(in, Blue, reset, bold)
+  def magenta(in: Any, reset: Boolean = true, bold: Boolean = false): String =
+    style(in, Magenta, reset, bold)
+  def cyan(in: Any, reset: Boolean = true, bold: Boolean = false): String =
+    style(in, Cyan, reset, bold)
+  def white(in: Any, reset: Boolean = true, bold: Boolean = false): String =
+    style(in, White, reset, bold)
 
-  def bold(in: Any, reset:Boolean=true): String = style(in, "", reset, true)
+  def bold(in: Any, reset: Boolean = true): String = style(in, "", reset, true)
 
   def ok(in: Any): String = green(in)
   def warn(in: Any): String = yellow(in)
@@ -90,7 +103,7 @@ object AnsiColourCfg extends ColourCfg {
   override val CyanB: String = AnsiColor.CYAN_B
   override val WhiteB: String = AnsiColor.WHITE_B
 
-override  val Bold: String = AnsiColor.BOLD
+  override val Bold: String = AnsiColor.BOLD
   override val Reset: String = AnsiColor.RESET
 
 }
@@ -256,7 +269,15 @@ case class CherryPickerReport(
 
 object CherryPickerReport {
 
-  val Cmd: Seq[String] = Seq("git",    "--no-pager",    "log",    "--left-right",    "--graph",    "--cherry-pick",    Commit.LogFormat)
+  val Cmd: Seq[String] = Seq(
+    "git",
+    "--no-pager",
+    "log",
+    "--left-right",
+    "--graph",
+    "--cherry-pick",
+    Commit.LogFormat
+  )
 
   /** Given a git repo and two branchs (left and right), produces a report of
     * how the branches have diverged.
@@ -287,11 +308,11 @@ object CherryPickerReport {
     }
   }
 
-  /**
-   * Extract the information from the report from the markdown document.
-   * @param report A markdown document containing the cherry-pick report
-   * @return
-   */
+  /** Extract the information from the report from the markdown document.
+    * @param report
+    *   A markdown document containing the cherry-pick report
+    * @return
+    */
   def fromDoc(report: Header): CherryPickerReport = {
     // TODO: Fill in this stub
     CherryPickerReport("", "", Seq.empty, Seq.empty)
@@ -343,7 +364,7 @@ def cherryPick(
 
   statusDoc match {
     case Some(path) => os.write.over(path, "Hello")
-    case None => updated.summarize()
+    case None       => updated.summarize()
   }
 
 }
