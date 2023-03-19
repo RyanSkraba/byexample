@@ -8,6 +8,22 @@ import os.CommandResult
 import scala.util._
 
 // ==========================================================================
+// This is how you would add artifacts coming from the local maven repository
+
+interp.repositories() ++= {
+  // Get the local Maven repository.
+  val localM2: os.Path = Option(sys.props("maven.repo.local"))
+    .map(os.Path(_))
+    .getOrElse(os.home / ".m2" / "repository")
+
+  Seq(coursierapi.MavenRepository.of(localM2.toIO.toURI.toString))
+}
+
+@
+import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
+import com.skraba.byexample.scala.markd._
+
+// ==========================================================================
 // Top level variables available to the script
 
 class ColourCfg {
@@ -174,6 +190,7 @@ case class CherryPickerReport(
     right: Seq[Commit],
     cfg: ColourCfg = AnsiColourCfg
 ) {
+
   /** The left branch name with colour and indicator. */
   lazy val lTag = cfg.left(s"$lBranch (LEFT)")
 
@@ -182,6 +199,10 @@ case class CherryPickerReport(
 
   lazy val leftSubjects = left.groupBy(_.subject)
   lazy val rightSubjects = right.groupBy(_.subject)
+
+  /** Rerun this report using the updated commits. */
+  def update(current: CherryPickerReport): CherryPickerReport =
+    copy(left = current.left, right = current.right)
 
   private[this] def summarizeSubjects(
       commits: Seq[Commit],
@@ -265,6 +286,17 @@ object CherryPickerReport {
       case other => Right(other)
     }
   }
+
+  /**
+   * Extract the information from the report from the markdown document.
+   * @param report A markdown document containing the cherry-pick report
+   * @return
+   */
+  def fromDoc(report: Header): CherryPickerReport = {
+    // TODO: Fill in this stub
+    CherryPickerReport("", "", Seq.empty, Seq.empty)
+  }
+
 }
 
 @arg(doc = "Create a cherry-picking report between two branches")
@@ -289,15 +321,29 @@ def cherryPick(
     println((CherryPickerReport.Cmd :+ s"$lTag...$rTag").mkString(" "))
   }
 
-  CherryPickerReport.fromGit(repo, lTag, rTag) match {
-    case Left(status) =>
-      status.summarize()
-    case Right(Success(result)) =>
-      println(s"Unsuccessful ${result.exitCode}")
-      sys.exit(result.exitCode)
-    case Right(Failure(ex)) =>
-      println("Failure!")
-      ex.printStackTrace()
-      sys.exit(1)
+  // The current state of the git branches
+  val current: CherryPickerReport =
+    CherryPickerReport.fromGit(repo, lTag, rTag) match {
+      case Left(status) => status
+      case Right(Success(result)) =>
+        println(s"Unsuccessful ${result.exitCode}")
+        sys.exit(result.exitCode)
+      case Right(Failure(ex)) =>
+        println("Failure!")
+        ex.printStackTrace()
+        sys.exit(1)
+    }
+
+  // If there's a status document, merge it with the current state
+  val updated = statusDoc match {
+    case Some(path) if os.exists(path) =>
+      CherryPickerReport.fromDoc(Header.parse(os.read(path))).update(current)
+    case _ => current
   }
+
+  statusDoc match {
+    case Some(path) => os.write.over(path, "Hello")
+    case None => updated.summarize()
+  }
+
 }
