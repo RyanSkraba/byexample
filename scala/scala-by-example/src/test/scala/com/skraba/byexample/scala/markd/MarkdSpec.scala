@@ -1111,7 +1111,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           !
           !| B1 | B2 |
           !|----|----|
-          !| 10 | 20 |
+          !| 10 | 30 |
           !""".stripMargin('!'))
 
       it("should update the B1 table in the Two section") {
@@ -1151,6 +1151,36 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
             !| B1 | B2 |
             !|----|----|
             !| 10 | X  |
+            !""".stripMargin('!')
+      }
+
+      it("should find the sections") {
+        val h1One = md.collectFirst { case h @ Header(_, 1, _) => h }
+        h1One.value.title shouldBe "One"
+
+        val h1Two = md.collectFirst {
+          case h @ Header(_, 1, _) if h.title.startsWith("T") => h
+        }
+        h1Two.value.title shouldBe "Two"
+
+        val tableB1 = md.collectFirst {
+          case tbl @ Table(_, Seq(TableRow(Seq("B1", _)), _*)) =>
+            tbl
+        }
+        tableB1.value.build().toString shouldBe
+          """| B1 | B2 |
+            !|----|----|
+            !| 10 | 20 |
+            !""".stripMargin('!')
+
+        val tableB12 = md.collectFirst {
+          case tbl @ Table(_, rows) if rows.exists(_.cells.contains("30")) =>
+            tbl
+        }
+        tableB12.value.build().toString shouldBe
+          """| B1 | B2 |
+            !|----|----|
+            !| 10 | 30 |
             !""".stripMargin('!')
       }
     }

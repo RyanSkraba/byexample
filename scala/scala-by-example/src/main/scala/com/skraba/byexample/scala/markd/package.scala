@@ -327,6 +327,28 @@ package object markd {
         pf: PartialFunction[T, T]
     ): Self =
       flatMapFirstIn(ifNotFound)(pf.andThen(Seq(_)))
+
+    /** Finds the first [[Markd]] element recursively in this element for which
+      * the given partial function is defined, and applies the partial function
+      * to it.
+      *
+      * @param pf
+      *   the partial function
+      * @return
+      *   an option value containing pf applied to the first value for which it
+      *   is defined, or `None` if none exists.
+      */
+    def collectFirst[B](pf: PartialFunction[Markd, B]): Option[B] =
+      if (pf.isDefinedAt(this)) return Some(pf(this))
+      else
+        mds.toStream
+          .map {
+            case md if pf.isDefinedAt(md) => Some(pf(md))
+            case md: MultiMarkd[_]        => md.collectFirst(pf)
+            case _                        => None
+          }
+          .find(_.isDefined)
+          .flatten
   }
 
   /** Markdown header or section.
