@@ -553,6 +553,10 @@ package object markd {
 
     type Self = Table
 
+    /** A simple definition of the title cell is the top right cell value. */
+    lazy val title: String =
+      mds.headOption.flatMap(_.cells.headOption).getOrElse("")
+
     /** The maximum cell string length for each column, not including margins */
     lazy val widths: Seq[Int] = Seq.tabulate(aligns.length) { i =>
       Math.max(

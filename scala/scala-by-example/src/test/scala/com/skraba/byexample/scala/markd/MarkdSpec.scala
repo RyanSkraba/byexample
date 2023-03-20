@@ -719,6 +719,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           !|     |     |     |     | e |
           !|     |     |     |     |  |  |  | f |
           !""".stripMargin('!')
+      md.title shouldBe "AAA"
       Table.parse(cleaned).value shouldBe md
     }
 
@@ -735,6 +736,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           !|---|:-:|--:|---|
           !| a | b | c | d |
           !""".stripMargin('!')
+      md.title shouldBe ""
       Table.parse(cleaned).value shouldBe md
     }
 
@@ -759,6 +761,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           !| 4  | Four  |
           !|    | 5     | Five |
           !""".stripMargin('!')
+      md.title shouldBe "Id"
       Table.parse(cleaned).value shouldBe md
     }
 
@@ -775,6 +778,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           !|------|:----:|----:|---|
           !| a\|a | b\|  | \|c | d |
           !""".stripMargin('!')
+      md.title shouldBe ""
       Table.parse(cleaned).value shouldBe md
     }
 
@@ -797,6 +801,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           !|---|---|
           !| a | b |
           !""".stripMargin('!')
+      md.title shouldBe "A"
       Table.parse(cleaned).value shouldBe md
 
       // Other ways to represent the same table
@@ -1164,8 +1169,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         h1Two.value.title shouldBe "Two"
 
         val tableB1 = md.collectFirst {
-          case tbl @ Table(_, Seq(TableRow(Seq("B1", _)), _*)) =>
-            tbl
+          case tbl: Table if tbl.title == "B1" => tbl
         }
         tableB1.value.build().toString shouldBe
           """| B1 | B2 |
@@ -1174,7 +1178,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
             !""".stripMargin('!')
 
         val tableB12 = md.collectFirst {
-          case tbl @ Table(_, rows) if rows.exists(_.cells.contains("30")) =>
+          case tbl: Table if tbl.mds.exists(_.cells.contains("30")) =>
             tbl
         }
         tableB12.value.build().toString shouldBe
