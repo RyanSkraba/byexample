@@ -169,20 +169,14 @@ def newWeek(): Unit = {
           .copy(title = nextWeekStart(Some(week.title)))
           .replaceIn() {
             // Copy the Stats table, but empty out any values in the rows.
-            case (
-                  Some(tb @ Table(_, Seq(TableRow(Seq(TableStats, _*)), _*))),
-                  _
-                ) =>
+            case (Some(tb : Table), _) if tb.title == TableStats =>
               Seq(tb.replaceIn() {
                 case (Some(TableRow(cells)), row)
                     if row > 0 && cells.size > 1 =>
                   Seq(TableRow.from(cells.head))
               })
             // Copy the To Do table, but remove any done elements.
-            case (
-                  Some(tb @ Table(_, Seq(TableRow(Seq(TableToDo, _*)), _*))),
-                  _
-                ) =>
+            case (Some(tb : Table), _) if tb.title == TableToDo =>
               Seq(tb.replaceIn() {
                 case (Some(TableRow(Seq(taskText, _*))), row)
                     if row > 0 && taskText.startsWith(DoneToDo.txt) =>
@@ -198,10 +192,7 @@ def newWeek(): Unit = {
     oldWeek
       .replaceIn() {
         // Copy the To Do table, but update all Later tasks.
-        case (
-              Some(tb @ Table(_, Seq(TableRow(Seq(TableToDo, _*)), _*))),
-              _
-            ) =>
+        case (Some(tb : Table), _) if tb.title == TableToDo =>
           Seq(tb.replaceIn() {
             case (Some(TableRow(cells @ Seq(taskText, _*))), row)
                 if row > 0 && taskText.startsWith(MaybeToDo.txt) =>
