@@ -94,7 +94,7 @@ case class GettingThingsDone(doc: Header) {
     *   statuses.
     */
   def updateWeeklies(fn: Header => Header): GettingThingsDone =
-    copy(doc = doc.mapFirstIn(ifNotFound = doc.mds :+ Header(1, H1Weeklies)) {
+    copy(doc = doc.mapFirstIn(ifNotFound = Seq(Header(1, H1Weeklies))) {
       case weeklies @ Header(title, 1, _) if title.startsWith(H1Weeklies) =>
         fn(weeklies)
     })
@@ -110,7 +110,7 @@ case class GettingThingsDone(doc: Header) {
     *   The entire document with the function applied to that top-level section.
     */
   def updateHeader1(name: String)(fn: Header => Header): GettingThingsDone =
-    copy(doc = doc.mapFirstIn(ifNotFound = doc.mds :+ Header(1, name)) {
+    copy(doc = doc.mapFirstIn(ifNotFound = Seq(Header(1, name))) {
       case h1 @ Header(`name`, 1, _) => fn(h1)
     })
 
@@ -125,7 +125,7 @@ case class GettingThingsDone(doc: Header) {
   def updateTopWeek(fn: Header => Header): GettingThingsDone =
     updateWeeklies { weeklies =>
       weeklies.mapFirstIn(ifNotFound =
-        weeklies.mds :+ Header(2, GettingThingsDone.nextWeekStart(None))
+        Seq(Header(2, GettingThingsDone.nextWeekStart(None)))
       ) { case topWeek @ Header(_, 2, _) =>
         fn(topWeek)
       }
@@ -147,7 +147,10 @@ case class GettingThingsDone(doc: Header) {
       col: Option[String] = None
   ): GettingThingsDone = updateTopWeek { weekly =>
     import java.time.LocalDate
-    weekly.mapFirstIn(ifNotFound = TableStatsEmpty +: weekly.mds) {
+    weekly.mapFirstIn(
+      replace = true,
+      ifNotFound = TableStatsEmpty +: weekly.mds
+    ) {
       // Matches the table with the given name.
       case tb @ Table(_, Seq(TableRow(Seq(a1: String, _*)), _*))
           if a1 == TableStats =>
@@ -210,7 +213,10 @@ case class GettingThingsDone(doc: Header) {
       notes: Option[String] = None,
       state: Option[ToDoState] = None
   ): GettingThingsDone = updateTopWeek { weekly =>
-    weekly.mapFirstIn(ifNotFound = TableToDoEmpty +: weekly.mds) {
+    weekly.mapFirstIn(
+      replace = true,
+      ifNotFound = TableToDoEmpty +: weekly.mds
+    ) {
       // Matches the table with the given name.
       case tb @ Table(_, Seq(TableRow(Seq(a1: String, _*)), _*))
           if a1 == TableToDo =>

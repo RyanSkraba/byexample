@@ -281,25 +281,34 @@ package object markd {
       * list of replacements.
       *
       * @param ifNotFound
-      *   If nothing is matched, try again using this list instead. This permits
-      *   "insert and update" if not found.
+      *   If nothing is matched, add these elements to the end of the list and
+      *   try again. This permits insert-and-update replacements in the
+      *   children.
+      * @param replace
+      *   If true, when falling back on ifNotFound, then replace all of the
+      *   children instead of appending the new elements when trying again. This
+      *   can be used to control the modification of the new elements, such as
+      *   prepending or filtering.
       * @param pf
       *   A partial function to replace markd elements.
       * @return
       *   A copy of this [[MultiMarkd]] with the replaced subelements
       */
     def flatMapFirstIn(
-        ifNotFound: => Seq[T] = Seq.empty
+        ifNotFound: => Seq[T] = Seq.empty,
+        replace: Boolean = false
     )(pf: PartialFunction[T, GenSeq[T]]): Self = {
       copyMds(
         Option(mds.indexWhere(pf.isDefinedAt))
           .filter(_ != -1)
           .map((_, mds))
           .orElse {
+            val ifNotFoundReplacement =
+              if (replace) ifNotFound else mds ++ ifNotFound
             // First fallback, use the ifNotFound instead.
-            Option(ifNotFound.indexWhere(pf.isDefinedAt))
+            Option(ifNotFoundReplacement.indexWhere(pf.isDefinedAt))
               .filter(_ != -1)
-              .map((_, ifNotFound))
+              .map((_, ifNotFoundReplacement))
           }
           .map { case (idx, mds) =>
             mds.patch(idx, pf(mds(idx)), 1)
@@ -316,17 +325,23 @@ package object markd {
       * replacements.
       *
       * @param ifNotFound
-      *   If nothing is matched, try again using this list instead. This permits
-      *   "insert and update" if not found.
+      *   If nothing is matched, add these elements to the end of the list and
+      *   try again. This permits insert-and-update replacements in the
+      *   children.
+      * @param replace
+      *   If true, when falling back on ifNotFound, then replace all of the
+      *   children instead of appending the new elements when trying again. This
+      *   can be used to control the modification of the new elements, such as
+      *   prepending or filtering.
       * @param pf
       *   A partial function to replace markd elements.
       * @return
       *   A copy of this [[MultiMarkd]] with the replaced subelements
       */
-    def mapFirstIn(ifNotFound: => Seq[T] = Seq.empty)(
+    def mapFirstIn(ifNotFound: => Seq[T] = Seq.empty, replace: Boolean = false)(
         pf: PartialFunction[T, T]
     ): Self =
-      flatMapFirstIn(ifNotFound)(pf.andThen(Seq(_)))
+      flatMapFirstIn(ifNotFound, replace)(pf.andThen(Seq(_)))
 
     /** Finds the first [[Markd]] element recursively in this element for which
       * the given partial function is defined, and applies the partial function

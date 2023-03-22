@@ -213,7 +213,7 @@ def newWeek(): Unit = {
     val headWeek = createHead(weeklies.mds.collectFirst {
       case h2 @ Header(_, 2, _) => h2
     })
-    weeklies.flatMapFirstIn(ifNotFound = headWeek +: weeklies.mds) {
+    weeklies.flatMapFirstIn(ifNotFound = headWeek +: weeklies.mds, replace=true) {
       case h2 @ Header(_, 2, _) if h2 != headWeek =>
         Seq(headWeek, updateLastHead(h2))
     }

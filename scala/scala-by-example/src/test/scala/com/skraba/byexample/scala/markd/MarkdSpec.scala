@@ -1036,7 +1036,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         }.mds shouldBe md.mds
       }
       it("should help falling back when no first match") {
-        md.mapFirstIn(ifNotFound = md.mds :+ Header(1, "Four")) {
+        md.mapFirstIn(ifNotFound = Seq(Header(1, "Four"))) {
           case h @ Header(title, 1, _) if title.startsWith("F") =>
             h.copy(title = h.title.toUpperCase)
         }.mds shouldBe Seq(
@@ -1045,13 +1045,25 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           Header(1, "Three"),
           Header(1, "FOUR")
         )
-        md.flatMapFirstIn(ifNotFound = md.mds :+ Header(1, "Four")) {
+        md.flatMapFirstIn(ifNotFound = Seq(Header(1, "Four"))) {
           case h @ Header(title, 1, _) if title.startsWith("F") =>
             Seq(h.copy(title = h.title.toUpperCase))
         }.mds shouldBe Seq(
           Header(1, "One"),
           Header(1, "Two"),
           Header(1, "Three"),
+          Header(1, "FOUR")
+        )
+        md.mapFirstIn(replace = true, ifNotFound = Seq(Header(1, "Four"))) {
+          case h @ Header(title, 1, _) if title.startsWith("F") =>
+            h.copy(title = h.title.toUpperCase)
+        }.mds shouldBe Seq(
+          Header(1, "FOUR")
+        )
+        md.flatMapFirstIn(replace = true, ifNotFound = Seq(Header(1, "Four"))) {
+          case h @ Header(title, 1, _) if title.startsWith("F") =>
+            Seq(h.copy(title = h.title.toUpperCase))
+        }.mds shouldBe Seq(
           Header(1, "FOUR")
         )
       }
