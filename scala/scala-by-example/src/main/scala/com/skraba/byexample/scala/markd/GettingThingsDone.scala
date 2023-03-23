@@ -155,7 +155,7 @@ case class GettingThingsDone(doc: Header) {
       case tb @ Table(_, Seq(TableRow(Seq(a1: String, _*)), _*))
           if a1 == TableStats =>
         val statsRow =
-          tb.mds.indexWhere(_.cells.headOption.contains(row))
+          tb.mds.indexWhere(_.head == row)
         val nRow = if (statsRow != -1) statsRow else tb.mds.size
 
         val statsCol = col
@@ -271,7 +271,7 @@ case class GettingThingsDone(doc: Header) {
                     if a1 == TableStats =>
                   // And the first row that matches the name
                   tb.mds.collectFirst {
-                    case row if row.cells.headOption.contains(name) =>
+                    case row if row.head == name =>
                       row.cells.zipWithIndex.collect {
                         case (value, i) if (i > 0 && value.nonEmpty) =>
                           // And all the non-empty values in the table

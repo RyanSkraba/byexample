@@ -568,9 +568,8 @@ package object markd {
 
     type Self = Table
 
-    /** A simple definition of the title cell is the top right cell value. */
-    lazy val title: String =
-      mds.headOption.flatMap(_.cells.headOption).getOrElse("")
+    /** A simple definition of the title cell is the top left cell value. */
+    lazy val title: String = mds.headOption.map(_.head).getOrElse("")
 
     /** The maximum cell string length for each column, not including margins */
     lazy val widths: Seq[Int] = Seq.tabulate(aligns.length) { i =>
@@ -713,6 +712,9 @@ package object markd {
   }
 
   case class TableRow(cells: Seq[String]) extends Markd {
+
+    /** The row header is the leftmost cell. */
+    lazy val head: String = cells.headOption.getOrElse("")
 
     /** Write this element to the builder.
       *
