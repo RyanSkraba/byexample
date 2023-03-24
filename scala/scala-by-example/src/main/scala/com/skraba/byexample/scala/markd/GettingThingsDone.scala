@@ -94,7 +94,7 @@ case class GettingThingsDone(doc: Header) {
     *   statuses.
     */
   def updateWeeklies(fn: Header => Header): GettingThingsDone =
-    copy(doc = doc.mapFirstIn(ifNotFound = Seq(Header(1, H1Weeklies))) {
+    copy(doc = doc.mapFirstIn(ifNotFound = Header(1, H1Weeklies)) {
       case weeklies @ Header(title, 1, _) if title.startsWith(H1Weeklies) =>
         fn(weeklies)
     })
@@ -110,7 +110,7 @@ case class GettingThingsDone(doc: Header) {
     *   The entire document with the function applied to that top-level section.
     */
   def updateHeader1(name: String)(fn: Header => Header): GettingThingsDone =
-    copy(doc = doc.mapFirstIn(ifNotFound = Seq(Header(1, name))) {
+    copy(doc = doc.mapFirstIn(ifNotFound = Header(1, name)) {
       case h1 @ Header(`name`, 1, _) => fn(h1)
     })
 

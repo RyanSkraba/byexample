@@ -1057,13 +1057,18 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         md.mapFirstIn(replace = true, ifNotFound = Seq(Header(1, "Four"))) {
           case h @ Header(title, 1, _) if title.startsWith("F") =>
             h.copy(title = h.title.toUpperCase)
-        }.mds shouldBe Seq(
-          Header(1, "FOUR")
-        )
+        }.mds shouldBe Seq(Header(1, "FOUR"))
         md.flatMapFirstIn(replace = true, ifNotFound = Seq(Header(1, "Four"))) {
           case h @ Header(title, 1, _) if title.startsWith("F") =>
             Seq(h.copy(title = h.title.toUpperCase))
+        }.mds shouldBe Seq(Header(1, "FOUR"))
+        md.mapFirstIn(ifNotFound = Header(1, "Four")) {
+          case h @ Header(title, 1, _) if title.startsWith("F") =>
+            h.copy(title = h.title.toUpperCase)
         }.mds shouldBe Seq(
+          Header(1, "One"),
+          Header(1, "Two"),
+          Header(1, "Three"),
           Header(1, "FOUR")
         )
       }

@@ -341,7 +341,27 @@ package object markd {
     def mapFirstIn(ifNotFound: => Seq[T] = Seq.empty, replace: Boolean = false)(
         pf: PartialFunction[T, T]
     ): Self =
-      flatMapFirstIn(ifNotFound, replace)(pf.andThen(Seq(_)))
+      flatMapFirstIn(ifNotFound = ifNotFound, replace = replace)(
+        pf.andThen(Seq(_))
+      )
+
+    /** Copies this element, but mapping the first matching subelement to a new
+      * value.
+      *
+      * A partial function matches and replaces Markd subelements. If the
+      * partial function is defined for one of the subelements, it supplies the
+      * replacements.
+      *
+      * @param ifNotFound
+      *   If nothing is matched, add this element to the end of the list and try
+      *   again. This permits insert-and-update replacements in the children.
+      * @param pf
+      *   A partial function to replace markd elements.
+      * @return
+      *   A copy of this [[MultiMarkd]] with the replaced subelements
+      */
+    def mapFirstIn(ifNotFound: => T)(pf: PartialFunction[T, T]): Self =
+      mapFirstIn(ifNotFound = Seq(ifNotFound))(pf)
 
     /** Finds the first [[Markd]] element recursively in this element for which
       * the given partial function is defined, and applies the partial function
