@@ -39,3 +39,12 @@ subsequent runs.
 [ammonite_example.sc]: src/test/resources/ammonite_example.sc
 [file_renamer.sc]: src/main/resources/file_renamer.sc
 [getting_things_done.sc]: src/main/resources/getting_things_done.sc
+
+Issues
+------------------------------------------------------------------------------
+
+**TO DO**: In order to use the artifacts from this repository in the scripts, they need to have been compiled and exist
+in the local maven repository.  If you are running from inside an IDE, you may need to do a `mvn install` before
+unit tests succeed.
+
+This is one reason why all of the classes that these scripts use live in the dependency `scala-by-example`.
