@@ -780,5 +780,9 @@ package object markd {
 
     /** Clean up the references at the end of a section. */
     def linkCleaner(links: Seq[LinkRef]): Seq[LinkRef] = links
+
+    /** Apply this configuration to an element, reparsing it as a clean model.
+      */
+    def clean(md: Markd): Header = Header.parse(md.build().toString, this)
   }
 }

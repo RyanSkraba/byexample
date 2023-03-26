@@ -272,9 +272,7 @@ def pr(
       TextToToDoStates.getOrElse(status, MaybeToDo)
     )
 
-  val cleanedNewDoc =
-    Header.parse(newDoc.doc.build().toString, ProjectParserCfg)
-
+  val cleanedNewDoc =  ProjectParserCfg.clean(newDoc.doc)
   println(
     proposeGit(
       s"feat(status): PR ${fullJira.orElse(fullPr).getOrElse("")} $description"
@@ -297,8 +295,7 @@ def stat(
   val doc = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
   // TODO: If date is in a YYYY/MM/DD format, then to the correct date
   val newDoc = doc.updateTopWeekStats(rowStat, cell, date)
-  val cleanedNewDoc =
-    Header.parse(newDoc.doc.build().toString, ProjectParserCfg)
+  val cleanedNewDoc = ProjectParserCfg.clean(newDoc.doc)
 
   println(
     proposeGit(
@@ -320,8 +317,7 @@ def statsToday(
     (gtd: GettingThingsDone, list: Seq[String]) =>
       gtd.updateTopWeekStats(list.head, list.tail.headOption.getOrElse(""))
   }
-  val cleanedNewDoc =
-    Header.parse(newDoc.doc.build().toString, ProjectParserCfg)
+  val cleanedNewDoc =  ProjectParserCfg.clean(newDoc.doc)
 
   println(
     proposeGit(
