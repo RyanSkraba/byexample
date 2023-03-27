@@ -775,11 +775,32 @@ package object markd {
     def from(cells: String*): TableRow = TableRow(cells.toSeq)
   }
 
-  /** Helps build the model when parsing contents. */
-  class ParserCfg {
+  /** Helps build the model when parsing contents.
+    * @param sortLinkRefs
+    *   Whether to sort and deduplicate LinkRefs while parsing (true by
+    *   default).
+    */
+  class ParserCfg(sortLinkRefs: Boolean = true) {
+
+    /** If sorting, provides a key to use from the linkref, allowing custom
+      * grouping and deduplication of the links. The linkref will be sorted and
+      * deduplicated based on this key. By default, the [[LinkRef.ref]] is used
+      * directly.
+      */
+    def linkSorter(): PartialFunction[LinkRef, (String, LinkRef)] = { case lr =>
+      lr.ref -> lr
+    }
 
     /** Clean up the references at the end of a section. */
-    def linkCleaner(links: Seq[LinkRef]): Seq[LinkRef] = links
+    def linkCleaner(links: Seq[LinkRef]): Seq[LinkRef] = if (sortLinkRefs) {
+      // Clean the links.
+      links
+        .map(linkSorter().orElse { case lr => (lr.ref, lr) })
+        .toMap
+        .toSeq
+        .sortBy(_._1)
+        .map(_._2)
+    } else links
 
     /** Apply this configuration to an element, reparsing it as a clean model.
       */

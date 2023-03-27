@@ -336,60 +336,102 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       }
     }
 
-    it("should parse different linkrefs") {
-      val md = Header.parse("""
+    describe("should parse linkrefs") {
+      val linkrefs =
+        """
           |[ref-bare]:
+          |[dup]: dup
+          |[dup]: dup "dup"
           |[url]: url
-          |[url-prews]:.....url-prews
-          |[url-postws]:url-postws.....
+          |[url-prews]: url-prews
+          |[url-postws]: url-postws
           |[title]: "title"
-          |[title-prews]:....."title-prews"
-          |[title-postws]:"title-postws".....
-          |[title-empty]:""
-          |[title-empty-prews]:.....""
-          |[title-empty-postws]:"".....
+          |[title-prews]: "title-prews"
+          |[title-postws]: "title-postws"
+          |[title-empty]:
+          |[title-empty-prews]:
+          |[title-empty-postws]:
           |[all]: all "all"
-          |[all-prews]:.....all-prews "all-prews"
-          |[all-midws]:all-midws....."all-midws"
-          |[all-postws]:all-postws."all-postws".....
-          |[all-empty-title]:all-empty-title.""
-          |""".stripMargin.replaceAllLiterally(".", " "))
+          |[all-prews]: all-prews "all-prews"
+          |[dup]: dup "lastdup"
+          |[all-midws]: all-midws "all-midws"
+          |[all-postws]: all-postws "all-postws"
+          |[all-empty-title]: all-empty-title
+          |""".stripMargin.replaceAllLiterally(".", " ")
 
-      val cleaned = md.build().toString
-      cleaned shouldBe """[ref-bare]:
-                         |[url]: url
-                         |[url-prews]: url-prews
-                         |[url-postws]: url-postws
-                         |[title]: "title"
-                         |[title-prews]: "title-prews"
-                         |[title-postws]: "title-postws"
-                         |[title-empty]:
-                         |[title-empty-prews]:
-                         |[title-empty-postws]:
-                         |[all]: all "all"
-                         |[all-prews]: all-prews "all-prews"
+      it("and sort, clean and deduplicate by default") {
+        val md = Header.parse(linkrefs)
+        val cleaned = md.build().toString
+        cleaned shouldBe """[all]: all "all"
+                         |[all-empty-title]: all-empty-title
                          |[all-midws]: all-midws "all-midws"
                          |[all-postws]: all-postws "all-postws"
-                         |[all-empty-title]: all-empty-title
+                         |[all-prews]: all-prews "all-prews"
+                         |[dup]: dup "lastdup"
+                         |[ref-bare]:
+                         |[title]: "title"
+                         |[title-empty]:
+                         |[title-empty-postws]:
+                         |[title-empty-prews]:
+                         |[title-postws]: "title-postws"
+                         |[title-prews]: "title-prews"
+                         |[url]: url
+                         |[url-postws]: url-postws
+                         |[url-prews]: url-prews
                          |""".stripMargin
-      Header.parse(cleaned) shouldBe md
+        Header.parse(cleaned) shouldBe md
+      }
 
-      md.mds should have size 15
-      md.mds.head shouldBe LinkRef("ref-bare", None, None)
-      md.mds(1) shouldBe LinkRef("url", "url")
-      md.mds(2) shouldBe LinkRef("url-prews", "url-prews")
-      md.mds(3) shouldBe LinkRef("url-postws", "url-postws")
-      md.mds(4) shouldBe LinkRef("title", None, Some("title"))
-      md.mds(5) shouldBe LinkRef("title-prews", None, Some("title-prews"))
-      md.mds(6) shouldBe LinkRef("title-postws", None, Some("title-postws"))
-      md.mds(7) shouldBe LinkRef("title-empty", None, None)
-      md.mds(8) shouldBe LinkRef("title-empty-prews", None, None)
-      md.mds(9) shouldBe LinkRef("title-empty-postws", None, None)
-      md.mds(10) shouldBe LinkRef("all", "all", "all")
-      md.mds(11) shouldBe LinkRef("all-prews", "all-prews", "all-prews")
-      md.mds(12) shouldBe LinkRef("all-midws", "all-midws", "all-midws")
-      md.mds(13) shouldBe LinkRef("all-postws", "all-postws", "all-postws")
-      md.mds(14) shouldBe LinkRef("all-empty-title", "all-empty-title")
+      it("but allow leaving unsorted and undeduplicated") {
+        val md =
+          Header.parse(linkrefs, cfg = new ParserCfg(sortLinkRefs = false))
+
+        val cleaned = md.build().toString
+        cleaned shouldBe
+          """[ref-bare]:
+            |[dup]: dup
+            |[dup]: dup "dup"
+            |[url]: url
+            |[url-prews]: url-prews
+            |[url-postws]: url-postws
+            |[title]: "title"
+            |[title-prews]: "title-prews"
+            |[title-postws]: "title-postws"
+            |[title-empty]:
+            |[title-empty-prews]:
+            |[title-empty-postws]:
+            |[all]: all "all"
+            |[all-prews]: all-prews "all-prews"
+            |[dup]: dup "lastdup"
+            |[all-midws]: all-midws "all-midws"
+            |[all-postws]: all-postws "all-postws"
+            |[all-empty-title]: all-empty-title
+            |""".stripMargin
+        Header.parse(
+          cleaned,
+          cfg = new ParserCfg(sortLinkRefs = false)
+        ) shouldBe md
+
+        md.mds should have size 18
+        md.mds.head shouldBe LinkRef("ref-bare", None, None)
+        md.mds(1) shouldBe LinkRef("dup", "dup")
+        md.mds(2) shouldBe LinkRef("dup", "dup", "dup")
+        md.mds(3) shouldBe LinkRef("url", "url")
+        md.mds(4) shouldBe LinkRef("url-prews", "url-prews")
+        md.mds(5) shouldBe LinkRef("url-postws", "url-postws")
+        md.mds(6) shouldBe LinkRef("title", None, Some("title"))
+        md.mds(7) shouldBe LinkRef("title-prews", None, Some("title-prews"))
+        md.mds(8) shouldBe LinkRef("title-postws", None, Some("title-postws"))
+        md.mds(9) shouldBe LinkRef("title-empty", None, None)
+        md.mds(10) shouldBe LinkRef("title-empty-prews", None, None)
+        md.mds(11) shouldBe LinkRef("title-empty-postws", None, None)
+        md.mds(12) shouldBe LinkRef("all", "all", "all")
+        md.mds(13) shouldBe LinkRef("all-prews", "all-prews", "all-prews")
+        md.mds(14) shouldBe LinkRef("dup", "dup", "lastdup")
+        md.mds(15) shouldBe LinkRef("all-midws", "all-midws", "all-midws")
+        md.mds(16) shouldBe LinkRef("all-postws", "all-postws", "all-postws")
+        md.mds(17) shouldBe LinkRef("all-empty-title", "all-empty-title")
+      }
     }
   }
 
