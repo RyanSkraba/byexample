@@ -77,46 +77,36 @@ private def proposeGit(msg: String): String = {
 
 object ProjectParserCfg extends ParserCfg {
 
-  /** Clean up the references at the end of a section. */
-  override def linkCleaner(links: Seq[LinkRef]) = {
-    // Clean the links.
-    links
-      .map {
-        case LinkRef(LinkRef.JiraLinkRefRegex(prj, num), None, title)
-            if Projects.contains(prj.toLowerCase) =>
-          (
-            f"${prj.toUpperCase}-$num%9s",
-            LinkRef(
-              s"${prj.toUpperCase}-$num",
-              Some(
-                s"https://issues.apache.org/jira/browse/${prj.toUpperCase}-$num"
-              ),
-              title
-            )
-          )
-        case l @ LinkRef(LinkRef.JiraLinkRefRegex(prj, num), _, _) =>
-          (f"${prj.toUpperCase}-$num%9s", l)
-        case LinkRef(LinkRef.GithubPrLinkRefRegex(prj, num), None, title)
-            if Projects.contains(prj.toLowerCase) =>
-          (
-            f"${prj.toUpperCase}-PR$num%9s",
-            LinkRef(
-              s"${prj.toLowerCase.capitalize} PR#$num",
-              Some(
-                s"https://github.com/apache/${prj.toLowerCase}/pull/$num"
-              ),
-              title
-            )
-          )
-        case l @ LinkRef(LinkRef.GithubPrLinkRefRegex(prj, num), _, _) =>
-          (f"${prj.toUpperCase}-PR$num%9s", l)
-        case other =>
-          (other.ref, other)
-      }
-      .toMap
-      .toSeq
-      .sortBy(_._1)
-      .map(_._2)
+  /** Group JIRA together by the project. */
+  override def linkSorter(): PartialFunction[LinkRef, (String, LinkRef)] = {
+    case LinkRef(LinkRef.JiraLinkRefRegex(prj, num), None, title)
+      if Projects.contains(prj.toLowerCase) =>
+      (
+        f"${prj.toUpperCase}-$num%9s",
+        LinkRef(
+          s"${prj.toUpperCase}-$num",
+          Some(
+            s"https://issues.apache.org/jira/browse/${prj.toUpperCase}-$num"
+          ),
+          title
+        )
+      )
+    case l@LinkRef(LinkRef.JiraLinkRefRegex(prj, num), _, _) =>
+      (f"${prj.toUpperCase}-$num%9s", l)
+    case LinkRef(LinkRef.GithubPrLinkRefRegex(prj, num), None, title)
+      if Projects.contains(prj.toLowerCase) =>
+      (
+        f"${prj.toUpperCase}-PR$num%9s",
+        LinkRef(
+          s"${prj.toLowerCase.capitalize} PR#$num",
+          Some(
+            s"https://github.com/apache/${prj.toLowerCase}/pull/$num"
+          ),
+          title
+        )
+      )
+    case l@LinkRef(LinkRef.GithubPrLinkRefRegex(prj, num), _, _) =>
+      (f"${prj.toUpperCase}-PR$num%9s", l)
   }
 }
 
