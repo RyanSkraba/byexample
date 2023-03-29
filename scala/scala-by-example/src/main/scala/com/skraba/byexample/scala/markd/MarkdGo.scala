@@ -135,7 +135,7 @@ object MarkdGo {
       """Beautify a markdown file.
         |
         |Usage:
-        |  MarkdGo beautify FILE...
+        |  MarkdGo beautify --sortLinkRefs FILE...
         |
         |Options:
         |  -h --help   Show this screen.
@@ -156,10 +156,14 @@ object MarkdGo {
           .asScala
           .toSeq
 
+      val cfg: ParserCfg = new ParserCfg(
+        sortLinkRefs = opts.get("--sortLinkRefs").toString.toBoolean
+      )
+
       files
         .map(File(_).toAbsolute)
         .foreach(f => {
-          val md = Header.parse(f.slurp())
+          val md = Header.parse(f.slurp(), cfg)
           f.writeAll(md.build().toString)
         })
     }
