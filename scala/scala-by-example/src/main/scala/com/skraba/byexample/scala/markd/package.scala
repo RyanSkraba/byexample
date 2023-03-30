@@ -159,7 +159,9 @@ package object markd {
     ): StringBuilder = {
       sb ++= "[" ++= ref ++= "]:"
       url.filterNot(_.isBlank).map(sb ++= " " ++= _)
-      title.filterNot(_.isBlank).map(sb ++= " \"" ++= _ += '"')
+      title
+        .filterNot(_.isBlank)
+        .map(sb ++= " \"" ++= LinkRef.escape(_) += '"')
       sb ++= "\n"
     }
   }
@@ -172,7 +174,7 @@ package object markd {
           ^
           \[(?<ref>[^]]+)]:
           \s*(?<url>[^"].*?)?
-          (\s*"(?<title>[^"]*?)")?
+          (\s*"(?<title>.*?)")?
           \s*
           $$
           """.r
@@ -195,10 +197,18 @@ package object markd {
           LinkRef(
             m.group("ref"),
             Option(m.group("url")).filter(!_.isBlank).map(_.trim),
-            Option(m.group("title")).filter(!_.isBlank)
+            Option(m.group("title")).map(LinkRef.unescape).filter(!_.isBlank)
           )
         )
     }
+
+    def escape(in: String): String = in
+      .replaceAllLiterally("\\", "\\\\")
+      .replaceAllLiterally("\"", "\\\"")
+
+    def unescape(in: String): String = in
+      .replaceAllLiterally("\\\\", "\\")
+      .replaceAllLiterally("\\\"", "\"")
   }
 
   /** An element that can contain other elements. */

@@ -382,6 +382,35 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         Header.parse(cleaned) shouldBe md
       }
 
+      it("should escape and unescape link titles correctly") {
+        val linkRefTitles =
+          """[a]: url "title"
+            |[b]: url "postws  "
+            |[c]: url "  prews"
+            |[d]: url "Quo\\th \""
+            |[e]: "title"
+            |[f]: "postws  "
+            |[g]: "  prews"
+            |[h]: "Quo\\th \""
+            |""".stripMargin
+        // The round trip shouldn't change the text at all
+        val md = Header.parse(linkRefTitles)
+        val cleaned = md.build().toString
+        cleaned shouldBe linkRefTitles
+        Header.parse(cleaned) shouldBe md
+
+        // But shouldParse
+        md.mds should have size 8
+        md.mds.head shouldBe LinkRef("a", "url", "title")
+        md.mds(1) shouldBe LinkRef("b", "url", "postws  ")
+        md.mds(2) shouldBe LinkRef("c", "url", "  prews")
+        md.mds(3) shouldBe LinkRef("d", "url", "Quo\\th \"")
+        md.mds(4) shouldBe LinkRef("e", None, Some("title"))
+        md.mds(5) shouldBe LinkRef("f", None, Some("postws  "))
+        md.mds(6) shouldBe LinkRef("g", None, Some("  prews"))
+        md.mds(7) shouldBe LinkRef("h", None, Some("Quo\\th \""))
+      }
+
       it("but allow leaving unsorted and undeduplicated") {
         val md =
           Header.parse(linkrefs, cfg = new ParserCfg(sortLinkRefs = false))
