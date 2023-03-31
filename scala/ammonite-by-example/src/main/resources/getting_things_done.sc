@@ -117,6 +117,7 @@ def help(): Unit = {
   println(s"""$BOLD$cmd - Let's get things done!
        |
        |  $CYAN       clean$RESET : Beautify the status document
+       |  $CYAN        edit$RESET : Open the status document in a editor (Visual Code).
        |  $CYAN     newWeek$RESET : Add a new week to the status document
        |  $CYAN          pr$RESET : Add a PR review to this week
        |  $CYAN        stat$RESET : Add or update a weekly statistic
@@ -142,6 +143,16 @@ def clean(): Unit = {
   val doc = Header.parse(os.read(StatusFile), ProjectParserCfg)
   os.write.over(StatusFile, doc.build().toString)
   println(proposeGit(s"feat(status): Beautify the document"))
+}
+
+@arg(doc = "Open the document in an editor")
+@main
+def edit(): Unit = {
+  os.proc(
+    "code",
+    "--new-window",
+    StatusFile.toString()
+  ).call(StatusRepo )
 }
 
 @arg(doc = "Add a new week")
