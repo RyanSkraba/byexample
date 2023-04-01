@@ -135,12 +135,13 @@ object MarkdGo {
       """Beautify a markdown file.
         |
         |Usage:
-        |  MarkdGo beautify --sortLinkRefs FILE...
+        |  MarkdGo beautify [--sortLinkRefs] FILE...
         |
         |Options:
-        |  -h --help   Show this screen.
-        |  --version   Show version.
-        |  FILE        File(s) to beautify.
+        |  -h --help       Show this screen.
+        |  --version       Show version.
+        |  --sortLinkRefs  Sort the link references in the file (off by default)
+        |  FILE            File(s) to beautify.
         |""".stripMargin.trim
 
     val Cmd = "beautify"
