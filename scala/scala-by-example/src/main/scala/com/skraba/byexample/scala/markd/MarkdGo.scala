@@ -3,7 +3,7 @@ package com.skraba.byexample.scala.markd
 import org.docopt.Docopt
 import org.docopt.DocoptExitException
 import scala.collection.JavaConverters._
-import scala.reflect.io.File
+import scala.reflect.io.{Directory, File, Path}
 
 /** A driver for the various utilities that use the [[Markd]] model.
   */
@@ -99,6 +99,11 @@ object MarkdGo {
       // This is only here to rewrap any internal docopt exception with the current docopt
       case ex: InternalDocoptException =>
         throw new InternalDocoptException(ex.getMessage, task.doc)
+      case ex: DocoptExitException if ex.getMessage == null =>
+        throw new InternalDocoptException(
+          null,
+          task.doc
+        )
     }
   }
 
@@ -112,12 +117,15 @@ object MarkdGo {
         Option(if (ex.getExitCode == 0) System.out else System.err)
           .foreach(ps => {
             if (ex.getMessage != null) ps.println(ex.getMessage)
+            else ps.println(MarkdGo.Doc)
           })
         System.exit(ex.getExitCode)
       case ex: InternalDocoptException =>
         println(ex.docopt)
-        println()
-        println(ex.getMessage)
+        if (ex.getMessage != null) {
+          println()
+          println(ex.getMessage)
+        }
         System.exit(1)
       case ex: Exception =>
         println(Doc)
@@ -162,7 +170,18 @@ object MarkdGo {
       )
 
       files
-        .map(File(_).toAbsolute)
+        .map(Path(_).toAbsolute)
+        .flatMap {
+          case f: File if f.exists => Some(f)
+          case d: Directory if d.exists =>
+            d.walkFilter(p =>
+              p.isDirectory || """.*\.md$""".r.findFirstIn(p.name).isDefined
+            ).map(_.toFile)
+          case p =>
+            throw new InternalDocoptException(
+              s"The file ${p.name} doesn't exist."
+            )
+        }
         .foreach(f => {
           val md = Header.parse(f.slurp(), cfg)
           f.writeAll(md.build().toString)
