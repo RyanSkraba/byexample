@@ -25,8 +25,6 @@ import scala.util._
 // ==========================================================================
 // Top level variables available to the script
 
-
-
 val Cli = AnsiColourCfg.ok("git_checker.sc")
 
 // ==========================================================================
@@ -48,9 +46,6 @@ def help(): Unit = {
 
 // ==========================================================================
 // Cherry pick report
-
-
-
 
 @arg(doc = "Create a cherry-picking report between two branches")
 @main
@@ -98,4 +93,24 @@ def cherryPick(
   if (verbose.value || statusDoc.isEmpty) println(txt)
 
   statusDoc.foreach(os.write.over(_, txt))
+}
+
+@arg(doc = "Use the GitHub API to count the open PRs on a given project")
+@main
+def countOpenPrs(
+    @arg(doc = "The project in the form apache/avro")
+    prj: String,
+    @arg(doc = "Verbose for extra output")
+    verbose: Flag
+): Unit = {
+  val prsResponse = requests.get(
+    s"https://api.github.com/search/issues?q=repo:$prj%20state:open%20is:pr"
+  )
+  if (verbose.value) {
+    println(prsResponse.text())
+  }
+
+  val prs = ujson.read(prsResponse.text())
+  println(prs("total_count"))
+
 }
