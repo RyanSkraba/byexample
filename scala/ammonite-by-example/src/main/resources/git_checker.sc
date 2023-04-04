@@ -65,7 +65,7 @@ def cherryPick(
     println(cfg.kv("      lTag", lTag))
     println(cfg.kv("      rTag", rTag))
     println(cfg.kv(" statusDoc", statusDoc))
-    println(cfg.bold("Git command:"))
+    println(cfg.bold("\nGit command:"))
     println((CherryPickerReport.Cmd :+ s"$lTag...$rTag").mkString(" "))
   }
 
@@ -89,7 +89,8 @@ def cherryPick(
     case _ => current
   }
 
-  val txt = updated.toDoc().build().toString
+  val cleaned = Header.parse(updated.toDoc.build().toString)
+  val txt = cleaned.build().toString
   if (verbose.value || statusDoc.isEmpty) println(txt)
 
   statusDoc.foreach(os.write.over(_, txt))
