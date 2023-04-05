@@ -49,7 +49,7 @@ def help(): Unit = {
 
 @arg(doc = "Create a cherry-picking report between two branches")
 @main
-def cherryPick(
+def releaseCherryPickPrep(
     repo: String,
     lTag: String = "main",
     rTag: String = "branch",

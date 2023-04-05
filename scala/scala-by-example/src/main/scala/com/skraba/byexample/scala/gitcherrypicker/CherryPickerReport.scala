@@ -33,31 +33,60 @@ case class CherryPickerReport(
   def update(current: CherryPickerReport): CherryPickerReport =
     copy(left = current.left, right = current.right)
 
-  private[this] def xxx(h1: Header, cmts: Seq[Commit]) =
-    h1.mapFirstIn(ifNotFound =
-      Seq(
-        Table.from(
-          Seq.fill(3)(Align.LEFT),
-          TableRow.from("Commit", "Subject", "Notes")
+  /** Generate a commit table for the given header, integrating the given list
+    * of commits with any existing notes.
+    */
+  private[this] def commitTable(
+      h1: Header,
+      cmts: Seq[Commit],
+      otherSubjects: Map[String, Seq[Commit]]
+  ): Header = {
+
+    // Create a clean commit table based on the current information.
+    val clean: Table = Table(
+      Seq.fill(3)(Align.LEFT),
+      TableRow.from("Commit", "Subject", "Notes") +: cmts.map(cmt =>
+        TableRow.from(
+          s"[${cmt.commit}]",
+          if (cmt.subject.length < 100) cmt.subject
+          else cmt.subject.take(97) + "...",
+          ""
         )
       )
-    ) {
-      case tbl: Table if tbl.title.startsWith("Commit") =>
-        cmts.foldLeft(tbl)((acc, cmt) =>
-          acc.mapFirstIn(ifNotFound =
-            TableRow.from(s"[${cmt.commit}]", cmt.subject, "")
-          ) {
-            case row if row.head.contains(cmt.commit) =>
-              TableRow.from(
-                s"[${cmt.commit}]",
-                cmt.subject,
-                row.cells.applyOrElse(2, (_: Int) => "")
-              )
-          }
-        )
-    }
+    )
 
-  def toDoc(): Header = {
+    // Replace or add the existing table with the clean table.
+    h1.mapFirstIn(ifNotFound = clean) {
+      case tbl: Table if tbl == clean                => clean
+      case oldTbl: Table if oldTbl.title == "Commit" =>
+        // But if the original table exists, then copy over any notes.
+        clean.copy(mds = clean.mds.map { row =>
+          val note = oldTbl
+            .collectFirst {
+              case oldRow: TableRow
+                  if oldRow.head == row.head && oldRow.cells.size > 2 =>
+                oldRow.cells(2)
+            }
+            .getOrElse("")
+          row.copy(cells = row.cells.updated(2, note))
+        })
+    }.mapFirstIn() {
+      // This is guaranteed to exist now.
+      case tbl: Table if tbl.title == "Commit" =>
+        // Overwrite any notes with a detected cherry-pick.
+        tbl.copy(mds = tbl.mds.map { row =>
+          cmts
+            .find(_.commit == row.head.replaceAll("[\\[\\]]", ""))
+            .map(_.subject)
+            .flatMap(otherSubjects.get)
+            .flatMap(_.headOption)
+            .map(x => row.copy(cells = row.cells.updated(2, s"[${x.commit}]")))
+            .getOrElse(row)
+        })
+    }
+  }
+
+  def toDoc: Header = {
     doc
       .mapFirstIn(ifNotFound = Header(1, "CherryPickerReport")) {
         case h1: Header if h1.title == "CherryPickerReport" =>
@@ -107,10 +136,12 @@ case class CherryPickerReport(
           }
       }
       .mapFirstIn(ifNotFound = Header(1, "Left")) {
-        case h1: Header if h1.title == "Left" => xxx(h1, left)
+        case h1: Header if h1.title == "Left" =>
+          commitTable(h1, left, rightSubjects)
       }
       .mapFirstIn(ifNotFound = Header(1, "Right")) {
-        case h1: Header if h1.title == "Right" => xxx(h1, right)
+        case h1: Header if h1.title == "Right" =>
+          commitTable(h1, right, leftSubjects)
       }
       .mapFirstIn(ifNotFound = Header(1, "References")) {
         case h1: Header if h1.title == "References" =>
