@@ -746,6 +746,18 @@ package object markd {
     /** The row header is the leftmost cell. */
     lazy val head: String = cells.headOption.getOrElse("")
 
+    def apply(i: Int): String = cells.applyOrElse(i, (_: Int) => "")
+
+    def updated(i: Int, c: String): TableRow =
+      copy(cells =
+        cells
+          .padTo(i + 1, "")
+          .updated(i, c)
+          .reverse
+          .dropWhile(_.isEmpty)
+          .reverse
+      )
+
     /** Write this element to the builder.
       *
       * @param sb

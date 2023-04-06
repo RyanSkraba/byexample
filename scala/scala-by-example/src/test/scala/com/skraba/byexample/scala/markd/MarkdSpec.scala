@@ -680,6 +680,52 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       )
     }
 
+    it("should parse and update TableRows") {
+      val md = Header.parse("""Id | Name
+          !---|------
+          !1  | One
+          !2  |
+          !   |
+          !""".stripMargin('!'))
+
+      val tb1 = TableRow.from("1", "One")
+      val tb2 = TableRow.from("2")
+      val tb3 = TableRow.from()
+
+      md.mds should have size 1
+      md.mds.head shouldBe Table.from(
+        Seq(Align.LEFT, Align.LEFT),
+        TableRow.from("Id", "Name"),
+        tb1,
+        tb2,
+        tb3
+      )
+
+      // Verify the shortcut to the head
+      tb1.head shouldBe "1"
+      tb2.head shouldBe "2"
+      tb3.head shouldBe ""
+
+      // Verify the shortcut to the cell
+      tb1(0) shouldBe "1"
+      tb1(1) shouldBe "One"
+      tb1(2) shouldBe empty
+      tb2(0) shouldBe "2"
+      tb2(1) shouldBe empty
+      tb2(2) shouldBe empty
+      tb3(0) shouldBe empty
+      tb3(1) shouldBe empty
+      tb3(2) shouldBe empty
+
+      // Verify the shortcut to the cell update
+      tb1.updated(0, "Un") shouldBe TableRow.from("Un", "One")
+      tb1.updated(1, "Un") shouldBe TableRow.from("1", "Un")
+      tb1.updated(2, "Un") shouldBe TableRow.from("1", "One", "Un")
+      tb1.updated(5, "Un") shouldBe TableRow.from("1", "One", "", "", "Un")
+      tb1.updated(0, "") shouldBe TableRow.from("", "One")
+      tb1.updated(1, "") shouldBe TableRow.from("1")
+    }
+
     it("should clean up a simple table") {
       val md = Header.parse("""Before
           !
