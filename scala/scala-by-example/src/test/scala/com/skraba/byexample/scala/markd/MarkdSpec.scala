@@ -721,7 +721,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       tb1.updated(0, "Un") shouldBe TableRow.from("Un", "One")
       tb1.updated(1, "Un") shouldBe TableRow.from("1", "Un")
       tb1.updated(2, "Un") shouldBe TableRow.from("1", "One", "Un")
-      tb1.updated(5, "Un") shouldBe TableRow.from("1", "One", "", "", "Un")
+      tb1.updated(4, "Un") shouldBe TableRow.from("1", "One", "", "", "Un")
       tb1.updated(0, "") shouldBe TableRow.from("", "One")
       tb1.updated(1, "") shouldBe TableRow.from("1")
     }
