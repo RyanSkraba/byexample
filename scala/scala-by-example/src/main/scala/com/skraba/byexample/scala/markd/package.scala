@@ -676,6 +676,38 @@ package object markd {
       )
     }
 
+    /** Creates a new table from this one with the given cell value updated.
+      * Note that the zeroth row is the column headers.
+      *
+      * @param column
+      *   The index of the column to update
+      * @param rowHead
+      *   The head of the row to update
+      * @param cell
+      *   The new value
+      * @return
+      *   A table with the one cell updated to the given value
+      */
+    def updated(
+        column: Int,
+        rowHead: String,
+        cell: String
+    ): Table = {
+      val updated = mapFirstIn(ifNotFound = TableRow.from(rowHead)) {
+        case row if row.head == rowHead =>
+          row.copy(cells =
+            row.cells
+              .padTo(column + 1, "")
+              .updated(column, cell)
+              .reverse
+              .dropWhile(_.isEmpty)
+              .reverse
+          )
+      }
+
+      if (updated.mds.head.cells.length == updated.aligns.length) updated
+      else updated.copy(aligns = aligns.padTo(column + 1, Align.LEFT))
+    }
   }
 
   object Table {
