@@ -940,7 +940,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       // A valid table
       val md = Table.parse("A|B\n---|---\na|b\nc|d").value
 
-      it("by row and column") {
+      it("by row index and column") {
         md.updated(0, 0, "X").build().toString shouldBe
           """| X | B |
             !|---|---|
@@ -961,7 +961,28 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
             !""".stripMargin('!')
       }
 
-      it("by adding blank columns if necessary") {
+      it("by row header and column") {
+        md.updated(0, "A", "X").build().toString shouldBe
+          """| X | B |
+             !|---|---|
+             !| a | b |
+             !| c | d |
+             !""".stripMargin('!')
+        md.updated(1, "a", "X").build().toString shouldBe
+          """| A | B |
+             !|---|---|
+             !| a | X |
+             !| c | d |
+             !""".stripMargin('!')
+        md.updated(0, "c", "X").build().toString shouldBe
+          """| A | B |
+             !|---|---|
+             !| a | b |
+             !| X | d |
+             !""".stripMargin('!')
+      }
+
+      it("by adding blank columns if necessary, by row index") {
         md.updated(2, 0, "X").build().toString shouldBe
           """| A | B | X |
             !|---|---|---|
@@ -989,7 +1010,35 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
             !""".stripMargin('!')
       }
 
-      it("by adding blank rows if necessary") {
+      it("by adding blank columns if necessary, by row header") {
+        md.updated(2, "A", "X").build().toString shouldBe
+          """| A | B | X |
+             !|---|---|---|
+             !| a | b |   |
+             !| c | d |   |
+             !""".stripMargin('!')
+        md.updated(3, "A", "X").build().toString shouldBe
+          """| A | B |   | X |
+             !|---|---|---|---|
+             !| a | b |   |   |
+             !| c | d |   |   |
+             !""".stripMargin('!')
+        // When adding to cells that aren't headers, only that row is affected.
+        md.updated(2, "a", "X").build().toString shouldBe
+          """| A | B |
+             !|---|---|
+             !| a | b | X |
+             !| c | d |
+             !""".stripMargin('!')
+        md.updated(10, "c", "X").updated(6, "c", "Y").build().toString shouldBe
+          """| A | B |
+             !|---|---|
+             !| a | b |
+             !| c | d |  |  |  |  | Y |  |  |  | X |
+             !""".stripMargin('!')
+      }
+
+      it("by adding blank rows if necessary, by index") {
         md.updated(0, 3, "X").build().toString shouldBe
           """| A | B |
             !|---|---|
@@ -1008,7 +1057,17 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
             !""".stripMargin('!')
       }
 
-      it("and delete a column from a nonheader cell ") {
+      it("by adding blank rows if necessary, by header") {
+        md.updated(0, "X", "X").build().toString shouldBe
+          """| A | B |
+            !|---|---|
+            !| a | b |
+            !| c | d |
+            !| X |   |
+            !""".stripMargin('!')
+      }
+
+      it("and delete a column from a nonheader cell, by index") {
         val updated = md.updated(4, 1, "X")
         updated.build().toString shouldBe
           """| A | B |
@@ -1021,6 +1080,21 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         updated.updated(4, 1, "") shouldBe md
         // This is completely ignored
         updated.updated(8, 1, "") shouldBe updated
+      }
+
+      it("and delete a column from a nonheader cell, by header") {
+        val updated = md.updated(4, "a", "X")
+        updated.build().toString shouldBe
+          """| A | B |
+             !|---|---|
+             !| a | b |  |  | X |
+             !| c | d |
+             !""".stripMargin('!')
+
+        // Remove the updated cell, but only because it didn't extend any columns
+        updated.updated(4, "a", "") shouldBe md
+        // This is completely ignored
+        updated.updated(8, "a", "") shouldBe updated
       }
     }
   }

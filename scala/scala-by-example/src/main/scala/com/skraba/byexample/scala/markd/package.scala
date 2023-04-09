@@ -677,12 +677,12 @@ package object markd {
     }
 
     /** Creates a new table from this one with the given cell value updated.
-      * Note that the zeroth row is the column headers.
+      * Note that the row head will match the column headers as well.
       *
       * @param column
       *   The index of the column to update
       * @param rowHead
-      *   The head of the row to update
+      *   The head of the row to update.  This matches the first row found, or adds the row to the table.
       * @param cell
       *   The new value
       * @return
@@ -693,24 +693,12 @@ package object markd {
         rowHead: String,
         cell: String
     ): Table = {
-      val updated = mapFirstIn(ifNotFound = TableRow.from(rowHead)) {
-        case row if row.head == rowHead =>
-          row.copy(cells =
-            row.cells
-              .padTo(column + 1, "")
-              .updated(column, cell)
-              .reverse
-              .dropWhile(_.isEmpty)
-              .reverse
-          )
-      }
-
-      if (updated.mds.head.cells.length == updated.aligns.length) updated
-      else updated.copy(aligns = aligns.padTo(column + 1, Align.LEFT))
+      val rowIndex = mds.indexWhere(_.head == rowHead)
+      updated(column, if (rowIndex == -1) mds.length else rowIndex, cell)
     }
   }
 
-  object Table {
+object Table {
 
     /** Split into cells by |, taking into account escaped pipes but not other
       * constructions.
