@@ -940,7 +940,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       // A valid table
       val md = Table.parse("A|B\n---|---\na|b\nc|d").value
 
-      it("by row index and column") {
+      it("by row index and column index") {
         md.updated(0, 0, "X").build().toString shouldBe
           """| X | B |
             !|---|---|
@@ -961,25 +961,46 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
             !""".stripMargin('!')
       }
 
-      it("by row header and column") {
+      it("by row header and column index") {
         md.updated(0, "A", "X").build().toString shouldBe
           """| X | B |
-             !|---|---|
-             !| a | b |
-             !| c | d |
-             !""".stripMargin('!')
+            !|---|---|
+            !| a | b |
+            !| c | d |
+            !""".stripMargin('!')
         md.updated(1, "a", "X").build().toString shouldBe
           """| A | B |
-             !|---|---|
-             !| a | X |
-             !| c | d |
-             !""".stripMargin('!')
+            !|---|---|
+            !| a | X |
+            !| c | d |
+            !""".stripMargin('!')
         md.updated(0, "c", "X").build().toString shouldBe
           """| A | B |
-             !|---|---|
-             !| a | b |
-             !| X | d |
-             !""".stripMargin('!')
+            !|---|---|
+            !| a | b |
+            !| X | d |
+            !""".stripMargin('!')
+      }
+
+      it("by row header and column header") {
+        md.updated("A", "A", "X").build().toString shouldBe
+          """| X | B |
+            !|---|---|
+            !| a | b |
+            !| c | d |
+            !""".stripMargin('!')
+        md.updated("B", "a", "X").build().toString shouldBe
+          """| A | B |
+            !|---|---|
+            !| a | X |
+            !| c | d |
+            !""".stripMargin('!')
+        md.updated("A", "c", "X").build().toString shouldBe
+          """| A | B |
+            !|---|---|
+            !| a | b |
+            !| X | d |
+            !""".stripMargin('!')
       }
 
       it("by adding blank columns if necessary, by row index") {
@@ -1013,29 +1034,45 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       it("by adding blank columns if necessary, by row header") {
         md.updated(2, "A", "X").build().toString shouldBe
           """| A | B | X |
-             !|---|---|---|
-             !| a | b |   |
-             !| c | d |   |
-             !""".stripMargin('!')
+            !|---|---|---|
+            !| a | b |   |
+            !| c | d |   |
+            !""".stripMargin('!')
         md.updated(3, "A", "X").build().toString shouldBe
           """| A | B |   | X |
-             !|---|---|---|---|
-             !| a | b |   |   |
-             !| c | d |   |   |
-             !""".stripMargin('!')
+            !|---|---|---|---|
+            !| a | b |   |   |
+            !| c | d |   |   |
+            !""".stripMargin('!')
         // When adding to cells that aren't headers, only that row is affected.
         md.updated(2, "a", "X").build().toString shouldBe
           """| A | B |
-             !|---|---|
-             !| a | b | X |
-             !| c | d |
-             !""".stripMargin('!')
+            !|---|---|
+            !| a | b | X |
+            !| c | d |
+            !""".stripMargin('!')
         md.updated(10, "c", "X").updated(6, "c", "Y").build().toString shouldBe
           """| A | B |
-             !|---|---|
-             !| a | b |
-             !| c | d |  |  |  |  | Y |  |  |  | X |
-             !""".stripMargin('!')
+            !|---|---|
+            !| a | b |
+            !| c | d |  |  |  |  | Y |  |  |  | X |
+            !""".stripMargin('!')
+      }
+
+      it("by adding blank columns if necessary, by row and column header") {
+        md.updated("X", "A", "X").build().toString shouldBe
+          """| A | B | X |
+            !|---|---|---|
+            !| a | b |   |
+            !| c | d |   |
+            !""".stripMargin('!')
+        // When adding to cells that aren't headers, the column is added.
+        md.updated("X", "a", "x").build().toString shouldBe
+          """| A | B | X |
+            !|---|---|---|
+            !| a | b | x |
+            !| c | d |   |
+            !""".stripMargin('!')
       }
 
       it("by adding blank rows if necessary, by index") {
@@ -1057,8 +1094,18 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
             !""".stripMargin('!')
       }
 
-      it("by adding blank rows if necessary, by header") {
+      it("by adding blank rows if necessary, by row header and column index") {
         md.updated(0, "X", "X").build().toString shouldBe
+          """| A | B |
+            !|---|---|
+            !| a | b |
+            !| c | d |
+            !| X |   |
+            !""".stripMargin('!')
+      }
+
+      it("by adding blank rows if necessary, by headers") {
+        md.updated("A", "X", "X").build().toString shouldBe
           """| A | B |
             !|---|---|
             !| a | b |
@@ -1071,10 +1118,10 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         val updated = md.updated(4, 1, "X")
         updated.build().toString shouldBe
           """| A | B |
-             !|---|---|
-             !| a | b |  |  | X |
-             !| c | d |
-             !""".stripMargin('!')
+            !|---|---|
+            !| a | b |  |  | X |
+            !| c | d |
+            !""".stripMargin('!')
 
         // Remove the updated cell, but only because it didn't extend any columns
         updated.updated(4, 1, "") shouldBe md
@@ -1082,14 +1129,14 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         updated.updated(8, 1, "") shouldBe updated
       }
 
-      it("and delete a column from a nonheader cell, by header") {
+      it("and delete a column from a nonheader cell, by row header") {
         val updated = md.updated(4, "a", "X")
         updated.build().toString shouldBe
           """| A | B |
-             !|---|---|
-             !| a | b |  |  | X |
-             !| c | d |
-             !""".stripMargin('!')
+            !|---|---|
+            !| a | b |  |  | X |
+            !| c | d |
+            !""".stripMargin('!')
 
         // Remove the updated cell, but only because it didn't extend any columns
         updated.updated(4, "a", "") shouldBe md

@@ -682,7 +682,8 @@ package object markd {
       * @param column
       *   The index of the column to update
       * @param rowHead
-      *   The head of the row to update.  This matches the first row found, or adds the row to the table.
+      *   The head of the row to update. This matches the first row found, or
+      *   adds the row to the table.
       * @param cell
       *   The new value
       * @return
@@ -696,9 +697,35 @@ package object markd {
       val rowIndex = mds.indexWhere(_.head == rowHead)
       updated(column, if (rowIndex == -1) mds.length else rowIndex, cell)
     }
+
+    /** Creates a new table from this one with the given cell value updated.
+      * Note that the row head will match the column headers as well.
+      *
+      * @param columnHead
+      *   The text in the header column to update.  This matches the first
+      *   column found, or adds the column to the table.
+      * @param rowHead
+      *   The head of the row to update. This matches the first row found, or
+      *   adds the row to the table.
+      * @param cell
+      *   The new value
+      * @return
+      *   A table with the one cell updated to the given value
+      */
+    def updated(
+        columnHead: String,
+        rowHead: String,
+        cell: String
+    ): Table = {
+      val colIndex = mds.head.cells.indexOf(columnHead)
+      if (colIndex == -1)
+        updated(mds.head.cells.length, 0, columnHead)
+          .updated(mds.head.cells.length, rowHead, cell)
+      else updated(colIndex, rowHead, cell)
+    }
   }
 
-object Table {
+  object Table {
 
     /** Split into cells by |, taking into account escaped pipes but not other
       * constructions.
