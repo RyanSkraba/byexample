@@ -613,6 +613,24 @@ package object markd {
       )
     }
 
+    def apply(i: Int): TableRow =
+      mds.applyOrElse(i, (_: Int) => TableRow.from())
+
+    def apply(rowHead: String): TableRow = apply(
+      mds.indexWhere(_.head == rowHead)
+    )
+
+    def apply(column: Int, row: Int): String = apply(row).apply(column)
+
+    def apply(column: Int, rowHead: String): String =
+      apply(rowHead).apply(column)
+
+    def apply(columnHead: String, rowHead: String): String = {
+      val colIndex = mds.head.cells.indexOf(columnHead)
+      if (colIndex == -1) ""
+      else apply(rowHead).apply(colIndex)
+    }
+
     override def build(
         sb: StringBuilder = new StringBuilder()
     ): StringBuilder = {
@@ -702,8 +720,8 @@ package object markd {
       * Note that the row head will match the column headers as well.
       *
       * @param columnHead
-      *   The text in the header column to update.  This matches the first
-      *   column found, or adds the column to the table.
+      *   The text in the header column to update. This matches the first column
+      *   found, or adds the column to the table.
       * @param rowHead
       *   The head of the row to update. This matches the first row found, or
       *   adds the row to the table.

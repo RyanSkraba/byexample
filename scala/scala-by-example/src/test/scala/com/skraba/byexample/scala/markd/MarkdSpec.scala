@@ -680,20 +680,106 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       )
     }
 
+    it("should access table cells and rows") {
+      val md = Table
+        .parse("""A  | B  | A
+                 !---|----|----
+                 !a  | b1 | c1
+                 !a2 | b2 | c2
+                 !a  | b3 | c3
+                 !a4 | b4 |
+                 !   | b5 |
+                 !   |    |
+                 !""".stripMargin('!'))
+        .value
+
+      // Get a row by index
+      md(0) shouldBe TableRow.from("A", "B", "A")
+      md(1) shouldBe TableRow.from("a", "b1", "c1")
+      md(2) shouldBe TableRow.from("a2", "b2", "c2")
+      md(3) shouldBe TableRow.from("a", "b3", "c3")
+      md(4) shouldBe TableRow.from("a4", "b4")
+      md(5) shouldBe TableRow.from("", "b5")
+      md(6) shouldBe TableRow.from()
+      // There's no way to distinguish from a TableRow that actually exists in
+      // the table, and one that is out of range
+      md(100) shouldBe TableRow.from()
+      md(-1) shouldBe TableRow.from()
+
+      // Get a row by name
+      md("A") shouldBe TableRow.from("A", "B", "A")
+      md("a") shouldBe TableRow.from("a", "b1", "c1")
+      md("a2") shouldBe TableRow.from("a2", "b2", "c2")
+      md("a4") shouldBe TableRow.from("a4", "b4")
+      md("") shouldBe TableRow.from("", "b5")
+      md("no-exist") shouldBe TableRow.from()
+      // There's no way to get the row with the duplicate head by name, only
+      // by index
+
+      // Get all existing cells by index
+      val cells = for (col <- 0 to 2; row <- 0 to 6) yield md(col, row)
+      cells shouldBe Seq(
+        Seq("A", "a", "a2", "a", "a4", "", ""),
+        Seq("B", "b1", "b2", "b3", "b4", "b5", ""),
+        Seq("A", "c1", "c2", "c3", "", "", "")
+      ).flatten
+      // There's no way to distinguish between an empty cell and one out of
+      // range
+      md(2, 4) shouldBe ""
+      md(-1, -1) shouldBe ""
+      md(-1, 100) shouldBe ""
+      md(100, -1) shouldBe ""
+      md(100, 100) shouldBe ""
+
+      // Get all existing cells by column index and row headers
+      val cells2 =
+        for (col <- 0 to 2; row <- Seq("A", "a", "a2", "a4", ""))
+          yield md(col, row)
+      cells2 shouldBe Seq(
+        Seq("A", "a", "a2", "a4", ""),
+        Seq("B", "b1", "b2", "b4", "b5"),
+        Seq("A", "c1", "c2", "", "")
+      ).flatten
+      // There's no way to distinguish between an empty cell and one out of
+      // range
+      md(2, "a4") shouldBe ""
+      md(-1, "a") shouldBe ""
+      md(100, "a") shouldBe ""
+      md(-1, "no-exist") shouldBe ""
+      md(0, "no-exist") shouldBe ""
+      md(100, "no-exist") shouldBe ""
+
+      // Get all existing cells by column and row headers
+      val cells3 =
+        for (col <- Seq("A", "B"); row <- Seq("A", "a", "a2", "a4", ""))
+          yield md(col, row)
+      cells3 shouldBe Seq(
+        Seq("A", "a", "a2", "a4", ""),
+        Seq("B", "b1", "b2", "b4", "b5")
+      ).flatten
+      // There's no way to distinguish between an empty cell and one out of
+      // range
+      md("A", "") shouldBe ""
+      md("NO", "a") shouldBe ""
+      md("A", "no-exist") shouldBe ""
+      md("NO", "no-exist") shouldBe ""
+    }
+
     it("should parse and update TableRows") {
-      val md = Header.parse("""Id | Name
-          !---|------
-          !1  | One
-          !2  |
-          !   |
-          !""".stripMargin('!'))
+      val md = Table
+        .parse("""Id | Name
+                 !---|------
+                 !1  | One
+                 !2  |
+                 !   |
+                 !""".stripMargin('!'))
+        .value
 
       val tb1 = TableRow.from("1", "One")
       val tb2 = TableRow.from("2")
       val tb3 = TableRow.from()
 
-      md.mds should have size 1
-      md.mds.head shouldBe Table.from(
+      md shouldBe Table.from(
         Seq(Align.LEFT, Align.LEFT),
         TableRow.from("Id", "Name"),
         tb1,
