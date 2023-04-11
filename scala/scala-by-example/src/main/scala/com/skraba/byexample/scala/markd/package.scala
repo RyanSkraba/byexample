@@ -613,18 +613,58 @@ package object markd {
       )
     }
 
-    def apply(i: Int): TableRow =
-      mds.applyOrElse(i, (_: Int) => TableRow.from())
+    /** @param row
+      *   The index of the row to get from the table, noting that zero is the
+      *   header row.
+      * @return
+      *   The row, or an empty row if the index is out of bounds.
+      */
+    def apply(row: Int): TableRow =
+      mds.applyOrElse(row, (_: Int) => TableRow.from())
 
+    /** @param rowHead
+      *   The row to get from the table by matching the first cell, including
+      *   the header row.
+      * @return
+      *   The row, or an empty row if a matching row can't be found.
+      */
     def apply(rowHead: String): TableRow = apply(
       mds.indexWhere(_.head == rowHead)
     )
 
+    /** @param column
+      *   The index of the column to get from the table
+      * @param row
+      *   The index of the row to get from the table, noting that zero is the
+      *   header row.
+      * @return
+      *   The cell value, or an empty string if any of the indexes are out of
+      *   bounds.
+      */
     def apply(column: Int, row: Int): String = apply(row).apply(column)
 
+    /** @param column
+      *   The index of the column to get from the table
+      * @param rowHead
+      *   The row to get from the table by matching the first cell, including
+      *   the header row.
+      * @return
+      *   The cell value, or an empty string if the column is out of bounds or
+      *   the row header can't be found
+      */
     def apply(column: Int, rowHead: String): String =
       apply(rowHead).apply(column)
 
+    /** @param columnHead
+      *   The row to get from the table by matching the first cell in the
+      *   header.
+      * @param rowHead
+      *   The row to get from the table by matching the first cell, including
+      *   the header row.
+      * @return
+      *   The cell value, or an empty string if the column is out of bounds or
+      *   the row header can't be found
+      */
     def apply(columnHead: String, rowHead: String): String = {
       val colIndex = mds.head.cells.indexOf(columnHead)
       if (colIndex == -1) ""
