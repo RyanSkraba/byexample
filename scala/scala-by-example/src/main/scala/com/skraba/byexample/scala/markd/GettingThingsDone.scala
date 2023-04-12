@@ -56,13 +56,13 @@ import scala.util.Try
   * 2021/09/13
   * ------------------------------------------------------------------------------
   *
-  * | To Do      | Notes 🟢🔶🟥⤴⏳                                            |
+  * | To Do      | Notes 🟢🔶🟥⤴️🕒                                            |
   * |------------|-------------------------------------------------------------|
   * | 🟢Tech     | **Did the thing** and some notes                            |
   * | 🔶Health   | **Ready to take** or paused, or to think about            |
   * | 🟥Personal | **Won't do** and here's why                                 |
   * | ⤴Personal | **Read Getting Things Done Chapter 4/12** Moved to later    |
-  * | ⏳Proj      | **[PROJ-1234]**:[Proj PR#4321] Fix all the things `WAITING` |
+  * | 🕒Proj      | **[PROJ-1234]**:[Proj PR#4321] Fix all the things `WAITING` |
   * | Pro        | **Another task** With some [details][YYYYMMDD-1]            |
   * }}}
   */
@@ -324,7 +324,7 @@ object GettingThingsDone {
   /** The structure of an empty To Do table, used to collect stats. */
   lazy val TableToDoEmpty: Table = Table.from(
     Seq(Align.LEFT, Align.LEFT),
-    TableRow.from(TableToDo, "Notes \uD83D\uDFE2\uD83D\uDD36\uD83D\uDFE5⤴⏳")
+    TableRow.from(TableToDo, "Notes " + AllStates.map(_.txt).mkString)
   )
 
   /** The header with the weekly statuses. */
@@ -405,7 +405,7 @@ object GettingThingsDone {
   case object WaitingToDo extends ToDoState("🕒")
   case object LaterToDo extends ToDoState("⤴️")
   val AllStates: Seq[ToDoState] =
-    Seq(DoneToDo, MaybeToDo, StoppedToDo, LaterToDo, NoToDoState)
+    Seq(DoneToDo, MaybeToDo, StoppedToDo, LaterToDo, WaitingToDo, NoToDoState)
 
   /** Calculate either next Monday or the monday 7 days after the Date in the
     * String.
