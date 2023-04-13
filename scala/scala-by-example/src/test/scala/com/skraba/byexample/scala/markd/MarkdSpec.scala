@@ -1181,13 +1181,20 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       }
 
       it("by adding blank rows if necessary, by row header and column index") {
-        md.updated(0, "X", "X").build().toString shouldBe
+        md.updated(0, "X", "x").build().toString shouldBe
           """| A | B |
-            !|---|---|
-            !| a | b |
-            !| c | d |
-            !| X |   |
-            !""".stripMargin('!')
+             !|---|---|
+             !| a | b |
+             !| c | d |
+             !| x |   |
+             !""".stripMargin('!')
+        md.updated(1, "X", "x").build().toString shouldBe
+          """| A | B |
+             !|---|---|
+             !| a | b |
+             !| c | d |
+             !| X | x |
+             !""".stripMargin('!')
       }
 
       it("by adding blank rows if necessary, by headers") {
@@ -1198,6 +1205,13 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
             !| c | d |
             !| X |   |
             !""".stripMargin('!')
+        md.updated("B", "X", "x").build().toString shouldBe
+          """| A | B |
+             !|---|---|
+             !| a | b |
+             !| c | d |
+             !| X | x |
+             !""".stripMargin('!')
       }
 
       it("and delete a column from a nonheader cell, by index") {

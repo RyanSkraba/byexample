@@ -753,7 +753,9 @@ package object markd {
         cell: String
     ): Table = {
       val rowIndex = mds.indexWhere(_.head == rowHead)
-      updated(column, if (rowIndex == -1) mds.length else rowIndex, cell)
+      if (rowIndex == -1)
+        updated(0, mds.length, rowHead).updated(column, mds.length, cell)
+      else updated(column, rowIndex, cell)
     }
 
     /** Creates a new table from this one with the given cell value updated.
