@@ -132,7 +132,7 @@ case class GettingThingsDone(doc: Header) {
     }
 
   /** Update a statistics table in the top week.
-    * @param row
+    * @param rowHead
     *   The name of the row to update in the statistics table.
     * @param cell
     *   The new value for that statistic.
@@ -142,7 +142,7 @@ case class GettingThingsDone(doc: Header) {
     *   This document with the statistics updated.
     */
   def updateTopWeekStats(
-      row: String,
+      rowHead: String,
       cell: String,
       col: Option[String] = None
   ): GettingThingsDone = updateTopWeek { weekly =>
@@ -152,28 +152,12 @@ case class GettingThingsDone(doc: Header) {
       ifNotFound = TableStatsEmpty +: weekly.mds
     ) {
       // Matches the table with the given name.
-      case tb @ Table(_, Seq(TableRow(Seq(a1: String, _*)), _*))
-          if a1 == TableStats =>
-        val statsRow =
-          tb.mds.indexWhere(_.head == row)
-        val nRow = if (statsRow != -1) statsRow else tb.mds.size
-
-        val statsCol = col
-          .map(c =>
-            tb.mds.headOption
-              .map(_.cells.indexWhere(_ == c))
-              .getOrElse(-1)
-          )
-          .getOrElse(
-            LocalDate.now.getDayOfWeek.getValue
-          )
-        val nCol =
-          if (statsCol != -1) statsCol
-          else LocalDate.now.getDayOfWeek.getValue
-
-        if (statsRow == -1)
-          tb.updated(nCol, nRow, cell).updated(0, nRow, row)
-        else tb.updated(nCol, nRow, cell)
+      case tbl: Table if tbl.title == TableStats =>
+        col match {
+          case Some(dow) => tbl.updated(dow, rowHead, cell)
+          case None =>
+            tbl.updated(LocalDate.now.getDayOfWeek.getValue, rowHead, cell)
+        }
     }
   }
 
