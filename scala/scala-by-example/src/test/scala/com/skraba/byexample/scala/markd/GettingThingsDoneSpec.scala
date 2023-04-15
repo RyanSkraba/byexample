@@ -335,6 +335,22 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            !""".stripMargin('!')
     }
 
+    it("should add a column if unknown (not an error)") {
+      val existing = GettingThingsDone(withWeeklyStats)
+      val updated = existing.updateTopWeekStats("unread", "Vacation", Some(""))
+      updated.doc.build().toString() shouldBe
+        s"""Weekly Status
+           !==============================================================================
+           !
+           !Top week
+           !------------------------------------------------------------------------------
+           !
+           !| Stats  | Mon | Tue | Wed | Thu | Fri  | Sat | Sun   |          |
+           !|--------|-----|-----|-----|-----|------|-----|-------|----------|
+           !| unread | 1   | 22  |     | 333 | 4444 |     | 55555 | Vacation |
+           !""".stripMargin('!')
+    }
+
     it("should update an existing cell in an existing document") {
       val existing = GettingThingsDone(withWeeklyStats)
       val updated = existing.updateTopWeekStats("unread", "123", Some("Wed"))
