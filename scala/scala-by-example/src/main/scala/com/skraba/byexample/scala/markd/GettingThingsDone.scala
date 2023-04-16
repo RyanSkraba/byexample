@@ -202,29 +202,28 @@ case class GettingThingsDone(doc: Header) {
       ifNotFound = TableToDoEmpty +: weekly.mds
     ) {
       // Matches the table with the given name.
-      case tb @ Table(_, Seq(TableRow(Seq(a1: String, _*)), _*))
-          if a1 == TableToDo =>
+      case tbl: Table if tbl.title == TableToDo =>
         // Insert a new row if prepending to the top
-        val tbToUpdate =
-          if (row >= 0) tb
-          else tb.copyMds(tb.mds.patch(1, Seq(TableRow(Seq.empty)), 0))
+        val tblToUpdate =
+          if (row >= 0) tbl
+          else tbl.copyMds(tbl.mds.patch(1, Seq(TableRow(Seq.empty)), 0))
 
         // Find the actual row to be updated
         val nRow = {
-          if (row == Int.MaxValue || row + 1 > tb.mds.size) tb.mds.size
+          if (row == Int.MaxValue || row + 1 > tbl.mds.size) tbl.mds.size
           else if (row < 0) 1
           else row + 1
         }
 
         // Extract the state and category from the first row column
-        val (oldState, oldCategory, oldNotes) = (tb.mds.lift(nRow) match {
+        val (oldState, oldCategory, oldNotes) = (tbl.mds.lift(nRow) match {
           case Some(TableRow(Seq(cat, n, _*))) =>
             (for (state <- AllStates if cat.startsWith(state.txt))
               yield (state, cat.drop(state.txt.length), n)).headOption
           case _ => None
         }).getOrElse(NoToDoState, "", "")
 
-        tbToUpdate
+        tblToUpdate
           .updated(
             0,
             nRow,
@@ -279,7 +278,7 @@ case class GettingThingsDone(doc: Header) {
 object GettingThingsDone {
 
   /** A date pattern */
-  val Pattern = DateTimeFormatter.ofPattern("yyyy/MM/dd")
+  val Pattern: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
 
   /** The name of the statistics table, the value found in the upper left
     * column.
