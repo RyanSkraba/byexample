@@ -250,19 +250,13 @@ case class GettingThingsDone(doc: Header) {
             // Then find the Stats table in the weekly report
             weekly.mds
               .collectFirst {
-                case tb @ Table(_, Seq(TableRow(Seq(a1: String, _*)), _*))
-                    if a1 == TableStats =>
-                  // And the first row that matches the name
-                  tb.mds.collectFirst {
-                    case row if row.head == name =>
-                      row.cells.zipWithIndex.collect {
-                        case (value, i) if (i > 0 && value.nonEmpty) =>
-                          // And all the non-empty values in the table
-                          (startOfWeek.plusDays(i - 1), value)
-                      }
+                case tbl: Table if tbl.title == TableStats =>
+                  tbl(name).cells.zipWithIndex.collect {
+                    case (value, i) if (i > 0 && value.nonEmpty) =>
+                      // And all the non-empty values in the table
+                      (startOfWeek.plusDays(i - 1), value)
                   }
               }
-              .flatten
               .getOrElse(Nil)
               // Filter by the dates if any are specified
               .filter { case (d, _) => from.forall(_.compareTo(d) <= 0) }
