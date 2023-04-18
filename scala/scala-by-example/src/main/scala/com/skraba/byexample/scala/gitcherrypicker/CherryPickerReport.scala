@@ -11,6 +11,8 @@ import os.CommandResult
 
 import scala.util.{Success, Try}
 
+import CherryPickerReport._
+
 case class CherryPickerReport(
     lBranch: String,
     rBranch: String,
@@ -36,18 +38,18 @@ case class CherryPickerReport(
   /** Generate a commit table for the given header, integrating the given list
     * of commits with any existing notes.
     */
-  private[this] def commitTable(
+  private[this] def addTableOfCommits(
       h1: Header,
       cmts: Seq[Commit],
       otherSubjects: Map[String, Seq[Commit]]
   ): Header = {
 
-    // Create a clean commit table based on the current information.
+    // Create a clean commit table based on the current information, the full commit hash and subject
     val clean: Table = Table(
       Seq.fill(3)(Align.LEFT),
       TableRow.from("Commit", "Subject", "Notes") +: cmts.map(cmt =>
         TableRow.from(
-          s"[${cmt.commit}]",
+          cmt.commit,
           if (cmt.subject.length < 100) cmt.subject
           else cmt.subject.take(97) + "...",
           ""
@@ -55,33 +57,54 @@ case class CherryPickerReport(
       )
     )
 
-    // Replace or add the existing table with the clean table.
-    h1.mapFirstIn(ifNotFound = clean) {
-      case tbl: Table if tbl == clean                => clean
-      case oldTbl: Table if oldTbl.title == "Commit" =>
-        // But if the original table exists, then copy over any notes.
-        clean.copy(mds = clean.mds.map { row =>
-          val note = oldTbl
-            .collectFirst {
-              case oldRow: TableRow
-                  if oldRow.head == row.head && oldRow.cells.size > 2 =>
-                oldRow.cells(2)
-            }
-            .getOrElse("")
-          row.copy(cells = row.cells.updated(2, note))
-        })
-    }.mapFirstIn() {
-      // This is guaranteed to exist now.
+    // Update the actual table in two steps, first by replacing it with the "clean one" above, but copying the notes over).
+    val h1WithCleaned = h1.mapFirstIn(ifNotFound = clean) {
+      case tbl: Table if tbl == clean => clean
       case tbl: Table if tbl.title == "Commit" =>
-        // Overwrite any notes with a detected cherry-pick.
-        tbl.copy(mds = tbl.mds.map { row =>
-          cmts
-            .find(_.commit == row.head.replaceAll("[\\[\\]]", ""))
-            .map(_.subject)
-            .flatMap(otherSubjects.get)
-            .flatMap(_.headOption)
-            .map(x => row.copy(cells = row.cells.updated(2, s"[${x.commit}]")))
-            .getOrElse(row)
+        clean.copy(mds = clean.mds.map { row =>
+          val cmtHash = row.head
+          val originalRow = tbl
+            .collectFirst { case r: TableRow if refersTo(cmtHash, r.head) => r }
+            .getOrElse(TableRow.from())
+          row.updated(2, originalRow(2))
+        })
+    }
+
+    // And in the second step update the rows with additional interesting information
+    h1WithCleaned.mapFirstIn() {
+      // In the second stepd
+      case tbl: Table if tbl.title == "Commit" =>
+        tbl.copy(mds = tbl.mds.map {
+          case headerRow if headerRow == tbl(0) => headerRow
+          case r =>
+            val commit = cmts.find(_.commit == r.head).get
+
+            // Add the word Bump in the text if it isn't already noted.
+            val r2 =
+              if (commit.isBump && !r(2).toLowerCase.contains("bump"))
+                r.updated(2, "Bump " + r(2))
+              else r
+
+            // If this is a detected cherry pick, add it as a reference.
+            val r3 = otherSubjects
+              .get(commit.subject)
+              .flatMap(_.headOption)
+              .map(otherCommit =>
+                if (refersTo(otherCommit.commit, r2(2))) r2
+                else
+                  r2.updated(
+                    2,
+                    s" [${otherCommit.commit.take(CommitHashSize)}]"
+                  )
+              )
+              .getOrElse(r2)
+
+            // Set the head as a reference and trim the subject if desired.
+            r3.updated(0, s"[${r.head.take(CommitHashSize)}]")
+              .updated(
+                1,
+                if (r(1).length < 100) r(1) else r(1).take(97) + "..."
+              )
         })
     }
   }
@@ -137,17 +160,17 @@ case class CherryPickerReport(
       }
       .mapFirstIn(ifNotFound = Header(1, "Left")) {
         case h1: Header if h1.title == "Left" =>
-          commitTable(h1, left, rightSubjects)
+          addTableOfCommits(h1, left, rightSubjects)
       }
       .mapFirstIn(ifNotFound = Header(1, "Right")) {
         case h1: Header if h1.title == "Right" =>
-          commitTable(h1, right, leftSubjects)
+          addTableOfCommits(h1, right, leftSubjects)
       }
       .mapFirstIn(ifNotFound = Header(1, "References")) {
         case h1: Header if h1.title == "References" =>
           val linkRefs: Seq[LinkRef] = (left ++ right).map(cmt =>
             LinkRef(
-              cmt.commit,
+              cmt.commit.take(CommitHashSize),
               s"https://github.com/apache/avro/commit/${cmt.commit}",
               cmt.subject
             )
@@ -217,6 +240,16 @@ object CherryPickerReport {
     "--cherry-pick",
     Commit.LogFormat
   )
+
+  val CommitHashSize = 10
+
+  val MinCommitHashSize = 7
+
+  private def refersTo(hash: String, text: String): Boolean = {
+    for (i <- 7 to hash.length)
+      if (text.contains(s"[${hash.take(i)}]")) return true;
+    false
+  }
 
   /** Given a git repo and two branchs (left and right), produces a report of
     * how the branches have diverged.

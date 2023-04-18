@@ -35,6 +35,8 @@ case class Commit(
     subject: String,
     marker: String = ""
 ) {
+  def isBump: Boolean = subject.startsWith("Bump")
+
   def isLeft: Boolean = marker == "<"
 }
 
