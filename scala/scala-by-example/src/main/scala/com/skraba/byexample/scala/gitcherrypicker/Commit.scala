@@ -33,6 +33,7 @@ case class Commit(
     committerDate: String,
     refNames: String,
     subject: String,
+    body: String,
     marker: String = ""
 ) {
   def isBump: Boolean = subject.startsWith("Bump")
@@ -43,16 +44,28 @@ case class Commit(
 object Commit {
   // Build a format string (see https://git-scm.com/docs/git-log#_pretty_formats)
   // In the order of the commit class, noting that the marker might appear at the start of the line.
-  val LogFormat =
-    Seq("H", "an", "ae", "at", "cn", "ce", "ct", "d", "s").mkString(
+  val LogFormat: String =
+    Seq("H", "an", "ae", "at", "cn", "ce", "ct", "d", "s", "B").mkString(
       "--pretty=format:%",
-      "%x09%",
-      ""
+      "%x00%",
+      "%x00"
     )
+
+  /** @param in
+    *   The stdout from the git logs with the log format
+    * @return
+    *   The stdout parsed into a commit instance.
+    */
+  def fromGit(in: String): Seq[Commit] = in
+    .split("\0")
+    .grouped(10)
+    .map(_.mkString("\0").trim)
+    .toSeq
+    .map(Commit(_))
 
   // From a one line string given the log format, create a commit instance
   def apply(in: String): Commit = {
-    val tokens = in.split("\t")
+    val tokens = in.split("\0")
     val (marker, commit) = tokens.head.span(!_.isLetterOrDigit)
     Commit(
       commit = commit,
@@ -64,6 +77,7 @@ object Commit {
       committerDate = tokens(6),
       refNames = tokens(7),
       subject = tokens(8),
+      body = tokens(9),
       marker = marker.trim
     )
   }

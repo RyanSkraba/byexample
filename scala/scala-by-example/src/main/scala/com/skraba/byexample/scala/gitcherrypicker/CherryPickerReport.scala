@@ -273,8 +273,8 @@ object CherryPickerReport {
       os.proc(Cmd :+ s"$lTag...$rTag").call(os.Path(repo))
     ) match {
       case Success(result) if result.exitCode == 0 =>
-        // result.out.lines.foreach(println)
-        val (left, right) = result.out.lines.map(Commit(_)).partition(_.isLeft)
+        val (left, right) =
+          Commit.fromGit(result.out.text).partition(_.isLeft)
         Left(CherryPickerReport(lTag, rTag, left, right))
       case other => Right(other)
     }
