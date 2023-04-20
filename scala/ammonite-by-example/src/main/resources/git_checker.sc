@@ -19,7 +19,7 @@ interp.repositories() ++= {
 @
 import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
 import com.skraba.byexample.scala.markd._
-import com.skraba.byexample.scala.gitcherrypicker._
+import com.skraba.byexample.scala.git._
 import scala.util._
 
 // ==========================================================================

@@ -1,4 +1,4 @@
-package com.skraba.byexample.scala.gitcherrypicker
+package com.skraba.byexample.scala.git
 
 /** Contains information about one git commit
   *

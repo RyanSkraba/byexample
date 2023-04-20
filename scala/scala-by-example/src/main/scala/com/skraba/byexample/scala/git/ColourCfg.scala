@@ -1,4 +1,4 @@
-package com.skraba.byexample.scala.gitcherrypicker
+package com.skraba.byexample.scala.git
 
 class ColourCfg {
   val Black: String = ""
