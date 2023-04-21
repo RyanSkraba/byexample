@@ -109,8 +109,11 @@ class Tour090SingletonRegexExtractorsSpec extends AnyFunSpecLike with Matchers {
         "Fixed BYEX-123 and BYEX-124 today"
       project2 shouldBe "BYEX"
       number2 shouldBe "123"
-
       unanchoredIssue.anchored shouldBe theSameInstanceAs(IssueRegex)
+
+      intercept[MatchError] {
+        val unanchoredIssue(project3, number3) = "Fixed no issues today"
+      }
     }
 
     it("can be used as an extractor in match statements") {

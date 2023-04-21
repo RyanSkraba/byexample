@@ -10,6 +10,7 @@ import com.skraba.byexample.scala.markd.{
 import os.CommandResult
 
 import scala.util.{Success, Try}
+import scala.util.matching.Regex
 
 import CherryPickerReport._
 
@@ -35,6 +36,43 @@ case class CherryPickerReport(
   def update(current: CherryPickerReport): CherryPickerReport =
     copy(left = current.left, right = current.right)
 
+  /** If the commit describes a dependabot bump, then update the notes in the
+    * table row with the word Bump.
+    */
+  private[this] def rowUpdateBump(cmt: Commit)(row: TableRow): TableRow =
+    if (cmt.isBump && !row(2).toLowerCase.contains("bump"))
+      row.updated(2, "Bump " + row(2))
+    else row
+
+  private[this] def rowUpdateBug(cmt: Commit)(row: TableRow): TableRow = {
+    val bugs =
+      for (patternMatch <- IssueRegex.findAllMatchIn(cmt.subject))
+        yield patternMatch.group(1)
+    bugs.foldLeft(row)((r, bug) =>
+      if (r(2).contains(s"[$bug]")) r else r.updated(2, s"[$bug] " + r(2))
+    )
+  }
+
+  private[this] def rowUpdatePossibleCherryPick(cmt: Commit)(
+      otherSubjects: Map[String, Seq[Commit]]
+  )(row: TableRow): TableRow = otherSubjects
+    .get(cmt.subject)
+    .flatMap(_.headOption)
+    .map(cmt2 =>
+      if (refersTo(cmt2.commit, row(2))) row
+      else
+        row.updated(2, row(2) + s" [${cmt2.commit.take(CommitHashSize)}]")
+    )
+    .getOrElse(row)
+
+  private[this] def rowTrim(row: TableRow): TableRow =
+    row
+      .updated(0, s"[${row.head.take(CommitHashSize)}]")
+      .updated(
+        1,
+        if (row(1).length < 100) row(1) else row(1).take(97) + "..."
+      )
+
   /** Generate a commit table for the given header, integrating the given list
     * of commits with any existing notes.
     */
@@ -51,8 +89,7 @@ case class CherryPickerReport(
         TableRow.from(
           cmt.commit,
           if (cmt.subject.length < 100) cmt.subject
-          else cmt.subject.take(97) + "...",
-          ""
+          else cmt.subject.take(97) + "..."
         )
       )
     )
@@ -78,33 +115,12 @@ case class CherryPickerReport(
           case headerRow if headerRow == tbl(0) => headerRow
           case r =>
             val commit = cmts.find(_.commit == r.head).get
-
-            // Add the word Bump in the text if it isn't already noted.
-            val r2 =
-              if (commit.isBump && !r(2).toLowerCase.contains("bump"))
-                r.updated(2, "Bump " + r(2))
-              else r
-
-            // If this is a detected cherry pick, add it as a reference.
-            val r3 = otherSubjects
-              .get(commit.subject)
-              .flatMap(_.headOption)
-              .map(otherCommit =>
-                if (refersTo(otherCommit.commit, r2(2))) r2
-                else
-                  r2.updated(
-                    2,
-                    s" [${otherCommit.commit.take(CommitHashSize)}]"
-                  )
-              )
-              .getOrElse(r2)
-
-            // Set the head as a reference and trim the subject if desired.
-            r3.updated(0, s"[${r.head.take(CommitHashSize)}]")
-              .updated(
-                1,
-                if (r(1).length < 100) r(1) else r(1).take(97) + "..."
-              )
+            Some(r)
+              .map(rowUpdateBump(commit))
+              .map(rowUpdatePossibleCherryPick(commit)(otherSubjects))
+              // .map(rowUpdateBug(commit))
+              .map(rowTrim)
+              .get
         })
     }
   }
@@ -245,8 +261,10 @@ object CherryPickerReport {
 
   val MinCommitHashSize = 7
 
+  val IssueRegex: Regex = raw"(AVRO-(\d+))".r
+
   private def refersTo(hash: String, text: String): Boolean = {
-    for (i <- 7 to hash.length)
+    for (i <- MinCommitHashSize to hash.length)
       if (text.contains(s"[${hash.take(i)}]")) return true;
     false
   }
