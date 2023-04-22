@@ -103,8 +103,9 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
     it(
       "should print a useful message (long form, allows customizing the input stream)"
     ) {
+      val stdIn = new ByteArrayInputStream(Array.empty[Byte])
       // Long form
-      Streamable.closing(new ByteArrayInputStream(Array.empty[Byte])) { in =>
+      Streamable.closing(stdIn) { in =>
         Console.withIn(in) {
           withConsoleMatch(
             ammonite.AmmoniteMain.main0(
