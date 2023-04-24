@@ -1,6 +1,7 @@
-package com.skraba.byexample.scala.markd
+package com.skraba.byexample.scala.gtd
 
-import com.skraba.byexample.scala.markd.GettingThingsDone._
+import com.skraba.byexample.scala.gtd.GettingThingsDone._
+import com.skraba.byexample.scala.markd._
 
 import java.time.format.DateTimeFormatter
 import java.time.{DayOfWeek, LocalDate}

@@ -28,7 +28,8 @@ interp.repositories() ++= {
 // Intellij always removes the following line, which should be
 // import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
 import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
-import com.skraba.byexample.scala.markd.GettingThingsDone._
+import com.skraba.byexample.scala.gtd._
+import com.skraba.byexample.scala.gtd.GettingThingsDone._
 import com.skraba.byexample.scala.markd._
 
 /** A tag used to distinguish between documents. */

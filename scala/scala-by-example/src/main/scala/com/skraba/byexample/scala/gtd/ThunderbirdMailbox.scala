@@ -1,4 +1,4 @@
-package com.skraba.byexample.scala.markd
+package com.skraba.byexample.scala.gtd
 
 import scala.io.Source
 import scala.reflect.io._

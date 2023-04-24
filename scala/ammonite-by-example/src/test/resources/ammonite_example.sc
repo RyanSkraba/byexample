@@ -26,6 +26,7 @@ interp.repositories() ++= {
 
 @
 import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
+import com.skraba.byexample.scala.gtd.GettingThingsDone
 import com.skraba.byexample.scala.markd._
 
 // ==========================================================================

@@ -1,6 +1,7 @@
-package com.skraba.byexample.scala.markd
+package com.skraba.byexample.scala.gtd
 
-import com.skraba.byexample.scala.markd.GettingThingsDone._
+import com.skraba.byexample.scala.gtd.GettingThingsDone._
+import com.skraba.byexample.scala.markd.{Comment, Header, Paragraph}
 import org.scalatest.OptionValues._
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
@@ -38,6 +39,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
        |3""".stripMargin
 
   describe(s"Creating a clean document") {
+
     it("should be readable and self-describing") {
       GettingThingsDone().doc.build().toString() shouldBe
         s"""Weekly Status
