@@ -113,5 +113,4 @@ def countOpenPrs(
 
   val prs = ujson.read(prsResponse.text())
   println(prs("total_count"))
-
 }
