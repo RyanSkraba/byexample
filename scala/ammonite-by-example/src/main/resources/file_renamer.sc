@@ -104,13 +104,20 @@ def group(
 @arg(doc = "Renames payslip files to a standard format")
 @main
 def payslip(
-    dir: Option[os.Path] = None
+             srcPath: Option[os.Path] = None,
+               dstPath: Option[os.Path] = None
 ): Unit = {
 
   // Error if the directory doesn't exist.
-  val src: os.Path = dir.getOrElse(os.pwd)
+  val src: os.Path = srcPath.getOrElse(os.pwd)
   if (!(os.exists(src))) {
     println(s"$RED${BOLD}ERROR:$RESET $src does not exist.")
+    System.exit(1)
+  }
+
+  val dst: os.Path = dstPath.getOrElse(src)
+  if (!(os.exists(dst))) {
+    println(s"$RED${BOLD}ERROR:$RESET $dst does not exist.")
     System.exit(1)
   }
 
@@ -124,10 +131,10 @@ def payslip(
     .map { file =>
       file.last match {
         case fileRe1(mm, yyyy) =>
-          s"""mv "$file" "${file / os.up}/$yyyy${mm}Payslip.pdf""""
+          s"""mv "$file" "$dst/$yyyy${mm}Payslip.pdf""""
         case fileRe2(mm, yyyy) =>
-          s"""mv "$file" "${file / os.up}/$yyyy${mm}Payslip.pdf""""
-        case _ => s"# unmatched NO $file"
+          s"""mv "$file" "$dst/$yyyy${mm}Payslip.pdf""""
+        case _ => s"# unmatched $file"
       }
     }
     .sorted
