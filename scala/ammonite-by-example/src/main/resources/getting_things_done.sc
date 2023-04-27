@@ -30,6 +30,7 @@ interp.repositories() ++= {
 import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
 import com.skraba.byexample.scala.gtd._
 import com.skraba.byexample.scala.gtd.GettingThingsDone._
+import com.skraba.byexample.scala.gtd.ThunderbirdMailbox.getNumberOfMessagesFromMailbox
 import com.skraba.byexample.scala.markd._
 
 /** A tag used to distinguish between documents. */
@@ -327,6 +328,56 @@ def statsToday(
     )
   )
   os.write.over(StatusFile, cleanedNewDoc.build().toString.trim() + "\n")
+}
+
+@arg(doc = "Update the daily statistics.")
+@main
+def statsDaily(): Unit = {
+  val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
+
+  // Get the config section (if any)
+  val cfgSection: Option[Header] = gtd.doc.collectFirst {
+    case Comment(content)
+        if content.trim.startsWith("Getting Things Done configuration") =>
+      Header.parse(content)
+  }
+
+  // Get the daily stats configuration
+  val cfgStats: Option[Table] = cfgSection.flatMap(_.collectFirst {
+    case tbl: Table if tbl.title == "Stats" =>
+      tbl
+  })
+
+  val UnreadEmail = """\s*Unread email \((\S+)(\s*(\S+)?)\)\s*""".r
+  val GitHubOpenPR = """\s*GitHub open PR \((\S+)\)\s*""".r
+
+  // Convert them into arguments for the daily statistics
+  val args: Option[Seq[String]] = cfgStats.map {
+    _.mds
+      .drop(1)
+      .collect {
+        case TableRow(Seq(rowHead, UnreadEmail(filename, _, refiner))) =>
+          Seq(
+            rowHead,
+            getNumberOfMessagesFromMailbox(
+              ".thunderbird",
+              filename,
+              Option(refiner).getOrElse("")
+            ).toString
+          )
+        case TableRow(Seq(rowHead, GitHubOpenPR(spec))) =>
+          val prsResponse = requests.get(
+            s"https://api.github.com/search/issues?q=repo:$spec%20state:open%20is:pr"
+          )
+          val prs = ujson.read(prsResponse.text())
+          Seq(rowHead, prs("total_count").toString)
+        case _ => Seq.empty
+      }
+      .flatten
+  }
+
+  // Add them as daily statistics
+  args.foreach(statsToday(_: _*))
 }
 
 @arg(doc = "Extract a statistic in the table as a time-series")
