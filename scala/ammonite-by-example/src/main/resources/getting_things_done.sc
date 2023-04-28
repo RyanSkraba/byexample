@@ -344,7 +344,7 @@ def statsDaily(): Unit = {
 
   // Get the daily stats configuration
   val cfgStats: Option[Table] = cfgSection.flatMap(_.collectFirst {
-    case tbl: Table if tbl.title == "Stats" =>
+    case tbl: Table if tbl.title == TableStats =>
       tbl
   })
 
