@@ -41,7 +41,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
   describe(s"Creating a clean document") {
 
     it("should be readable and self-describing") {
-      GettingThingsDone().doc.build().toString() shouldBe
+      GettingThingsDone().h0.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
            !
@@ -72,10 +72,10 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
 
     it("should add itself to an empty document") {
       val empty = GettingThingsDone("")
-      empty.doc shouldBe Header(0, "")
+      empty.h0 shouldBe Header(0, "")
 
       val updated = empty.updateHeader1("New")(preComment("empty"))
-      updated.doc shouldBe Header(
+      updated.h0 shouldBe Header(
         0,
         "",
         Header(1, "New", Comment("empty"))
@@ -85,7 +85,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     it(s"should add itself document where the section doesn't exist") {
       val updated =
         GettingThingsDone(original).updateHeader1("New")(preComment("add"))
-      updated.doc shouldBe Header(
+      updated.h0 shouldBe Header(
         0,
         "",
         Header(1, "H1 One", Paragraph("1")),
@@ -99,7 +99,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
       it("at the start") {
         val updated =
           GettingThingsDone(original).updateHeader1("H1 One")(preComment("one"))
-        updated.doc shouldBe Header(
+        updated.h0 shouldBe Header(
           0,
           "",
           Header(1, "H1 One", Comment("one"), Paragraph("1")),
@@ -111,7 +111,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
       it("in the middle") {
         val updated =
           GettingThingsDone(original).updateHeader1("H1 Two")(preComment("two"))
-        updated.doc shouldBe Header(
+        updated.h0 shouldBe Header(
           0,
           "",
           Header(1, "H1 One", Paragraph("1")),
@@ -124,7 +124,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         val updated = GettingThingsDone(original).updateHeader1("H1 Three")(
           preComment("three")
         )
-        updated.doc shouldBe Header(
+        updated.h0 shouldBe Header(
           0,
           "",
           Header(1, "H1 One", Paragraph("1")),
@@ -143,7 +143,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
 
       val updated = empty.updateWeeklies(preComment("empty"))
       updated.weeklies.value shouldBe Header(1, H1Weeklies, Comment("empty"))
-      updated.doc shouldBe Header(
+      updated.h0 shouldBe Header(
         0,
         "",
         Header(1, H1Weeklies, Comment("empty"))
@@ -156,7 +156,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
 
       val updated = existing.updateWeeklies(preComment("existing"))
       updated.weeklies.value shouldBe Header(1, H1Weeklies, Comment("existing"))
-      updated.doc shouldBe Header(
+      updated.h0 shouldBe Header(
         0,
         "",
         Header(1, "H1 One", Paragraph("1")),
@@ -171,7 +171,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         val existing =
           GettingThingsDone(original.replace("H1 One", H1Weeklies))
         val updated = existing.updateWeeklies(preComment("un"))
-        updated.doc shouldBe Header(
+        updated.h0 shouldBe Header(
           0,
           "",
           Header(1, H1Weeklies, Comment("un"), Paragraph("1")),
@@ -184,7 +184,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         val existing =
           GettingThingsDone(original.replace("H1 Two", H1Weeklies))
         val updated = existing.updateWeeklies(preComment("deux"))
-        updated.doc shouldBe Header(
+        updated.h0 shouldBe Header(
           0,
           "",
           Header(1, "H1 One", Paragraph("1")),
@@ -197,7 +197,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         val existing =
           GettingThingsDone(original.replace("H1 Three", H1Weeklies))
         val updated = existing.updateWeeklies(preComment("trois"))
-        updated.doc shouldBe Header(
+        updated.h0 shouldBe Header(
           0,
           "",
           Header(1, "H1 One", Paragraph("1")),
@@ -222,7 +222,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         defaultNextWeekStart,
         Comment("empty")
       )
-      updated.doc shouldBe Header(
+      updated.h0 shouldBe Header(
         0,
         "",
         Header(1, H1Weeklies, Header(2, defaultNextWeekStart, Comment("empty")))
@@ -232,7 +232,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     it("should add the latest week where one doesn't exist") {
       val empty = GettingThingsDone(s"# $H1Weeklies")
       val updated = empty.updateTopWeek(preComment("existing"))
-      updated.doc shouldBe Header(
+      updated.h0 shouldBe Header(
         0,
         "",
         Header(
@@ -255,7 +255,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         Header(2, "Next week", Paragraph("2"))
       )
       existing.topWeek.value shouldBe Header(2, "Top week")
-      existing.doc shouldBe Header(
+      existing.h0 shouldBe Header(
         0,
         "",
         Header(1, "H1 One", Paragraph("1")),
@@ -276,7 +276,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         Header(2, "Next week", Paragraph("2"))
       )
       updated.topWeek.value shouldBe Header(2, "Top week", Comment("update"))
-      updated.doc shouldBe Header(
+      updated.h0 shouldBe Header(
         0,
         "",
         Header(1, "H1 One", Paragraph("1")),
@@ -308,7 +308,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     it("should add itself to an empty document") {
       val empty = GettingThingsDone("")
       val updated = empty.updateTopWeekStats("unread", "123", Some("Sun"))
-      updated.doc.build().toString() shouldBe
+      updated.h0.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
            !
@@ -324,7 +324,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     it("should update an empty cell in an existing document") {
       val existing = GettingThingsDone(withWeeklyStats)
       val updated = existing.updateTopWeekStats("unread", "123", Some("Wed"))
-      updated.doc.build().toString() shouldBe
+      updated.h0.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
            !
@@ -340,7 +340,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     it("should add a column if unknown (not an error)") {
       val existing = GettingThingsDone(withWeeklyStats)
       val updated = existing.updateTopWeekStats("unread", "Vacation", Some(""))
-      updated.doc.build().toString() shouldBe
+      updated.h0.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
            !
@@ -366,7 +366,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     it("should add itself to an empty document on today's day") {
       val empty = GettingThingsDone("")
       val updated = empty.updateTopWeekStats("unread", "987")
-      updated.doc.build().toString() should include("| 987 |")
+      updated.h0.build().toString() should include("| 987 |")
       // Calling without a day should be the same as calling with today's day of the week.
       updated shouldBe empty.updateTopWeekStats(
         "unread",
@@ -378,7 +378,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     it("should add itself to an existing document on today's day") {
       val existing = GettingThingsDone(withWeeklyStats)
       val updated = existing.updateTopWeekStats("unread", "987")
-      updated.doc.build().toString() should include("| 987 |")
+      updated.h0.build().toString() should include("| 987 |")
       // Calling without a day should be the same as calling with today's day of the week.
       updated shouldBe existing.updateTopWeekStats(
         "unread",
@@ -416,7 +416,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     it("should add itself to an empty document") {
       val empty = GettingThingsDone("")
       val updated = empty.addTopWeekToDo("Baking", "Make bread")
-      updated.doc.build().toString() shouldBe
+      updated.h0.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
            !

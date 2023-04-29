@@ -101,7 +101,9 @@ case class CherryPickerReport(
         clean.copy(mds = clean.mds.map { row =>
           val cmtHash = row.head
           val originalRow = tbl
-            .collectFirst { case r: TableRow if refersTo(cmtHash, r.head) => r }
+            .collectFirstRecursive {
+              case r: TableRow if refersTo(cmtHash, r.head) => r
+            }
             .getOrElse(TableRow.from())
           row.updated(2, originalRow(2))
         })
@@ -307,7 +309,7 @@ object CherryPickerReport {
   def fromDoc(doc: Header): CherryPickerReport = {
 
     val (lBranch, rBranch) = doc
-      .collectFirst {
+      .collectFirstRecursive {
         case tbl @ Table(_, rows) if tbl.title.startsWith("Branch info") =>
           (
             tbl.mds.find(_.head == "Left").map(_.cells(1)).getOrElse(""),

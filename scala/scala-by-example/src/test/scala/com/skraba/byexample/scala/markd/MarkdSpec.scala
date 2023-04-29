@@ -1515,15 +1515,15 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       }
 
       it("should find the sections") {
-        val h1One = md.collectFirst { case h @ Header(_, 1, _) => h }
+        val h1One = md.collectFirstRecursive { case h @ Header(_, 1, _) => h }
         h1One.value.title shouldBe "One"
 
-        val h1Two = md.collectFirst {
+        val h1Two = md.collectFirstRecursive {
           case h @ Header(_, 1, _) if h.title.startsWith("T") => h
         }
         h1Two.value.title shouldBe "Two"
 
-        val tableB1 = md.collectFirst {
+        val tableB1 = md.collectFirstRecursive {
           case tbl: Table if tbl.title == "B1" => tbl
         }
         tableB1.value.build().toString shouldBe
@@ -1532,7 +1532,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
             !| 10 | 20 |
             !""".stripMargin('!')
 
-        val tableB12 = md.collectFirst {
+        val tableB12 = md.collectFirstRecursive {
           case tbl: Table if tbl.mds.exists(_.cells.contains("30")) =>
             tbl
         }

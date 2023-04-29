@@ -383,13 +383,13 @@ package object markd {
       *   an option value containing pf applied to the first value for which it
       *   is defined, or `None` if none exists.
       */
-    def collectFirst[B](pf: PartialFunction[Markd, B]): Option[B] =
-      if (pf.isDefinedAt(this)) return Some(pf(this))
+    def collectFirstRecursive[B](pf: PartialFunction[Markd, B]): Option[B] =
+      if (pf.isDefinedAt(this)) Some(pf(this))
       else
         mds.toStream
           .map {
             case md if pf.isDefinedAt(md) => Some(pf(md))
-            case md: MultiMarkd[_]        => md.collectFirst(pf)
+            case md: MultiMarkd[_]        => md.collectFirstRecursive(pf)
             case _                        => None
           }
           .find(_.isDefined)

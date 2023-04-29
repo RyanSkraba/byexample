@@ -228,7 +228,7 @@ def newWeek(): Unit = {
     )
   )
 
-  os.write.over(StatusFile, newDoc.doc.build().toString.trim() + "\n")
+  os.write.over(StatusFile, newDoc.h0.build().toString.trim() + "\n")
 }
 
 @arg(doc = "Start working on a new PR")
@@ -275,7 +275,7 @@ def pr(
       TextToToDoStates.getOrElse(status, MaybeToDo)
     )
 
-  val cleanedNewDoc =  ProjectParserCfg.clean(newDoc.doc)
+  val cleanedNewDoc =  ProjectParserCfg.clean(newDoc.h0)
   println(
     proposeGit(
       s"feat(status): PR ${fullJira.orElse(fullPr).getOrElse("")} $description"
@@ -298,7 +298,7 @@ def stat(
   val doc = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
   // TODO: If date is in a YYYY/MM/DD format, then to the correct date
   val newDoc = doc.updateTopWeekStats(rowStat, cell, date)
-  val cleanedNewDoc = ProjectParserCfg.clean(newDoc.doc)
+  val cleanedNewDoc = ProjectParserCfg.clean(newDoc.h0)
 
   println(
     proposeGit(
@@ -320,7 +320,7 @@ def statsToday(
     (gtd: GettingThingsDone, list: Seq[String]) =>
       gtd.updateTopWeekStats(list.head, list.tail.headOption.getOrElse(""))
   }
-  val cleanedNewDoc =  ProjectParserCfg.clean(newDoc.doc)
+  val cleanedNewDoc =  ProjectParserCfg.clean(newDoc.h0)
 
   println(
     proposeGit(
@@ -336,14 +336,14 @@ def statsDaily(): Unit = {
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
 
   // Get the config section (if any)
-  val cfgSection: Option[Header] = gtd.doc.collectFirst {
+  val cfgSection: Option[Header] = gtd.h0.collectFirstRecursive {
     case Comment(content)
         if content.trim.startsWith("Getting Things Done configuration") =>
       Header.parse(content)
   }
 
   // Get the daily stats configuration
-  val cfgStats: Option[Table] = cfgSection.flatMap(_.collectFirst {
+  val cfgStats: Option[Table] = cfgSection.flatMap(_.collectFirstRecursive {
     case tbl: Table if tbl.title == TableStats =>
       tbl
   })

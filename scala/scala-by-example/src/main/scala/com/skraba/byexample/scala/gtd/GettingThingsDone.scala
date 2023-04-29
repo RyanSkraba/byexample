@@ -67,11 +67,11 @@ import scala.util.Try
   * | Pro        | **Another task** With some [details][YYYYMMDD-1]            |
   * }}}
   */
-case class GettingThingsDone(doc: Header) {
+case class GettingThingsDone(h0: Header) {
 
   /** The top heading (H1) section containing all of the weekly statuses. */
   lazy val weeklies: Option[Header] = {
-    doc.mds.collectFirst {
+    h0.mds.collectFirst {
       case weeklies @ Header(title, 1, _) if title.startsWith(H1Weeklies) =>
         weeklies
     }
@@ -95,7 +95,7 @@ case class GettingThingsDone(doc: Header) {
     *   statuses.
     */
   def updateWeeklies(fn: Header => Header): GettingThingsDone =
-    copy(doc = doc.mapFirstIn(ifNotFound = Header(1, H1Weeklies)) {
+    copy(h0 = h0.mapFirstIn(ifNotFound = Header(1, H1Weeklies)) {
       case weeklies @ Header(title, 1, _) if title.startsWith(H1Weeklies) =>
         fn(weeklies)
     })
@@ -111,7 +111,7 @@ case class GettingThingsDone(doc: Header) {
     *   The entire document with the function applied to that top-level section.
     */
   def updateHeader1(name: String)(fn: Header => Header): GettingThingsDone =
-    copy(doc = doc.mapFirstIn(ifNotFound = Header(1, name)) {
+    copy(h0 = h0.mapFirstIn(ifNotFound = Header(1, name)) {
       case h1 @ Header(`name`, 1, _) => fn(h1)
     })
 
@@ -361,7 +361,7 @@ object GettingThingsDone {
       )
 
     // Extract the Table as text.
-    val tableToDoExampleComment = tableToDoExample.doc.mds
+    val tableToDoExampleComment = tableToDoExample.h0.mds
       .collectFirst {
         case Header(_, _, Seq(Header(_, _, Seq(tb @ Table(_, _))))) => tb
       }
