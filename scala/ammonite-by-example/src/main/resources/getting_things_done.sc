@@ -330,20 +330,38 @@ def statsToday(
   os.write.over(StatusFile, cleanedNewDoc.build().toString.trim() + "\n")
 }
 
+private def getConfigSection(gtd: GettingThingsDone): Option[Header] = {
+  // Get the config section (if any)
+  val cfgSection: Option[Header] = gtd.h0.collectFirstRecursive {
+    case Comment(content)
+      if content.trim.startsWith("Getting Things Done configuration") =>
+      Header.parse(content)
+  }
+
+  // Reformat the configuration section every time.
+  cfgSection.foreach {
+    section =>
+    val newH0 = gtd.h0.mapFirstIn() {
+      case h1@Header(_, 1, _) =>
+        h1.mapFirstIn() {
+          case Comment(content)
+            if content.trim.startsWith("Getting Things Done configuration") =>
+           Comment(" " + section.build().toString + "\n")
+        }
+    }
+    os.write.over(StatusFile, newH0.build().toString.trim() + "\n")
+  }
+
+  cfgSection
+}
+
 @arg(doc = "Update the daily statistics.")
 @main
 def statsDaily(): Unit = {
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
 
-  // Get the config section (if any)
-  val cfgSection: Option[Header] = gtd.h0.collectFirstRecursive {
-    case Comment(content)
-        if content.trim.startsWith("Getting Things Done configuration") =>
-      Header.parse(content)
-  }
-
   // Get the daily stats configuration
-  val cfgStats: Option[Table] = cfgSection.flatMap(_.collectFirstRecursive {
+  val cfgStats: Option[Table] = getConfigSection(gtd).flatMap(_.collectFirstRecursive {
     case tbl: Table if tbl.title == TableStats =>
       tbl
   })
