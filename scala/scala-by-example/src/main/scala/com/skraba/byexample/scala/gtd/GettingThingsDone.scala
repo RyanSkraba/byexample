@@ -1,7 +1,7 @@
 package com.skraba.byexample.scala.gtd
 
 import com.skraba.byexample.scala.gtd.GettingThingsDone._
-import com.skraba.byexample.scala.markd._
+import com.skraba.byexample.scala.markd.{Comment, _}
 
 import java.time.format.DateTimeFormatter
 import java.time.{DayOfWeek, LocalDate}
@@ -67,7 +67,7 @@ import scala.util.Try
   * | Pro        | **Another task** With some [details][YYYYMMDD-1]            |
   * }}}
   */
-case class GettingThingsDone(h0: Header) {
+case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
 
   /** The top heading (H1) section containing all of the weekly statuses. */
   lazy val weeklies: Option[Header] = {
@@ -308,6 +308,11 @@ object GettingThingsDone {
   /** The header with the weekly statuses. */
   val H1Weeklies: String = "Weekly Status"
 
+  /** A tag for a configuration comment, which can be found anywhere in the
+    * document
+    */
+  val CommentConfig: String = "Getting Things Done configuration"
+
   /** Create an instance from a markdown string.
     *
     * @param content
@@ -320,8 +325,36 @@ object GettingThingsDone {
   def apply(
       content: String,
       cfg: ParserCfg = new ParserCfg()
-  ): GettingThingsDone = {
-    GettingThingsDone(Header.parse(content, cfg))
+  ): GettingThingsDone = GettingThingsDone(Header.parse(content, cfg))
+
+  /** Create an instance from a single Header markdown element.
+    *
+    * If there a configuration comment is discovered in the model, it will be
+    * extracted and used, and the comment will be reformatted correctly.
+    *
+    * @param h0
+    *   The main markdown element
+    * @return
+    *   A [[GettingThingsDone]] based on the model
+    */
+  def apply(h0: Header): GettingThingsDone = {
+    // If there is a configuration section, then extract it and reformat it internally to the doc.
+    val gtdWithConfig: Option[GettingThingsDone] = h0.collectFirstRecursive {
+      case Comment(gtdCfgContent)
+          if gtdCfgContent.trim.startsWith(CommentConfig) =>
+        // Parse the config section as a
+        val gtdConfigSection = Header.parse(gtdCfgContent)
+        // Rewrite the document with the comment formatted.
+        val reformatted: Header = h0.mapFirstIn() { case h1 @ Header(_, 1, _) =>
+          h1.mapFirstIn() {
+            case Comment(content) if content.trim.startsWith(CommentConfig) =>
+              Comment(" " + gtdConfigSection.build().toString + "\n")
+          }
+        }
+        GettingThingsDone(reformatted, Some(gtdConfigSection))
+    }
+
+    gtdWithConfig.getOrElse(GettingThingsDone(h0, None))
   }
 
   /** @return
