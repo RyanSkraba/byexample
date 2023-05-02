@@ -68,6 +68,53 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     }
   }
 
+  describe(s"Creating a document with a config section") {
+
+    it("should be readable and self-formatting") {
+      GettingThingsDone(
+        s"""Weekly Status
+           !==============================================================================
+           !
+           !<!-- $CommentConfig
+           !# This comment text will be beautified
+           !
+           !| AAA | BBB |
+           !|---|---|
+           !|1|2|
+           !-->
+           !
+           !# This out-of-comment text will also be beautified
+           !Hello
+           !<!--
+           !# This comment text will not be beautified
+           !-->
+           !""".stripMargin('!')).h0.build().toString() shouldBe
+        s"""Weekly Status
+           !==============================================================================
+           !
+           !<!-- $CommentConfig
+           !
+           !This comment text will be beautified
+           !==============================================================================
+           !
+           !| AAA | BBB |
+           !|-----|-----|
+           !| 1   | 2   |
+           !
+           !-->
+           !
+           !This out-of-comment text will also be beautified
+           !==============================================================================
+           !
+           !Hello
+           !
+           !<!--
+           !# This comment text will not be beautified
+           !-->
+           !""".stripMargin('!')
+    }
+  }
+
   describe(s"Updating a top-level section") {
 
     it("should add itself to an empty document") {
