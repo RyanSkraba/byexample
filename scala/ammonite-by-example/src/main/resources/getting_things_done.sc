@@ -77,6 +77,17 @@ private def proposeGit(msg: String): String = {
      |""".stripMargin
 }
 
+/**
+ * Write the GettingThingsDone document to disk, optionally providing a git message.
+ *
+ * @param gtd The document to write to disk
+ * @param gitStatus The git status message to propose
+ */
+private def writeGtd(gtd: GettingThingsDone, gitStatus:Option[String] = None): Unit = {
+  os.write.over(StatusFile, gtd.h0.build().toString)
+  gitStatus.map(proposeGit).foreach(println)
+}
+
 object ProjectParserCfg extends ParserCfg {
 
   /** Group JIRA together by the project. */
@@ -138,13 +149,12 @@ def help(): Unit = {
        |""".stripMargin)
 }
 
+
 @arg(doc = "Clean the existing document")
 @main
 def clean(): Unit = {
   // Read and overwrite the existing document without making any changes.
-  val doc = Header.parse(os.read(StatusFile), ProjectParserCfg)
-  os.write.over(StatusFile, doc.build().toString)
-  println(proposeGit(s"feat(status): Beautify the document"))
+  writeGtd(GettingThingsDone(os.read(StatusFile), ProjectParserCfg), Some("feat(status): Beautify the document"))
 }
 
 @arg(doc = "Open the document in an editor")
