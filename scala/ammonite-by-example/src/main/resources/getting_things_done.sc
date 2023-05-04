@@ -84,7 +84,7 @@ private def proposeGit(msg: String): String = {
  * @param gitStatus The git status message to propose
  */
 private def writeGtd(gtd: GettingThingsDone, gitStatus:Option[String] = None): Unit = {
-  os.write.over(StatusFile, gtd.h0.build().toString)
+  os.write.over(StatusFile, ProjectParserCfg.clean(gtd.h0).build().toString)
   gitStatus.map(proposeGit).foreach(println)
 }
 
@@ -232,13 +232,7 @@ def newWeek(): Unit = {
     }
   }
 
-  println(
-    proposeGit(
-      s"feat(status): Add new week ${newDoc.topWeek.headOption.map(_.title).getOrElse("")}"
-    )
-  )
-
-  os.write.over(StatusFile, newDoc.h0.build().toString.trim() + "\n")
+  writeGtd(newDoc, Some(s"feat(status): Add new week ${newDoc.topWeek.map(_.title).getOrElse("")}"))
 }
 
 @arg(doc = "Start working on a new PR")
@@ -285,13 +279,7 @@ def pr(
       TextToToDoStates.getOrElse(status, MaybeToDo)
     )
 
-  val cleanedNewDoc =  ProjectParserCfg.clean(newDoc.h0)
-  println(
-    proposeGit(
-      s"feat(status): PR ${fullJira.orElse(fullPr).getOrElse("")} $description"
-    )
-  )
-  os.write.over(StatusFile, cleanedNewDoc.build().toString.trim() + "\n")
+  writeGtd(newDoc, Some(s"feat(status): PR ${fullJira.orElse(fullPr).getOrElse("")} $description"))
 }
 
 @arg(doc = "Update a statistic in a table, typically for the day of the week")
@@ -308,14 +296,7 @@ def stat(
   val doc = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
   // TODO: If date is in a YYYY/MM/DD format, then to the correct date
   val newDoc = doc.updateTopWeekStats(rowStat, cell, date)
-  val cleanedNewDoc = ProjectParserCfg.clean(newDoc.h0)
-
-  println(
-    proposeGit(
-      s"feat(status): Update $rowStat"
-    )
-  )
-  os.write.over(StatusFile, cleanedNewDoc.build().toString.trim() + "\n")
+  writeGtd(newDoc, Some(s"feat(status): Update $rowStat"))
 }
 
 @arg(doc = "Update many statistics for today.")
@@ -330,14 +311,7 @@ def statsToday(
     (gtd: GettingThingsDone, list: Seq[String]) =>
       gtd.updateTopWeekStats(list.head, list.tail.headOption.getOrElse(""))
   }
-  val cleanedNewDoc =  ProjectParserCfg.clean(newDoc.h0)
-
-  println(
-    proposeGit(
-      s"feat(status): Update ${stats.grouped(2).map(_.head).mkString(",")}"
-    )
-  )
-  os.write.over(StatusFile, cleanedNewDoc.build().toString.trim() + "\n")
+  writeGtd(newDoc, Some(s"feat(status): Update ${stats.grouped(2).map(_.head).mkString(",")}"))
 }
 
 @arg(doc = "Update the daily statistics.")
