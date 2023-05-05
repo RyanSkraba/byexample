@@ -62,30 +62,23 @@ val Projects: Map[String, Int] = Map(
 val TextToToDoStates: Map[String, GettingThingsDone.ToDoState] =
   Map("MERGED" -> DoneToDo, "FIXED" -> DoneToDo, "DONE" -> DoneToDo)
 
-/** Propose a git commit message for the status page
-  * @param msg
-  *   The git message to propose
-  * @return
-  *   A string to copy and paste to check the changes.
-  */
-private def proposeGit(msg: String): String = {
-  s"""${GREEN}Commit:$RESET
-     |  git -C $StatusRepo add ${StatusFile.relativeTo(StatusRepo)} &&
-     |      git -C $StatusRepo difftool --staged
-     |  git -C $StatusRepo add ${StatusFile.relativeTo(StatusRepo)} &&
-     |      git -C $StatusRepo commit -m $BOLD"$msg"$RESET
-     |""".stripMargin
-}
-
 /**
- * Write the GettingThingsDone document to disk, optionally providing a git message.
+ * Write the GettingThingsDone document to disk, optionally providing git
+ * commands to check in the changes.
  *
  * @param gtd The document to write to disk
- * @param gitStatus The git status message to propose
+ * @param gitStatus The git status message to use, or none if no suggestion
+ *                  should be made.
  */
 private def writeGtd(gtd: GettingThingsDone, gitStatus:Option[String] = None): Unit = {
   os.write.over(StatusFile, ProjectParserCfg.clean(gtd.h0).build().toString)
-  gitStatus.map(proposeGit).foreach(println)
+  gitStatus.map(msg =>
+    s"""${GREEN}Commit:$RESET
+       |  git -C $StatusRepo add ${StatusFile.relativeTo(StatusRepo)} &&
+       |      git -C $StatusRepo difftool --staged
+       |  git -C $StatusRepo add ${StatusFile.relativeTo(StatusRepo)} &&
+       |      git -C $StatusRepo commit -m $BOLD"$msg"$RESET
+       |""".stripMargin).foreach(println)
 }
 
 object ProjectParserCfg extends ParserCfg {
