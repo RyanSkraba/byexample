@@ -62,23 +62,27 @@ val Projects: Map[String, Int] = Map(
 val TextToToDoStates: Map[String, GettingThingsDone.ToDoState] =
   Map("MERGED" -> DoneToDo, "FIXED" -> DoneToDo, "DONE" -> DoneToDo)
 
-/**
- * Write the GettingThingsDone document to disk, optionally providing git
- * commands to check in the changes.
- *
- * @param gtd The document to write to disk
- * @param gitStatus The git status message to use, or none if no suggestion
- *                  should be made.
- */
-private def writeGtd(gtd: GettingThingsDone, gitStatus:Option[String] = None): Unit = {
+/** Write the GettingThingsDone document to disk, optionally providing git
+  * commands to check in the changes.
+  *
+  * @param gtd
+  *   The document to write to disk
+  * @param gitStatus
+  *   The git status message to use, or none if no suggestion should be made.
+  */
+private def writeGtd(
+    gtd: GettingThingsDone,
+    gitStatus: Option[String] = None
+): Unit = {
   os.write.over(StatusFile, ProjectParserCfg.clean(gtd.h0).build().toString)
-  gitStatus.map(msg =>
-    s"""${GREEN}Commit:$RESET
+  gitStatus
+    .map(msg => s"""${GREEN}Commit:$RESET
        |  git -C $StatusRepo add ${StatusFile.relativeTo(StatusRepo)} &&
        |      git -C $StatusRepo difftool --staged
        |  git -C $StatusRepo add ${StatusFile.relativeTo(StatusRepo)} &&
        |      git -C $StatusRepo commit -m $BOLD"$msg"$RESET
-       |""".stripMargin).foreach(println)
+       |""".stripMargin)
+    .foreach(println)
 }
 
 object ProjectParserCfg extends ParserCfg {
@@ -86,7 +90,7 @@ object ProjectParserCfg extends ParserCfg {
   /** Group JIRA together by the project. */
   override def linkSorter(): PartialFunction[LinkRef, (String, LinkRef)] = {
     case LinkRef(LinkRef.JiraLinkRefRegex(prj, num), None, title)
-      if Projects.contains(prj.toLowerCase) =>
+        if Projects.contains(prj.toLowerCase) =>
       (
         f"${prj.toUpperCase}-$num%9s",
         LinkRef(
@@ -97,10 +101,10 @@ object ProjectParserCfg extends ParserCfg {
           title
         )
       )
-    case l@LinkRef(LinkRef.JiraLinkRefRegex(prj, num), _, _) =>
+    case l @ LinkRef(LinkRef.JiraLinkRefRegex(prj, num), _, _) =>
       (f"${prj.toUpperCase}-$num%9s", l)
     case LinkRef(LinkRef.GithubPrLinkRefRegex(prj, num), None, title)
-      if Projects.contains(prj.toLowerCase) =>
+        if Projects.contains(prj.toLowerCase) =>
       (
         f"${prj.toUpperCase}-PR$num%9s",
         LinkRef(
@@ -111,7 +115,7 @@ object ProjectParserCfg extends ParserCfg {
           title
         )
       )
-    case l@LinkRef(LinkRef.GithubPrLinkRefRegex(prj, num), _, _) =>
+    case l @ LinkRef(LinkRef.GithubPrLinkRefRegex(prj, num), _, _) =>
       (f"${prj.toUpperCase}-PR$num%9s", l)
   }
 }
@@ -142,12 +146,14 @@ def help(): Unit = {
        |""".stripMargin)
 }
 
-
 @arg(doc = "Clean the existing document")
 @main
 def clean(): Unit = {
   // Read and overwrite the existing document without making any changes.
-  writeGtd(GettingThingsDone(os.read(StatusFile), ProjectParserCfg), Some("feat(status): Beautify the document"))
+  writeGtd(
+    GettingThingsDone(os.read(StatusFile), ProjectParserCfg),
+    Some("feat(status): Beautify the document")
+  )
 }
 
 @arg(doc = "Open the document in an editor")
@@ -157,7 +163,7 @@ def edit(): Unit = {
     "code",
     "--new-window",
     StatusFile.toString()
-  ).call(StatusRepo )
+  ).call(StatusRepo)
 }
 
 @arg(doc = "Add a new week")
@@ -175,14 +181,14 @@ def newWeek(): Unit = {
           .copy(title = nextWeekStart(Some(week.title)))
           .replaceIn() {
             // Copy the Stats table, but empty out any values in the rows.
-            case (Some(tb : Table), _) if tb.title == TableStats =>
+            case (Some(tb: Table), _) if tb.title == TableStats =>
               Seq(tb.replaceIn() {
                 case (Some(TableRow(cells)), row)
                     if row > 0 && cells.size > 1 =>
                   Seq(TableRow.from(cells.head))
               })
             // Copy the To Do table, but remove any done elements.
-            case (Some(tb : Table), _) if tb.title == TableToDo =>
+            case (Some(tb: Table), _) if tb.title == TableToDo =>
               Seq(tb.replaceIn() {
                 case (Some(TableRow(Seq(taskText, _*))), row)
                     if row > 0 && taskText.startsWith(DoneToDo.txt) =>
@@ -198,7 +204,7 @@ def newWeek(): Unit = {
     oldWeek
       .replaceIn() {
         // Copy the To Do table, but update all Later tasks.
-        case (Some(tb : Table), _) if tb.title == TableToDo =>
+        case (Some(tb: Table), _) if tb.title == TableToDo =>
           Seq(tb.replaceIn() {
             case (Some(TableRow(cells @ Seq(taskText, _*))), row)
                 if row > 0 && taskText.startsWith(MaybeToDo.txt) =>
@@ -219,13 +225,21 @@ def newWeek(): Unit = {
     val headWeek = createHead(weeklies.mds.collectFirst {
       case h2 @ Header(_, 2, _) => h2
     })
-    weeklies.flatMapFirstIn(ifNotFound = headWeek +: weeklies.mds, replace=true) {
+    weeklies.flatMapFirstIn(
+      ifNotFound = headWeek +: weeklies.mds,
+      replace = true
+    ) {
       case h2 @ Header(_, 2, _) if h2 != headWeek =>
         Seq(headWeek, updateLastHead(h2))
     }
   }
 
-  writeGtd(newDoc, Some(s"feat(status): Add new week ${newDoc.topWeek.map(_.title).getOrElse("")}"))
+  writeGtd(
+    newDoc,
+    Some(
+      s"feat(status): Add new week ${newDoc.topWeek.map(_.title).getOrElse("")}"
+    )
+  )
 }
 
 @arg(doc = "Start working on a new PR")
@@ -272,7 +286,12 @@ def pr(
       TextToToDoStates.getOrElse(status, MaybeToDo)
     )
 
-  writeGtd(newDoc, Some(s"feat(status): PR ${fullJira.orElse(fullPr).getOrElse("")} $description"))
+  writeGtd(
+    newDoc,
+    Some(
+      s"feat(status): PR ${fullJira.orElse(fullPr).getOrElse("")} $description"
+    )
+  )
 }
 
 @arg(doc = "Update a statistic in a table, typically for the day of the week")
@@ -304,7 +323,10 @@ def statsToday(
     (gtd: GettingThingsDone, list: Seq[String]) =>
       gtd.updateTopWeekStats(list.head, list.tail.headOption.getOrElse(""))
   }
-  writeGtd(newDoc, Some(s"feat(status): Update ${stats.grouped(2).map(_.head).mkString(",")}"))
+  writeGtd(
+    newDoc,
+    Some(s"feat(status): Update ${stats.grouped(2).map(_.head).mkString(",")}")
+  )
 }
 
 @arg(doc = "Update the daily statistics.")

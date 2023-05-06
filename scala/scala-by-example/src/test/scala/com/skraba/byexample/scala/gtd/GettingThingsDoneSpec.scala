@@ -71,8 +71,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
   describe(s"Creating a document with a config section") {
 
     it("should be readable and self-formatting") {
-      GettingThingsDone(
-        s"""Weekly Status
+      GettingThingsDone(s"""Weekly Status
            !==============================================================================
            !
            !<!-- $CommentConfig
