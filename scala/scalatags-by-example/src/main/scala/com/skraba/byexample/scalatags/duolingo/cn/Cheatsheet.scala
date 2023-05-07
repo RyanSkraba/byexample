@@ -241,7 +241,7 @@ object Cheatsheet {
       .safeSlurp()
       .getOrElse {
         val html = Source.fromURL(
-          "https://raw.githubusercontent.com/anki-decks/anki-deck-for-duolingo-chinese/master/words.tsv"
+          "https://raw.githubusercontent.com/RyanSkraba/anki-deck-for-duolingo-chinese/master/words.tsv"
         )
         // There a minor adjustment to make with one line!
         val raw = html.mkString.replaceAllLiterally("\"\n", "\"")
