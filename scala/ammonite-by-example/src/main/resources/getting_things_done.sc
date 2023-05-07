@@ -170,7 +170,7 @@ def edit(): Unit = {
 @main
 def newWeek(): Unit = {
   // Read the existing document.
-  val doc = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
+  val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
 
   /** Create the new head week from the last week, if any is present. */
   def createHead(oldWeek: Option[Header]): Header = {
@@ -221,7 +221,7 @@ def newWeek(): Unit = {
   }
 
   // Add the new head week to the weekly statuses.
-  val newDoc = doc.updateWeeklies { weeklies =>
+  val gtdUpdated = gtd.updateWeeklies { weeklies =>
     val headWeek = createHead(weeklies.mds.collectFirst {
       case h2 @ Header(_, 2, _) => h2
     })
@@ -235,9 +235,9 @@ def newWeek(): Unit = {
   }
 
   writeGtd(
-    newDoc,
+    gtdUpdated,
     Some(
-      s"feat(status): Add new week ${newDoc.topWeek.map(_.title).getOrElse("")}"
+      s"feat(status): Add new week ${gtdUpdated.topWeek.map(_.title).getOrElse("")}"
     )
   )
 }
@@ -257,7 +257,7 @@ def pr(
     status: String = "TOREVIEW"
 ): Unit = {
   // Read the existing document.
-  val doc = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
+  val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
 
   // The reference and task snippets to add to the file.
   val fullJira = if (jira != 0) Some(s"${prj.toUpperCase}-$jira") else None
@@ -270,7 +270,7 @@ def pr(
     case (None, None)                 => ""
   }
 
-  val docWithLinks = doc.updateHeader1("References") { refSection =>
+  val gtdWithLinks = gtd.updateHeader1("References") { refSection =>
     // Add the two JIRA to the weekly status section.  Their URLs will be filled in
     // automatically on cleanup.
     refSection.copyMds(
@@ -279,15 +279,15 @@ def pr(
     )
   }
 
-  val newDoc =
-    docWithLinks.addTopWeekToDo(
+  val gtdUpdated =
+    gtdWithLinks.addTopWeekToDo(
       prjPretty,
       s"$task $description `$status`",
       TextToToDoStates.getOrElse(status, MaybeToDo)
     )
 
   writeGtd(
-    newDoc,
+    gtdUpdated,
     Some(
       s"feat(status): PR ${fullJira.orElse(fullPr).getOrElse("")} $description"
     )
@@ -305,10 +305,10 @@ def stat(
     date: Option[String] = None
 ): Unit = {
   // Read the existing document.
-  val doc = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
+  val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
   // TODO: If date is in a YYYY/MM/DD format, then to the correct date
-  val newDoc = doc.updateTopWeekStats(rowStat, cell, date)
-  writeGtd(newDoc, Some(s"feat(status): Update $rowStat"))
+  val gtdUpdated = gtd.updateTopWeekStats(rowStat, cell, date)
+  writeGtd(gtdUpdated, Some(s"feat(status): Update $rowStat"))
 }
 
 @arg(doc = "Update many statistics for today.")
@@ -318,13 +318,13 @@ def statsToday(
     stats: String*
 ): Unit = {
   // Read the existing document.
-  val doc = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
-  val newDoc = stats.grouped(2).foldLeft(doc) {
-    (gtd: GettingThingsDone, list: Seq[String]) =>
-      gtd.updateTopWeekStats(list.head, list.tail.headOption.getOrElse(""))
+  val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
+  val gtdUpdated = stats.grouped(2).foldLeft(gtd) {
+    (acc: GettingThingsDone, list: Seq[String]) =>
+      acc.updateTopWeekStats(list.head, list.tail.headOption.getOrElse(""))
   }
   writeGtd(
-    newDoc,
+    gtdUpdated,
     Some(s"feat(status): Update ${stats.grouped(2).map(_.head).mkString(",")}")
   )
 }
@@ -379,9 +379,9 @@ def statExtract(
     rowStat: String
 ): Unit = {
   // Read the existing document.
-  val doc = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
+  val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
   println("date,value")
-  for ((date, value) <- doc.extractStats(rowStat))
+  for ((date, value) <- gtd.extractStats(rowStat))
     println(s"$date,$value")
 }
 
@@ -392,8 +392,8 @@ def week(
     week: Option[String] = None
 ): Unit = {
   // Read the existing document.
-  val doc = Header.parse(os.read(StatusFile), ProjectParserCfg)
-  val topWeek: Seq[Markd] = doc.mds.flatMap {
+  val gtd = Header.parse(os.read(StatusFile), ProjectParserCfg)
+  val topWeek: Seq[Markd] = gtd.mds.flatMap {
     case h @ Header(title, 1, _) if title.startsWith(H1Weeklies) =>
       h.mds.find {
         case Header(title, 2, _)
