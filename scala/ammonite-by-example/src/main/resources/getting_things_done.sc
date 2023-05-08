@@ -74,6 +74,8 @@ private def writeGtd(
     gtd: GettingThingsDone,
     gitStatus: Option[String] = None
 ): Unit = {
+  val before = os.read(StatusFile)
+
   os.write.over(StatusFile, ProjectParserCfg.clean(gtd.h0).build().toString)
   gitStatus
     .map(msg => s"""${GREEN}Commit:$RESET
@@ -87,9 +89,16 @@ private def writeGtd(
   // Some debugging for when an emoji is overwritten unexpectedly
   val written = os.read(StatusFile)
   if (written.contains("??")) {
-    println(
-      s"""${RED_B}Warning:$RESET
+    println(s"""${RED_B}Warning:$RESET
        |  The file was written with an unexpected ?? replacement""".stripMargin)
+
+    if (before.contains("??"))
+      println(s"""${RED_B}Warning:$RESET
+           |  The file already contained the characters""".stripMargin)
+
+    if (gtd.h0.build().toString.contains("??"))
+      println(s"""${RED_B}Warning:$RESET
+           |  The modified doc contains the characters""".stripMargin)
   }
 }
 
