@@ -83,6 +83,14 @@ private def writeGtd(
        |      git -C $StatusRepo commit -m $BOLD"$msg"$RESET
        |""".stripMargin)
     .foreach(println)
+
+  // Some debugging for when an emoji is overwritten unexpectedly
+  val written = os.read(StatusFile)
+  if (written.contains("??")) {
+    println(
+      s"""${RED_B}Warning:$RESET
+       |  The file was written with an unexpected ?? replacement""".stripMargin)
+  }
 }
 
 object ProjectParserCfg extends ParserCfg {
