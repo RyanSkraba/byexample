@@ -334,9 +334,17 @@ def statsToday(
     @arg(doc = "Key/value list of statistics to be updated")
     stats: String*
 ): Unit = {
+  // Group the stats by two, and print them
+  val groupedStats = stats.grouped(2).toSeq
+  val maxKeySize = groupedStats.map(_.head.length).max + 1
+  groupedStats.foreach {
+    case Seq(k, v) => printf(s"$MAGENTA%${maxKeySize}s$RESET: %s\n", k, v)
+    case Seq(k)    => printf(s"$MAGENTA%${maxKeySize}s$RESET:\n", k)
+  }
+
   // Read the existing document.
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
-  val gtdUpdated = stats.grouped(2).foldLeft(gtd) {
+  val gtdUpdated = groupedStats.foldLeft(gtd) {
     (acc: GettingThingsDone, list: Seq[String]) =>
       acc.updateTopWeekStats(list.head, list.tail.headOption.getOrElse(""))
   }
