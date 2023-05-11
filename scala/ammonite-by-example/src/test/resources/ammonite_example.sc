@@ -336,10 +336,12 @@ def gitRewriteDate(
     case _ =>
       val attempts = Formatters.toStream.map(fmt => {
         val attempt = Try { LocalDateTime.parse(cmd, fmt._2) }
-        if (attempt.isSuccess)
-          println(s"${GREEN}Succeeded parsing ${fmt._1}\n")
-        else
-          println(s"${RED}Failure trying ${fmt._1}")
+        if (verbose.value) {
+          if (attempt.isSuccess)
+            println(s"${GREEN}Succeeded parsing ${fmt._1}\n")
+          else
+            println(s"${RED}Failure trying ${fmt._1}")
+        }
         attempt
       })
       attempts.find(_.isSuccess).map(_.get).getOrElse { attempts.head.get }
