@@ -178,11 +178,11 @@ case class CherryPickerReport(
       }
       .mapFirstIn(ifNotFound = Header(1, "Left")) {
         case h1: Header if h1.title == "Left" =>
-          addTableOfCommits(h1, left, rightSubjects)
+          addTableOfCommits(h1, left.reverse, rightSubjects)
       }
       .mapFirstIn(ifNotFound = Header(1, "Right")) {
         case h1: Header if h1.title == "Right" =>
-          addTableOfCommits(h1, right, leftSubjects)
+          addTableOfCommits(h1, right.reverse, leftSubjects)
       }
       .mapFirstIn(ifNotFound = Header(1, "References")) {
         case h1: Header if h1.title == "References" =>
