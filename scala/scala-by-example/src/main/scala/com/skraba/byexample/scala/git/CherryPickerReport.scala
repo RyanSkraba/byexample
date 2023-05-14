@@ -55,9 +55,11 @@ case class CherryPickerReport(
     .get(cmt.subject)
     .flatMap(_.headOption)
     .map(cmt2 =>
-      if (refersTo(cmt2.commit, row(2))) row
+      if (refersTo(cmt2.commit, row(2)))
+        row
       else
-        row.updated(2, row(2) + s" [${cmt2.commit.take(CommitHashSize)}]")
+        row
+          .updated(2, "🔵" + row(2) + s" [${cmt2.commit.take(CommitHashSize)}]")
     )
     .getOrElse(row)
 
