@@ -14,6 +14,7 @@
 import mainargs.{arg, main}
 
 import scala.io.AnsiColor._
+import scala.util.matching.Regex
 
 interp.repositories() ++= {
   // Get the local Maven repository.
@@ -104,9 +105,15 @@ private def writeGtd(
 
 object ProjectParserCfg extends ParserCfg {
 
+  /** Regex used to find Jira-style link references. */
+  val JiraLinkRefRegex: Regex = raw"(\S+)-(\d+)".r
+
+  /** Regex used to find Github PR-style link references. */
+  val GithubPrLinkRefRegex: Regex = raw"(\S+)\s+PR#(\d+)".r
+
   /** Group JIRA together by the project. */
   override def linkSorter(): PartialFunction[LinkRef, (String, LinkRef)] = {
-    case LinkRef(LinkRef.JiraLinkRefRegex(prj, num), None, title)
+    case LinkRef(JiraLinkRefRegex(prj, num), None, title)
         if Projects.contains(prj.toLowerCase) =>
       (
         f"${prj.toUpperCase}-$num%9s",
@@ -118,9 +125,9 @@ object ProjectParserCfg extends ParserCfg {
           title
         )
       )
-    case l @ LinkRef(LinkRef.JiraLinkRefRegex(prj, num), _, _) =>
+    case l @ LinkRef(JiraLinkRefRegex(prj, num), _, _) =>
       (f"${prj.toUpperCase}-$num%9s", l)
-    case LinkRef(LinkRef.GithubPrLinkRefRegex(prj, num), None, title)
+    case LinkRef(GithubPrLinkRefRegex(prj, num), None, title)
         if Projects.contains(prj.toLowerCase) =>
       (
         f"${prj.toUpperCase}-PR$num%9s",
@@ -132,7 +139,7 @@ object ProjectParserCfg extends ParserCfg {
           title
         )
       )
-    case l @ LinkRef(LinkRef.GithubPrLinkRefRegex(prj, num), _, _) =>
+    case l @ LinkRef(GithubPrLinkRefRegex(prj, num), _, _) =>
       (f"${prj.toUpperCase}-PR$num%9s", l)
   }
 }
@@ -262,7 +269,7 @@ def newWeek(): Unit = {
 @arg(doc = "Start working on a new PR")
 @main
 def pr(
-    @arg(doc = "The JIRA tag for the project")
+    @arg(doc = "The tag for the project")
     prj: String,
     @arg(doc = "The PR number being worked on")
     prNum: Int,

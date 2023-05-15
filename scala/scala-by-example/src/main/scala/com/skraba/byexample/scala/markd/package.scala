@@ -179,12 +179,6 @@ package object markd {
           $$
           """.r
 
-    /** Regex used to find Jira-style link references. */
-    val JiraLinkRefRegex: Regex = raw"(\S+)-(\d+)".r
-
-    /** Regex used to find Github PR-style link references. */
-    val GithubPrLinkRefRegex: Regex = raw"(\S+)\s+PR#(\d+)".r
-
     def apply(ref: String, url: String): LinkRef = LinkRef(ref, Some(url), None)
 
     def apply(ref: String, url: String, title: String): LinkRef =
