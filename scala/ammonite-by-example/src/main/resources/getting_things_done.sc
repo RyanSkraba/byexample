@@ -106,17 +106,17 @@ private def writeGtd(
 object ProjectParserCfg extends ParserCfg {
 
   /** Regex used to find Jira-style link references. */
-  val JiraLinkRefRegex: Regex = raw"(\S+)-(\d+)".r
+  val JiraLinkRefRegex: Regex = raw"^(\S+)-([^-]+)$$".r
 
   /** Regex used to find Github PR-style link references. */
-  val GithubPrLinkRefRegex: Regex = raw"(\S+)\s+PR#(\d+)".r
+  val GithubPrLinkRefRegex: Regex = raw"(\S+)\s+PR#(\w+)".r
 
   /** Group JIRA together by the project. */
   override def linkSorter(): PartialFunction[LinkRef, (String, LinkRef)] = {
     case LinkRef(JiraLinkRefRegex(prj, num), None, title)
         if Projects.contains(prj.toLowerCase) =>
       (
-        f"${prj.toUpperCase}-$num%9s",
+        f"${prj.toUpperCase}-0 $num%9s",
         LinkRef(
           s"${prj.toUpperCase}-$num",
           Some(
@@ -126,11 +126,11 @@ object ProjectParserCfg extends ParserCfg {
         )
       )
     case l @ LinkRef(JiraLinkRefRegex(prj, num), _, _) =>
-      (f"${prj.toUpperCase}-$num%9s", l)
+      (f"${prj.toUpperCase}-0 $num%9s", l)
     case LinkRef(GithubPrLinkRefRegex(prj, num), None, title)
         if Projects.contains(prj.toLowerCase) =>
       (
-        f"${prj.toUpperCase}-PR$num%9s",
+        f"${prj.toUpperCase}-1 $num%9s",
         LinkRef(
           s"${prj.toLowerCase.capitalize} PR#$num",
           Some(
@@ -140,7 +140,7 @@ object ProjectParserCfg extends ParserCfg {
         )
       )
     case l @ LinkRef(GithubPrLinkRefRegex(prj, num), _, _) =>
-      (f"${prj.toUpperCase}-PR$num%9s", l)
+      (f"${prj.toUpperCase}-1 $num%9s", l)
   }
 }
 
@@ -272,9 +272,9 @@ def pr(
     @arg(doc = "The tag for the project")
     prj: String,
     @arg(doc = "The PR number being worked on")
-    prNum: Int,
+    prNum: String,
     @arg(doc = "The corresponding JIRA number being worked on")
-    jira: Int,
+    jira: String,
     @arg(doc = "A short description for the PR")
     description: String,
     @arg(doc = "The status of the work on the PR")
@@ -284,9 +284,9 @@ def pr(
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
 
   // The reference and task snippets to add to the file.
-  val fullJira = if (jira != 0) Some(s"${prj.toUpperCase}-$jira") else None
+  val fullJira = if (jira != "0" && jira != "") Some(s"${prj.toUpperCase}-$jira") else None
   val prjPretty = prj.toLowerCase.capitalize
-  val fullPr = if (prNum != 0) Some(s"$prjPretty PR#$prNum") else None
+  val fullPr = if (prNum != "0" && prNum != "") Some(s"$prjPretty PR#$prNum") else None
   val task = (fullJira, fullPr) match {
     case (Some(refJira), Some(refPr)) => s"**[$refJira]**:[$refPr]"
     case (Some(refJira), None)        => s"**[$refJira]**"
