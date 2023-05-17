@@ -109,7 +109,7 @@ object ProjectParserCfg extends ParserCfg {
   val JiraLinkRefRegex: Regex = raw"^(\S+)-([^-]+)$$".r
 
   /** Regex used to find Github PR-style link references. */
-  val GithubPrLinkRefRegex: Regex = raw"(\S+)\s+PR#(\w+)".r
+  val GithubPrLinkRefRegex: Regex = raw"^([^/]+/[^/]+)#(\d+)$$".r
 
   /** Group JIRA together by the project. */
   override def linkSorter(): PartialFunction[LinkRef, (String, LinkRef)] = {
@@ -132,7 +132,7 @@ object ProjectParserCfg extends ParserCfg {
       (
         f"${prj.toUpperCase}-1 $num%9s",
         LinkRef(
-          s"${prj.toLowerCase.capitalize} PR#$num",
+          s"${prj.toLowerCase}#$num",
           Some(
             s"https://github.com/apache/${prj.toLowerCase}/pull/$num"
           ),
@@ -285,8 +285,7 @@ def pr(
 
   // The reference and task snippets to add to the file.
   val fullJira = if (jira != "0" && jira != "") Some(s"${prj.toUpperCase}-$jira") else None
-  val prjPretty = prj.toLowerCase.capitalize
-  val fullPr = if (prNum != "0" && prNum != "") Some(s"$prjPretty PR#$prNum") else None
+  val fullPr = if (prNum != "0" && prNum != "") Some(s"apache/${prj.toLowerCase}#$prNum") else None
   val task = (fullJira, fullPr) match {
     case (Some(refJira), Some(refPr)) => s"**[$refJira]**:[$refPr]"
     case (Some(refJira), None)        => s"**[$refJira]**"
@@ -305,7 +304,7 @@ def pr(
 
   val gtdUpdated =
     gtdWithLinks.addTopWeekToDo(
-      prjPretty,
+      prj.toLowerCase.capitalize,
       s"$task $description `$status`",
       TextToToDoStates.getOrElse(status, MaybeToDo)
     )

@@ -57,14 +57,14 @@ import scala.util.Try
   * 2021/09/13
   * ------------------------------------------------------------------------------
   *
-  * | To Do      | Notes 🟢🔶🟥⤴️🕒                                            |
-  * |------------|-------------------------------------------------------------|
-  * | 🟢Tech     | **Did the thing** and some notes                            |
-  * | 🔶Health   | **Ready to take** or paused, or to think about            |
-  * | 🟥Personal | **Won't do** and here's why                                 |
-  * | ⤴Personal | **Read Getting Things Done Chapter 4/12** Moved to later    |
-  * | 🕒Proj      | **[PROJ-1234]**:[Proj PR#4321] Fix all the things `WAITING` |
-  * | Pro        | **Another task** With some [details][YYYYMMDD-1]            |
+  * | To Do      | Notes 🟢🔶🟥⤴️🕒                                             |
+  * |------------|--------------------------------------------------------------|
+  * | 🟢Tech     | **Did the thing** and some notes                             |
+  * | 🔶Health   | **Ready to take** or paused, or to think about             |
+  * | 🟥Personal | **Won't do** and here's why                                  |
+  * | ⤴Personal | **Read Getting Things Done Chapter 4/12** Moved to later     |
+  * | 🕒Proj      | **[PROJ-1234]**:[org/proj#4321] Fix all the things `WAITING` |
+  * | Pro        | **Another task** With some [details][YYYYMMDD-1]             |
   * }}}
   */
 case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
@@ -385,7 +385,7 @@ object GettingThingsDone {
       )
       .addTopWeekToDo(
         "Proj",
-        "**[PROJ-1234]**:[Proj PR#4321] Fix all the things `WAITING`",
+        "**[PROJ-1234]**:[org/proj#4321] Fix all the things `WAITING`",
         state = WaitingToDo
       )
       .addTopWeekToDo(
