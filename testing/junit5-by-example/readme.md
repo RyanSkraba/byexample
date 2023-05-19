@@ -3,7 +3,7 @@ JUnit5 by example
 
 [JUnit5][Home] is a testing framework for Java.
 
-️🏠[JUnit5][Home] 📓[Github] 🚩[Issues] 🧑‍🤝‍🧑[People] 📚[Wiki]
+️🏠[JUnit5][Home] 📓[GitHub] 🚩[Issues] 🧑‍🤝‍🧑[People] 📚[Wiki]
 
 | How do I...          | Examples                                                                                              |
 |----------------------|-------------------------------------------------------------------------------------------------------|
@@ -15,7 +15,7 @@ JUnit5 by example
   - https://www.baeldung.com/parameterized-tests-junit-5
 
 [Home]: https://junit.org/junit5/
-[Github]: https://github.com/junit-team/junit5
+[GitHub]: https://github.com/junit-team/junit5
 [Issues]: https://github.com/junit-team/junit5/issues
 [People]: https://github.com/junit-team/junit5/graphs/contributors
 [Wiki]: https://github.com/junit-team/junit5/wiki

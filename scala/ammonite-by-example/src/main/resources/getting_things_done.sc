@@ -106,10 +106,10 @@ private def writeGtd(
 object ProjectParserCfg extends ParserCfg {
 
   /** Regex used to find Jira-style link references. */
-  val JiraLinkRefRegex: Regex = raw"^(\S+)-([^-]+)$$".r
+  val JiraLinkRefRegex: Regex = "^(\\S+)-([^-]+)$$".r
 
-  /** Regex used to find Github PR-style link references. */
-  val GithubPrLinkRefRegex: Regex = raw"^([^/]+/[^/]+)#(\d+)$$".r
+  /** Regex used to find GitHub PR-style link references. */
+  val GitHubLinkRefRegex: Regex = "^([^/]+/[^/]+)#(\\d+)$$".r
 
   /** Group JIRA together by the project. */
   override def linkSorter(): PartialFunction[LinkRef, (String, LinkRef)] = {
@@ -127,7 +127,7 @@ object ProjectParserCfg extends ParserCfg {
       )
     case l @ LinkRef(JiraLinkRefRegex(prj, num), _, _) =>
       (f"${prj.toUpperCase}-0 $num%9s", l)
-    case LinkRef(GithubPrLinkRefRegex(prj, num), None, title)
+    case LinkRef(GitHubLinkRefRegex(prj, num), None, title)
         if Projects.contains(prj.toLowerCase) =>
       (
         f"${prj.toUpperCase}-1 $num%9s",
@@ -139,7 +139,7 @@ object ProjectParserCfg extends ParserCfg {
           title
         )
       )
-    case l @ LinkRef(GithubPrLinkRefRegex(prj, num), _, _) =>
+    case l @ LinkRef(GitHubLinkRefRegex(prj, num), _, _) =>
       (f"${prj.toUpperCase}-1 $num%9s", l)
   }
 }

@@ -6,7 +6,7 @@ Lanterna builds better xterm applications.
 Resources
 ------------------------------------------------------------------------------
 
-* [Github](https://github.com/mabe02/lanterna).
+* [GitHub](https://github.com/mabe02/lanterna).
 
 Running the launcher
 ------------------------------------------------------------------------------
