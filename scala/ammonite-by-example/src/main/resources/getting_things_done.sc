@@ -49,15 +49,18 @@ val StatusFile: os.Path = sys.env
   .map(os.Path(_))
   .getOrElse(StatusRepo / "todo" / "status.md")
 
-/** The list of apache projects. */
-val Projects: Map[String, Int] = Map(
-  "avro" -> 1, // TODO: These will be replaced with project-specific info
-  "beam" -> 1,
-  "flink" -> 1,
-  "parquet" -> 1,
-  "pulsar" -> 1,
-  "spark" -> 1
-);
+
+/** Store projects in a configurable JSON object. */
+private[this] val ProjectsJson: String = sys.env
+  .getOrElse(s"${StatusTag}_PROJECTS",
+    """{ "avro": 1,
+      |  "beam": 1,
+      |  "flink": 1,
+      |  "parquet": 1,
+      |  "spark": 1
+      |}""".stripMargin)
+val Projects: ujson.Obj = ujson.read(ProjectsJson).obj
+// TODO: replace the contents with project-specific info
 
 /** Some text that maps to to do task states */
 val TextToToDoStates: Map[String, GettingThingsDone.ToDoState] =
@@ -114,7 +117,7 @@ object ProjectParserCfg extends ParserCfg {
   /** Group JIRA together by the project. */
   override def linkSorter(): PartialFunction[LinkRef, (String, LinkRef)] = {
     case LinkRef(JiraLinkRefRegex(prj, num), None, title)
-        if Projects.contains(prj.toLowerCase) =>
+        if Projects.value.contains(prj.toLowerCase) =>
       (
         f"${prj.toUpperCase}-0 $num%9s",
         LinkRef(
@@ -128,7 +131,7 @@ object ProjectParserCfg extends ParserCfg {
     case l @ LinkRef(JiraLinkRefRegex(prj, num), _, _) =>
       (f"${prj.toUpperCase}-0 $num%9s", l)
     case LinkRef(GitHubLinkRefRegex(prj, num), None, title)
-        if Projects.contains(prj.toLowerCase) =>
+        if Projects.value.contains(prj.toLowerCase) =>
       (
         f"${prj.toUpperCase}-1 $num%9s",
         LinkRef(
