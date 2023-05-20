@@ -53,11 +53,12 @@ val StatusFile: os.Path = sys.env
 /** Store projects in a configurable JSON object. */
 private[this] val ProjectsJson: String = sys.env
   .getOrElse(s"${StatusTag}_PROJECTS",
-    """{ "avro": 1,
-      |  "beam": 1,
-      |  "flink": 1,
-      |  "parquet": 1,
-      |  "spark": 1
+    """{ "avro": {"ghRepo": "apache/avro", "jira": "AVRO"},
+      |  "beam": {"ghRepo": "apache/avro", "jira": "BEAM"},
+      |  "flink": {"ghRepo": "apache/flink", "jira": "FLINK"},
+      |  "flink-web": {"ghRepo": "apache/flink-web", "jira": "FLINK"},
+      |  "parquet-mr": {"ghRepo": "apache/parquet-mr", "jira": "PARQUET"},
+      |  "spark": {"ghRepo": "apache/spark", "jira": "SPARK"}
       |}""".stripMargin)
 val Projects: ujson.Obj = ujson.read(ProjectsJson).obj
 // TODO: replace the contents with project-specific info
@@ -109,7 +110,7 @@ private def writeGtd(
 object ProjectParserCfg extends ParserCfg {
 
   /** Regex used to find Jira-style link references. */
-  val JiraLinkRefRegex: Regex = "^(\\S+)-([^-]+)$$".r
+  val JiraLinkRefRegex: Regex = "^(\\S+)-(\\d+)$$".r
 
   /** Regex used to find GitHub PR-style link references. */
   val GitHubLinkRefRegex: Regex = "^([^/]+/[^/]+)#(\\d+)$$".r
@@ -119,7 +120,7 @@ object ProjectParserCfg extends ParserCfg {
     case LinkRef(JiraLinkRefRegex(prj, num), None, title)
         if Projects.value.contains(prj.toLowerCase) =>
       (
-        f"${prj.toUpperCase}-0 $num%9s",
+        f"0 ${prj.toUpperCase}-0 $num%9s",
         LinkRef(
           s"${prj.toUpperCase}-$num",
           Some(
@@ -129,11 +130,11 @@ object ProjectParserCfg extends ParserCfg {
         )
       )
     case l @ LinkRef(JiraLinkRefRegex(prj, num), _, _) =>
-      (f"${prj.toUpperCase}-0 $num%9s", l)
+      (f"1 ${prj.toUpperCase}-0 $num%9s", l)
     case LinkRef(GitHubLinkRefRegex(prj, num), None, title)
         if Projects.value.contains(prj.toLowerCase) =>
       (
-        f"${prj.toUpperCase}-1 $num%9s",
+        f"0 ${prj.toUpperCase}-1 $num%9s",
         LinkRef(
           s"${prj.toLowerCase}#$num",
           Some(
@@ -143,7 +144,10 @@ object ProjectParserCfg extends ParserCfg {
         )
       )
     case l @ LinkRef(GitHubLinkRefRegex(prj, num), _, _) =>
-      (f"${prj.toUpperCase}-1 $num%9s", l)
+      (f"1 ${prj.toUpperCase}-1 $num%9s", l)
+    case l =>
+    // All non matching links are sent to the bottom
+      (s"2 ${l.ref}", l)
   }
 }
 
