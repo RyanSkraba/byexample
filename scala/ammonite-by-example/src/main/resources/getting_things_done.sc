@@ -11,7 +11,7 @@
   *   - upickle (https://github.com/lihaoyi/upickle)
   */
 
-import mainargs.{arg, main}
+import mainargs.{Flag, arg, main}
 
 import scala.io.AnsiColor._
 import scala.util.matching.Regex
@@ -49,17 +49,18 @@ val StatusFile: os.Path = sys.env
   .map(os.Path(_))
   .getOrElse(StatusRepo / "todo" / "status.md")
 
-
 /** Store projects in a configurable JSON object. */
 private[this] val ProjectsJson: String = sys.env
-  .getOrElse(s"${StatusTag}_PROJECTS",
+  .getOrElse(
+    s"${StatusTag}_PROJECTS",
     """{ "avro": {"ghRepo": "apache/avro", "jira": "AVRO"},
       |  "beam": {"ghRepo": "apache/avro", "jira": "BEAM"},
       |  "flink": {"ghRepo": "apache/flink", "jira": "FLINK"},
       |  "flink-web": {"ghRepo": "apache/flink-web", "jira": "FLINK"},
       |  "parquet-mr": {"ghRepo": "apache/parquet-mr", "jira": "PARQUET"},
       |  "spark": {"ghRepo": "apache/spark", "jira": "SPARK"}
-      |}""".stripMargin)
+      |}""".stripMargin
+  )
 val Projects: ujson.Obj = ujson.read(ProjectsJson).obj
 // TODO: replace the contents with project-specific info
 
@@ -74,14 +75,20 @@ val TextToToDoStates: Map[String, GettingThingsDone.ToDoState] =
   *   The document to write to disk
   * @param gitStatus
   *   The git status message to use, or none if no suggestion should be made.
+  * @param compressTable
+  *   Apply table compression to the document.
   */
 private def writeGtd(
     gtd: GettingThingsDone,
-    gitStatus: Option[String] = None
+    gitStatus: Option[String] = None,
+    compressTable: Boolean = false
 ): Unit = {
   val before = os.read(StatusFile)
 
-  os.write.over(StatusFile, ProjectParserCfg.clean(gtd.h0).build().toString)
+  val asText = ProjectParserCfg.clean(gtd.h0).build().toString
+  val after = if (compressTable) asText.replaceAll(" +( \\|)", "$1") else asText
+
+  os.write.over(StatusFile, after)
   gitStatus
     .map(msg => s"""${GREEN}Commit:$RESET
        |  git -C $StatusRepo add ${StatusFile.relativeTo(StatusRepo)} &&
@@ -96,6 +103,12 @@ private def writeGtd(
   if (written.contains("??")) {
     println(s"""${RED_B}Warning:$RESET
        |  The file was written with an unexpected ?? replacement""".stripMargin)
+
+    if (after.contains("??"))
+      println(
+        s"""${RED_B}Warning:$RESET
+           |  The text already contained the characters before writing the file""".stripMargin
+      )
 
     if (before.contains("??"))
       println(s"""${RED_B}Warning:$RESET
@@ -146,7 +159,7 @@ object ProjectParserCfg extends ParserCfg {
     case l @ LinkRef(GitHubLinkRefRegex(prj, num), _, _) =>
       (f"1 ${prj.toUpperCase}-1 $num%9s", l)
     case l =>
-    // All non matching links are sent to the bottom
+      // All non matching links are sent to the bottom
       (s"2 ${l.ref}", l)
   }
 }
@@ -179,11 +192,12 @@ def help(): Unit = {
 
 @arg(doc = "Clean the existing document")
 @main
-def clean(): Unit = {
+def clean(compress: Flag): Unit = {
   // Read and overwrite the existing document without making any changes.
   writeGtd(
     GettingThingsDone(os.read(StatusFile), ProjectParserCfg),
-    Some("feat(status): Beautify the document")
+    Some("feat(status): Beautify the document"),
+    compressTable = compress.value
   )
 }
 
@@ -291,8 +305,11 @@ def pr(
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
 
   // The reference and task snippets to add to the file.
-  val fullJira = if (jira != "0" && jira != "") Some(s"${prj.toUpperCase}-$jira") else None
-  val fullPr = if (prNum != "0" && prNum != "") Some(s"apache/${prj.toLowerCase}#$prNum") else None
+  val fullJira =
+    if (jira != "0" && jira != "") Some(s"${prj.toUpperCase}-$jira") else None
+  val fullPr =
+    if (prNum != "0" && prNum != "") Some(s"apache/${prj.toLowerCase}#$prNum")
+    else None
   val task = (fullJira, fullPr) match {
     case (Some(refJira), Some(refPr)) => s"**[$refJira]**:[$refPr]"
     case (Some(refJira), None)        => s"**[$refJira]**"
