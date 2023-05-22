@@ -284,7 +284,7 @@ def gitRewriteDate(
 ): Unit = {
 
   // Regex to match command that adjust a base date with a certain number of units.
-  val RelativeCommand = "(next|add|sub)(\\d+)(min|hour|day|week)".r
+  val RelativeCommand = "(next|add|sub)(\\d+)(min|mins|hours?|days?|weeks?)".r
 
   val Formatters: Seq[(String, DateTimeFormatter)] = Seq(
     "ISO" -> DateTimeFormatter.ISO_LOCAL_DATE_TIME,
@@ -352,19 +352,19 @@ def gitRewriteDate(
     val adjusted = cmd match {
       case RelativeCommand("next" | "add", time, "min" | "mins") =>
         bd.plusMinutes(time.toInt)
-      case RelativeCommand("sub", time, "min") =>
+      case RelativeCommand("sub", time, "min" | "mins") =>
         bd.minusMinutes(time.toInt)
       case RelativeCommand("next" | "add", time, "hour" | "hours") =>
         bd.plusHours(time.toInt)
-      case RelativeCommand("sub", time, "hour") =>
+      case RelativeCommand("sub", time, "hour" | "hours") =>
         bd.minusHours(time.toInt)
       case RelativeCommand("next" | "add", time, "day" | "days") =>
         bd.plusDays(time.toInt)
-      case RelativeCommand("sub", time, "day") =>
+      case RelativeCommand("sub", time, "day" | "days") =>
         bd.minusDays(time.toInt)
       case RelativeCommand("next" | "add", time, "week" | "weeks") =>
         bd.plusWeeks(time.toInt)
-      case RelativeCommand("sub", time, "week") =>
+      case RelativeCommand("sub", time, "week" | "weeks") =>
         bd.minusWeeks(time.toInt)
       case _ => bd
     }
