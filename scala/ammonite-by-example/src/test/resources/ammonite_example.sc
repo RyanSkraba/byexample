@@ -350,19 +350,19 @@ def gitRewriteDate(
   // Get an adjusted, fuzzed date off of the base date.
   val fuzzedDate = baseDate.map(bd => {
     val adjusted = cmd match {
-      case RelativeCommand("next" | "add", time, "min") =>
+      case RelativeCommand("next" | "add", time, "min" | "mins") =>
         bd.plusMinutes(time.toInt)
       case RelativeCommand("sub", time, "min") =>
         bd.minusMinutes(time.toInt)
-      case RelativeCommand("next" | "add", time, "hour") =>
+      case RelativeCommand("next" | "add", time, "hour" | "hours") =>
         bd.plusHours(time.toInt)
       case RelativeCommand("sub", time, "hour") =>
         bd.minusHours(time.toInt)
-      case RelativeCommand("next" | "add", time, "day") =>
+      case RelativeCommand("next" | "add", time, "day" | "days") =>
         bd.plusDays(time.toInt)
       case RelativeCommand("sub", time, "day") =>
         bd.minusDays(time.toInt)
-      case RelativeCommand("next" | "add", time, "week") =>
+      case RelativeCommand("next" | "add", time, "week" | "weeks") =>
         bd.plusWeeks(time.toInt)
       case RelativeCommand("sub", time, "week") =>
         bd.minusWeeks(time.toInt)
