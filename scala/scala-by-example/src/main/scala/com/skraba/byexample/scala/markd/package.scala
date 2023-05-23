@@ -37,22 +37,30 @@ package object markd {
       *   The builder to write to.
       * @param prev
       *   The element before this element (if any).
+      * @param cfg
+      *   A formatting configuration to help configure the output.
       * @return
       *   The builder passed in.
       */
     def buildPreSpace(
         sb: StringBuilder = new StringBuilder(),
-        prev: Option[Markd]
+        prev: Option[Markd] = None,
+        cfg: FormatCfg = FormatCfg.Default
     ): StringBuilder = if (prev.isDefined) sb ++= "\n" else sb
 
     /** Write this element to the builder.
       *
       * @param sb
       *   The builder to write to.
+      * @param cfg
+      *   A formatting configuration to help configure the output.
       * @return
       *   The builder passed in.
       */
-    def build(sb: StringBuilder = new StringBuilder()): StringBuilder = sb
+    def build(
+        sb: StringBuilder = new StringBuilder(),
+        cfg: FormatCfg = FormatCfg.Default
+    ): StringBuilder = sb
   }
 
   /** A simple text paragraph of Markdown, containing any text content.
@@ -62,7 +70,8 @@ package object markd {
     */
   case class Paragraph(content: String) extends Markd {
     override def build(
-        sb: StringBuilder = new StringBuilder()
+        sb: StringBuilder = new StringBuilder(),
+        cfg: FormatCfg = FormatCfg.Default
     ): StringBuilder = {
       sb ++= content.trim() ++= "\n"
     }
@@ -86,7 +95,8 @@ package object markd {
     */
   case class Comment(content: String) extends Markd {
     override def build(
-        sb: StringBuilder = new StringBuilder()
+        sb: StringBuilder = new StringBuilder(),
+        cfg: FormatCfg = FormatCfg.Default
     ): StringBuilder = {
       sb ++= "<!--" ++= content ++= "-->\n"
     }
@@ -120,7 +130,8 @@ package object markd {
     }
 
     override def build(
-        sb: StringBuilder = new StringBuilder()
+        sb: StringBuilder = new StringBuilder(),
+        cfg: FormatCfg = FormatCfg.Default
     ): StringBuilder = {
       sb ++= "```" ++= code_type ++= "\n" ++= builtContent ++= "```\n"
     }
@@ -148,14 +159,16 @@ package object markd {
     /** Don't space between LinkRefs */
     override def buildPreSpace(
         sb: StringBuilder = new StringBuilder(),
-        prev: Option[Markd]
+        prev: Option[Markd] = None,
+        cfg: FormatCfg = FormatCfg.Default
     ): StringBuilder = prev match {
       case Some(LinkRef(_, _, _)) => sb
-      case _                      => super.buildPreSpace(sb, prev)
+      case _                      => super.buildPreSpace(sb, prev, cfg)
     }
 
     override def build(
-        sb: StringBuilder = new StringBuilder()
+        sb: StringBuilder = new StringBuilder(),
+        cfg: FormatCfg = FormatCfg.Default
     ): StringBuilder = {
       sb ++= "[" ++= ref ++= "]:"
       url.filterNot(_.isBlank).map(sb ++= " " ++= _)
@@ -225,16 +238,17 @@ package object markd {
       */
     def buildSub(
         sb: StringBuilder = new StringBuilder(),
-        prev: Option[T]
+        prev: Option[T] = None,
+        cfg: FormatCfg = FormatCfg.Default
     ): StringBuilder = {
       if (mds.nonEmpty) {
         mds.headOption.map { head =>
-          head.buildPreSpace(sb, prev)
-          head.build(sb)
+          head.buildPreSpace(sb, prev, cfg)
+          head.build(sb, cfg)
         }
         for (md: Seq[Markd] <- mds.sliding(2) if md.size == 2) {
-          md.last.buildPreSpace(sb, Some(md.head))
-          md.last.build(sb)
+          md.last.buildPreSpace(sb, Some(md.head), cfg)
+          md.last.build(sb, cfg)
         }
       }
       sb
@@ -419,7 +433,8 @@ package object markd {
     override def copyMds(newMds: Seq[Markd]): Self = copy(mds = newMds)
 
     override def build(
-        sb: StringBuilder = new StringBuilder()
+        sb: StringBuilder = new StringBuilder(),
+        cfg: FormatCfg = FormatCfg.Default
     ): StringBuilder = {
       level match {
         case 0 => // No title section for a document.
@@ -427,7 +442,7 @@ package object markd {
         case 2 => sb ++= title ++= "\n" ++= "-" * 78 ++= "\n"
         case _ => sb ++= "#" * level ++= " " ++= title ++= "\n"
       }
-      buildSub(sb, if (level == 0) None else Some(this))
+      buildSub(sb, if (level == 0) None else Some(this), cfg)
     }
   }
 
@@ -666,10 +681,11 @@ package object markd {
     }
 
     override def build(
-        sb: StringBuilder = new StringBuilder()
+        sb: StringBuilder = new StringBuilder(),
+        cfg: FormatCfg = FormatCfg.Default
     ): StringBuilder = {
       // The column header line
-      mds.head.buildRow(aligns, widths, sb)
+      mds.head.buildRow(aligns, widths, sb, cfg)
 
       // The separator row
       sb ++= (for ((a, i) <- aligns.zipWithIndex)
@@ -684,7 +700,7 @@ package object markd {
 
       // And a line for each row
       for (tr <- mds.tail)
-        tr.buildRow(aligns, widths, sb)
+        tr.buildRow(aligns, widths, sb, cfg)
       sb
     }
 
@@ -869,7 +885,8 @@ package object markd {
     def buildRow(
         aligns: Seq[Align],
         widths: Seq[Int],
-        sb: StringBuilder = new StringBuilder()
+        sb: StringBuilder = new StringBuilder(),
+        cfg: FormatCfg = FormatCfg.Default
     ): StringBuilder = {
 
       val aligned =
@@ -927,6 +944,16 @@ package object markd {
 
     /** Apply this configuration to an element, reparsing it as a clean model.
       */
-    def clean(md: Markd): Header = Header.parse(md.build().toString, this)
+    def clean(md: Markd, cfg: FormatCfg = FormatCfg.Default): Header =
+      Header.parse(md.build().toString, this)
+  }
+
+  /** Helps write the model to the output. */
+  class FormatCfg() {
+    // TODO: Minimise
+  }
+
+  object FormatCfg {
+    val Default = new FormatCfg
   }
 }
