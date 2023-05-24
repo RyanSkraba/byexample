@@ -175,6 +175,7 @@ def help(): Unit = {
        |  $CYAN     newWeek$RESET : Add a new week to the status document
        |  $CYAN          pr$RESET : Add a PR review to this week
        |  $CYAN        stat$RESET : Add or update a weekly statistic
+       |  $CYAN  statsDaily$RESET : Update a list of configured statistics (if any)
        |  $CYAN statExtract$RESET : Extract a statistic from the document
        |  $CYAN        task$RESET : Add or update a weekly task ${RED_B}TODO$RESET
        |  $CYAN        week$RESET : Print the last week status or a specific week
@@ -444,7 +445,9 @@ def statExtract(
 @main
 def week(
     @arg(doc = "The week to list or none for this week.")
-    week: Option[String] = None
+    week: Option[String] = None,
+    @arg(doc = "Print extra information to the screen.")
+    verbose: Flag
 ): Unit = {
   // Read the existing document.
   val gtd = Header.parse(os.read(StatusFile), ProjectParserCfg)
@@ -459,5 +462,18 @@ def week(
     case _ => None
   }
 
-  topWeek.headOption.map(_.build().toString).foreach(println(_))
+  topWeek.headOption.map(_.build().toString).foreach(println)
+
+  if (verbose.value)
+    topWeek.headOption
+      .collect { case h: Header => h }
+      .map(week =>
+        println(s"""${GREEN}Commit:$RESET
+         |  git -C $StatusRepo add ${StatusFile.relativeTo(StatusRepo)} &&
+         |      git -C $StatusRepo difftool --staged
+         |  git -C $StatusRepo add ${StatusFile.relativeTo(StatusRepo)} &&
+         |      git -C $StatusRepo commit -m $BOLD"feat(${StatusFile.baseName
+          .stripSuffix(StatusFile.ext)}): Updated ${week.title}"$RESET
+         |""".stripMargin)
+      )
 }
