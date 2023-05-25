@@ -370,6 +370,11 @@ object GettingThingsDone {
         state = DoneToDo
       )
       .addTopWeekToDo(
+        "Finance",
+        "**Thing was did** Done by someone else, or worked around",
+        state = DoneSimpleToDo
+      )
+      .addTopWeekToDo(
         "Health",
         "**Ready to take** or paused, or to think about",
         state = MaybeToDo
@@ -412,12 +417,21 @@ object GettingThingsDone {
   sealed class ToDoState(val txt: String)
   case object NoToDoState extends ToDoState("")
   case object DoneToDo extends ToDoState("🟢")
+  case object DoneSimpleToDo extends ToDoState("🔵")
   case object MaybeToDo extends ToDoState("🔶")
   case object StoppedToDo extends ToDoState("🟥")
   case object WaitingToDo extends ToDoState("🕒")
   case object LaterToDo extends ToDoState("⤴️")
   val AllStates: Seq[ToDoState] =
-    Seq(DoneToDo, MaybeToDo, StoppedToDo, LaterToDo, WaitingToDo, NoToDoState)
+    Seq(
+      DoneToDo,
+      DoneSimpleToDo,
+      MaybeToDo,
+      StoppedToDo,
+      LaterToDo,
+      WaitingToDo,
+      NoToDoState
+    )
 
   /** Calculate either next Monday or the monday 7 days after the Date in the
     * String.
