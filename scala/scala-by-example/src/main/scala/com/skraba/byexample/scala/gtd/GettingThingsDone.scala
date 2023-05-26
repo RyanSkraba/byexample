@@ -414,12 +414,19 @@ object GettingThingsDone {
     }
   }
 
-  sealed class ToDoState(val txt: String)
+  /** A state can be deduced from a task by the prefix of the category.
+    *
+    * @param txt
+    *   The prefix to match for the category.
+    * @param complete
+    *   True if the state means that the task is finished this week.
+    */
+  sealed class ToDoState(val txt: String, val complete: Boolean = false)
   case object NoToDoState extends ToDoState("")
-  case object DoneToDo extends ToDoState("🟢")
-  case object DoneSimpleToDo extends ToDoState("🔵")
+  case object DoneToDo extends ToDoState("🟢", complete = true)
+  case object DoneSimpleToDo extends ToDoState("🔵", complete = true)
   case object MaybeToDo extends ToDoState("🔶")
-  case object StoppedToDo extends ToDoState("🟥")
+  case object StoppedToDo extends ToDoState("🟥", complete = true)
   case object WaitingToDo extends ToDoState("🕒")
   case object LaterToDo extends ToDoState("⤴️")
   val AllStates: Seq[ToDoState] =
@@ -432,6 +439,11 @@ object GettingThingsDone {
       WaitingToDo,
       NoToDoState
     )
+
+  object ToDoState {
+    def apply(category: String): ToDoState =
+      AllStates.find(tds => category.startsWith(tds.txt)).getOrElse(NoToDoState)
+  }
 
   /** Calculate either next Monday or the monday 7 days after the Date in the
     * String.

@@ -237,8 +237,8 @@ def newWeek(): Unit = {
             case (Some(tb: Table), _) if tb.title == TableToDo =>
               Seq(tb.replaceIn() {
                 case (Some(TableRow(Seq(taskText, _*))), row)
-                    if row > 0 && (taskText.startsWith(DoneToDo.txt) || taskText.startsWith(DoneSimpleToDo.txt)) =>
-                  Seq()
+                    if row > 0 && ToDoState(taskText).complete =>
+                  Seq.empty
               })
           }
       }
@@ -249,7 +249,7 @@ def newWeek(): Unit = {
   def updateLastHead(oldWeek: Header): Header = {
     oldWeek
       .replaceIn() {
-        // Copy the To Do table, but update all Later tasks.
+        // Copy the To Do table, but update all maybe tasks.
         case (Some(tb: Table), _) if tb.title == TableToDo =>
           Seq(tb.replaceIn() {
             case (Some(TableRow(cells @ Seq(taskText, _*))), row)
