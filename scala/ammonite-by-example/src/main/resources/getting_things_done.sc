@@ -217,69 +217,7 @@ def edit(): Unit = {
 def newWeek(): Unit = {
   // Read the existing document.
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
-
-  /** Create the new head week from the last week, if any is present. */
-  def createHead(oldWeek: Option[Header]): Header = {
-    oldWeek
-      .map { week =>
-        // if there was a last week
-        week
-          .copy(title = nextWeekStart(Some(week.title)))
-          .replaceIn() {
-            // Copy the Stats table, but empty out any values in the rows.
-            case (Some(tb: Table), _) if tb.title == TableStats =>
-              Seq(tb.replaceIn() {
-                case (Some(TableRow(cells)), row)
-                    if row > 0 && cells.size > 1 =>
-                  Seq(TableRow.from(cells.head))
-              })
-            // Copy the To Do table, but remove any done elements.
-            case (Some(tb: Table), _) if tb.title == TableToDo =>
-              Seq(tb.replaceIn() {
-                case (Some(TableRow(Seq(taskText, _*))), row)
-                    if row > 0 && ToDoState(taskText).complete =>
-                  Seq.empty
-              })
-          }
-      }
-      .getOrElse(Header(2, nextWeekStart(None)))
-  }
-
-  /** Create the new head week from the last week, if any is present. */
-  def updateLastHead(oldWeek: Header): Header = {
-    oldWeek
-      .replaceIn() {
-        // Copy the To Do table, but update all maybe tasks.
-        case (Some(tb: Table), _) if tb.title == TableToDo =>
-          Seq(tb.replaceIn() {
-            case (Some(TableRow(cells @ Seq(taskText, _*))), row)
-                if row > 0 && taskText.startsWith(MaybeToDo.txt) =>
-              Seq(
-                TableRow(
-                  cells.updated(
-                    0,
-                    taskText.replaceAllLiterally(MaybeToDo.txt, LaterToDo.txt)
-                  )
-                )
-              )
-          })
-      }
-  }
-
-  // Add the new head week to the weekly statuses.
-  val gtdUpdated = gtd.updateWeeklies { weeklies =>
-    val headWeek = createHead(weeklies.mds.collectFirst {
-      case h2 @ Header(_, 2, _) => h2
-    })
-    weeklies.flatMapFirstIn(
-      ifNotFound = headWeek +: weeklies.mds,
-      replace = true
-    ) {
-      case h2 @ Header(_, 2, _) if h2 != headWeek =>
-        Seq(headWeek, updateLastHead(h2))
-    }
-  }
-
+  val gtdUpdated = gtd.newWeek()
   writeGtd(
     gtdUpdated,
     Some(
