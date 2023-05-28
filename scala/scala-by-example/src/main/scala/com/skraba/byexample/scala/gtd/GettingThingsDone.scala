@@ -304,6 +304,8 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
           Seq(headWeek, updateLastHead(h2))
       }
     }
+      // Ensure that at least the week was added
+      .updateTopWeek(identity)
   }
 
   def extractStats(

@@ -568,6 +568,57 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     }
   }
 
+  describe("Updating a new week") {
+
+    it("should create a new week in an empty document") {
+      val empty = GettingThingsDone("")
+      val updated = empty.newWeek()
+      updated.h0.build().toString() shouldBe
+        s"""Weekly Status
+           !==============================================================================
+           !
+           !$defaultNextWeekStart
+           !------------------------------------------------------------------------------
+           !""".stripMargin('!')
+    }
+
+    it("should roll over and clean the stats") {
+      val gtd = GettingThingsDone(s"""Weekly Status
+           !==============================================================================
+           !
+           !2022/02/14
+           !------------------------------------------------------------------------------
+           !
+           !| Stats  | Mon | Tue | Wed | Thu | Fri | Sat | Sun |
+           !|--------|-----|-----|-----|-----|-----|-----|-----|
+           !| read   |     | 12  | 13  |     | 20  |     | 30  |
+           !| unread | 1   | 2   |     | 13  | 2   |     | 3   |
+           !""".stripMargin('!'))
+      val updated = gtd.newWeek()
+      updated.h0.build().toString() shouldBe
+        s"""Weekly Status
+           !==============================================================================
+           !
+           !2022/02/21
+           !------------------------------------------------------------------------------
+           !
+           !| Stats  | Mon | Tue | Wed | Thu | Fri | Sat | Sun |
+           !|--------|-----|-----|-----|-----|-----|-----|-----|
+           !| read   |     |     |     |     |     |     |     |
+           !| unread |     |     |     |     |     |     |     |
+           !
+           !2022/02/14
+           !------------------------------------------------------------------------------
+           !
+           !| Stats  | Mon | Tue | Wed | Thu | Fri | Sat | Sun |
+           !|--------|-----|-----|-----|-----|-----|-----|-----|
+           !| read   |     | 12  | 13  |     | 20  |     | 30  |
+           !| unread | 1   | 2   |     | 13  | 2   |     | 3   |
+           !""".stripMargin('!')
+    }
+
+  }
+
   describe("Extracting statistics") {
     val withWeeklyStats = GettingThingsDone(s"""Weekly Status
          !==============================================================================
