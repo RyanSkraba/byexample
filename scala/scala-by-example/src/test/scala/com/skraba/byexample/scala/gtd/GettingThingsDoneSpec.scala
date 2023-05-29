@@ -617,6 +617,53 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            !""".stripMargin('!')
     }
 
+    it("should roll over and update todo tasks") {
+      val gtd = GettingThingsDone(s"""Weekly Status
+           !==============================================================================
+           !
+           !2022/02/14
+           !------------------------------------------------------------------------------
+           !
+           !| To Do  | Notes |
+           !|--------|-------------------|
+           !| ${DoneToDo.txt}A  | 1 |
+           !| ${DoneSimpleToDo.txt}B  | 2 |
+           !| ${MaybeToDo.txt}C  | 3 |
+           !| ${StoppedToDo.txt}D  | 4 |
+           !| ${LaterToDo.txt}E  | 5 |
+           !| ${WaitingToDo.txt}F  | 6 |
+           !| G | 7 |
+           !""".stripMargin('!'))
+
+      val updated = gtd.newWeek()
+      updated.h0.build().toString() shouldBe
+        s"""Weekly Status
+           !==============================================================================
+           !
+           !2022/02/21
+           !------------------------------------------------------------------------------
+           !
+           !| To Do | Notes |
+           !|-------|-------|
+           !| 🔶C   | 3     |
+           !| ⤴️E   | 5     |
+           !| 🕒F   | 6     |
+           !| G     | 7     |
+           !
+           !2022/02/14
+           !------------------------------------------------------------------------------
+           !
+           !| To Do | Notes |
+           !|-------|-------|
+           !| 🟢A   | 1     |
+           !| 🔵B   | 2     |
+           !| ⤴️C   | 3     |
+           !| 🟥D   | 4     |
+           !| ⤴️E   | 5     |
+           !| 🕒F   | 6     |
+           !| G     | 7     |
+           !""".stripMargin('!')
+    }
   }
 
   describe("Extracting statistics") {
