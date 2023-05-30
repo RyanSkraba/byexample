@@ -664,6 +664,40 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            !| G     | 7     |
            !""".stripMargin('!')
     }
+
+    it("should roll over all text without modification") {
+      val gtd = GettingThingsDone(
+        s"""Weekly Status
+           !==============================================================================
+           !
+           !2022/02/14
+           !------------------------------------------------------------------------------
+           !
+           !* See this [example][20220214-1].
+           !
+           ![20220214-1]: http://example.com/
+           !""".stripMargin('!'))
+
+      val updated = gtd.newWeek()
+      updated.h0.build().toString() shouldBe
+        s"""Weekly Status
+           !==============================================================================
+           !
+           !2022/02/21
+           !------------------------------------------------------------------------------
+           !
+           !* See this [example][20220214-1].
+           !
+           ![20220214-1]: http://example.com/
+           !
+           !2022/02/14
+           !------------------------------------------------------------------------------
+           !
+           !* See this [example][20220214-1].
+           !
+           ![20220214-1]: http://example.com/
+           !""".stripMargin('!')
+    }
   }
 
   describe("Extracting statistics") {
