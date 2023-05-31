@@ -487,7 +487,8 @@ object GettingThingsDone {
     }
   }
 
-  /** A state can be deduced from a task by the prefix of the category.
+  /** An optional state useful for tasks in a "To Do" table. A state can be
+    * deduced from a task by the prefix of the category.
     *
     * @param txt
     *   The prefix to match for the category.
@@ -495,12 +496,31 @@ object GettingThingsDone {
     *   True if the state means that the task is finished this week.
     */
   sealed class ToDoState(val txt: String, val complete: Boolean = false)
+
+  /** No assigned state for the task */
   case object NoToDoState extends ToDoState("")
+
+  /** The task is done.  Hooray! */
   case object DoneToDo extends ToDoState("🟢", complete = true)
+
+  /** The task is "done", but without any special effort. Somebody else did it,
+    * or a workaround was found, or some other magic occurred. Regardless, it's
+    * off the list but not rejected or stopped.
+    */
   case object DoneSimpleToDo extends ToDoState("🔵", complete = true)
+
+  /** The task is a candidate for this week. */
   case object MaybeToDo extends ToDoState("🔶")
+
+  /** The task wasn't done and will not be done. It was rejected, unnecessary or
+    * just a bad idea.
+    */
   case object StoppedToDo extends ToDoState("🟥", complete = true)
+
+  /** The task is still valid but is waiting on some external factor. */
   case object WaitingToDo extends ToDoState("🕒")
+
+  /** The task wasn't done, but pushed to the next week. */
   case object LaterToDo extends ToDoState("⤴️")
   val AllStates: Seq[ToDoState] =
     Seq(
