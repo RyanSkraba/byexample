@@ -312,7 +312,7 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
       name: String,
       from: Option[LocalDate] = None,
       to: Option[LocalDate] = None
-  ): Seq[(String, String)] = {
+  ): Seq[(LocalDate, String)] = {
 
     // Find all of the weekly reports
     weeklies.toSeq
@@ -336,11 +336,10 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
               // Filter by the dates if any are specified
               .filter { case (d, _) => from.forall(_.compareTo(d) <= 0) }
               .filter { case (d, _) => to.forall(_.compareTo(d) >= 0) }
-              .map { case (d, v) => (d.format(Pattern), v) }
           }
       })
       .flatten
-      .sortBy(_._1)
+      .sortBy(_._1.toEpochDay)
   }
 }
 

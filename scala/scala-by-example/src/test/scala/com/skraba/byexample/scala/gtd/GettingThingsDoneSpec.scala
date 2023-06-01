@@ -666,8 +666,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     }
 
     it("should roll over all text without modification") {
-      val gtd = GettingThingsDone(
-        s"""Weekly Status
+      val gtd = GettingThingsDone(s"""Weekly Status
            !==============================================================================
            !
            !2022/02/14
@@ -733,7 +732,9 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     }
 
     it("should find all the read and unread statistics") {
-      withWeeklyStats.extractStats("unread") shouldBe Seq(
+      withWeeklyStats.extractStats("unread").map { case (d, v) =>
+        (d.format(Pattern), v)
+      } shouldBe Seq(
         ("2022/02/14", "1"),
         ("2022/02/15", "2"),
         ("2022/02/17", "13"),
@@ -753,7 +754,9 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         ("2022/03/05", "57"),
         ("2022/03/06", "38")
       )
-      withWeeklyStats.extractStats("read") shouldBe Seq(
+      withWeeklyStats.extractStats("read").map { case (d, v) =>
+        (d.format(Pattern), v)
+      } shouldBe Seq(
         ("2022/02/15", "12"),
         ("2022/02/16", "13"),
         ("2022/02/18", "20"),
@@ -767,10 +770,12 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     }
 
     it("should find all the read statistics after a date") {
-      withWeeklyStats.extractStats(
-        "read",
-        from = Some(LocalDate.parse("2022/02/18", Pattern))
-      ) shouldBe Seq(
+      withWeeklyStats
+        .extractStats(
+          "read",
+          from = Some(LocalDate.parse("2022/02/18", Pattern))
+        )
+        .map { case (d, v) => (d.format(Pattern), v) } shouldBe Seq(
         ("2022/02/18", "20"),
         ("2022/02/20", "30"),
         ("2022/02/28", "30"),
@@ -782,10 +787,12 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     }
 
     it("should find all the read statistics before a date") {
-      withWeeklyStats.extractStats(
-        "read",
-        to = Some(LocalDate.parse("2022/03/02", Pattern))
-      ) shouldBe Seq(
+      withWeeklyStats
+        .extractStats(
+          "read",
+          to = Some(LocalDate.parse("2022/03/02", Pattern))
+        )
+        .map { case (d, v) => (d.format(Pattern), v) } shouldBe Seq(
         ("2022/02/15", "12"),
         ("2022/02/16", "13"),
         ("2022/02/18", "20"),
@@ -797,11 +804,13 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     }
 
     it("should find all the read statistics between dates") {
-      withWeeklyStats.extractStats(
-        "read",
-        from = Some(LocalDate.parse("2022/02/18", Pattern)),
-        to = Some(LocalDate.parse("2022/03/02", Pattern))
-      ) shouldBe Seq(
+      withWeeklyStats
+        .extractStats(
+          "read",
+          from = Some(LocalDate.parse("2022/02/18", Pattern)),
+          to = Some(LocalDate.parse("2022/03/02", Pattern))
+        )
+        .map { case (d, v) => (d.format(Pattern), v) } shouldBe Seq(
         ("2022/02/18", "20"),
         ("2022/02/20", "30"),
         ("2022/02/28", "30"),
@@ -811,11 +820,13 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     }
 
     it("should find all the read statistics between large bounds") {
-      withWeeklyStats.extractStats(
-        "read",
-        from = Some(LocalDate.parse("1022/02/18", Pattern)),
-        to = Some(LocalDate.parse("3022/03/02", Pattern))
-      ) shouldBe Seq(
+      withWeeklyStats
+        .extractStats(
+          "read",
+          from = Some(LocalDate.parse("1022/02/18", Pattern)),
+          to = Some(LocalDate.parse("3022/03/02", Pattern))
+        )
+        .map { case (d, v) => (d.format(Pattern), v) } shouldBe Seq(
         ("2022/02/15", "12"),
         ("2022/02/16", "13"),
         ("2022/02/18", "20"),
