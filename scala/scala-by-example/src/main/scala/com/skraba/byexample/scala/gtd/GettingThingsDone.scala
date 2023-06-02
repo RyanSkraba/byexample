@@ -312,7 +312,7 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
       name: String,
       from: Option[LocalDate] = None,
       to: Option[LocalDate] = None
-  ): Seq[(LocalDate, String)] = {
+  ): Seq[(LocalDate, String, String)] = {
 
     // Find all of the weekly reports
     weeklies.toSeq
@@ -329,13 +329,13 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
                   tbl(name).cells.zipWithIndex.collect {
                     case (value, i) if (i > 0 && value.nonEmpty) =>
                       // And all the non-empty values in the table
-                      (startOfWeek.plusDays(i - 1), value)
+                      (startOfWeek.plusDays(i - 1), name, value)
                   }
               }
               .getOrElse(Nil)
               // Filter by the dates if any are specified
-              .filter { case (d, _) => from.forall(_.compareTo(d) <= 0) }
-              .filter { case (d, _) => to.forall(_.compareTo(d) >= 0) }
+              .filter { case (d, _, _) => from.forall(_.compareTo(d) <= 0) }
+              .filter { case (d, _, _) => to.forall(_.compareTo(d) >= 0) }
           }
       })
       .flatten

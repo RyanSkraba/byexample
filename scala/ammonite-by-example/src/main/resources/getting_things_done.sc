@@ -375,8 +375,8 @@ def statExtract(
   // Read the existing document.
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
   println("date,value")
-  for ((date, value) <- gtd.extractStats(rowStat))
-    println(s"$date,$value")
+  for ((date, stat, value) <- gtd.extractStats(rowStat))
+    println(s"${date.format(Pattern)},$value")
 }
 
 @arg(doc = "Print the status for this week")

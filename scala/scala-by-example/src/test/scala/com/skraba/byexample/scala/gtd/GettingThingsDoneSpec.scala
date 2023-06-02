@@ -700,6 +700,14 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
   }
 
   describe("Extracting statistics") {
+
+    def stringify(
+        in: Seq[(LocalDate, String, String)]
+    ): Seq[(String, String, String)] =
+      in.map { case (d, stat, value) =>
+        (d.format(Pattern), stat, value)
+      }
+
     val withWeeklyStats = GettingThingsDone(s"""Weekly Status
          !==============================================================================
          !
@@ -732,110 +740,110 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     }
 
     it("should find all the read and unread statistics") {
-      withWeeklyStats.extractStats("unread").map { case (d, v) =>
-        (d.format(Pattern), v)
-      } shouldBe Seq(
-        ("2022/02/14", "1"),
-        ("2022/02/15", "2"),
-        ("2022/02/17", "13"),
-        ("2022/02/18", "2"),
-        ("2022/02/20", "3"),
-        ("2022/02/21", "14"),
-        ("2022/02/22", "24"),
-        ("2022/02/23", "31"),
-        ("2022/02/25", "59"),
-        ("2022/02/26", "60"),
-        ("2022/02/27", "72"),
-        ("2022/02/28", "52"),
-        ("2022/03/01", "51"),
-        ("2022/03/02", "50"),
-        ("2022/03/03", "58"),
-        ("2022/03/04", "46"),
-        ("2022/03/05", "57"),
-        ("2022/03/06", "38")
+      stringify(withWeeklyStats.extractStats("unread")) shouldBe Seq(
+        ("2022/02/14", "unread", "1"),
+        ("2022/02/15", "unread", "2"),
+        ("2022/02/17", "unread", "13"),
+        ("2022/02/18", "unread", "2"),
+        ("2022/02/20", "unread", "3"),
+        ("2022/02/21", "unread", "14"),
+        ("2022/02/22", "unread", "24"),
+        ("2022/02/23", "unread", "31"),
+        ("2022/02/25", "unread", "59"),
+        ("2022/02/26", "unread", "60"),
+        ("2022/02/27", "unread", "72"),
+        ("2022/02/28", "unread", "52"),
+        ("2022/03/01", "unread", "51"),
+        ("2022/03/02", "unread", "50"),
+        ("2022/03/03", "unread", "58"),
+        ("2022/03/04", "unread", "46"),
+        ("2022/03/05", "unread", "57"),
+        ("2022/03/06", "unread", "38")
       )
-      withWeeklyStats.extractStats("read").map { case (d, v) =>
-        (d.format(Pattern), v)
-      } shouldBe Seq(
-        ("2022/02/15", "12"),
-        ("2022/02/16", "13"),
-        ("2022/02/18", "20"),
-        ("2022/02/20", "30"),
-        ("2022/02/28", "30"),
-        ("2022/03/01", "12"),
-        ("2022/03/02", "13"),
-        ("2022/03/04", "20"),
-        ("2022/03/06", "30")
+      stringify(withWeeklyStats.extractStats("read")) shouldBe Seq(
+        ("2022/02/15", "read", "12"),
+        ("2022/02/16", "read", "13"),
+        ("2022/02/18", "read", "20"),
+        ("2022/02/20", "read", "30"),
+        ("2022/02/28", "read", "30"),
+        ("2022/03/01", "read", "12"),
+        ("2022/03/02", "read", "13"),
+        ("2022/03/04", "read", "20"),
+        ("2022/03/06", "read", "30")
       )
     }
 
     it("should find all the read statistics after a date") {
-      withWeeklyStats
-        .extractStats(
-          "read",
-          from = Some(LocalDate.parse("2022/02/18", Pattern))
-        )
-        .map { case (d, v) => (d.format(Pattern), v) } shouldBe Seq(
-        ("2022/02/18", "20"),
-        ("2022/02/20", "30"),
-        ("2022/02/28", "30"),
-        ("2022/03/01", "12"),
-        ("2022/03/02", "13"),
-        ("2022/03/04", "20"),
-        ("2022/03/06", "30")
+      stringify(
+        withWeeklyStats
+          .extractStats(
+            "read",
+            from = Some(LocalDate.parse("2022/02/18", Pattern))
+          )
+      ) shouldBe Seq(
+        ("2022/02/18", "read", "20"),
+        ("2022/02/20", "read", "30"),
+        ("2022/02/28", "read", "30"),
+        ("2022/03/01", "read", "12"),
+        ("2022/03/02", "read", "13"),
+        ("2022/03/04", "read", "20"),
+        ("2022/03/06", "read", "30")
       )
     }
 
     it("should find all the read statistics before a date") {
-      withWeeklyStats
-        .extractStats(
-          "read",
-          to = Some(LocalDate.parse("2022/03/02", Pattern))
-        )
-        .map { case (d, v) => (d.format(Pattern), v) } shouldBe Seq(
-        ("2022/02/15", "12"),
-        ("2022/02/16", "13"),
-        ("2022/02/18", "20"),
-        ("2022/02/20", "30"),
-        ("2022/02/28", "30"),
-        ("2022/03/01", "12"),
-        ("2022/03/02", "13")
+      stringify(
+        withWeeklyStats
+          .extractStats(
+            "read",
+            to = Some(LocalDate.parse("2022/03/02", Pattern))
+          )
+      ) shouldBe Seq(
+        ("2022/02/15", "read", "12"),
+        ("2022/02/16", "read", "13"),
+        ("2022/02/18", "read", "20"),
+        ("2022/02/20", "read", "30"),
+        ("2022/02/28", "read", "30"),
+        ("2022/03/01", "read", "12"),
+        ("2022/03/02", "read", "13")
       )
     }
 
     it("should find all the read statistics between dates") {
-      withWeeklyStats
-        .extractStats(
-          "read",
-          from = Some(LocalDate.parse("2022/02/18", Pattern)),
-          to = Some(LocalDate.parse("2022/03/02", Pattern))
-        )
-        .map { case (d, v) => (d.format(Pattern), v) } shouldBe Seq(
-        ("2022/02/18", "20"),
-        ("2022/02/20", "30"),
-        ("2022/02/28", "30"),
-        ("2022/03/01", "12"),
-        ("2022/03/02", "13")
+      stringify(
+        withWeeklyStats
+          .extractStats(
+            "read",
+            from = Some(LocalDate.parse("2022/02/18", Pattern)),
+            to = Some(LocalDate.parse("2022/03/02", Pattern))
+          )
+      ) shouldBe Seq(
+        ("2022/02/18", "read", "20"),
+        ("2022/02/20", "read", "30"),
+        ("2022/02/28", "read", "30"),
+        ("2022/03/01", "read", "12"),
+        ("2022/03/02", "read", "13")
       )
     }
 
     it("should find all the read statistics between large bounds") {
-      withWeeklyStats
-        .extractStats(
-          "read",
-          from = Some(LocalDate.parse("1022/02/18", Pattern)),
-          to = Some(LocalDate.parse("3022/03/02", Pattern))
-        )
-        .map { case (d, v) => (d.format(Pattern), v) } shouldBe Seq(
-        ("2022/02/15", "12"),
-        ("2022/02/16", "13"),
-        ("2022/02/18", "20"),
-        ("2022/02/20", "30"),
-        ("2022/02/28", "30"),
-        ("2022/03/01", "12"),
-        ("2022/03/02", "13"),
-        ("2022/03/04", "20"),
-        ("2022/03/06", "30")
+      stringify(
+        withWeeklyStats
+          .extractStats(
+            "read",
+            from = Some(LocalDate.parse("1022/02/18", Pattern)),
+            to = Some(LocalDate.parse("3022/03/02", Pattern))
+          )
+      ) shouldBe Seq(
+        ("2022/02/15", "read", "12"),
+        ("2022/02/16", "read", "13"),
+        ("2022/02/18", "read", "20"),
+        ("2022/02/20", "read", "30"),
+        ("2022/02/28", "read", "30"),
+        ("2022/03/01", "read", "12"),
+        ("2022/03/02", "read", "13"),
+        ("2022/03/04", "read", "20"),
+        ("2022/03/06", "read", "30")
       )
     }
   }
