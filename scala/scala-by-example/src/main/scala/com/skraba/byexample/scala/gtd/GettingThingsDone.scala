@@ -309,10 +309,35 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
   }
 
   def extractStats(
-      name: String,
+      name: String = "",
       from: Option[LocalDate] = None,
       to: Option[LocalDate] = None
   ): Seq[(LocalDate, String, String)] = {
+
+    def internalExtractAll(
+        sow: LocalDate,
+        rows: Seq[TableRow]
+    ): Seq[(LocalDate, String, String)] = {
+      rows.flatMap { row =>
+        row.cells.drop(1).zipWithIndex.collect {
+          case (value, i) if value.nonEmpty =>
+            // Add all the non-empty values in the table
+            (sow.plusDays(i), row(0), value)
+        }
+      }
+    }
+
+    def internalExtractOne(
+        sow: LocalDate,
+        name: String,
+        tbl: Table
+    ): Seq[(LocalDate, String, String)] = {
+      tbl(name).cells.drop(1).zipWithIndex.collect {
+        case (value, i) if value.nonEmpty =>
+          // Add all the non-empty values in the table
+          (sow.plusDays(i), name, value)
+      }
+    }
 
     // Find all of the weekly reports
     weeklies.toSeq
@@ -326,11 +351,10 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
             weekly.mds
               .collectFirst {
                 case tbl: Table if tbl.title == TableStats =>
-                  tbl(name).cells.zipWithIndex.collect {
-                    case (value, i) if (i > 0 && value.nonEmpty) =>
-                      // And all the non-empty values in the table
-                      (startOfWeek.plusDays(i - 1), name, value)
-                  }
+                  if (name.isEmpty)
+                    internalExtractAll(startOfWeek, tbl.mds.drop(1))
+                  else
+                    internalExtractOne(startOfWeek, name, tbl)
               }
               .getOrElse(Nil)
               // Filter by the dates if any are specified
