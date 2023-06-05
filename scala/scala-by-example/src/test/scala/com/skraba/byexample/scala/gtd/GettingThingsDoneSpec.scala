@@ -773,78 +773,81 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
       )
     }
 
-    it("should find all the read statistics after a date") {
-      stringify(
-        withWeeklyStats
-          .extractStats(
-            "read",
-            from = Some(LocalDate.parse("2022/02/18", Pattern))
-          )
-      ) shouldBe Seq(
-        ("2022/02/18", "read", "20"),
-        ("2022/02/20", "read", "30"),
-        ("2022/02/28", "read", "30"),
-        ("2022/03/01", "read", "12"),
-        ("2022/03/02", "read", "13"),
-        ("2022/03/04", "read", "20"),
-        ("2022/03/06", "read", "30")
-      )
-    }
+    describe("should find all the read statistics") {
 
-    it("should find all the read statistics before a date") {
-      stringify(
-        withWeeklyStats
-          .extractStats(
-            "read",
-            to = Some(LocalDate.parse("2022/03/02", Pattern))
-          )
-      ) shouldBe Seq(
-        ("2022/02/15", "read", "12"),
-        ("2022/02/16", "read", "13"),
-        ("2022/02/18", "read", "20"),
-        ("2022/02/20", "read", "30"),
-        ("2022/02/28", "read", "30"),
-        ("2022/03/01", "read", "12"),
-        ("2022/03/02", "read", "13")
-      )
-    }
+      it("after a date") {
+        stringify(
+          withWeeklyStats
+            .extractStats(
+              "read",
+              from = Some(LocalDate.parse("2022/02/18", Pattern))
+            )
+        ) shouldBe Seq(
+          ("2022/02/18", "read", "20"),
+          ("2022/02/20", "read", "30"),
+          ("2022/02/28", "read", "30"),
+          ("2022/03/01", "read", "12"),
+          ("2022/03/02", "read", "13"),
+          ("2022/03/04", "read", "20"),
+          ("2022/03/06", "read", "30")
+        )
+      }
 
-    it("should find all the read statistics between dates") {
-      stringify(
-        withWeeklyStats
-          .extractStats(
-            "read",
-            from = Some(LocalDate.parse("2022/02/18", Pattern)),
-            to = Some(LocalDate.parse("2022/03/02", Pattern))
-          )
-      ) shouldBe Seq(
-        ("2022/02/18", "read", "20"),
-        ("2022/02/20", "read", "30"),
-        ("2022/02/28", "read", "30"),
-        ("2022/03/01", "read", "12"),
-        ("2022/03/02", "read", "13")
-      )
-    }
+      it("before a date") {
+        stringify(
+          withWeeklyStats
+            .extractStats(
+              "read",
+              to = Some(LocalDate.parse("2022/03/02", Pattern))
+            )
+        ) shouldBe Seq(
+          ("2022/02/15", "read", "12"),
+          ("2022/02/16", "read", "13"),
+          ("2022/02/18", "read", "20"),
+          ("2022/02/20", "read", "30"),
+          ("2022/02/28", "read", "30"),
+          ("2022/03/01", "read", "12"),
+          ("2022/03/02", "read", "13")
+        )
+      }
 
-    it("should find all the read statistics between large bounds") {
-      stringify(
-        withWeeklyStats
-          .extractStats(
-            "read",
-            from = Some(LocalDate.parse("1022/02/18", Pattern)),
-            to = Some(LocalDate.parse("3022/03/02", Pattern))
-          )
-      ) shouldBe Seq(
-        ("2022/02/15", "read", "12"),
-        ("2022/02/16", "read", "13"),
-        ("2022/02/18", "read", "20"),
-        ("2022/02/20", "read", "30"),
-        ("2022/02/28", "read", "30"),
-        ("2022/03/01", "read", "12"),
-        ("2022/03/02", "read", "13"),
-        ("2022/03/04", "read", "20"),
-        ("2022/03/06", "read", "30")
-      )
+      it("between dates") {
+        stringify(
+          withWeeklyStats
+            .extractStats(
+              "read",
+              from = Some(LocalDate.parse("2022/02/18", Pattern)),
+              to = Some(LocalDate.parse("2022/03/02", Pattern))
+            )
+        ) shouldBe Seq(
+          ("2022/02/18", "read", "20"),
+          ("2022/02/20", "read", "30"),
+          ("2022/02/28", "read", "30"),
+          ("2022/03/01", "read", "12"),
+          ("2022/03/02", "read", "13")
+        )
+      }
+
+      it("between large bounds") {
+        stringify(
+          withWeeklyStats
+            .extractStats(
+              "read",
+              from = Some(LocalDate.parse("1022/02/18", Pattern)),
+              to = Some(LocalDate.parse("3022/03/02", Pattern))
+            )
+        ) shouldBe Seq(
+          ("2022/02/15", "read", "12"),
+          ("2022/02/16", "read", "13"),
+          ("2022/02/18", "read", "20"),
+          ("2022/02/20", "read", "30"),
+          ("2022/02/28", "read", "30"),
+          ("2022/03/01", "read", "12"),
+          ("2022/03/02", "read", "13"),
+          ("2022/03/04", "read", "20"),
+          ("2022/03/06", "read", "30")
+        )
+      }
     }
   }
 
