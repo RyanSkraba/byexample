@@ -370,13 +370,19 @@ def statsDaily(): Unit = {
 @main
 def statExtract(
     @arg(doc = "Update the statistic on this row (matches first element.")
-    rowStat: String
+    rowStat: String = ""
 ): Unit = {
   // Read the existing document.
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
-  println("date,value")
-  for ((date, stat, value) <- gtd.extractStats(rowStat))
-    println(s"${date.format(Pattern)},$value")
+  if (rowStat.isEmpty) {
+    println("date,stat,value")
+    for ((date, stat, value) <- gtd.extractStats())
+      println(s"$date,$stat,$value")
+  } else {
+    println("date,value")
+    for ((date, stat, value) <- gtd.extractStats(name=rowStat))
+      println(s"$date,$value")
+  }
 }
 
 @arg(doc = "Print the status for this week")

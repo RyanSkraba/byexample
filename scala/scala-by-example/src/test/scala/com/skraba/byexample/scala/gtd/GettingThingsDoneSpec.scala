@@ -740,6 +740,35 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     }
 
     it("should find all the read and unread statistics") {
+      stringify(withWeeklyStats.extractStats()) shouldBe Seq(
+        ("2022/02/14", "unread", "1"),
+        ("2022/02/15", "read", "12"),
+        ("2022/02/15", "unread", "2"),
+        ("2022/02/16", "read", "13"),
+        ("2022/02/17", "unread", "13"),
+        ("2022/02/18", "read", "20"),
+        ("2022/02/18", "unread", "2"),
+        ("2022/02/20", "read", "30"),
+        ("2022/02/20", "unread", "3"),
+        ("2022/02/21", "unread", "14"),
+        ("2022/02/22", "unread", "24"),
+        ("2022/02/23", "unread", "31"),
+        ("2022/02/25", "unread", "59"),
+        ("2022/02/26", "unread", "60"),
+        ("2022/02/27", "unread", "72"),
+        ("2022/02/28", "read", "30"),
+        ("2022/02/28", "unread", "52"),
+        ("2022/03/01", "read", "12"),
+        ("2022/03/01", "unread", "51"),
+        ("2022/03/02", "read", "13"),
+        ("2022/03/02", "unread", "50"),
+        ("2022/03/03", "unread", "58"),
+        ("2022/03/04", "read", "20"),
+        ("2022/03/04", "unread", "46"),
+        ("2022/03/05", "unread", "57"),
+        ("2022/03/06", "read", "30"),
+        ("2022/03/06", "unread", "38")
+      )
       stringify(withWeeklyStats.extractStats("unread")) shouldBe Seq(
         ("2022/02/14", "unread", "1"),
         ("2022/02/15", "unread", "2"),
@@ -846,6 +875,137 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
           ("2022/03/02", "read", "13"),
           ("2022/03/04", "read", "20"),
           ("2022/03/06", "read", "30")
+        )
+      }
+    }
+
+    describe("should find all the read and unread statistics") {
+
+      it("after a date") {
+        stringify(
+          withWeeklyStats
+            .extractStats(
+              from = Some(LocalDate.parse("2022/02/18", Pattern))
+            )
+        ) shouldBe Seq(
+          ("2022/02/18", "read", "20"),
+          ("2022/02/18", "unread", "2"),
+          ("2022/02/20", "read", "30"),
+          ("2022/02/20", "unread", "3"),
+          ("2022/02/21", "unread", "14"),
+          ("2022/02/22", "unread", "24"),
+          ("2022/02/23", "unread", "31"),
+          ("2022/02/25", "unread", "59"),
+          ("2022/02/26", "unread", "60"),
+          ("2022/02/27", "unread", "72"),
+          ("2022/02/28", "read", "30"),
+          ("2022/02/28", "unread", "52"),
+          ("2022/03/01", "read", "12"),
+          ("2022/03/01", "unread", "51"),
+          ("2022/03/02", "read", "13"),
+          ("2022/03/02", "unread", "50"),
+          ("2022/03/03", "unread", "58"),
+          ("2022/03/04", "read", "20"),
+          ("2022/03/04", "unread", "46"),
+          ("2022/03/05", "unread", "57"),
+          ("2022/03/06", "read", "30"),
+          ("2022/03/06", "unread", "38")
+        )
+      }
+
+      it("before a date") {
+        stringify(
+          withWeeklyStats
+            .extractStats(
+              to = Some(LocalDate.parse("2022/03/02", Pattern))
+            )
+        ) shouldBe Seq(
+          ("2022/02/14", "unread", "1"),
+          ("2022/02/15", "read", "12"),
+          ("2022/02/15", "unread", "2"),
+          ("2022/02/16", "read", "13"),
+          ("2022/02/17", "unread", "13"),
+          ("2022/02/18", "read", "20"),
+          ("2022/02/18", "unread", "2"),
+          ("2022/02/20", "read", "30"),
+          ("2022/02/20", "unread", "3"),
+          ("2022/02/21", "unread", "14"),
+          ("2022/02/22", "unread", "24"),
+          ("2022/02/23", "unread", "31"),
+          ("2022/02/25", "unread", "59"),
+          ("2022/02/26", "unread", "60"),
+          ("2022/02/27", "unread", "72"),
+          ("2022/02/28", "read", "30"),
+          ("2022/02/28", "unread", "52"),
+          ("2022/03/01", "read", "12"),
+          ("2022/03/01", "unread", "51"),
+          ("2022/03/02", "read", "13"),
+          ("2022/03/02", "unread", "50")
+        )
+      }
+
+      it("between dates") {
+        stringify(
+          withWeeklyStats
+            .extractStats(
+              from = Some(LocalDate.parse("2022/02/18", Pattern)),
+              to = Some(LocalDate.parse("2022/03/02", Pattern))
+            )
+        ) shouldBe Seq(
+          ("2022/02/18", "read", "20"),
+          ("2022/02/18", "unread", "2"),
+          ("2022/02/20", "read", "30"),
+          ("2022/02/20", "unread", "3"),
+          ("2022/02/21", "unread", "14"),
+          ("2022/02/22", "unread", "24"),
+          ("2022/02/23", "unread", "31"),
+          ("2022/02/25", "unread", "59"),
+          ("2022/02/26", "unread", "60"),
+          ("2022/02/27", "unread", "72"),
+          ("2022/02/28", "read", "30"),
+          ("2022/02/28", "unread", "52"),
+          ("2022/03/01", "read", "12"),
+          ("2022/03/01", "unread", "51"),
+          ("2022/03/02", "read", "13"),
+          ("2022/03/02", "unread", "50")
+        )
+      }
+
+      it("between large bounds") {
+        stringify(
+          withWeeklyStats
+            .extractStats(
+              from = Some(LocalDate.parse("1022/02/18", Pattern)),
+              to = Some(LocalDate.parse("3022/03/02", Pattern))
+            )
+        ) shouldBe Seq(
+          ("2022/02/14", "unread", "1"),
+          ("2022/02/15", "read", "12"),
+          ("2022/02/15", "unread", "2"),
+          ("2022/02/16", "read", "13"),
+          ("2022/02/17", "unread", "13"),
+          ("2022/02/18", "read", "20"),
+          ("2022/02/18", "unread", "2"),
+          ("2022/02/20", "read", "30"),
+          ("2022/02/20", "unread", "3"),
+          ("2022/02/21", "unread", "14"),
+          ("2022/02/22", "unread", "24"),
+          ("2022/02/23", "unread", "31"),
+          ("2022/02/25", "unread", "59"),
+          ("2022/02/26", "unread", "60"),
+          ("2022/02/27", "unread", "72"),
+          ("2022/02/28", "read", "30"),
+          ("2022/02/28", "unread", "52"),
+          ("2022/03/01", "read", "12"),
+          ("2022/03/01", "unread", "51"),
+          ("2022/03/02", "read", "13"),
+          ("2022/03/02", "unread", "50"),
+          ("2022/03/03", "unread", "58"),
+          ("2022/03/04", "read", "20"),
+          ("2022/03/04", "unread", "46"),
+          ("2022/03/05", "unread", "57"),
+          ("2022/03/06", "read", "30"),
+          ("2022/03/06", "unread", "38")
         )
       }
     }
