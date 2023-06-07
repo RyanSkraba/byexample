@@ -1,6 +1,5 @@
 package com.skraba.byexample.scala.git
 
-import com.skraba.byexample.scala.git.CherryPickerReport
 import com.skraba.byexample.scala.markd.Header
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
