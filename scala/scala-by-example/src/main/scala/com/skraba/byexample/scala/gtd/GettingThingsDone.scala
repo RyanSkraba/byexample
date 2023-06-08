@@ -345,6 +345,49 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
       .flatten
       .sortBy(_._1.toEpochDay)
   }
+
+  def extractToDo(): Seq[(LocalDate, String, String)] = {
+    // Find all of the weekly reports
+    weeklies.toSeq
+      .flatMap(_.mds.collect { case weekly @ Header(title, 2, _) =>
+        // If the title is a parseable date
+        Try {
+          LocalDate.parse(title.substring(0, 10), Pattern)
+        }.toOption.toSeq
+          .flatMap { startOfWeek: LocalDate =>
+            // Then find the Stats table in the weekly report
+            weekly.mds
+              .collectFirst {
+                case tbl: Table if tbl.title == TableToDo =>
+                  tbl.mds.drop(1).map(_.cells).map {
+                    case Seq()         => (startOfWeek, "", "")
+                    case Seq(category) => (startOfWeek, category, "")
+                    case Seq(category, task, _*) =>
+                      (startOfWeek, category, task)
+                  }
+              }
+              .getOrElse(Nil)
+          }
+      })
+      .flatten
+      .map {
+        case (date: LocalDate, category, task)
+            if category.toLowerCase().endsWith("tue") =>
+          (date.plusDays(1), category, task)
+        case (date, category, task) if category.toLowerCase().endsWith("wed") =>
+          (date.plusDays(2), category, task)
+        case (date, category, task) if category.toLowerCase().endsWith("thu") =>
+          (date.plusDays(3), category, task)
+        case (date, category, task) if category.toLowerCase().endsWith("fri") =>
+          (date.plusDays(4), category, task)
+        case (date, category, task) if category.toLowerCase().endsWith("sat") =>
+          (date.plusDays(5), category, task)
+        case (date, category, task) if category.toLowerCase().endsWith("sun") =>
+          (date.plusDays(6), category, task)
+        case other => other
+      }
+      .sortBy(_._1.toEpochDay)
+  }
 }
 
 object GettingThingsDone {
