@@ -385,6 +385,16 @@ def statExtract(
   }
 }
 
+@arg(doc = "Extract the To Do tasks table")
+@main
+def todoExtract(): Unit = {
+  // Read the existing document.
+  val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
+  println("date,category,task")
+  for ((date, category, text) <- gtd.extractToDo())
+    println(s"$date,$category,$text")
+}
+
 @arg(doc = "Print the status for this week")
 @main
 def week(
