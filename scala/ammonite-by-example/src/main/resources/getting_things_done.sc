@@ -377,11 +377,11 @@ def statExtract(
   if (rowStat.isEmpty) {
     println("date,stat,value")
     for ((date, stat, value) <- gtd.extractStats())
-      println(s"$date,$stat,$value")
+      println(s"${date.format(Pattern)},$stat,$value")
   } else {
     println("date,value")
     for ((date, stat, value) <- gtd.extractStats(name=rowStat))
-      println(s"$date,$value")
+      println(s"${date.format(Pattern)},$value")
   }
 }
 
@@ -392,7 +392,7 @@ def todoExtract(): Unit = {
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
   println("date,category,task")
   for ((date, category, text) <- gtd.extractToDo())
-    println(s"$date,$category,$text")
+    println(s"${date.format(Pattern)},$category,$text")
 }
 
 @arg(doc = "Print the status for this week")
