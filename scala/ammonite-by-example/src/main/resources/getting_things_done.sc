@@ -370,18 +370,44 @@ def statsDaily(): Unit = {
 @main
 def statExtract(
     @arg(doc = "Update the statistic on this row (matches first element.")
-    rowStat: String = ""
+    rowStat: String = "",
+    @arg(doc = "Print the output as CSV.")
+    csv: Flag
 ): Unit = {
   // Read the existing document.
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
-  if (rowStat.isEmpty) {
-    println("date,stat,value")
-    for ((date, stat, value) <- gtd.extractStats())
-      println(s"${date.format(Pattern)},$stat,$value")
+  val stats = gtd.extractStats(name = rowStat)
+  if (csv.value) {
+    if (rowStat.isEmpty) {
+      println("date,stat,value")
+      for ((date, stat, value) <- stats)
+        println(s"${date.format(Pattern)},$stat,$value")
+    } else {
+      println("date,value")
+      for ((date, stat, value) <- stats)
+        println(s"${date.format(Pattern)},$value")
+    }
   } else {
-    println("date,value")
-    for ((date, stat, value) <- gtd.extractStats(name=rowStat))
-      println(s"${date.format(Pattern)},$value")
+    if (rowStat.isEmpty) {
+      println(
+        Table(
+          Seq.fill(3)(Align.LEFT),
+          TableRow.from("Date", "Stat", "Value") +: stats.map {
+            case (date, stat, value) =>
+              TableRow.from(date.format(Pattern), stat, value)
+          }
+        ).build().toString
+      )
+    } else {
+      println(
+        Table(
+          Seq.fill(2)(Align.LEFT),
+          TableRow.from("Date", "Value") +: stats.map { case (date, _, value) =>
+            TableRow.from(date.format(Pattern), value)
+          }
+        ).build().toString
+      )
+    }
   }
 }
 
