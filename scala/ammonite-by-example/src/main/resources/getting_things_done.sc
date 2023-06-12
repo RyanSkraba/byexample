@@ -413,12 +413,27 @@ def statExtract(
 
 @arg(doc = "Extract the To Do tasks table")
 @main
-def todoExtract(): Unit = {
+def todoExtract(
+    @arg(doc = "Print the output as CSV.")
+    csv: Flag
+): Unit = {
   // Read the existing document.
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
-  println("date,category,task")
-  for ((date, category, text) <- gtd.extractToDo())
-    println(s"${date.format(Pattern)},$category,$text")
+  if (csv.value) {
+    println("date,category,task")
+    for ((date, category, text) <- gtd.extractToDo())
+      println(s"${date.format(Pattern)},$category,$text")
+  } else {
+    println(
+      Table(
+        Seq.fill(3)(Align.LEFT),
+        TableRow.from("Date", "Stat", "Value") +: gtd.extractToDo().map {
+          case (date, category, text) =>
+            TableRow.from(date.format(Pattern), category, text)
+        }
+      ).build().toString
+    )
+  }
 }
 
 @arg(doc = "Print the status for this week")
