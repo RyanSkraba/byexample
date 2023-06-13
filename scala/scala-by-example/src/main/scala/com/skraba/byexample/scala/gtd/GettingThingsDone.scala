@@ -308,6 +308,19 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
       .updateTopWeek(identity)
   }
 
+  /** Extract statistics from [[TableStats]] tables in the weekly section.
+    *
+    * @param name
+    *   The specific statistic name to extract, or empty to extract all
+    *   statistics.
+    * @param from
+    *   If present, the starting date (inclusive) to consider statistics.
+    * @param to
+    *   If present, the ending date (inclusive) to consider statistics.
+    * @return
+    *   A sequence of statistics in the form of a tuple containing the date, the
+    *   statistic name and the value for the statistic.
+    */
   def extractStats(
       name: String = "",
       from: Option[LocalDate] = None,
@@ -346,6 +359,12 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
       .sortBy(_._1.toEpochDay)
   }
 
+  /** Extract statistics from [[TableToDo]] tables in the weekly section.
+    *
+    * @return
+    *   A sequence of statistics in the form of a tuple containing the date, the
+    *   category and the task text
+    */
   def extractToDo(): Seq[(LocalDate, String, String)] = {
     // Find all of the weekly reports
     weeklies.toSeq
