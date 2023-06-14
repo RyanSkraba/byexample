@@ -1011,6 +1011,43 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     }
   }
 
+  describe("Extracting to do tasks") {
+
+    def stringify(
+        in: Seq[(LocalDate, String, String)]
+    ): Seq[(String, String, String)] =
+      in.map { case (d, stat, value) =>
+        (d.format(Pattern), stat, value)
+      }
+
+    val withWeeklyToDo = GettingThingsDone(s"""Weekly Status
+         !==============================================================================
+         !
+         !2022/02/21
+         !------------------------------------------------------------------------------
+         !
+         !| To Do     | Notes 🟢🔵🔶🟥⤴️🕒 |
+         !|-----------|--------------------|
+         !| 🟢Baking  | Make cake          |
+         !| 🟥Cuisine | Make toast         |
+         !
+         !2022/02/14
+         !------------------------------------------------------------------------------
+         !
+         !| To Do    | Notes 🟢🔵🔶🟥⤴️🕒 |
+         !|-----------|--------------------|
+         !| 🟢Baking | Make bread          |
+         !""".stripMargin('!'))
+
+    it("should find all the tasks") {
+      stringify(withWeeklyToDo.extractToDo()) shouldBe Seq(
+        ("2022/02/14", "🟢Baking", "Make bread"),
+        ("2022/02/21", "🟢Baking", "Make cake"),
+        ("2022/02/21", "🟥Cuisine", "Make toast")
+      )
+    }
+  }
+
   describe("Utility for calculating a new week") {
 
     it("should ignore suffixes") {
