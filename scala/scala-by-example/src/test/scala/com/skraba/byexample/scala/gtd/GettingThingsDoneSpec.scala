@@ -1023,27 +1023,55 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     val withWeeklyToDo = GettingThingsDone(s"""Weekly Status
          !==============================================================================
          !
+         ! <!-- 🟢🔵🔶🟥⤴️🕒 -->
+         !
+         !2022/02/28
+         !------------------------------------------------------------------------------
+         !
+         !| To Do   | Notes |
+         !|---------|-------|
+         !| 🟥A     | 1.2   |
+         !| 🟢B Fri | 2.2   |
+         !
          !2022/02/21
          !------------------------------------------------------------------------------
          !
-         !| To Do     | Notes 🟢🔵🔶🟥⤴️🕒 |
-         !|-----------|--------------------|
-         !| 🟢Baking  | Make cake          |
-         !| 🟥Cuisine | Make toast         |
+         !| To Do | Notes |
+         !|-------|-------|
+         !| 🟢A   | 1.1   |
+         !| 🟥B   | 2.1   |
          !
          !2022/02/14
          !------------------------------------------------------------------------------
          !
-         !| To Do    | Notes 🟢🔵🔶🟥⤴️🕒 |
-         !|-----------|--------------------|
-         !| 🟢Baking | Make bread          |
+         !| To Do   | Notes |
+         !|---------|-------|
+         !| 🟢A Mon | 1   |
+         !| 🔵B Tue | 2   |
+         !| ⤴️C Wed | 3   |
+         !| 🟥D Thu | 4   |
+         !| ⤴️E Fri | 5   |
+         !| 🕒F Sat | 6   |
+         !| G Sun   | 7   |
          !""".stripMargin('!'))
+
+    it("should ignore when no statistic is found") {
+      GettingThingsDone().extractToDo() shouldBe empty
+    }
 
     it("should find all the tasks") {
       stringify(withWeeklyToDo.extractToDo()) shouldBe Seq(
-        ("2022/02/14", "🟢Baking", "Make bread"),
-        ("2022/02/21", "🟢Baking", "Make cake"),
-        ("2022/02/21", "🟥Cuisine", "Make toast")
+        ("2022/02/14", "🟢A Mon", "1"),
+        ("2022/02/15", "🔵B Tue", "2"),
+        ("2022/02/16", "⤴️C Wed", "3"),
+        ("2022/02/17", "🟥D Thu", "4"),
+        ("2022/02/18", "⤴️E Fri", "5"),
+        ("2022/02/19", "🕒F Sat", "6"),
+        ("2022/02/20", "G Sun", "7"),
+        ("2022/02/21", "🟢A", "1.1"),
+        ("2022/02/21", "🟥B", "2.1"),
+        ("2022/02/28", "🟥A", "1.2"),
+        ("2022/03/04", "🟢B Fri", "2.2")
       )
     }
   }
