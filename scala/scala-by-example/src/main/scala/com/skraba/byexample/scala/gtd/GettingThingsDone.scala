@@ -378,11 +378,11 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
             weekly.mds
               .collectFirst {
                 case tbl: Table if tbl.title == TableToDo =>
-                  tbl.mds.drop(1).map(_.cells).map {
-                    case Seq()         => (startOfWeek, "", "")
-                    case Seq(category) => (startOfWeek, category, "")
+                  tbl.mds.drop(1).map(_.cells).flatMap {
+                    case Seq()         => None
+                    case Seq(category) => Some((startOfWeek, category, ""))
                     case Seq(category, task, _*) =>
-                      (startOfWeek, category, task)
+                      Some((startOfWeek, category, task))
                   }
               }
               .getOrElse(Nil)

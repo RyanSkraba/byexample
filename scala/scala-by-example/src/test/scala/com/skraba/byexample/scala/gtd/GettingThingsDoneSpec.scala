@@ -1059,6 +1059,29 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
       GettingThingsDone().extractToDo() shouldBe empty
     }
 
+    it("should ignore empty lines") {
+      stringify(GettingThingsDone(s"""Weekly Status
+         !==============================================================================
+         !
+         !2022/02/14
+         !------------------------------------------------------------------------------
+         !
+         !| To Do   | Notes |
+         !|---------|-------|
+         !|         |       |
+         !| A       | B     |
+         !|         |       |
+         !| C       |       |
+         !|         |       |
+         !|         | D     |
+         !|         |       |
+         !""".stripMargin('!')).extractToDo()) shouldBe Seq(
+        ("2022/02/14", "A", "B"),
+        ("2022/02/14", "C", ""),
+        ("2022/02/14", "", "D")
+      )
+    }
+
     it("should find all the tasks") {
       stringify(withWeeklyToDo.extractToDo()) shouldBe Seq(
         ("2022/02/14", "🟢A Mon", "1"),
