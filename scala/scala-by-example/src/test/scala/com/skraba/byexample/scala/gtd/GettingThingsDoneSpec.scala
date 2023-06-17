@@ -1014,10 +1014,10 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
   describe("Extracting to do tasks") {
 
     def stringify(
-        in: Seq[(LocalDate, String, String)]
+        in: Seq[(LocalDate, ToDoState, String, String)]
     ): Seq[(String, String, String)] =
-      in.map { case (d, stat, value) =>
-        (d.format(Pattern), stat, value)
+      in.map { case (d, state, category, notes) =>
+        (d.format(Pattern), category, notes)
       }
 
     val withWeeklyToDo = GettingThingsDone(s"""Weekly Status

@@ -365,7 +365,7 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
     *   A sequence of statistics in the form of a tuple containing the date, the
     *   category and the task text
     */
-  def extractToDo(): Seq[(LocalDate, String, String)] = {
+  def extractToDo(): Seq[(LocalDate, ToDoState, String, String)] = {
     // Find all of the weekly reports
     weeklies.toSeq
       .flatMap(_.mds.collect { case weekly @ Header(title, 2, _) =>
@@ -379,10 +379,11 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
               .collectFirst {
                 case tbl: Table if tbl.title == TableToDo =>
                   tbl.mds.drop(1).map(_.cells).flatMap {
-                    case Seq()         => None
-                    case Seq(category) => Some((startOfWeek, category, ""))
+                    case Seq() => None
+                    case Seq(category) =>
+                      Some((startOfWeek, ToDoState(category), category, ""))
                     case Seq(category, task, _*) =>
-                      Some((startOfWeek, category, task))
+                      Some((startOfWeek, ToDoState(category), category, task))
                   }
               }
               .getOrElse(Nil)
@@ -390,19 +391,24 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
       })
       .flatten
       .map {
-        case (date: LocalDate, category, task)
+        case (date: LocalDate, state, category, task)
             if category.toLowerCase().endsWith("tue") =>
-          (date.plusDays(1), category, task)
-        case (date, category, task) if category.toLowerCase().endsWith("wed") =>
-          (date.plusDays(2), category, task)
-        case (date, category, task) if category.toLowerCase().endsWith("thu") =>
-          (date.plusDays(3), category, task)
-        case (date, category, task) if category.toLowerCase().endsWith("fri") =>
-          (date.plusDays(4), category, task)
-        case (date, category, task) if category.toLowerCase().endsWith("sat") =>
-          (date.plusDays(5), category, task)
-        case (date, category, task) if category.toLowerCase().endsWith("sun") =>
-          (date.plusDays(6), category, task)
+          (date.plusDays(1), state, category, task)
+        case (date, state, category, task)
+            if category.toLowerCase().endsWith("wed") =>
+          (date.plusDays(2), state, category, task)
+        case (date, state, category, task)
+            if category.toLowerCase().endsWith("thu") =>
+          (date.plusDays(3), state, category, task)
+        case (date, state, category, task)
+            if category.toLowerCase().endsWith("fri") =>
+          (date.plusDays(4), state, category, task)
+        case (date, state, category, task)
+            if category.toLowerCase().endsWith("sat") =>
+          (date.plusDays(5), state, category, task)
+        case (date, state, category, task)
+            if category.toLowerCase().endsWith("sun") =>
+          (date.plusDays(6), state, category, task)
         case other => other
       }
       .sortBy(_._1.toEpochDay)

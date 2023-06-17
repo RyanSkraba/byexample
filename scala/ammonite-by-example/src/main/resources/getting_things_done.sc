@@ -420,16 +420,16 @@ def todoExtract(
   // Read the existing document.
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
   if (csv.value) {
-    println("date,category,task")
-    for ((date, category, text) <- gtd.extractToDo())
-      println(s"${date.format(Pattern)},$category,$text")
+    println("date,state,category,task")
+    for ((date,state, category, text) <- gtd.extractToDo())
+      println(s"${date.format(Pattern)},${state.txt},$category,$text")
   } else {
     println(
       Table(
-        Seq.fill(3)(Align.LEFT),
-        TableRow.from("Date", "Stat", "Value") +: gtd.extractToDo().map {
-          case (date, category, text) =>
-            TableRow.from(date.format(Pattern), category, text)
+        Seq.fill(4)(Align.LEFT),
+        TableRow.from("Date", "State", "Category", "Text") +: gtd.extractToDo().map {
+          case (date,state, category, text) =>
+            TableRow.from(date.format(Pattern), state.txt, category, text)
         }
       ).build().toString
     )
