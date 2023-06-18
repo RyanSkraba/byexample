@@ -1015,9 +1015,9 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
 
     def stringify(
         in: Seq[(LocalDate, ToDoState, String, String)]
-    ): Seq[(String, String, String)] =
+    ): Seq[(String, ToDoState, String, String)] =
       in.map { case (d, state, category, notes) =>
-        (d.format(Pattern), category, notes)
+        (d.format(Pattern), state, category, notes)
       }
 
     val withWeeklyToDo = GettingThingsDone(s"""Weekly Status
@@ -1076,25 +1076,25 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
          !|         | D     |
          !|         |       |
          !""".stripMargin('!')).extractToDo()) shouldBe Seq(
-        ("2022/02/14", "A", "B"),
-        ("2022/02/14", "C", ""),
-        ("2022/02/14", "", "D")
+        ("2022/02/14", NoToDoState, "A", "B"),
+        ("2022/02/14", NoToDoState, "C", ""),
+        ("2022/02/14", NoToDoState, "", "D")
       )
     }
 
     it("should find all the tasks") {
       stringify(withWeeklyToDo.extractToDo()) shouldBe Seq(
-        ("2022/02/14", "🟢A Mon", "1"),
-        ("2022/02/15", "🔵B Tue", "2"),
-        ("2022/02/16", "⤴️C Wed", "3"),
-        ("2022/02/17", "🟥D Thu", "4"),
-        ("2022/02/18", "⤴️E Fri", "5"),
-        ("2022/02/19", "🕒F Sat", "6"),
-        ("2022/02/20", "G Sun", "7"),
-        ("2022/02/21", "🟢A", "1.1"),
-        ("2022/02/21", "🟥B", "2.1"),
-        ("2022/02/28", "🟥A", "1.2"),
-        ("2022/03/04", "🟢B Fri", "2.2")
+        ("2022/02/14", DoneToDo, "🟢A Mon", "1"),
+        ("2022/02/15", DoneSimpleToDo, "🔵B Tue", "2"),
+        ("2022/02/16", LaterToDo, "⤴️C Wed", "3"),
+        ("2022/02/17", StoppedToDo, "🟥D Thu", "4"),
+        ("2022/02/18", LaterToDo, "⤴️E Fri", "5"),
+        ("2022/02/19", WaitingToDo, "🕒F Sat", "6"),
+        ("2022/02/20", NoToDoState, "G Sun", "7"),
+        ("2022/02/21", DoneToDo, "🟢A", "1.1"),
+        ("2022/02/21", StoppedToDo, "🟥B", "2.1"),
+        ("2022/02/28", StoppedToDo, "🟥A", "1.2"),
+        ("2022/03/04", DoneToDo, "🟢B Fri", "2.2")
       )
     }
   }
