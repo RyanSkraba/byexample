@@ -384,7 +384,7 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
                         (
                           startOfWeek,
                           ToDoState(category),
-                          category,
+                          category.dropWhile(!_.isLetterOrDigit).trim,
                           tail.headOption.getOrElse("")
                         )
                       )
