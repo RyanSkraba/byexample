@@ -6,6 +6,7 @@ import com.skraba.byexample.scala.markd.{Comment, _}
 import java.time.format.DateTimeFormatter
 import java.time.{DayOfWeek, LocalDate}
 import scala.util.Try
+import scala.util.matching.Regex
 
 /** A markdown document that helps organising yourself.
   *
@@ -366,6 +367,8 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
     *   category and the task text
     */
   def extractToDo(): Seq[(LocalDate, ToDoState, String, String)] = {
+    val catRegex: Regex =
+      "^((\\W*)(.*?)((?<=\\W)(?i)(mon|tue|wed|thu|fri|sat|sun))?)$$".r
     // Find all of the weekly reports
     weeklies.toSeq
       .flatMap(_.mds.collect { case weekly @ Header(title, 2, _) =>
@@ -379,12 +382,23 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
               .collectFirst {
                 case tbl: Table if tbl.title == TableToDo =>
                   tbl.mds.drop(1).map(_.cells.toList).flatMap {
+                    case catRegex(all, _, category, date, _) :: tail =>
+                      Some(
+                        (
+                          startOfWeek,
+                          Option(date).getOrElse("").toLowerCase(),
+                          ToDoState(all),
+                          category.trim,
+                          tail.headOption.getOrElse("")
+                        )
+                      )
                     case category :: tail =>
                       Some(
                         (
                           startOfWeek,
+                          "",
                           ToDoState(category),
-                          category.dropWhile(!_.isLetterOrDigit).trim,
+                          category,
                           tail.headOption.getOrElse("")
                         )
                       )
@@ -396,25 +410,20 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
       })
       .flatten
       .map {
-        case (date: LocalDate, state, category, task)
-            if category.toLowerCase().endsWith("tue") =>
+        case (date: LocalDate, "tue", state, category, task) =>
           (date.plusDays(1), state, category, task)
-        case (date, state, category, task)
-            if category.toLowerCase().endsWith("wed") =>
+        case (date: LocalDate, "wed", state, category, task) =>
           (date.plusDays(2), state, category, task)
-        case (date, state, category, task)
-            if category.toLowerCase().endsWith("thu") =>
+        case (date: LocalDate, "thu", state, category, task) =>
           (date.plusDays(3), state, category, task)
-        case (date, state, category, task)
-            if category.toLowerCase().endsWith("fri") =>
+        case (date: LocalDate, "fri", state, category, task) =>
           (date.plusDays(4), state, category, task)
-        case (date, state, category, task)
-            if category.toLowerCase().endsWith("sat") =>
+        case (date: LocalDate, "sat", state, category, task) =>
           (date.plusDays(5), state, category, task)
-        case (date, state, category, task)
-            if category.toLowerCase().endsWith("sun") =>
+        case (date: LocalDate, "sun", state, category, task) =>
           (date.plusDays(6), state, category, task)
-        case other => other
+        case (date: LocalDate, _, state, category, task) =>
+          (date, state, category, task)
       }
       .sortBy(_._1.toEpochDay)
   }
