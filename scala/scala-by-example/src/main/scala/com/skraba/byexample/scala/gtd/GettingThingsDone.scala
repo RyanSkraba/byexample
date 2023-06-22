@@ -367,9 +367,20 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
     *   category and the task text
     */
   def extractToDo(): Seq[(LocalDate, ToDoState, String, String)] = {
+
+    // A regex to extract a category into the state prefix (non-word), the
+    // category text (word, usually alphanumeric plus underscore) and optionally
+    // a day of week indicator.
     val catRegex: Regex =
       "^((\\W*)(.*?)((?<=\\W)(?i)(mon|tue|wed|thu|fri|sat|sun))?)$$".r
-    // Find all of the weekly reports
+
+    // The day of the week mapped to the offset from Monday
+    val dateToIndex: Map[String, Int] = DayOfWeek
+      .values()
+      .map(dow => dow.toString.take(3).toLowerCase -> dow.ordinal())
+      .toMap
+
+    // Scan through all of the weekly reports to find To Do tasks
     weeklies.toSeq
       .flatMap(_.mds.collect { case weekly @ Header(title, 2, _) =>
         // If the title is a parseable date
@@ -377,16 +388,20 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
           LocalDate.parse(title.substring(0, 10), Pattern)
         }.toOption.toSeq
           .flatMap { startOfWeek: LocalDate =>
-            // Then find the Stats table in the weekly report
             weekly.mds
               .collectFirst {
                 case tbl: Table if tbl.title == TableToDo =>
                   tbl.mds.drop(1).map(_.cells.toList).flatMap {
-                    case catRegex(all, _, category, date, _) :: tail =>
+                    case catRegex(all, _, category, _, dow) :: tail =>
                       Some(
                         (
-                          startOfWeek,
-                          Option(date).getOrElse("").toLowerCase(),
+                          startOfWeek.plusDays(
+                            Option(dow)
+                              .map(_.toLowerCase)
+                              .flatMap(dateToIndex.get)
+                              .map(_.toLong)
+                              .getOrElse(0)
+                          ),
                           ToDoState(all),
                           category.trim,
                           tail.headOption.getOrElse("")
@@ -396,7 +411,6 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
                       Some(
                         (
                           startOfWeek,
-                          "",
                           ToDoState(category),
                           category,
                           tail.headOption.getOrElse("")
@@ -409,22 +423,6 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
           }
       })
       .flatten
-      .map {
-        case (date: LocalDate, "tue", state, category, task) =>
-          (date.plusDays(1), state, category, task)
-        case (date: LocalDate, "wed", state, category, task) =>
-          (date.plusDays(2), state, category, task)
-        case (date: LocalDate, "thu", state, category, task) =>
-          (date.plusDays(3), state, category, task)
-        case (date: LocalDate, "fri", state, category, task) =>
-          (date.plusDays(4), state, category, task)
-        case (date: LocalDate, "sat", state, category, task) =>
-          (date.plusDays(5), state, category, task)
-        case (date: LocalDate, "sun", state, category, task) =>
-          (date.plusDays(6), state, category, task)
-        case (date: LocalDate, _, state, category, task) =>
-          (date, state, category, task)
-      }
       .sortBy(_._1.toEpochDay)
   }
 }
