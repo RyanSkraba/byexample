@@ -1097,6 +1097,85 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         ("2022/03/04", DoneToDo, "B", "2.2")
       )
     }
+
+    describe("should find all the tasks") {
+
+      it("after a date") {
+        stringify(
+          withWeeklyToDo
+            .extractToDo(
+              from = Some(LocalDate.parse("2022/02/18", Pattern))
+            )
+        ) shouldBe Seq(
+          ("2022/02/18", LaterToDo, "E", "5"),
+          ("2022/02/19", WaitingToDo, "F", "6"),
+          ("2022/02/20", NoToDoState, "G", "7"),
+          ("2022/02/21", DoneToDo, "A", "1.1"),
+          ("2022/02/21", StoppedToDo, "B", "2.1"),
+          ("2022/02/28", StoppedToDo, "A", "1.2"),
+          ("2022/03/04", DoneToDo, "B", "2.2")
+        )
+      }
+
+      it("before a date") {
+        stringify(
+          withWeeklyToDo
+            .extractToDo(
+              to = Some(LocalDate.parse("2022/03/02", Pattern))
+            )
+        ) shouldBe Seq(
+          ("2022/02/14", DoneToDo, "A", "1"),
+          ("2022/02/15", DoneSimpleToDo, "B", "2"),
+          ("2022/02/16", LaterToDo, "C", "3"),
+          ("2022/02/17", StoppedToDo, "D", "4"),
+          ("2022/02/18", LaterToDo, "E", "5"),
+          ("2022/02/19", WaitingToDo, "F", "6"),
+          ("2022/02/20", NoToDoState, "G", "7"),
+          ("2022/02/21", DoneToDo, "A", "1.1"),
+          ("2022/02/21", StoppedToDo, "B", "2.1"),
+          ("2022/02/28", StoppedToDo, "A", "1.2")
+        )
+      }
+
+      it("between dates") {
+        stringify(
+          withWeeklyToDo
+            .extractToDo(
+              from = Some(LocalDate.parse("2022/02/18", Pattern)),
+              to = Some(LocalDate.parse("2022/03/02", Pattern))
+            )
+        ) shouldBe Seq(
+          ("2022/02/18", LaterToDo, "E", "5"),
+          ("2022/02/19", WaitingToDo, "F", "6"),
+          ("2022/02/20", NoToDoState, "G", "7"),
+          ("2022/02/21", DoneToDo, "A", "1.1"),
+          ("2022/02/21", StoppedToDo, "B", "2.1"),
+          ("2022/02/28", StoppedToDo, "A", "1.2")
+        )
+      }
+
+      it("between large bounds") {
+        stringify(
+          withWeeklyToDo
+            .extractToDo(
+              from = Some(LocalDate.parse("1022/02/18", Pattern)),
+              to = Some(LocalDate.parse("3022/03/02", Pattern))
+            )
+        ) shouldBe Seq(
+          ("2022/02/14", DoneToDo, "A", "1"),
+          ("2022/02/15", DoneSimpleToDo, "B", "2"),
+          ("2022/02/16", LaterToDo, "C", "3"),
+          ("2022/02/17", StoppedToDo, "D", "4"),
+          ("2022/02/18", LaterToDo, "E", "5"),
+          ("2022/02/19", WaitingToDo, "F", "6"),
+          ("2022/02/20", NoToDoState, "G", "7"),
+          ("2022/02/21", DoneToDo, "A", "1.1"),
+          ("2022/02/21", StoppedToDo, "B", "2.1"),
+          ("2022/02/28", StoppedToDo, "A", "1.2"),
+          ("2022/03/04", DoneToDo, "B", "2.2")
+        )
+      }
+    }
   }
 
   describe("Utility for calculating a new week") {
