@@ -13,6 +13,7 @@
 
 import mainargs.{Flag, arg, main}
 
+import java.time.LocalDate
 import scala.io.AnsiColor._
 import scala.util.matching.Regex
 
@@ -28,6 +29,7 @@ interp.repositories() ++= {
 @
 // Intellij always removes the following line, which should be
 // import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
+
 import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
 import com.skraba.byexample.scala.gtd._
 import com.skraba.byexample.scala.gtd.GettingThingsDone._
@@ -91,18 +93,20 @@ private def writeGtd(
   os.write.over(StatusFile, after)
   gitStatus
     .map(msg => s"""${GREEN}Commit:$RESET
-       |  git -C $StatusRepo add ${StatusFile.relativeTo(StatusRepo)} &&
-       |      git -C $StatusRepo difftool --staged
-       |  git -C $StatusRepo add ${StatusFile.relativeTo(StatusRepo)} &&
-       |      git -C $StatusRepo commit -m $BOLD"$msg"$RESET
-       |""".stripMargin)
+         |  git -C $StatusRepo add ${StatusFile.relativeTo(StatusRepo)} &&
+         |      git -C $StatusRepo difftool --staged
+         |  git -C $StatusRepo add ${StatusFile.relativeTo(StatusRepo)} &&
+         |      git -C $StatusRepo commit -m $BOLD"$msg"$RESET
+         |""".stripMargin)
     .foreach(println)
 
   // Some debugging for when an emoji is overwritten unexpectedly
   val written = os.read(StatusFile)
   if (written.contains("??")) {
-    println(s"""${RED_B}Warning:$RESET
-       |  The file was written with an unexpected ?? replacement""".stripMargin)
+    println(
+      s"""${RED_B}Warning:$RESET
+         |  The file was written with an unexpected ?? replacement""".stripMargin
+    )
 
     if (after.contains("??"))
       println(
@@ -372,11 +376,23 @@ def statExtract(
     @arg(doc = "Update the statistic on this row (matches first element.")
     rowStat: String = "",
     @arg(doc = "Print the output as CSV.")
-    csv: Flag
+    csv: Flag,
+    @arg(doc = "Limit the statistics to this last month.")
+    month: Flag
 ): Unit = {
   // Read the existing document.
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
-  val stats = gtd.extractStats(name = rowStat)
+
+  // If we're asking
+  val stats =
+    if (month.value)
+      gtd.extractStats(
+        name = rowStat,
+        from = Some(LocalDate.now().withDayOfMonth(1)),
+        to = Some(LocalDate.now().plusMonths(1).withDayOfMonth(1).minusDays(1))
+      )
+    else gtd.extractStats(name = rowStat)
+
   if (csv.value) {
     if (rowStat.isEmpty) {
       println("date,stat,value")
@@ -421,16 +437,17 @@ def todoExtract(
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
   if (csv.value) {
     println("date,state,category,task")
-    for ((date,state, category, text) <- gtd.extractToDo())
+    for ((date, state, category, text) <- gtd.extractToDo())
       println(s"${date.format(Pattern)},${state.txt},$category,$text")
   } else {
     println(
       Table(
         Seq.fill(4)(Align.LEFT),
-        TableRow.from("Date", "State", "Category", "Text") +: gtd.extractToDo().map {
-          case (date,state, category, text) =>
+        TableRow.from("Date", "State", "Category", "Text") +: gtd
+          .extractToDo()
+          .map { case (date, state, category, text) =>
             TableRow.from(date.format(Pattern), state.txt, category, text)
-        }
+          }
       ).build().toString
     )
   }
@@ -464,11 +481,11 @@ def week(
       .collect { case h: Header => h }
       .map(week =>
         println(s"""${GREEN}Commit:$RESET
-         |  git -C $StatusRepo add ${StatusFile.relativeTo(StatusRepo)} &&
-         |      git -C $StatusRepo difftool --staged
-         |  git -C $StatusRepo add ${StatusFile.relativeTo(StatusRepo)} &&
-         |      git -C $StatusRepo commit -m $BOLD"feat(${StatusFile.baseName
+             |  git -C $StatusRepo add ${StatusFile.relativeTo(StatusRepo)} &&
+             |      git -C $StatusRepo difftool --staged
+             |  git -C $StatusRepo add ${StatusFile.relativeTo(StatusRepo)} &&
+             |      git -C $StatusRepo commit -m $BOLD"feat(${StatusFile.baseName
           .stripSuffix(StatusFile.ext)}): Updated ${week.title}"$RESET
-         |""".stripMargin)
+             |""".stripMargin)
       )
 }
