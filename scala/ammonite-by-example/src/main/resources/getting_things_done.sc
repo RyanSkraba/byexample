@@ -383,7 +383,7 @@ def statExtract(
   // Read the existing document.
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
 
-  // If we're asking
+  // Filter to this month if the flag was set
   val stats =
     if (month.value)
       gtd.extractStats(
@@ -431,20 +431,31 @@ def statExtract(
 @main
 def todoExtract(
     @arg(doc = "Print the output as CSV.")
-    csv: Flag
+    csv: Flag,
+    @arg(doc = "Limit the tasks to this last month.")
+    month: Flag
 ): Unit = {
   // Read the existing document.
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
+
+  // Filter to this month if the flag was set
+  val tasks =
+    if (month.value)
+      gtd.extractToDo(
+        from = Some(LocalDate.now().withDayOfMonth(1)),
+        to = Some(LocalDate.now().plusMonths(1).withDayOfMonth(1).minusDays(1))
+      )
+    else gtd.extractToDo()
+
   if (csv.value) {
     println("date,state,category,task")
-    for ((date, state, category, text) <- gtd.extractToDo())
+    for ((date, state, category, text) <- tasks)
       println(s"${date.format(Pattern)},${state.txt},$category,$text")
   } else {
     println(
       Table(
         Seq.fill(4)(Align.LEFT),
-        TableRow.from("Date", "State", "Category", "Text") +: gtd
-          .extractToDo()
+        TableRow.from("Date", "State", "Category", "Notes") +: tasks
           .map { case (date, state, category, text) =>
             TableRow.from(date.format(Pattern), state.txt, category, text)
           }
