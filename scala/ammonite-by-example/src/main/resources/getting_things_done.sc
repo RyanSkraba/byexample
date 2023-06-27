@@ -448,16 +448,16 @@ def todoExtract(
     else gtd.extractToDo()
 
   if (csv.value) {
-    println("date,state,category,task")
-    for ((date, state, category, text) <- tasks)
-      println(s"${date.format(Pattern)},${state.txt},$category,$text")
+    println("date,state,category,notes")
+    for ((date, state, category, notes) <- tasks)
+      println(s"${date.format(Pattern)},${state.txt},$category,$notes")
   } else {
     println(
       Table(
         Seq.fill(4)(Align.LEFT),
         TableRow.from("Date", "State", "Category", "Notes") +: tasks
-          .map { case (date, state, category, text) =>
-            TableRow.from(date.format(Pattern), state.txt, category, text)
+          .map { case (date, state, category, notes) =>
+            TableRow.from(date.format(Pattern), state.txt, category, notes)
           }
       ).build().toString
     )
