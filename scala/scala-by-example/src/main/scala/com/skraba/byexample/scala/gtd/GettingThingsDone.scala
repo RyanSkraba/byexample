@@ -361,17 +361,21 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
   }
 
   /** Extract statistics from [[TableToDo]] tables in the weekly section.
+    *
     * @param from
     *   If present, the starting date (inclusive) to consider statistics.
     * @param to
     *   If present, the ending date (inclusive) to consider statistics.
+    * @param completed
+    *   If true, only the tasks in a completed state are listed.
     * @return
     *   A sequence of statistics in the form of a tuple containing the date, the
     *   state, the category and the task text
     */
   def extractToDo(
       from: Option[LocalDate] = None,
-      to: Option[LocalDate] = None
+      to: Option[LocalDate] = None,
+      completed: Boolean = false
   ): Seq[(LocalDate, ToDoState, String, String)] = {
 
     // A regex to extract a category into the state prefix (non-word), the
@@ -429,6 +433,7 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
               // Filter by the dates if any are specified
               .filter { case (d, _, _, _) => from.forall(_.compareTo(d) <= 0) }
               .filter { case (d, _, _, _) => to.forall(_.compareTo(d) >= 0) }
+              .filter { case (_, state, _, _) => !completed || state.complete }
           }
       })
       .flatten

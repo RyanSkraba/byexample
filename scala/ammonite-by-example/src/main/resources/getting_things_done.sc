@@ -433,19 +433,22 @@ def todoExtract(
     @arg(doc = "Print the output as CSV.")
     csv: Flag,
     @arg(doc = "Limit the tasks to this last month.")
-    month: Flag
+    month: Flag,
+    @arg(doc = "Only list completed tasks")
+    completed: Flag
 ): Unit = {
   // Read the existing document.
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
 
   // Filter to this month if the flag was set
-  val tasks =
-    if (month.value)
-      gtd.extractToDo(
-        from = Some(LocalDate.now().withDayOfMonth(1)),
-        to = Some(LocalDate.now().plusMonths(1).withDayOfMonth(1).minusDays(1))
-      )
-    else gtd.extractToDo()
+  val tasks = gtd.extractToDo(
+    from = if (month.value) Some(LocalDate.now().withDayOfMonth(1)) else None,
+    to =
+      if (month.value)
+        Some(LocalDate.now().plusMonths(1).withDayOfMonth(1).minusDays(1))
+      else None,
+    completed = completed.value
+  )
 
   if (csv.value) {
     println("date,state,category,notes")
