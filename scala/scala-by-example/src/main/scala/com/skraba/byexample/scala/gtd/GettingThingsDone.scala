@@ -367,7 +367,7 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
     * @param to
     *   If present, the ending date (inclusive) to consider statistics.
     * @param completed
-    *   If true, only the tasks in a completed state are listed.
+    *   If present, only show completed or uncompleted tasks.
     * @return
     *   A sequence of statistics in the form of a tuple containing the date, the
     *   state, the category and the task text
@@ -375,7 +375,7 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
   def extractToDo(
       from: Option[LocalDate] = None,
       to: Option[LocalDate] = None,
-      completed: Boolean = false
+      completed: Option[Boolean] = None
   ): Seq[(LocalDate, ToDoState, String, String)] = {
 
     // A regex to extract a category into the state prefix (non-word), the
@@ -433,7 +433,9 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
               // Filter by the dates if any are specified
               .filter { case (d, _, _, _) => from.forall(_.compareTo(d) <= 0) }
               .filter { case (d, _, _, _) => to.forall(_.compareTo(d) >= 0) }
-              .filter { case (_, state, _, _) => !completed || state.complete }
+              .filter { case (_, state, _, _) =>
+                completed.isEmpty || completed.contains(state.complete)
+              }
           }
       })
       .flatten

@@ -1099,7 +1099,9 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     }
 
     it("should find only completed tasks") {
-      stringify(withWeeklyToDo.extractToDo(completed = true)) shouldBe Seq(
+      stringify(
+        withWeeklyToDo.extractToDo(completed = Some(true))
+      ) shouldBe Seq(
         ("2022/02/14", DoneToDo, "A", "1"),
         ("2022/02/15", DoneSimpleToDo, "B", "2"),
         ("2022/02/17", StoppedToDo, "D", "4"),

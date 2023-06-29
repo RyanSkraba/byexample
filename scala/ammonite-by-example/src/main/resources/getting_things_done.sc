@@ -447,7 +447,7 @@ def todoExtract(
       if (month.value)
         Some(LocalDate.now().plusMonths(1).withDayOfMonth(1).minusDays(1))
       else None,
-    completed = completed.value
+    completed = if (completed.value) Some(true) else None
   )
 
   if (csv.value) {
