@@ -40,7 +40,7 @@
         <configuration>
           <images>
             <image>
-              <name>flamegraph-influxdb:1.7.4</name>
+              <name>flamegraph-influxdb:2.7.1</name>
               <build>
                 <dockerFileDir>.</dockerFileDir>
               </build>
