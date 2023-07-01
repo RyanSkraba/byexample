@@ -103,24 +103,27 @@ private def writeGtd(
   // Some debugging for when an emoji is overwritten unexpectedly
   val written = os.read(StatusFile)
   if (written.contains("??")) {
+    if (before.contains("??"))
+      println(
+        s"""${RED_B}Warning:$RESET
+           |  The file already contained the characters ??""".stripMargin)
+
+    // These are very likely to occur together
+    if (gtd.h0.build().toString.contains("??"))
+      println(
+        s"""${RED_B}Warning:$RESET
+           |  The built text contains ??""".stripMargin)
+    if (after.contains("??"))
+      println(
+        s"""${RED_B}Warning:$RESET
+           |  The new text before writing contains ??""".stripMargin
+      )
+
+    // This is the issue that we'd like to debug, if it occurs alone.
     println(
       s"""${RED_B}Warning:$RESET
          |  The file was written with an unexpected ?? replacement""".stripMargin
     )
-
-    if (after.contains("??"))
-      println(
-        s"""${RED_B}Warning:$RESET
-           |  The text already contained the characters before writing the file""".stripMargin
-      )
-
-    if (before.contains("??"))
-      println(s"""${RED_B}Warning:$RESET
-           |  The file already contained the characters""".stripMargin)
-
-    if (gtd.h0.build().toString.contains("??"))
-      println(s"""${RED_B}Warning:$RESET
-           |  The modified doc contains the characters""".stripMargin)
   }
 }
 
