@@ -104,14 +104,12 @@ private def writeGtd(
   val written = os.read(StatusFile)
   if (written.contains("??")) {
     if (before.contains("??"))
-      println(
-        s"""${RED_B}Warning:$RESET
+      println(s"""${RED_B}Warning:$RESET
            |  The file already contained the characters ??""".stripMargin)
 
     // These are very likely to occur together
     if (gtd.h0.build().toString.contains("??"))
-      println(
-        s"""${RED_B}Warning:$RESET
+      println(s"""${RED_B}Warning:$RESET
            |  The built text contains ??""".stripMargin)
     if (after.contains("??"))
       println(
@@ -200,7 +198,10 @@ def help(): Unit = {
 
 @arg(doc = "Clean the existing document")
 @main
-def clean(compress: Flag): Unit = {
+def clean(
+    @arg(doc = "Write the document with less whitespace")
+    compress: Flag
+): Unit = {
   // Read and overwrite the existing document without making any changes.
   writeGtd(
     GettingThingsDone(os.read(StatusFile), ProjectParserCfg),
