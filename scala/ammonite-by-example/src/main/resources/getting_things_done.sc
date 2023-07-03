@@ -135,29 +135,25 @@ object ProjectParserCfg extends ParserCfg {
 
   /** Group JIRA together by the project. */
   override def linkSorter(): PartialFunction[LinkRef, (String, LinkRef)] = {
-    case LinkRef(JiraLinkRefRegex(prj, num), None, title)
+    case LinkRef(JiraLinkRefRegex(prj, num), url, title)
         if Projects.value.contains(prj.toLowerCase) =>
       (
         f"0 ${prj.toUpperCase}-0 $num%9s",
         LinkRef(
           s"${prj.toUpperCase}-$num",
-          Some(
-            s"https://issues.apache.org/jira/browse/${prj.toUpperCase}-$num"
-          ),
+          Some(url.getOrElse(s"https://issues.apache.org/jira/browse/${prj.toUpperCase}-$num")),
           title
         )
       )
     case l @ LinkRef(JiraLinkRefRegex(prj, num), _, _) =>
       (f"1 ${prj.toUpperCase}-0 $num%9s", l)
-    case LinkRef(GitHubLinkRefRegex(prj, num), None, title)
+    case LinkRef(GitHubLinkRefRegex(prj, num), url, title)
         if Projects.value.contains(prj.toLowerCase) =>
       (
         f"0 ${prj.toUpperCase}-1 $num%9s",
         LinkRef(
           s"${prj.toLowerCase}#$num",
-          Some(
-            s"https://github.com/apache/${prj.toLowerCase}/pull/$num"
-          ),
+          Some(url.getOrElse(s"https://github.com/apache/${prj.toLowerCase}/pull/$num")),
           title
         )
       )
