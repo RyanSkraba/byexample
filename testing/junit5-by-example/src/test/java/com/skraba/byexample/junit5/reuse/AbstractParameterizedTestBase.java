@@ -23,7 +23,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class AbstractParameterizedTestBase {
 
-  /** @return the list of numbers to test. */
+  /**
+   * @return the list of numbers to test.
+   */
   public abstract Stream<Integer> getNumbers();
 
   @BeforeAll

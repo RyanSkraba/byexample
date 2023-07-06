@@ -8,7 +8,9 @@ import org.junit.jupiter.api.Test;
 /** Simple examples on how to describe tests meaningfully. */
 class DescribingTest {
 
-  /** @link https://assertj.github.io/doc/#assertj-core-assertion-description */
+  /**
+   * @link https://assertj.github.io/doc/#assertj-core-assertion-description
+   */
   @Test
   void testBasicDescriptions() {
     Issue issue = new Issue(new Project("ABC"), "123");
