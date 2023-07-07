@@ -13,19 +13,59 @@ import scala.io.AnsiColor._
 import scala.util._
 
 // ==========================================================================
-// This is how you would add artifacts coming from the local maven repository
+// Adding artifacts to your local build
 
-interp.repositories() ++= {
-  // Get the local Maven repository.
+// Within a multi-module maven project, this points to the artifact module's
+// target directory.
+
+val artifact = "scala-by-example-0.0.1-SNAPSHOT.jar"
+val depRoot = Stream
+  .iterate(os.Path(sourcecode.File()))(_ / os.up)
+  .dropWhile(_.baseName != "byexample")
+  .head / "scala" / "scala-by-example" / "target"
+
+// Load it from the maven path if it exists.
+if (os.exists(depRoot / "classes"))
+  interp.load.cp(depRoot / "classes")
+else if (os.exists(depRoot / artifact))
+  interp.load.cp(depRoot / artifact)
+else {
+  // Otherwise try and load it from the local maven repo
   val localM2: os.Path = Option(sys.props("maven.repo.local"))
     .map(os.Path(_))
     .getOrElse(os.home / ".m2" / "repository")
 
-  Seq(coursierapi.MavenRepository.of(localM2.toIO.toURI.toString))
+  /*
+    // If you wanted to add artifacts from the local maven repo
+    interp.repositories() ++= {
+      // Get the local Maven repository.
+      val localM2: os.Path = Option(sys.props("maven.repo.local"))
+        .map(os.Path(_))
+        .getOrElse(os.home / ".m2" / "repository")
+
+      Seq(coursierapi.MavenRepository.of(localM2.toIO.toURI.toString))
+    }
+
+    // After the @
+    import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
+   */
+
+  // Load it directly into the classpath here though
+  val repoJar =
+    localM2 / "com" / "skraba" / "byexample" / "scala-by-example" / "0.0.1-SNAPSHOT" / artifact
+  if (os.exists(repoJar)) interp.load.cp(repoJar)
+  else {
+    println(s"""$BOLD${RED}Unable to load dependency
+         |
+         |This scripts depends on an artifact $artifact but wasn't able to find it.
+         |""".stripMargin)
+    sys.exit(1)
+  }
 }
 
+// The "@" forces a reload to take into account the classpath changes
+
 @
-import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
 import com.skraba.byexample.scala.gtd.GettingThingsDone
 import com.skraba.byexample.scala.markd._
 

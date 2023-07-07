@@ -70,7 +70,7 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
     }
   }
 
-  ignore("Running the ammonite_example help") {
+  describe("Running the ammonite_example help") {
 
     it("should print a useful message") {
       // with helpers
@@ -130,7 +130,7 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
     }
   }
 
-  ignore("Running the ammonite_example argTest") {
+  describe("Running the ammonite_example argTest") {
 
     val ExpectedSignature = """Expected Signature: argTest
                               |  --user <str>      The user running the script, or current user if not present
