@@ -19,7 +19,7 @@
     <!-- Launcher class -->
     <exec.mainClass/>
     <!-- other project dependency versions as properties -->
-    <restassured.version>5.3.0</restassured.version>
+    <restassured.version>5.3.1</restassured.version>
   </properties>
 
   <dependencies>
