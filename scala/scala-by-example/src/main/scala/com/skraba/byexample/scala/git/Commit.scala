@@ -57,15 +57,15 @@ object Commit {
     *   The stdout parsed into a commit instance.
     */
   def fromGit(in: String): Seq[Commit] = in
-    .split("\0")
+    .split("\u0000")
     .grouped(10)
-    .map(_.mkString("\0").trim)
+    .map(_.mkString("\u0000").trim)
     .toSeq
     .map(Commit(_))
 
   // From a one line string given the log format, create a commit instance
   def apply(in: String): Commit = {
-    val tokens = in.split("\0")
+    val tokens = in.split("\u0000")
     val (marker, commit) = tokens.head.span(!_.isLetterOrDigit)
     Commit(
       commit = commit,

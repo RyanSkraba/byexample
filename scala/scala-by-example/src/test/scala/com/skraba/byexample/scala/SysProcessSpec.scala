@@ -16,12 +16,10 @@ import sys.process._
   */
 class SysProcessSpec extends AnyFunSpecLike with Matchers {
 
-  /** @return true if echo, can and grep exists to be used for system exec */
+  /** @return true if echo, cat and grep exists to be used for system exec */
   def checkCommands(): Boolean = {
-    Try("echo ECHO CHECK".#|("grep CHECK").!!) == Success(
-      "ECHO CHECK\n"
-    ) && Try("cat".!!) == Success("")
-
+    Try("echo ECHO CHECK".#|("grep CHECK").!!) == Success("ECHO CHECK\n") &&
+    Try("echo ECHO CHECK".#|("cat").!!) == Success("ECHO CHECK\n")
   }
 
   describe("Running a system process") {
