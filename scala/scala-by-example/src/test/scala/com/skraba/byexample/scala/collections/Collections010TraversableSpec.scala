@@ -151,15 +151,12 @@ class Collections010TraversableSpec extends AnyFunSpecLike with Matchers {
       val b = new StringBuilder()
       xs.addString(b, "a", "b", "c") shouldBe new StringBuilder("a1b2b3c")
       xs.mkString("x", "y", "z") shouldBe "x1y2y3z"
-      // TODO
-      // xs.stringPrefix shouldBe "List"
     }
 
     it("supports views") {
       // See spec on views in this package. TL;DR --> they're lazy.
-      // TODO
-      // xs.view shouldBe Traversable(1, 2, 3)
-      // xs view (1, 2) shouldBe Traversable(2)
+      xs.view should contain theSameElementsAs List(1, 2, 3)
+      xs.view.slice(1, 2) should contain theSameElementsAs List(2)
     }
 
     it("supports creation") {
