@@ -34,39 +34,38 @@ class CanBuildFromSpec extends AnyFunSpecLike with Matchers {
     }
   }
 
-//
-//  /** A custom list implementation that I want to behave the same way.
-//    *
-//    * @param dlg
-//    *   Delegate all of the actual logic here (but we'd probably actually want
-//    *   some custom logic).
-//    */
-//  case class MagicList(private val dlg: Boolean*) extends Seq[Boolean] {
-//    override def apply(idx: Int): Boolean = dlg(idx)
-//
-//    override def length: Int = dlg.length
-//
-//    override def iterator: Iterator[Boolean] = dlg.iterator
-//  }
-//
-//  describe("MagicList") {
-//
-//    it("looks like a Seq but doesn't have the same magic") {
-//      val orig: MagicList = MagicList(true, false, true)
-//      "val check: Seq[Boolean] = orig" should compile
-//
-//      // So you can map it to a sequence of integers.
-//      orig.map(if (_) 1 else 0) shouldBe Seq(1, 0, 1)
-//
-//      // Or magically to a String (or sequence of characters, whatever.
-//      orig.map(!_) shouldBe Seq(false, true, false)
-//      // But there is no coversion
-//      "val x: MagicList = orig.map(!_)" shouldNot compile
-//
-//      // Because there's no way to build it.
-//      "implicitly[CanBuildFrom[MagicList, Boolean, MagicList]]" shouldNot compile
-//    }
-//
+  /** A custom list implementation that I want to behave the same way.
+    *
+    * @param dlg
+    *   Delegate all of the actual logic here (but we'd probably actually want
+    *   some custom logic).
+    */
+  case class MagicList(private val dlg: Boolean*) extends Seq[Boolean] {
+    override def apply(idx: Int): Boolean = dlg(idx)
+
+    override def length: Int = dlg.length
+
+    override def iterator: Iterator[Boolean] = dlg.iterator
+  }
+
+  describe("MagicList") {
+
+    it("looks like a Seq but doesn't have the same magic") {
+      val orig: MagicList = MagicList(true, false, true)
+      "val check: Seq[Boolean] = orig" should compile
+
+      // So you can map it to a sequence of integers.
+      orig.map(if (_) 1 else 0) shouldBe Seq(1, 0, 1)
+
+      // Or magically to a String (or sequence of characters, whatever.
+      orig.map(!_) shouldBe Seq(false, true, false)
+      // But there is no coversion
+      "val x: MagicList = orig.map(!_)" shouldNot compile
+
+      // Because there's no way to build it.
+      "implicitly[BuildFrom[MagicList, Boolean, MagicList]]" shouldNot compile
+    }
+
 //    it("can act like a sequence and MagicList") {
 //
 //      // We can add the magic with an implicit CanBuildFrom
@@ -99,7 +98,7 @@ class CanBuildFromSpec extends AnyFunSpecLike with Matchers {
 //      // Because there's now a way to build it.
 //      implicitly[CanBuildFrom[MagicList, Boolean, MagicList]] shouldBe mcbf
 //    }
-//  }
+  }
 //
 //  /** Another custom list implementation that adds state to the list. This
 //    * requires some fussing with [[equals()]] and [[hashCode()]] and should
