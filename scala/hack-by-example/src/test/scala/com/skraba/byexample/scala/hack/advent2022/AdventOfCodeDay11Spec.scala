@@ -41,7 +41,8 @@ class AdventOfCodeDay11Spec
 
       lazy val counts: Array[Long] = Array.ofDim[Long](ms.length)
 
-      lazy val queues: Seq[mutable.Queue[Long]] = ms.map(_.toQueue).toBuffer
+      lazy val queues: mutable.Buffer[mutable.Queue[Long]] =
+        ms.map(_.toQueue).toBuffer
 
       def processMonkey(times: Int, worryFactor: Int): Monkeys = {
         for (_ <- 0 until times)

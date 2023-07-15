@@ -31,17 +31,24 @@
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-library</artifactId>
     </dependency>
-
-    <!-- Necessary for IDE integration with Ammonite -->
     <dependency>
       <groupId>com.lihaoyi</groupId>
-      <artifactId>ammonite_2.12.13</artifactId>
-      <version>2.5.9</version>
+      <artifactId>os-lib_${scala.binary.version}</artifactId>
+      <version>0.9.1</version>
     </dependency>
+
     <dependency>
       <groupId>com.skraba.byexample</groupId>
       <artifactId>scala-by-example</artifactId>
       <version>${project.version}</version>
+    </dependency>
+
+    <!-- Necessary for IDE integration with Ammonite -->
+    <dependency>
+      <groupId>com.lihaoyi</groupId>
+      <artifactId>ammonite_${scala.version}</artifactId>
+      <version>${ammonite.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
