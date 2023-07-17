@@ -1,4 +1,4 @@
-package com.skraba.byexample.scala.gtd
+package com.skraba.byexample.scala.ammonite.gtd
 
 import scala.io.Source
 import scala.reflect.io._

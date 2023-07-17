@@ -46,19 +46,6 @@
       <artifactId>play-json_${scala.binary.version}</artifactId>
       <version>${play-json.version}</version>
     </dependency>
-
-    <!-- Necessary for IDE integration with Ammonite -->
-    <dependency>
-      <groupId>com.lihaoyi</groupId>
-      <artifactId>ammonite_${scala.version}</artifactId>
-      <version>${ammonite.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.lihaoyi</groupId>
-      <artifactId>os-lib_${scala.binary.version}</artifactId>
-      <version>0.9.1</version>
-    </dependency>
   </dependencies>
 
 </project>

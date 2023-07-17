@@ -1,6 +1,6 @@
-package com.skraba.byexample.scala.gtd
+package com.skraba.byexample.scala.ammonite.gtd
 
-import com.skraba.byexample.scala.gtd.GettingThingsDone._
+import com.skraba.byexample.scala.ammonite.gtd.GettingThingsDone._
 import com.skraba.byexample.scala.markd.{Comment, _}
 
 import java.time.format.DateTimeFormatter

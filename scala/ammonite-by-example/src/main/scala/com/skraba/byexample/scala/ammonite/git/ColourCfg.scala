@@ -1,4 +1,4 @@
-package com.skraba.byexample.scala.git
+package com.skraba.byexample.scala.ammonite.git
 
 class ColourCfg {
   val Black: String = ""

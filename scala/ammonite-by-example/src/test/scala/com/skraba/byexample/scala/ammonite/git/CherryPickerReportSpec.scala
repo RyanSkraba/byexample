@@ -1,4 +1,4 @@
-package com.skraba.byexample.scala.git
+package com.skraba.byexample.scala.ammonite.git
 
 import com.skraba.byexample.scala.markd.Header
 import org.scalatest.funspec.AnyFunSpecLike

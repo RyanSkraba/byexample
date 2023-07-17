@@ -2,15 +2,14 @@
 
 /** Some examples on using ammonite for scripting in scala. */
 
-import mainargs.{Flag, arg, main}
-import ujson.Obj
-
+import java.time.{DayOfWeek, LocalDate, LocalDateTime}
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.time.{DayOfWeek, LocalDate, LocalDateTime}
+import mainargs.{Flag, arg, main}
 import scala.collection.{SortedMap, mutable}
 import scala.io.AnsiColor._
 import scala.util._
+import ujson.Obj
 
 // ==========================================================================
 
@@ -69,7 +68,7 @@ case class LocalImportUtil(g: String, a: String, v: String) {
       localM2 / "com" / "skraba" / "byexample" / a / v / Jar
     if (os.exists(repoJar)) interp.load.cp(repoJar)
     else {
-      println(s"""$BOLD${RED}Unable to load dependency
+      println(s"""${BOLD}${RED}Unable to load dependency
            |
            |This scripts depends on an artifact $Jar but wasn't able to find it.
            |""".stripMargin)
@@ -87,8 +86,9 @@ LocalImportUtil("com.skraba.byexample", "ammonite-by-example", "0.0.1-SNAPSHOT")
 
 @
 
-import com.skraba.byexample.scala.gtd.GettingThingsDone
+import com.skraba.byexample.scala.ammonite.gtd.GettingThingsDone
 import com.skraba.byexample.scala.markd._
+
 
 // ==========================================================================
 // Top level variables available to the script

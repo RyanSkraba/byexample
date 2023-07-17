@@ -1,4 +1,4 @@
-package com.skraba.byexample.scala.git
+package com.skraba.byexample.scala.ammonite.git
 
 import com.skraba.byexample.scala.markd.{
   Align,
@@ -10,7 +10,6 @@ import com.skraba.byexample.scala.markd.{
 import os.CommandResult
 
 import scala.util.{Success, Try}
-import scala.util.matching.Regex
 
 import CherryPickerReport._
 

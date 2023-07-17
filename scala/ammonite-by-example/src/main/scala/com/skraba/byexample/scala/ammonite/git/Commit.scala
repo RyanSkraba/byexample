@@ -1,4 +1,4 @@
-package com.skraba.byexample.scala.git
+package com.skraba.byexample.scala.ammonite.git
 
 /** Contains information about one git commit
   *

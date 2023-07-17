@@ -11,7 +11,6 @@
   */
 
 import mainargs.{arg, main}
-
 import scala.concurrent.duration.DurationInt
 import scala.io.AnsiColor._
 import scala.util.matching.Regex
@@ -104,8 +103,8 @@ def group(
 @arg(doc = "Renames payslip files to a standard format")
 @main
 def payslip(
-             srcPath: Option[os.Path] = None,
-               dstPath: Option[os.Path] = None
+    srcPath: Option[os.Path] = None,
+    dstPath: Option[os.Path] = None
 ): Unit = {
 
   // Error if the directory doesn't exist.
