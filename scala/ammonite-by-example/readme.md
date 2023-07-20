@@ -26,7 +26,7 @@ mvn install
 # without rebuilding with maven.
 src/main/resources/getting_things_done.sc help
 src/main/resources/file_renamer.sc help
-src/test/resources/ammonite_example.sc help
+src/main/resources/ammonite_example.sc help
 ```
 
 The script can be unit-tested using scalatest, as demonstrated by [AmmoniteSpec], which tests [ammonite_example.sc].
