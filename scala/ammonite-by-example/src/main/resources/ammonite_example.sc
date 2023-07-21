@@ -2,10 +2,11 @@
 
 /** Some examples on using ammonite for scripting in scala. */
 
-import java.time.{DayOfWeek, LocalDate, LocalDateTime}
+import java.time.{DayOfWeek, LocalDate, LocalDateTime, ZoneOffset}
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import mainargs.{Flag, arg, main}
+
 import scala.collection.{SortedMap, mutable}
 import scala.io.AnsiColor._
 import scala.util._
@@ -20,10 +21,8 @@ local_import_util.load("com.skraba.byexample", "scala-by-example", "0.0.1-SNAPSH
 local_import_util.load("com.skraba.byexample", "ammonite-by-example", "0.0.1-SNAPSHOT")
 
 @
-
 import com.skraba.byexample.scala.ammonite.gtd.GettingThingsDone
 import com.skraba.byexample.scala.markd._
-
 
 // ==========================================================================
 // Top level variables available to the script
@@ -343,6 +342,16 @@ def gitRewriteDate(
       attempts.find(_.isSuccess).map(_.get).getOrElse { attempts.head.get }
   })
 
+  // Create a GPG script that can fake the system time from an environment variable.
+  val gpgWithRewrite = os.root / "tmp" / "gpgWithRewrite.sh"
+  if (!os.exists(gpgWithRewrite)) {
+    os.write(
+      gpgWithRewrite,
+      "#!/bin/sh\ngpg --faked-system-time \"$GPG_FAKED_DATE!\" $@"
+    )
+    os.perms.set(gpgWithRewrite, os.PermSet.fromString("rwxrwxrwx"))
+  }
+
   // Get an adjusted, fuzzed date off of the base date.
   val fuzzedDate = baseDate.map(bd => {
     val adjusted = cmd match {
@@ -380,8 +389,6 @@ def gitRewriteDate(
           |$BOLD$MAGENTA base date: $RESET$bd
           |$BOLD$MAGENTA  adjusted: $RESET$adjusted (${adjustedDiff}s)
           |$BOLD$MAGENTA    fuzzed: $RESET$fuzzed (${fuzzedDiff}s)
-          |
-          |$BOLD${BLUE}GIT_COMMITTER_DATE="$fuzzed" git commit --amend --no-edit --date $fuzzed$RESET
           |""".stripMargin
       )
     }
@@ -395,10 +402,19 @@ def gitRewriteDate(
       if (verbose.value) dtpe.printStackTrace()
       println(s"$RED${BOLD}Unexpected command: $cmd")
     },
-    fuzzed =>
+    fuzzed => {
+      val fakedDate =
+        fuzzed.atZone(java.time.ZoneId.systemDefault()).toEpochSecond.toString
+      if (verbose.value)
+        println(
+          s"""$BOLD${BLUE}GPG_FAKED_DATE="$fakedDate" GIT_COMMITTER_DATE="$fuzzed" git -c "gpg.program=$gpgWithRewrite" commit --amend --no-edit --date $fuzzed$RESET
+             |""".stripMargin
+        )
       println(
         os.proc(
           "git",
+          "-c",
+          s"gpg.program=$gpgWithRewrite",
           "commit",
           "--amend",
           "--no-edit",
@@ -406,11 +422,16 @@ def gitRewriteDate(
           fuzzed.toString
         ).call(
           os.Path(prj),
-          env = Map("TZ" -> timeZone, "GIT_COMMITTER_DATE" -> fuzzed.toString)
+          env = Map(
+            "TZ" -> timeZone,
+            "GIT_COMMITTER_DATE" -> fuzzed.toString,
+            "GPG_FAKED_DATE" -> fakedDate
+          )
         ).out
           .lines
           .mkString
       )
+    }
   )
 }
 
