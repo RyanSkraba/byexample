@@ -1,5 +1,8 @@
 package com.skraba.byexample.scala.ammonite.git
 
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
 /** Contains information about one git commit
   *
   * @param commit
@@ -81,4 +84,25 @@ object Commit {
       marker = marker.trim
     )
   }
+
+  /** Get the date for the given commit from the repo.
+    * @param commit
+    *   The commit hash to look up (or a committish object).
+    * @param repo
+    *   The directory of the repo
+    * @return
+    *   The date of that commit
+    */
+  def getDateFromRepo(
+      commit: String = "HEAD",
+      repo: os.Path = os.pwd
+  ): LocalDateTime = LocalDateTime.parse(
+    os.proc("git", "log", "-1", commit, "--pretty=format:%aI")
+      .call(repo)
+      .out
+      .lines
+      .last
+      .trim,
+    DateTimeFormatter.ISO_OFFSET_DATE_TIME
+  )
 }

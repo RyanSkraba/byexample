@@ -2,7 +2,7 @@
 
 /** Some examples on using ammonite for scripting in scala. */
 
-import java.time.{DayOfWeek, LocalDate, LocalDateTime, ZoneOffset}
+import java.time.{DayOfWeek, LocalDate, LocalDateTime}
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import mainargs.{Flag, arg, main}
@@ -17,11 +17,20 @@ import ujson.Obj
 // from local maven).
 
 import $file.local_import_util
-local_import_util.load("com.skraba.byexample", "scala-by-example", "0.0.1-SNAPSHOT")
-local_import_util.load("com.skraba.byexample", "ammonite-by-example", "0.0.1-SNAPSHOT")
+local_import_util.load(
+  "com.skraba.byexample",
+  "scala-by-example",
+  "0.0.1-SNAPSHOT"
+)
+local_import_util.load(
+  "com.skraba.byexample",
+  "ammonite-by-example",
+  "0.0.1-SNAPSHOT"
+)
 
 @
 import com.skraba.byexample.scala.ammonite.gtd.GettingThingsDone
+import com.skraba.byexample.scala.ammonite.git.Commit.getDateFromRepo
 import com.skraba.byexample.scala.markd._
 
 // ==========================================================================
@@ -301,22 +310,10 @@ def gitRewriteDate(
   )
 
   val baseDate = Try(cmd match {
-    // If the command matches a relative shift, then the base date
-    // is from the git history.
-    case RelativeCommand(cmd, _, _) =>
-      LocalDateTime.parse(
-        os.proc(
-          "git",
-          "log",
-          if (cmd == "next") "-2" else "-1",
-          "--pretty=format:%cI"
-        ).call(os.Path(prj))
-          .out
-          .lines
-          .last
-          .trim,
-        DateTimeFormatter.ISO_OFFSET_DATE_TIME
-      )
+    // Fetch the date to adjust directly from the git repository for
+    // some commands.
+    case RelativeCommand("next", _, _)    => getDateFromRepo("HEAD^")
+    case "now" | RelativeCommand(_, _, _) => getDateFromRepo()
 
     // If the command matches a day of the week, then use the most
     // recent date of that day with the current time
