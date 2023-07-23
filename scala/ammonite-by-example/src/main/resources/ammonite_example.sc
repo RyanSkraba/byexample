@@ -313,7 +313,8 @@ def gitRewriteDate(
     // Fetch the date to adjust directly from the git repository for
     // some commands.
     case RelativeCommand("next", _, _)    => getDateFromRepo("HEAD^")
-    case "now" | RelativeCommand(_, _, _) => getDateFromRepo()
+    case "zero" | RelativeCommand(_, _, _) => getDateFromRepo()
+    case "now" => LocalDateTime.now()
 
     // If the command matches a day of the week, then use the most
     // recent date of that day with the current time
