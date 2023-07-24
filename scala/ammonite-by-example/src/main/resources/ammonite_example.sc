@@ -12,6 +12,8 @@ import scala.io.AnsiColor._
 import scala.util._
 import ujson.Obj
 
+import scala.util.matching.Regex
+
 // ==========================================================================
 // Adding artifacts to your local build (from this project, from maven and
 // from local maven).
@@ -115,6 +117,90 @@ def gitExec(repo: String): Unit = {
     case Failure(ex) =>
       println("Failure!")
       ex.printStackTrace()
+  }
+}
+
+@arg(doc = "Search and replace text patterns recursively in this directory.")
+@main
+def sar(
+    @arg(doc = "The directory to recursely search")
+    dir: Option[os.Path] = None,
+    @arg(doc = "Files to exclude from the search")
+    exclude: Seq[String] = Seq(),
+    @arg(doc = "Files to include in the search")
+    include: Seq[String] = Seq(".*"),
+    @arg(doc = "Pairs of regular expressions to search and replace")
+    re: Seq[String] = Seq(),
+    @arg(doc = "Verbose for extra output")
+    verbose: Flag
+): Unit = {
+
+  // The source path to analyse
+  val src: os.Path = dir.getOrElse(os.pwd)
+  if (!(os.exists(src))) {
+    println(s"$RED${BOLD}ERROR:$RESET $src does not exist.")
+    System.exit(1)
+  }
+
+  // Adapt the exclude and include rules to regular expressions
+  val includeRe =
+    if (include.isEmpty) Seq(".*".r) else include.map(new Regex(_).unanchored)
+  val excludeRe =
+    if (exclude.isEmpty) Seq("^\\.git".r, "\\btarget\\b".r.unanchored) else exclude.map(new Regex(_).unanchored)
+
+  // Find all of the files in the directory that aren't excluded
+  val files: Seq[os.FilePath] = os
+    .walk(
+      src,
+      skip = p => excludeRe.exists(_.matches(p.relativeTo(src).toString))
+    )
+    .filter(os.isFile)
+    .map(_.relativeTo(src))
+
+  val included: Set[os.FilePath] =
+    files.filter(p => includeRe.exists(_.matches(p.toString))).toSet
+
+  if (verbose.value) {
+    println(s"$GREEN${BOLD}Matching files:$RESET")
+    for (f <- files.sortBy(_.toString) if included(f))
+      println(s"  $f")
+  }
+
+  val modified = for (f <- files) yield {
+    if (included(f)) {
+      val original = os.read(f.resolveFrom(src))
+          val contents = re.grouped(2).foldLeft(original) {
+            case (acc, Seq(search, replace)) =>
+              new Regex(search).replaceAllIn(acc, replace)
+            case (acc, _) => acc // Ignore any leftover
+          }
+      val modified = contents != original
+      if (verbose.value) print(if (modified) s"${RED}x" else s"${GREEN}x")
+      if (modified) {os.write.over(f.resolveFrom(src), contents)
+        Seq(f)}
+      else Seq.empty
+    } else {
+      if (verbose.value) print(s"$RESET.")
+      Seq.empty
+    }
+  }
+
+  if (verbose.value) {
+    println(
+      excludeRe.mkString(
+        s"\n$RED${BOLD}Exclude patterns (leaving ${files.size} file to scan):$RESET$RED\n  ",
+        "\n  ",
+        if (excludeRe.isEmpty) RESET else s"\n$RESET"
+      )
+    )
+    println(
+      includeRe.mkString(
+        s"$GREEN${BOLD}Include patterns (${included.size}) :$RESET$GREEN\n  ",
+        "\n  ",
+        if (includeRe.isEmpty) RESET else s"\n$RESET"
+      )
+    )
+    println(s"$RESET${BOLD}Modified ${modified.flatten.size} files.")
   }
 }
 
@@ -312,9 +398,9 @@ def gitRewriteDate(
   val baseDate = Try(cmd match {
     // Fetch the date to adjust directly from the git repository for
     // some commands.
-    case RelativeCommand("next", _, _)    => getDateFromRepo("HEAD^")
+    case RelativeCommand("next", _, _)     => getDateFromRepo("HEAD^")
     case "zero" | RelativeCommand(_, _, _) => getDateFromRepo()
-    case "now" => LocalDateTime.now()
+    case "now"                             => LocalDateTime.now()
 
     // If the command matches a day of the week, then use the most
     // recent date of that day with the current time
