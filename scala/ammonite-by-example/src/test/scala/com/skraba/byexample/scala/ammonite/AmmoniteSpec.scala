@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.Paths
 import scala.Console._
 import scala.io.AnsiColor.{BOLD, RESET, YELLOW}
-import scala.reflect.io.{Directory, Path, Streamable}
+import scala.reflect.io._
 import scala.util.Properties
 
 /** Testing ammonite scripts can be a bit tricky!
@@ -20,19 +20,24 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
   /** The path containing ammonite scripts. */
   val ScriptPath: Path = Path(
     Paths.get(getClass.getResource("/ammonite_example.sc").toURI).toFile
-  ).parent
+  )
+
+  /** A temporary directory for playing with files. */
+  val Tmp: Path = Directory.makeTemp(getClass.getSimpleName)
 
   /** Either create a new home directory reused across this suite, or use the
     * common one.
     */
   val HomeFolder: Path =
     if (ReuseAmmoniteHome) ReusableAmmoniteHome
-    else Directory.makeTemp(getClass.getSimpleName)
+    else Tmp / "ammonite.home"
 
   /** And delete it after the tests. */
   override protected def afterAll(): Unit =
     try {
-      if (!ReuseAmmoniteHome) HomeFolder.deleteRecursively()
+      Tmp.deleteRecursively()
+      if (!ReuseAmmoniteHome && HomeFolder.exists)
+        HomeFolder.deleteRecursively()
     } catch {
       case ex: Exception =>
         ex.printStackTrace()
@@ -60,7 +65,7 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
             "--silent",
             "--home",
             HomeFolder.toString,
-            (ScriptPath / "ammonite_example.sc").toString()
+            ScriptPath.toString
           ) ++ args,
           in,
           Console.out,
@@ -89,7 +94,7 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
       // with helpers
       withAmmoniteMain0AndNoStdIn(
         HomeFolder,
-        (ScriptPath / "ammonite_example.sc").toString,
+        ScriptPath.toString,
         "help"
       ) { case (result, stdout, stderr) =>
         result shouldBe true
@@ -113,7 +118,7 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
                 "--silent",
                 "--home",
                 HomeFolder.toString,
-                (ScriptPath / "ammonite_example.sc").toString,
+                ScriptPath.toString,
                 "help"
               ),
               in,
@@ -221,6 +226,31 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
         result shouldBe false
         stderr shouldBe s"""Unknown argument: "Invalid"\n$ExpectedSignature"""
         stdout shouldBe empty
+      }
+    }
+  }
+
+  describe("Running the ammonite_example search and replace") {
+
+    // Hello world scenario
+    val Basic = (Tmp / "basic").createDirectory()
+    File(Basic / "greet").writeAll("Hello world!")
+
+    it("should do a basic replace") {
+
+      withAmmoniteExample(
+        "sar",
+        Basic.toString(),
+        "--re",
+        "Hello",
+        "--re",
+        "Hi"
+      ) { case (result, stdout, stderr) =>
+        result shouldBe true
+        stderr shouldBe empty
+        stdout shouldBe empty
+
+        File(Basic / "greet").slurp() shouldBe "Hi world!"
       }
     }
   }
