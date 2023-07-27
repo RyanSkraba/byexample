@@ -43,7 +43,10 @@ val Cli = s"${GREEN}ammonite_example.sc$RESET"
 
 @arg(doc = "Print help to the console.")
 @main
-def help(): Unit = {
+def help(
+    @arg(doc = "Verbose for extra output")
+    verbose: Flag
+): Unit = {
   println(s"""$BOLD$Cli - Demonstrate how to script with Ammonite
              |
              |$CYAN    argTest$RESET: Show how ammonite arguments are used
@@ -58,6 +61,8 @@ def help(): Unit = {
              | $Cli ${CYAN}githubJson$RESET [DSTFILE] [--verbose]
              | $Cli ${CYAN}gitExec$RESET [DSTREPO] [--verbose]
              |""".stripMargin)
+  if (verbose.value)
+    println(s"The --verbose flag was set!")
 }
 
 /** @see
@@ -142,7 +147,8 @@ def sar(
   val includeRe =
     if (include.isEmpty) Seq(".*".r) else include.map(new Regex(_).unanchored)
   val excludeRe =
-    if (exclude.isEmpty) Seq("^\\.git".r, "\\btarget\\b".r.unanchored) else exclude.map(new Regex(_).unanchored)
+    if (exclude.isEmpty) Seq("^\\.git".r, "\\btarget\\b".r.unanchored)
+    else exclude.map(new Regex(_).unanchored)
 
   // Find all of the files in the directory that aren't excluded
   val files: Seq[os.FilePath] = os
@@ -165,16 +171,17 @@ def sar(
   val modified = for (f <- files) yield {
     if (included(f)) {
       val original = os.read(f.resolveFrom(src))
-          val contents = re.grouped(2).foldLeft(original) {
-            case (acc, Seq(search, replace)) =>
-              new Regex(search).replaceAllIn(acc, replace)
-            case (acc, _) => acc // Ignore any leftover
-          }
+      val contents = re.grouped(2).foldLeft(original) {
+        case (acc, Seq(search, replace)) =>
+          new Regex(search).replaceAllIn(acc, replace)
+        case (acc, _) => acc // Ignore any leftover
+      }
       val modified = contents != original
       if (verbose.value) print(if (modified) s"${RED}x" else s"${GREEN}x")
-      if (modified) {os.write.over(f.resolveFrom(src), contents)
-        Seq(f)}
-      else Seq.empty
+      if (modified) {
+        os.write.over(f.resolveFrom(src), contents)
+        Seq(f)
+      } else Seq.empty
     } else {
       if (verbose.value) print(s"$RESET.")
       Seq.empty

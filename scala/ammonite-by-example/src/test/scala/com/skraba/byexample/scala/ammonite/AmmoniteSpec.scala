@@ -32,7 +32,7 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
     if (ReuseAmmoniteHome) ReusableAmmoniteHome
     else Tmp / "ammonite.home"
 
-  /** And delete it after the tests. */
+  /** And delete temporary resources after the script. */
   override protected def afterAll(): Unit =
     try {
       Tmp.deleteRecursively()
@@ -43,7 +43,8 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
         ex.printStackTrace()
     }
 
-  /** A helper method for running the ammonite example script.
+  /** A standalone helper method for running one specific script (in this case
+    * ammonite_example.sc).
     *
     * @param args
     *   The arguments to apply to the ammonite example script
@@ -75,41 +76,54 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
     }
   }
 
-  describe("Running the ammonite_example help") {
+  describe("Demonstrating testing ammonite_example help in different ways") {
 
-    it("should print a useful message") {
-      // with helpers
+    val first =
+      s"$BOLD${GREEN}ammonite_example.sc$RESET - Demonstrate how to script with Ammonite\n"
+
+    it("using the short-form, script-specific helper") {
       withAmmoniteExample("help") { case (result, stdout, stderr) =>
         result shouldBe true
         stderr shouldBe empty
-        stdout should startWith(
-          s"$BOLD${GREEN}ammonite_example.sc$RESET - Demonstrate how to script with Ammonite"
-        )
+        stdout should startWith(first)
       }
     }
 
-    it(
-      "should print a useful message (medium form, permitting ammonite parameters)"
-    ) {
-      // with helpers
-      withAmmoniteMain0AndNoStdIn(
+    it("using AmmoniteSpec.withAmmoniteMain0AndNoStdIn") {
+      // This form allows specifying the home folder and which script to run
+      AmmoniteSpec.withAmmoniteMain0AndNoStdIn(
         HomeFolder,
         ScriptPath.toString,
         "help"
       ) { case (result, stdout, stderr) =>
         result shouldBe true
         stderr shouldBe empty
-        stdout should startWith(
-          s"$BOLD${GREEN}ammonite_example.sc$RESET - Demonstrate how to script with Ammonite"
-        )
+        stdout should startWith(first)
       }
     }
 
-    it(
-      "should print a useful message (long form, allows customizing the input stream)"
-    ) {
+    it("building on AmmoniteSpec.withAmmoniteMain0AndNoStdIn") {
+      // This form builds on the helper to provide some initial arguments and checks
+      def ammoniteHelp(args: String*): String = {
+        val arguments: Seq[String] = Seq(ScriptPath.toString, "help") ++ args
+        AmmoniteSpec.withAmmoniteMain0AndNoStdIn(
+          HomeFolder,
+          arguments: _*
+        ) { case (result, stdout, stderr) =>
+          result shouldBe true
+          stderr shouldBe empty
+          stdout
+        }
+      }
+
+      // Using the custom, short form 
+      ammoniteHelp("--verbose") should startWith(first)
+    }
+
+    it("using the long form") {
+      // This form only uses withConsoleMatch to manage the console streams and
+      // no additional helpers.
       val stdIn = new ByteArrayInputStream(Array.empty[Byte])
-      // Long form
       Streamable.closing(stdIn) { in =>
         Console.withIn(in) {
           withConsoleMatch(
@@ -128,7 +142,7 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
           ) { case (result, stdout, stderr) =>
             result shouldBe true
             stderr shouldBe empty
-            stdout should include regex ("ammonite_example.sc.*- Demonstrate how to script with Ammonite")
+            stdout should startWith(first)
           }
         }
       }
@@ -258,9 +272,7 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 
 object AmmoniteSpec {
 
-  /** Set this to true to attempt to reuse the ammonite cache across calls to
-    * tests
-    */
+  /** Set to true to attempt to reuse the ammonite cache across tests */
   val ReuseAmmoniteHome = sys.env.getOrElse("AMMONITESPEC_REUSE", "").nonEmpty
 
   lazy val ReusableAmmoniteHome: Directory =
