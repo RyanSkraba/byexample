@@ -23,7 +23,7 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
   )
 
   /** A temporary directory for playing with files. */
-  val Tmp: Path = Directory.makeTemp(getClass.getSimpleName)
+  val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
 
   /** Either create a new home directory reused across this suite, or use the
     * common one.
@@ -116,7 +116,7 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
         }
       }
 
-      // Using the custom, short form 
+      // Using the custom, short form
       ammoniteHelp("--verbose") should startWith(first)
     }
 
