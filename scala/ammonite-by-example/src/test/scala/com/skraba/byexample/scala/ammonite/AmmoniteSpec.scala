@@ -103,7 +103,15 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
     }
 
     it("building on AmmoniteSpec.withAmmoniteMain0AndNoStdIn") {
-      // This form builds on the helper to provide some initial arguments and checks
+
+      /** Helper to run ammonite_example.sc help successfully with some
+        * initial checks
+        *
+        * @param args
+        *   Additional arguments to the script
+        * @return
+        *   stdout
+        */
       def ammoniteHelp(args: String*): String = {
         val arguments: Seq[String] = Seq(ScriptPath.toString, "help") ++ args
         AmmoniteSpec.withAmmoniteMain0AndNoStdIn(
@@ -159,66 +167,64 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
                               |
                               |""".stripMargin
 
-    it("should print hello without any arguments") {
-      withAmmoniteExample("argTest") { case (result, stdout, stderr) =>
+    /** Helper to run ammonite_example.sc argTest successfully with some initial
+      * checks
+      *
+      * @param args
+      *   Additional arguments to the script
+      * @return
+      *   stdout
+      */
+    def argTest(args: String*): String = {
+      val arguments: Seq[String] = Seq(ScriptPath.toString, "argTest") ++ args
+      AmmoniteSpec.withAmmoniteMain0AndNoStdIn(
+        HomeFolder,
+        arguments: _*
+      ) { case (result, stdout, stderr) =>
         result shouldBe true
         stderr shouldBe empty
-        stdout shouldBe s"${YELLOW}Hello, $BOLD${Properties.userName}$RESET\n"
-        stdout should not include (s"\nThe --verbose flag was set!\n")
+        stdout
       }
+    }
+
+    it("should print hello without any arguments") {
+      val stdout = argTest()
+      stdout shouldBe s"${YELLOW}Hello, $BOLD${Properties.userName}$RESET\n"
+      stdout should not include (s"\nThe --verbose flag was set!\n")
     }
 
     it("with one argument (Me)") {
-      withAmmoniteExample("argTest", "Me") { case (result, stdout, stderr) =>
-        result shouldBe true
-        stderr shouldBe empty
-        stdout shouldBe s"${YELLOW}Hello, ${BOLD}Me$RESET\n"
-        stdout should not include (s"\nThe --verbose flag was set!\n")
-      }
+      val stdout = argTest("Me")
+      stdout shouldBe s"${YELLOW}Hello, ${BOLD}Me$RESET\n"
+      stdout should not include (s"\nThe --verbose flag was set!\n")
     }
 
     it("with one argument and the --verbose flag") {
-      withAmmoniteExample("argTest", "--verbose", "Me") {
-        case (result, stdout, stderr) =>
-          result shouldBe true
-          stderr shouldBe empty
-          stdout should startWith(s"${YELLOW}Hello, ${BOLD}Me$RESET")
-          stdout should include(s"\nThe --verbose flag was set!\n")
-      }
+      val stdout = argTest("--verbose", "Me")
+      stdout should startWith(s"${YELLOW}Hello, ${BOLD}Me$RESET")
+      stdout should include(s"\nThe --verbose flag was set!\n")
     }
 
     it("with two arguments (Me Hey)") {
-      withAmmoniteExample("argTest", "Me", "Hey") {
-        case (result, stdout, stderr) =>
-          result shouldBe true
-          stderr shouldBe empty
-          stdout shouldBe s"${YELLOW}Hey, ${BOLD}Me$RESET\n"
-          stdout should not include (s"\nThe --verbose flag was set!\n")
-      }
+      val stdout = argTest("Me", "Hey")
+      stdout shouldBe s"${YELLOW}Hey, ${BOLD}Me$RESET\n"
+      stdout should not include (s"\nThe --verbose flag was set!\n")
     }
 
     it("with three arguments (You 'Hello there' VerboseFlag)") {
-      withAmmoniteExample("argTest", "You", "Hello there", "VerboseFlag") {
-        case (result, stdout, stderr) =>
-          result shouldBe true
-          stderr shouldBe empty
-          stdout should startWith(s"${YELLOW}Hello there, ${BOLD}You$RESET\n")
-          stdout should include(s"\nThe --verbose flag was set!\n")
-      }
+      val stdout = argTest("You", "Hello there", "VerboseFlag")
+      stdout should startWith(s"${YELLOW}Hello there, ${BOLD}You$RESET\n")
+      stdout should include(s"\nThe --verbose flag was set!\n")
     }
 
     it("with a named argument (--greeting Yo)") {
-      withAmmoniteExample("argTest", "--greeting", "Yo") {
-        case (result, stdout, stderr) =>
-          result shouldBe true
-          stderr shouldBe empty
-          stdout shouldBe s"${YELLOW}Yo, $BOLD${Properties.userName}$RESET\n"
-
-          stdout should not include (s"\nThe --verbose flag was set!\n")
-      }
+      val stdout = argTest("--greeting", "Yo")
+      stdout shouldBe s"${YELLOW}Yo, $BOLD${Properties.userName}$RESET\n"
+      stdout should not include (s"\nThe --verbose flag was set!\n")
     }
 
     it("should fail with an unknown flag (--help)") {
+      // We can't use the helper for an error condition
       withAmmoniteExample("argTest", "--help") {
         case (result, stdout, stderr) =>
           result shouldBe false
