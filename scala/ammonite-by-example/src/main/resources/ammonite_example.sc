@@ -4,7 +4,7 @@
 
 import java.time.{DayOfWeek, LocalDate}
 import java.time.format.DateTimeFormatter
-import mainargs.{Flag, arg, main}
+import mainargs.{Flag, ParserForClass, arg, main}
 import scala.collection.{SortedMap, mutable}
 import scala.io.AnsiColor._
 import scala.util._
@@ -34,6 +34,14 @@ import com.skraba.byexample.scala.markd._
 // ==========================================================================
 // Top level variables available to the script
 
+@main
+case class Config(
+    @arg(doc = "Verbose for extra output")
+    verbose: Flag
+)
+
+implicit def configParser: ParserForClass[Config] = ParserForClass[Config]
+
 val YyyyMmDd = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 val MonthDay = DateTimeFormatter.ofPattern("MMM d")
 val Cli = s"${GREEN}ammonite_example.sc$RESET"
@@ -44,8 +52,7 @@ val Cli = s"${GREEN}ammonite_example.sc$RESET"
 @arg(doc = "Print help to the console.")
 @main
 def help(
-    @arg(doc = "Verbose for extra output")
-    verbose: Flag
+    cfg: Config
 ): Unit = {
   println(s"""$BOLD$Cli - Demonstrate how to script with Ammonite
              |
@@ -61,7 +68,7 @@ def help(
              | $Cli ${CYAN}githubJson$RESET [DSTFILE] [--verbose]
              | $Cli ${CYAN}gitExec$RESET [DSTREPO] [--verbose]
              |""".stripMargin)
-  if (verbose.value)
+  if (cfg.verbose.value)
     println(s"The --verbose flag was set!")
 }
 
@@ -75,11 +82,10 @@ def argTest(
     user: String = sys.env("USER"),
     @arg(doc = "A string value")
     greeting: Option[String] = None,
-    @arg(doc = "Verbose for extra output")
-    verbose: Flag
+    cfg: Config
 ): Unit = {
   println(s"""$YELLOW${greeting.getOrElse("Hello")}, $BOLD$user$RESET""")
-  if (verbose.value) {
+  if (cfg.verbose.value) {
     println(s"""$RESET
          |The --verbose flag was set!
          |
@@ -132,8 +138,7 @@ def sar(
     include: Seq[String] = Seq(".*"),
     @arg(doc = "Pairs of regular expressions to search and replace")
     re: Seq[String] = Seq(),
-    @arg(doc = "Verbose for extra output")
-    verbose: Flag
+    cfg: Config
 ): Unit = {
 
   // The source path to analyse
@@ -162,7 +167,7 @@ def sar(
   val included: Set[os.FilePath] =
     files.filter(p => includeRe.exists(_.matches(p.toString))).toSet
 
-  if (verbose.value) {
+  if (cfg.verbose.value) {
     println(s"$GREEN${BOLD}Matching files:$RESET")
     for (f <- files.sortBy(_.toString) if included(f))
       println(s"  $f")
@@ -177,18 +182,18 @@ def sar(
         case (acc, _) => acc // Ignore any leftover
       }
       val modified = contents != original
-      if (verbose.value) print(if (modified) s"${RED}x" else s"${GREEN}x")
+      if (cfg.verbose.value) print(if (modified) s"${RED}x" else s"${GREEN}x")
       if (modified) {
         os.write.over(f.resolveFrom(src), contents)
         Seq(f)
       } else Seq.empty
     } else {
-      if (verbose.value) print(s"$RESET.")
+      if (cfg.verbose.value) print(s"$RESET.")
       Seq.empty
     }
   }
 
-  if (verbose.value) {
+  if (cfg.verbose.value) {
     println(
       excludeRe.mkString(
         s"\n$RED${BOLD}Exclude patterns (leaving ${files.size} file to scan):$RESET$RED\n  ",
@@ -214,8 +219,7 @@ def githubApi(
     user: String,
     @arg(doc = "The destination file to save the JSON")
     dstFile: String = "/tmp/github_contributions.json",
-    @arg(doc = "Verbose for extra output")
-    verbose: Flag
+    cfg: Config
 ): Unit = {
   val token = os.proc("gh", "auth", "token").call(os.pwd)
   val contributions = requests.post(
@@ -244,7 +248,7 @@ def githubApi(
   )
 
   os.write.over(os.Path(dstFile), contributions.text())
-  if (verbose.value) {
+  if (cfg.verbose.value) {
     println(contributions.text())
   }
   println(s"${GREEN}Writing to $BOLD$dstFile$RESET")
