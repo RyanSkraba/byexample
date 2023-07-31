@@ -26,29 +26,29 @@ local_import_util.load(
 )
 
 @
-import com.skraba.byexample.scala.ammonite.git._
+import com.skraba.byexample.scala.ammonite.git.{CherryPickerReport, Commit}
 import com.skraba.byexample.scala.ammonite.git.Commit.getDateFromRepo
+import com.skraba.byexample.scala.ammonite.ColourCfg
 import com.skraba.byexample.scala.markd._
 
 // ==========================================================================
 // Top level variables available to the script
 
-val Cli = AnsiColourCfg.ok("git_checker.sc")
+val Cli = "git_checker.sc"
 
 // ==========================================================================
 // Help
 
 @arg(doc = "Print help to the console.")
 @main
-def help(): Unit = {
-  val cfg = AnsiColourCfg
-  println(s"""$BOLD$Cli - Do some analysis on git repositories.
+def help(cfg: ColourCfg): Unit = {
+    println(s"""${cfg.ok(Cli, bold=true)} - Do some analysis on git repositories.
              |
              | ${cfg.left("cherryPick")} : Get a status report on two branches
              |
              |Usage:
              |
-             | $Cli ${cfg.left("cherryPick")} [repo] [main] [branch]
+             | ${cfg.ok(Cli)} ${cfg.left("cherryPick")} [repo] [main] [branch]
              |""".stripMargin)
 }
 
@@ -62,12 +62,10 @@ def releaseCherryPickPrep(
     lTag: String = "main",
     rTag: String = "branch",
     statusDoc: Option[os.Path] = None,
-    @arg(doc = "Verbose for extra output")
-    verbose: Flag
+    cfg:ColourCfg
 ): Unit = {
 
-  val cfg = AnsiColourCfg
-  if (verbose.value) {
+  if (cfg.verbose.value) {
     println(cfg.bold("Arguments:"))
     println(cfg.kv("      repo", repo))
     println(cfg.kv("      lTag", lTag))
@@ -99,7 +97,7 @@ def releaseCherryPickPrep(
 
   val cleaned = Header.parse(updated.toDoc.build().toString)
   val txt = cleaned.build().toString
-  if (verbose.value || statusDoc.isEmpty) println(txt)
+  if (cfg.verbose.value || statusDoc.isEmpty) println(txt)
 
   statusDoc.foreach(os.write.over(_, txt))
 }

@@ -104,8 +104,8 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 
     it("building on AmmoniteSpec.withAmmoniteMain0AndNoStdIn") {
 
-      /** Helper to run ammonite_example.sc help successfully with some
-        * initial checks
+      /** Helper to run ammonite_example.sc help successfully with some initial
+        * checks
         *
         * @param args
         *   Additional arguments to the script

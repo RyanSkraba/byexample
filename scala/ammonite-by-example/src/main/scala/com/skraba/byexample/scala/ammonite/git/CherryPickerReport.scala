@@ -10,8 +10,8 @@ import com.skraba.byexample.scala.markd.{
 import os.CommandResult
 
 import scala.util.{Success, Try}
-
 import CherryPickerReport._
+import com.skraba.byexample.scala.ammonite.ColourCfg
 
 case class CherryPickerReport(
     lBranch: String,
@@ -20,7 +20,7 @@ case class CherryPickerReport(
     right: Seq[Commit],
     issuesUrl: Option[String] = None,
     doc: Header = Header(0, ""),
-    cfg: ColourCfg = AnsiColourCfg
+    cfg: ColourCfg = ColourCfg(ansi = true, verbose = false)
 ) {
 
   /** The left branch name with colour and indicator. */
