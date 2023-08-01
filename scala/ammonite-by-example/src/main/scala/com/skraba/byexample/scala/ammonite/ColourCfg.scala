@@ -98,8 +98,8 @@ case class ColourCfg(
     magenta(key, reset, bold) + " : " + value
 
   def withVerbose: ColourCfg = this.copy(verbose = new Flag(true))
-  def vPrint(in: String): Unit = if (verbose.value) Console.print(in)
-  def vPrintln(in: String): Unit = if (verbose.value) Console.println(in)
+  def vPrint(in: => String): Unit = if (verbose.value) Console.print(in)
+  def vPrintln(in: => String): Unit = if (verbose.value) Console.println(in)
 }
 
 object ColourCfg {

@@ -42,14 +42,18 @@ val Cli = "git_checker.sc"
 @arg(doc = "Print help to the console.")
 @main
 def help(cfg: ColourCfg): Unit = {
-    println(s"""${cfg.ok(Cli, bold=true)} - Do some analysis on git repositories.
+  println(
+    s"""${cfg.ok(Cli, bold = true)} - Do some analysis on git repositories.
              |
              | ${cfg.left("cherryPick")} : Get a status report on two branches
              |
              |Usage:
              |
-             | ${cfg.ok(Cli)} ${cfg.left("cherryPick")} [repo] [main] [branch]
-             |""".stripMargin)
+             | ${cfg.ok(Cli)} ${cfg.left("  cherryPick")} [repo] [main] [branch]
+             | ${cfg.ok(Cli)} ${cfg.left("countOpenPRs")} [githuborg/proj]
+             | ${cfg.ok(Cli)} ${cfg.left(" rewriteDate")} [cmd]
+             |""".stripMargin
+  )
 }
 
 // ==========================================================================
@@ -62,7 +66,7 @@ def releaseCherryPickPrep(
     lTag: String = "main",
     rTag: String = "branch",
     statusDoc: Option[os.Path] = None,
-    cfg:ColourCfg
+    cfg: ColourCfg
 ): Unit = {
 
   if (cfg.verbose.value) {
@@ -102,6 +106,9 @@ def releaseCherryPickPrep(
   statusDoc.foreach(os.write.over(_, txt))
 }
 
+// ==========================================================================
+// GitHub API for counting open PRs
+
 @arg(doc = "Use the GitHub API to count the open PRs on a given project")
 @main
 def countOpenPrs(
@@ -121,15 +128,17 @@ def countOpenPrs(
   println(prs("total_count"))
 }
 
+// ==========================================================================
+// Git from the command line to rewrite the last date
+
 /** Everything necessary too rewrite a git date from the command-line. */
 @main
-def gitRewriteDate(
+def rewriteDate(
     cmd: String = "next1day",
     prj: String = os.pwd.toString(),
     timeZone: String = ":Europe/Paris",
     fuzz: Double = 0.1,
-    @arg(doc = "Verbose for extra output")
-    verbose: Flag
+    cfg: ColourCfg
 ): Unit = {
 
   // Regex to match command that adjust a base date with a certain number of units.
@@ -174,12 +183,10 @@ def gitRewriteDate(
     case _ =>
       val attempts = Formatters.toStream.map(fmt => {
         val attempt = Try { LocalDateTime.parse(cmd, fmt._2) }
-        if (verbose.value) {
-          if (attempt.isSuccess)
-            println(s"${GREEN}Succeeded parsing ${fmt._1}\n")
-          else
-            println(s"${RED}Failure trying ${fmt._1}")
-        }
+        cfg.vPrintln(
+          if (attempt.isSuccess) s"${GREEN}Succeeded parsing ${fmt._1}\n"
+          else s"${RED}Failure trying ${fmt._1}"
+        )
         attempt
       })
       attempts.find(_.isSuccess).map(_.get).getOrElse { attempts.head.get }
@@ -225,15 +232,13 @@ def gitRewriteDate(
     val fuzzed =
       bd.plusSeconds(adjustedDiff + fuzzSeconds)
 
-    if (verbose.value) {
+    cfg.vPrintln {
       val fuzzedDiff = bd.until(fuzzed, SECONDS)
-      println(
-        s"""$BOLD$MAGENTA      fuzz: $RESET$fuzz / $fuzzDev / ${fuzzSeconds}s
-           |$BOLD$MAGENTA base date: $RESET$bd
-           |$BOLD$MAGENTA  adjusted: $RESET$adjusted (${adjustedDiff}s)
-           |$BOLD$MAGENTA    fuzzed: $RESET$fuzzed (${fuzzedDiff}s)
-           |""".stripMargin
-      )
+      s"""$BOLD$MAGENTA      fuzz: $RESET$fuzz / $fuzzDev / ${fuzzSeconds}s
+         |$BOLD$MAGENTA base date: $RESET$bd
+         |$BOLD$MAGENTA  adjusted: $RESET$adjusted (${adjustedDiff}s)
+         |$BOLD$MAGENTA    fuzzed: $RESET$fuzzed (${fuzzedDiff}s)
+         |""".stripMargin
     }
 
     fuzzed
@@ -242,14 +247,13 @@ def gitRewriteDate(
   // Apply the fuzzed date to the head of the repo
   fuzzedDate.fold(
     dtpe => {
-      if (verbose.value) dtpe.printStackTrace()
+      if (cfg.verbose.value) dtpe.printStackTrace()
       println(s"$RED${BOLD}Unexpected command: $cmd")
     },
     fuzzed => {
       val fakedDate =
         fuzzed.atZone(java.time.ZoneId.systemDefault()).toEpochSecond.toString
-      if (verbose.value)
-        println(
+      cfg.vPrintln(
           s"""$BOLD${BLUE}GPG_FAKED_DATE="$fakedDate" GIT_COMMITTER_DATE="$fuzzed" git -c "gpg.program=$gpgWithRewrite" commit --amend --no-edit --date $fuzzed$RESET
              |""".stripMargin
         )
@@ -276,26 +280,4 @@ def gitRewriteDate(
       )
     }
   )
-}
-
-/** An experiment to rewrite a git date on the last commit. */
-@main
-def gitRewriteDates(
-    commit: String = "HEAD",
-    cmd: String = "next1day",
-    prj: String = os.pwd.toString(),
-    dstBranch: String = "tmp",
-    @arg(doc = "Verbose for extra output")
-    verbose: Flag
-): Unit = {
-
-  val revList =
-    os.proc("git", "rev-list", s"$commit..HEAD").call(os.Path(prj)).out.lines
-  os.proc("git", "switch", "-c", dstBranch, commit).call(os.Path(prj))
-
-  revList.reverse.foreach { rev =>
-    println(s"Cherry picking $rev")
-    os.proc("git", "cherry-pick", rev).call(os.Path(prj))
-    gitRewriteDate(cmd, prj, verbose = verbose)
-  }
 }
