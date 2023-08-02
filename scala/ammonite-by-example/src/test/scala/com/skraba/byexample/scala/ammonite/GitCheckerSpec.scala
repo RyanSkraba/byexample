@@ -19,7 +19,7 @@ class GitCheckerSpec
   /** The path containing ammonite scripts. */
   val ScriptPath: Path = Path(
     Paths.get(getClass.getResource("/git_checker.sc").toURI).toFile
-  ).parent
+  )
 
   /** Either create a new home directory reused across this suite, or use the
     * common one.
