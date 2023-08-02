@@ -1,17 +1,14 @@
-package com.skraba.byexample.scala.ammonite.git
+package com.skraba.byexample.scala.ammonite
 
 import com.skraba.byexample.scala.ammonite.AmmoniteSpec._
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
-import java.nio.charset.StandardCharsets
 import java.nio.file.Paths
 import scala.Console._
-import scala.io.AnsiColor.{BOLD, RESET, YELLOW}
-import scala.reflect.io.{Directory, Path, Streamable}
-import scala.util.Properties
+import scala.io.AnsiColor.{BOLD, RESET}
+import scala.reflect.io.{Directory, Path}
 
 /** Test the git_checker.sc script. */
 class GitCheckerSpec
@@ -41,19 +38,37 @@ class GitCheckerSpec
     }
 
   describe("Running the git_checker help") {
+
+    /** Helper to run ammonite_example.sc argTest successfully with some initial
+      * checks
+      *
+      * @param args
+      *   Additional arguments to the script
+      * @return
+      *   stdout
+      */
+    def help(args: String*): String = {
+      val arguments: Seq[String] = Seq(ScriptPath.toString, "help") ++ args
+      AmmoniteSpec.withAmmoniteMain0AndNoStdIn(
+        HomeFolder,
+        arguments: _*
+      ) { case (result, stdout, stderr) =>
+        result shouldBe true
+        stderr shouldBe empty
+        stdout
+      }
+    }
+
     it("should print a useful message") {
       // with helpers
-      withAmmoniteMain0AndNoStdIn(
-        HomeFolder,
-        (ScriptPath / "git_checker.sc").toString,
-        "help"
-      ) { case (result, stdout, stderr) =>
-        stderr shouldBe empty
-        stdout should startWith(
-          s"$BOLD${GREEN}git_checker.sc$RESET - Do some analysis on git repositories"
-        )
-        result shouldBe true
-      }
+      val ansiHelp = help()
+      ansiHelp should startWith(
+        s"$BOLD${GREEN}git_checker.sc$RESET - Do some analysis on git repositories"
+      )
+      help("--verbose") shouldBe ansiHelp
+      help("--plain") should startWith(
+        "git_checker.sc - Do some analysis on git repositories"
+      )
     }
   }
 }
