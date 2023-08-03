@@ -1,6 +1,6 @@
 #!/usr/bin/env amm
 
-/** Some examples on using ammonite for scripting in scala. */
+/** Some ammonite scala scripts that demonstrate using git. */
 
 import mainargs.{Flag, arg, main}
 import java.time.{DayOfWeek, LocalDateTime}
@@ -26,7 +26,7 @@ local_import_util.load(
 )
 
 @
-import com.skraba.byexample.scala.ammonite.git.{CherryPickerReport, Commit}
+import com.skraba.byexample.scala.ammonite.git.CherryPickerReport
 import com.skraba.byexample.scala.ammonite.git.Commit.getDateFromRepo
 import com.skraba.byexample.scala.ammonite.ColourCfg
 import com.skraba.byexample.scala.markd._
@@ -47,10 +47,13 @@ def help(cfg: ColourCfg): Unit = {
              |
              | ${cfg.left("cherryPick")} : Get a status report on two branches
              |
-             |Usage:
+             |${cfg.bold("Usage:")}
              |
              | ${cfg.ok(Cli)} ${cfg.left("  cherryPick")} [repo] [main] [branch]
-             | ${cfg.ok(Cli)} ${cfg.left("countOpenPRs")} [githuborg/proj]
+             | ${cfg.ok(Cli)} ${cfg.left("   ghOpenPrs")} [githuborg/proj]
+             | ${cfg.ok(Cli)} ${cfg.left(
+      "   ghContrib"
+    )} [USER] [DSTFILE] [--verbose]
              | ${cfg.ok(Cli)} ${cfg.left(" rewriteDate")} [cmd]
              |""".stripMargin
   )
@@ -69,15 +72,13 @@ def releaseCherryPickPrep(
     cfg: ColourCfg
 ): Unit = {
 
-  if (cfg.verbose.value) {
-    println(cfg.bold("Arguments:"))
-    println(cfg.kv("      repo", repo))
-    println(cfg.kv("      lTag", lTag))
-    println(cfg.kv("      rTag", rTag))
-    println(cfg.kv(" statusDoc", statusDoc))
-    println(cfg.bold("\nGit command:"))
-    println((CherryPickerReport.Cmd :+ s"$lTag...$rTag").mkString(" "))
-  }
+  cfg.vPrintln(cfg.bold("Arguments:"))
+  cfg.vPrintln(cfg.kv("      repo", repo))
+  cfg.vPrintln(cfg.kv("      lTag", lTag))
+  cfg.vPrintln(cfg.kv("      rTag", rTag))
+  cfg.vPrintln(cfg.kv(" statusDoc", statusDoc))
+  cfg.vPrintln(cfg.bold("\nGit command:"))
+  cfg.vPrintln((CherryPickerReport.Cmd :+ s"$lTag...$rTag").mkString(" "))
 
   // The current state of the git branches
   val current: CherryPickerReport =
@@ -111,7 +112,7 @@ def releaseCherryPickPrep(
 
 @arg(doc = "Use the GitHub API to count the open PRs on a given project")
 @main
-def countOpenPrs(
+def ghOpenPrs(
     @arg(doc = "The project in the form apache/avro")
     prj: String,
     @arg(doc = "Verbose for extra output")
@@ -126,6 +127,49 @@ def countOpenPrs(
 
   val prs = ujson.read(prsResponse.text())
   println(prs("total_count"))
+}
+
+// ==========================================================================
+// GitHub Contributions for a given user using GraphQL
+
+@arg(doc = "Save the contribution JSON from the GitHub API to a file")
+@main
+def ghContrib(
+    @arg(doc = "GitHub user to fetch contribution information")
+    user: String,
+    @arg(doc = "The destination file to save the JSON")
+    dstFile: String = "/tmp/github_contributions.json",
+    cfg: ColourCfg
+): Unit = {
+  // You need the gh token to proceed
+  val token = os.proc("gh", "auth", "token").call(os.pwd)
+  val contributions = requests.post(
+    url = "https://api.github.com/graphql",
+    headers = Seq(
+      ("Authorization", s"Bearer ${token.out.lines.head.trim}"),
+      ("Content-Type", "application/json")
+    ),
+    data = s"""{"query":"query($$userName:String!) {
+              |  user(login: $$userName) {
+              |    contributionsCollection {
+              |      contributionCalendar {
+              |        totalContributions
+              |        weeks {
+              |          contributionDays {
+              |            contributionCount
+              |            date
+              |          }
+              |        }
+              |      }
+              |    }
+              |  }
+              |}",
+              |"variables":{"userName":"$user"}}""".stripMargin
+      .replace('\n', ' ')
+  )
+  os.write.over(os.Path(dstFile), contributions.text())
+  cfg.vPrintln(contributions.text())
+  println(cfg.ok("Writing to " + cfg.bold(dstFile)))
 }
 
 // ==========================================================================
@@ -254,9 +298,9 @@ def rewriteDate(
       val fakedDate =
         fuzzed.atZone(java.time.ZoneId.systemDefault()).toEpochSecond.toString
       cfg.vPrintln(
-          s"""$BOLD${BLUE}GPG_FAKED_DATE="$fakedDate" GIT_COMMITTER_DATE="$fuzzed" git -c "gpg.program=$gpgWithRewrite" commit --amend --no-edit --date $fuzzed$RESET
+        s"""$BOLD${BLUE}GPG_FAKED_DATE="$fakedDate" GIT_COMMITTER_DATE="$fuzzed" git -c "gpg.program=$gpgWithRewrite" commit --amend --no-edit --date $fuzzed$RESET
              |""".stripMargin
-        )
+      )
       println(
         os.proc(
           "git",

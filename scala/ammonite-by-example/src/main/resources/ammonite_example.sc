@@ -57,14 +57,12 @@ def help(
   println(s"""$BOLD$Cli - Demonstrate how to script with Ammonite
              |
              |$CYAN    argTest$RESET: Show how ammonite arguments are used
-             |$CYAN  githubApi$RESET: Get contribution info from the GitHub API
              |$CYAN githubJson$RESET: Parse and use the github JSON with ujson
              |$CYAN    gitExec$RESET: Run a system call (git) and get the results
              |
              |Usage:
              |
              | $Cli ${CYAN}argTest$RESET [USER] [GREETING] [--verbose]
-             | $Cli ${CYAN}githubApi$RESET USER [DSTFILE] [--verbose]
              | $Cli ${CYAN}githubJson$RESET [DSTFILE] [--verbose]
              | $Cli ${CYAN}gitExec$RESET [DSTREPO] [--verbose]
              |""".stripMargin)
@@ -210,48 +208,6 @@ def sar(
     )
     println(s"$RESET${BOLD}Modified ${modified.flatten.size} files.")
   }
-}
-
-@arg(doc = "Save the contribution JSON from the GitHub API to a file")
-@main
-def githubApi(
-    @arg(doc = "GitHub user to fetch contribution information")
-    user: String,
-    @arg(doc = "The destination file to save the JSON")
-    dstFile: String = "/tmp/github_contributions.json",
-    cfg: Config
-): Unit = {
-  val token = os.proc("gh", "auth", "token").call(os.pwd)
-  val contributions = requests.post(
-    url = "https://api.github.com/graphql",
-    headers = Seq(
-      ("Authorization", s"Bearer ${token.out.lines.head.trim}"),
-      ("Content-Type", "application/json")
-    ),
-    data = s"""{"query":"query($$userName:String!) {
-              |  user(login: $$userName) {
-              |    contributionsCollection {
-              |      contributionCalendar {
-              |        totalContributions
-              |        weeks {
-              |          contributionDays {
-              |            contributionCount
-              |            date
-              |          }
-              |        }
-              |      }
-              |    }
-              |  }
-              |}",
-              |"variables":{"userName":"$user"}}""".stripMargin
-      .replace('\n', ' ')
-  )
-
-  os.write.over(os.Path(dstFile), contributions.text())
-  if (cfg.verbose.value) {
-    println(contributions.text())
-  }
-  println(s"${GREEN}Writing to $BOLD$dstFile$RESET")
 }
 
 @arg(doc = "Read the contribution JSON and print some markdown")
