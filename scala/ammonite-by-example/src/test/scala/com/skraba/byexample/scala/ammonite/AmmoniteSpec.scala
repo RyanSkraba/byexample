@@ -18,9 +18,7 @@ import scala.util.Properties
 class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 
   /** The path containing ammonite scripts. */
-  val ScriptPath: Path = Path(
-    Paths.get(getClass.getResource("/ammonite_example.sc").toURI).toFile
-  )
+  val ScriptPath: Path = AmmoniteSpec.find("/ammonite_example.sc")
 
   /** A temporary directory for playing with files. */
   val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
@@ -283,6 +281,17 @@ object AmmoniteSpec {
 
   lazy val ReusableAmmoniteHome: Directory =
     (Directory(Properties.tmpDir) / getClass.getSimpleName).createDirectory()
+
+  /** Find the given script as a file in the classpath.
+    *
+    * @param script
+    *   The name of the script to run.
+    * @return
+    *   The file pointing to that script in the current test environment.
+    */
+  def find(script: String): File = File(
+    Paths.get(getClass.getResource(script).toURI).toFile
+  )
 
   /** A helper method used to capture the console and apply it to a partial
     * function.
