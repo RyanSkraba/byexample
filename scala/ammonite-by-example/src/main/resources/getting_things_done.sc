@@ -373,21 +373,34 @@ def statExtract(
     rowStat: String = "",
     @arg(doc = "Print the output as CSV.")
     csv: Flag,
-    @arg(doc = "Limit the statistics to this last month.")
-    month: Flag
+    @arg(
+      doc = "Limit the statistics to a specific month, where '1' is January. " +
+        "If non-positive (including zero), counts relative to the current month. "
+    )
+    month: Option[Int] = None
 ): Unit = {
   // Read the existing document.
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
 
-  // Filter to this month if the flag was set
-  val stats =
-    if (month.value)
+  // If a specific month was set, then extract for that month only.
+  val stats = month
+    .map {
+      case m if m > 0 =>
+        LocalDate.now().withMonth(m).withDayOfMonth(1)
+      case m =>
+        LocalDate.now().plusMonths(m).withDayOfMonth(1)
+    }
+    .map(from =>
       gtd.extractStats(
         name = rowStat,
-        from = Some(LocalDate.now().withDayOfMonth(1)),
-        to = Some(LocalDate.now().plusMonths(1).withDayOfMonth(1).minusDays(1))
+        Some(from),
+        Some(from.plusMonths(1).minusDays(1))
       )
-    else gtd.extractStats(name = rowStat)
+    )
+    .getOrElse {
+      // Otherwise extract the entire history
+      gtd.extractStats(name = rowStat)
+    }
 
   if (csv.value) {
     if (rowStat.isEmpty) {
