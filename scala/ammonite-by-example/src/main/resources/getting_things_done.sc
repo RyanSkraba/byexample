@@ -366,6 +366,39 @@ def statsDaily(): Unit = {
   args.foreach(statsToday(_: _*))
 }
 
+/** Given an optional parameter, calculates the date range that corresponds to
+  * that month.
+  *
+  * If the month is not present, the range is two [[None]] values.
+  *
+  * If the month is positive, the range is the first and last day of that month
+  * in this year. January is "1" and December is "12".
+  *
+  * If the month is zero or negative, the selected month is relative to the
+  * current month (where "0" is this month, and "-1" is last month).
+  *
+  * @param month
+  *   The optional month parameter.
+  * @return
+  *   The date range for the first and last day of that month, or None(s) if the
+  *   parameter isn't specified.
+  */
+private def getMonth(
+    month: Option[Int]
+): (Option[LocalDate], Option[LocalDate]) = {
+  month
+    .map {
+      case m if m > 0 =>
+        LocalDate.now().withMonth(m).withDayOfMonth(1)
+      case m =>
+        LocalDate.now().plusMonths(m).withDayOfMonth(1)
+    }
+    .map { from =>
+      (Some(from), Some(from.plusMonths(1).minusDays(1)))
+    }
+    .getOrElse(None, None)
+}
+
 @arg(doc = "Extract a statistic in the table as a time-series")
 @main
 def statExtract(
@@ -383,24 +416,8 @@ def statExtract(
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
 
   // If a specific month was set, then extract for that month only.
-  val stats = month
-    .map {
-      case m if m > 0 =>
-        LocalDate.now().withMonth(m).withDayOfMonth(1)
-      case m =>
-        LocalDate.now().plusMonths(m).withDayOfMonth(1)
-    }
-    .map(from =>
-      gtd.extractStats(
-        name = rowStat,
-        Some(from),
-        Some(from.plusMonths(1).minusDays(1))
-      )
-    )
-    .getOrElse {
-      // Otherwise extract the entire history
-      gtd.extractStats(name = rowStat)
-    }
+  val (from: Option[LocalDate], to: Option[LocalDate]) = getMonth(month)
+  val stats = gtd.extractStats(name = rowStat, from = from, to = to)
 
   if (csv.value) {
     if (rowStat.isEmpty) {
@@ -441,21 +458,22 @@ def statExtract(
 def todoExtract(
     @arg(doc = "Print the output as CSV.")
     csv: Flag,
-    @arg(doc = "Limit the tasks to this last month.")
-    month: Flag,
     @arg(doc = "Only list completed tasks")
-    completed: Flag
+    completed: Flag,
+    @arg(
+      doc = "Limit the statistics to a specific month, where '1' is January. " +
+        "If non-positive (including zero), counts relative to the current month. "
+    )
+    month: Option[Int] = None
 ): Unit = {
   // Read the existing document.
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
 
-  // Filter to this month if the flag was set
+  // If a specific month was set, then extract for that month only.
+  val (from: Option[LocalDate], to: Option[LocalDate]) = getMonth(month)
   val tasks = gtd.extractToDo(
-    from = if (month.value) Some(LocalDate.now().withDayOfMonth(1)) else None,
-    to =
-      if (month.value)
-        Some(LocalDate.now().plusMonths(1).withDayOfMonth(1).minusDays(1))
-      else None,
+    from = from,
+    to = to,
     completed = if (completed.value) Some(true) else None
   )
 
