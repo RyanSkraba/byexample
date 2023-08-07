@@ -464,18 +464,28 @@ def todoExtract(
       doc = "Limit the statistics to a specific month, where '1' is January. " +
         "If non-positive (including zero), counts relative to the current month. "
     )
-    month: Option[Int] = None
+    month: Option[Int] = None,
+    @arg(doc = "Only list tasks that match the given unanchored regex")
+    task: Option[String] = None
 ): Unit = {
   // Read the existing document.
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
 
   // If a specific month was set, then extract for that month only.
   val (from: Option[LocalDate], to: Option[LocalDate]) = getMonth(month)
-  val tasks = gtd.extractToDo(
+  val tasks0 = gtd.extractToDo(
     from = from,
     to = to,
     completed = if (completed.value) Some(true) else None
   )
+
+  // Apply the filter to get the final list of tasks (if any filter was given)
+  val tasks = task
+    .map { re =>
+      val taskNameRe = new Regex(re).unanchored
+      tasks0.filter(t => taskNameRe.matches(t._3))
+    }
+    .getOrElse(tasks0)
 
   if (csv.value) {
     println("date,state,category,notes")
