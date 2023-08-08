@@ -22,15 +22,28 @@ import scala.util.matching.Regex
 // from local maven).
 
 import $file.local_import_util
-local_import_util.load("com.skraba.byexample", "scala-by-example", "0.0.1-SNAPSHOT")
-local_import_util.load("com.skraba.byexample", "ammonite-by-example", "0.0.1-SNAPSHOT")
+local_import_util.load(
+  "com.skraba.byexample",
+  "scala-by-example",
+  "0.0.1-SNAPSHOT"
+)
+local_import_util.load(
+  "com.skraba.byexample",
+  "ammonite-by-example",
+  "0.0.1-SNAPSHOT"
+)
 
 @
-
 import com.skraba.byexample.scala.ammonite.gtd._
 import com.skraba.byexample.scala.ammonite.gtd.GettingThingsDone._
 import com.skraba.byexample.scala.ammonite.gtd.ThunderbirdMailbox.getNumberOfMessagesFromMailbox
+import com.skraba.byexample.scala.ammonite.ColourCfg
 import com.skraba.byexample.scala.markd._
+
+// ==========================================================================
+// Top level variables available to the script
+
+val Cli = "getting_things_done.sc"
 
 /** A tag used to distinguish between documents. */
 val StatusTag: String = sys.env.getOrElse("GTD_TAG", "GTD")
@@ -161,32 +174,39 @@ object ProjectParserCfg extends ParserCfg {
   }
 }
 
+// ==========================================================================
+// help
+
 @arg(doc = "Print help to the console.")
 @main
-def help(): Unit = {
-  val cmd = s"${GREEN}getting_things_done$RESET"
-  println(s"""$BOLD$cmd - Let's get things done!
-       |
-       |  $CYAN       clean$RESET : Beautify the status document
-       |  $CYAN        edit$RESET : Open the status document in a editor (Visual Code).
-       |  $CYAN     newWeek$RESET : Add a new week to the status document
-       |  $CYAN          pr$RESET : Add a PR review to this week
-       |  $CYAN        stat$RESET : Add or update a weekly statistic
-       |  $CYAN  statsDaily$RESET : Update a list of configured statistics (if any)
-       |  $CYAN statExtract$RESET : Extract a statistic from the document
-       |  $CYAN        task$RESET : Add or update a weekly task ${RED_B}TODO$RESET
-       |  $CYAN        week$RESET : Print the last week status or a specific week
-       |
-       |Usage:
-       |
-       | $cmd ${CYAN}clean$RESET
-       | $cmd ${CYAN}newWeek$RESET
-       | $cmd ${CYAN}pr$RESET avro 9876 1234 "Implemented a thing" REVIEWED
-       | $cmd ${CYAN}stat$RESET unread 448 [Wed]
-       | $cmd ${CYAN}week$RESET
-       | $cmd ${CYAN}week$RESET 2021/03/08
-       |""".stripMargin)
+def help(cfg: ColourCfg): Unit = {
+  println(
+    s"""${cfg.ok(Cli, bold = true)} - Let's get things done!
+             |
+             | ${cfg.left("clean")} : Beautify the status document
+             | ${cfg.left("edit")} : Open the status document in a editor (Visual Code).
+             | ${cfg.left("newWeek")} : Add a new week to the status document
+             | ${cfg.left("pr")} : Add a PR review to this week
+             | ${cfg.left("stat")} : Add or update a weekly statistic
+             | ${cfg.left("statsDaily")} : Update a list of configured statistics (if any)
+             | ${cfg.left("statsExtract")} : Extract a statistic from the document
+             | ${cfg.left("task")} : Add or update a weekly task ${cfg.redBg("TODO")}
+             | ${cfg.left("week")} : Print the last week status or a specific week
+             |
+             |${cfg.bold("Usage:")}
+             |
+             | ${cfg.ok(Cli)} ${cfg.left("clean")}
+             | ${cfg.ok(Cli)} ${cfg.left("newWeek")}
+             | ${cfg.ok(Cli)} ${cfg.left("pr")} avro 9876 1234 "Implemented a thing" REVIEWED
+             | ${cfg.ok(Cli)} ${cfg.left("stat")} unread 448 [Wed]
+             | ${cfg.ok(Cli)} ${cfg.left("week")}
+             | ${cfg.ok(Cli)} ${cfg.left("week")} 2021/03/08
+             |""".stripMargin
+  )
 }
+
+// ==========================================================================
+// clean
 
 @arg(doc = "Clean the existing document")
 @main
@@ -202,6 +222,9 @@ def clean(
   )
 }
 
+// ==========================================================================
+// edit
+
 @arg(doc = "Open the document in an editor")
 @main
 def edit(): Unit = {
@@ -211,6 +234,9 @@ def edit(): Unit = {
     StatusFile.toString()
   ).call(StatusRepo)
 }
+
+// ==========================================================================
+// newWeek
 
 @arg(doc = "Add a new week")
 @main
@@ -225,6 +251,9 @@ def newWeek(): Unit = {
     )
   )
 }
+
+// ==========================================================================
+// pr
 
 @arg(doc = "Start working on a new PR")
 @main
@@ -280,6 +309,9 @@ def pr(
   )
 }
 
+// ==========================================================================
+// stat
+
 @arg(doc = "Update a statistic in a table, typically for the day of the week")
 @main
 def stat(
@@ -296,6 +328,9 @@ def stat(
   val gtdUpdated = gtd.updateTopWeekStats(rowStat, cell, date)
   writeGtd(gtdUpdated, Some(s"feat(status): Update $rowStat"))
 }
+
+// ==========================================================================
+// statsToday
 
 @arg(doc = "Update many statistics for today.")
 @main
@@ -322,6 +357,9 @@ def statsToday(
     Some(s"feat(status): Update ${stats.grouped(2).map(_.head).mkString(",")}")
   )
 }
+
+// ==========================================================================
+// statsDaily
 
 @arg(doc = "Update the daily statistics.")
 @main
@@ -399,6 +437,9 @@ private def getMonth(
     .getOrElse(None, None)
 }
 
+// ==========================================================================
+// statsExtract
+
 @arg(doc = "Extract a statistic in the table as a time-series")
 @main
 def statExtract(
@@ -453,6 +494,9 @@ def statExtract(
   }
 }
 
+// ==========================================================================
+// todoExtract
+
 @arg(doc = "Extract the To Do tasks table")
 @main
 def todoExtract(
@@ -503,6 +547,9 @@ def todoExtract(
     )
   }
 }
+
+// ==========================================================================
+// week
 
 @arg(doc = "Print the status for this week")
 @main
