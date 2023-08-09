@@ -1,13 +1,11 @@
 package com.skraba.byexample.scala.ammonite
 
-import com.skraba.byexample.scala.ammonite.AmmoniteSpec._
+import com.skraba.byexample.scala.ammonite.AmmoniteScriptSpecBase._
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
-import java.nio.charset.StandardCharsets
-import java.nio.file.Paths
+import java.io.ByteArrayInputStream
 import scala.Console._
 import scala.io.AnsiColor.{BOLD, RESET, YELLOW}
 import scala.reflect.io._
@@ -18,7 +16,7 @@ import scala.util.Properties
 class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 
   /** The path containing ammonite scripts. */
-  val ScriptPath: Path = AmmoniteSpec.find("/ammonite_example.sc")
+  val ScriptPath: Path = find("/ammonite_example.sc")
 
   /** A temporary directory for playing with files. */
   val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
@@ -89,7 +87,7 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 
     it("using AmmoniteSpec.withAmmoniteMain0AndNoStdIn") {
       // This form allows specifying the home folder and which script to run
-      AmmoniteSpec.withAmmoniteMain0AndNoStdIn(
+      withAmmoniteMain0AndNoStdIn(
         HomeFolder,
         ScriptPath.toString,
         "help"
@@ -112,7 +110,7 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
         */
       def ammoniteHelp(args: String*): String = {
         val arguments: Seq[String] = Seq(ScriptPath.toString, "help") ++ args
-        AmmoniteSpec.withAmmoniteMain0AndNoStdIn(
+        withAmmoniteMain0AndNoStdIn(
           HomeFolder,
           arguments: _*
         ) { case (result, stdout, stderr) =>
@@ -175,7 +173,7 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
       */
     def argTest(args: String*): String = {
       val arguments: Seq[String] = Seq(ScriptPath.toString, "argTest") ++ args
-      AmmoniteSpec.withAmmoniteMain0AndNoStdIn(
+      withAmmoniteMain0AndNoStdIn(
         HomeFolder,
         arguments: _*
       ) { case (result, stdout, stderr) =>
@@ -188,13 +186,13 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
     it("should print hello without any arguments") {
       val stdout = argTest()
       stdout shouldBe s"${YELLOW}Hello, $BOLD${Properties.userName}$RESET\n"
-      stdout should not include (s"\nThe --verbose flag was set!\n")
+      stdout should not include s"\nThe --verbose flag was set!\n"
     }
 
     it("with one argument (Me)") {
       val stdout = argTest("Me")
       stdout shouldBe s"${YELLOW}Hello, ${BOLD}Me$RESET\n"
-      stdout should not include (s"\nThe --verbose flag was set!\n")
+      stdout should not include s"\nThe --verbose flag was set!\n"
     }
 
     it("with one argument and the --verbose flag") {
@@ -206,7 +204,7 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
     it("with two arguments (Me Hey)") {
       val stdout = argTest("Me", "Hey")
       stdout shouldBe s"${YELLOW}Hey, ${BOLD}Me$RESET\n"
-      stdout should not include (s"\nThe --verbose flag was set!\n")
+      stdout should not include s"\nThe --verbose flag was set!\n"
     }
 
     it("with three arguments (You 'Hello there' VerboseFlag)") {
@@ -218,7 +216,7 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
     it("with a named argument (--greeting Yo)") {
       val stdout = argTest("--greeting", "Yo")
       stdout shouldBe s"${YELLOW}Yo, $BOLD${Properties.userName}$RESET\n"
-      stdout should not include (s"\nThe --verbose flag was set!\n")
+      stdout should not include s"\nThe --verbose flag was set!\n"
     }
 
     it("should fail with an unknown flag (--help)") {
@@ -270,90 +268,6 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 
         File(Basic / "greet").slurp() shouldBe "Hi world!"
       }
-    }
-  }
-}
-
-object AmmoniteSpec {
-
-  /** Set to true to attempt to reuse the ammonite cache across tests */
-  val ReuseAmmoniteHome = sys.env.getOrElse("AMMONITESPEC_REUSE", "").nonEmpty
-
-  lazy val ReusableAmmoniteHome: Directory =
-    (Directory(Properties.tmpDir) / getClass.getSimpleName).createDirectory()
-
-  /** Find the given script as a file in the classpath.
-    *
-    * @param script
-    *   The name of the script to run.
-    * @return
-    *   The file pointing to that script in the current test environment.
-    */
-  def find(script: String): File = File(
-    Paths.get(getClass.getResource(script).toURI).toFile
-  )
-
-  /** A helper method used to capture the console and apply it to a partial
-    * function.
-    *
-    * @param thunk
-    *   code to execute that may use Console.out and Console.err print streams
-    * @param pf
-    *   A partial function to apply matchers
-    * @tparam T
-    *   The return value type of the thunk code to execute
-    * @tparam U
-    *   The return value type of the partial function to return.
-    * @return
-    *   The return value of the partial function.
-    */
-  def withConsoleMatch[T, U](
-      thunk: => T
-  )(pf: scala.PartialFunction[(T, String, String), U]): U = {
-    Streamable.closing(new ByteArrayOutputStream()) { out =>
-      Streamable.closing(new ByteArrayOutputStream()) { err =>
-        Console.withOut(out) {
-          Console.withErr(err) {
-            val t = thunk
-            Console.out.flush()
-            Console.err.flush()
-            // The return value
-            pf(
-              t,
-              new String(out.toByteArray, StandardCharsets.UTF_8),
-              new String(err.toByteArray, StandardCharsets.UTF_8)
-            )
-          }
-        }
-      }
-    }
-  }
-
-  /** A helper method for running an ammonite script.
-    *
-    * @param args
-    *   The arguments to apply to the ammonite executable, starting with the
-    *   script name.
-    * @param pf
-    *   A partial function taking the result, the stdout and stderr strings from
-    *   the ammonite call
-    * @tparam U
-    *   If any, the type of output of the partial function
-    * @return
-    *   The output of the partial function
-    */
-  def withAmmoniteMain0AndNoStdIn[U](tmp: Path, args: String*)(
-      pf: scala.PartialFunction[(Boolean, String, String), U]
-  ): U = Streamable.closing(new ByteArrayInputStream(Array.empty[Byte])) { in =>
-    Console.withIn(in) {
-      withConsoleMatch(
-        ammonite.AmmoniteMain.main0(
-          List("--silent", "--home", tmp.toString) ++ args,
-          in,
-          Console.out,
-          Console.err
-        )
-      )(pf)
     }
   }
 }
