@@ -46,17 +46,20 @@ import com.skraba.byexample.scala.markd._
 val Cli = "getting_things_done.sc"
 
 /** A tag used to distinguish between documents. */
-val StatusTag: String = sys.env.getOrElse("GTD_TAG", "GTD")
+val StatusTag: String =
+  sys.props.get("GTD_TAG").orElse(sys.env.get("GTD_TAG")).getOrElse("GTD")
 
 /** Git root directory for the status file. */
-val StatusRepo: os.Path = sys.env
+val StatusRepo: os.Path = sys.props
   .get(s"${StatusTag}_STATUS_REPO")
+  .orElse(sys.env.get(s"${StatusTag}_STATUS_REPO"))
   .map(os.Path(_))
   .getOrElse(os.home / "Documents")
 
 /** The actual status file to update. */
-val StatusFile: os.Path = sys.env
+val StatusFile: os.Path = sys.props
   .get(s"${StatusTag}_STATUS_FILE")
+  .orElse(sys.env.get(s"${StatusTag}_STATUS_FILE"))
   .map(os.Path(_))
   .getOrElse(StatusRepo / "todo" / "status.md")
 
