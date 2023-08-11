@@ -1,21 +1,5 @@
 // #!/usr/bin/env amm
-// Disable the shebang before developing in IntelliJ
-// https://youtrack.jetbrains.com/issue/SCL-13279
-
-/** A user script for interacting with status sheets and todo lists.
-  *
-  * This assumes that https://ammonite.io/ is installed.
-  *
-  * Ammonite includes:
-  *   - requests (https://github.com/lihaoyi/requests-scala)
-  *   - upickle (https://github.com/lihaoyi/upickle)
-  */
-
-import mainargs.{Flag, arg, main}
-
-import java.time.LocalDate
 import scala.io.AnsiColor._
-import scala.util.matching.Regex
 
 // ==========================================================================
 
@@ -40,16 +24,16 @@ import scala.util.matching.Regex
   * Otherwise, this class can be copied into your script to load compiled
   * resources from this maven project.
   *
-  * @param g
-  *   The group id to load (com.skraba.byexample)
   * @param a
   *   The artifact id (also the maven module name by convention)
+  * @param g
+  *   The group id to load (com.skraba.byexample)
   * @param v
   *   The version of the artifact to load.
   */
 def load(
-    g: String = "com.skraba.byexample",
     a: String,
+    g: String = "com.skraba.byexample",
     v: String = "0.0.1-SNAPSHOT"
 ): Unit = {
 

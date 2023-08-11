@@ -16,16 +16,8 @@ import ujson.Obj
 // from local maven).
 
 import $file.local_import_util
-local_import_util.load(
-  "com.skraba.byexample",
-  "scala-by-example",
-  "0.0.1-SNAPSHOT"
-)
-local_import_util.load(
-  "com.skraba.byexample",
-  "ammonite-by-example",
-  "0.0.1-SNAPSHOT"
-)
+local_import_util.load("scala-by-example")
+local_import_util.load("ammonite-by-example")
 
 @
 import com.skraba.byexample.scala.ammonite.gtd.GettingThingsDone
