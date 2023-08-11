@@ -20,34 +20,38 @@ import scala.util.matching.Regex
 // ==========================================================================
 
 /** This class finds and loads artifacts from the local machine, which may not
- * have already been published to Maven. If the artifact is published, this can
- * be simpler:
- *
- * {{{
- * import $ivy.`com.skraba.byexample:scala-by-example:0.0.1`
- * }}}
- *
- * If the artifact is on the local maven repository, it's more complicated:
- *
- * {{{
- * interp.repositories() ++=
- *     Seq(coursierapi.MavenRepository.of(LocalM2.toIO.toURI.toString))
- * @
- * // The "@" causes a second stage of compilation with the repo directory
- * import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
- * }}}
- *
- * Otherwise, this class can be copied into your script to load compiled
- * resources from this maven project.
- *
- * @param g
- *   The group id to load (com.skraba.byexample)
- * @param a
- *   The artifact id (also the maven module name by convention)
- * @param v
- *   The version of the artifact to load.
- */
-def load(g: String, a: String, v: String): Unit = {
+  * have already been published to Maven. If the artifact is published, this can
+  * be simpler:
+  *
+  * {{{
+  * import $ivy.`com.skraba.byexample:scala-by-example:0.0.1`
+  * }}}
+  *
+  * If the artifact is on the local maven repository, it's more complicated:
+  *
+  * {{{
+  * interp.repositories() ++=
+  *     Seq(coursierapi.MavenRepository.of(LocalM2.toIO.toURI.toString))
+  * @
+  * // The "@" causes a second stage of compilation with the repo directory
+  * import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
+  * }}}
+  *
+  * Otherwise, this class can be copied into your script to load compiled
+  * resources from this maven project.
+  *
+  * @param g
+  *   The group id to load (com.skraba.byexample)
+  * @param a
+  *   The artifact id (also the maven module name by convention)
+  * @param v
+  *   The version of the artifact to load.
+  */
+def load(
+    g: String = "com.skraba.byexample",
+    a: String,
+    v: String = "0.0.1-SNAPSHOT"
+): Unit = {
 
   /** Point to the local maven repo. */
   val localM2: os.Path = Option(sys.props("maven.repo.local"))
