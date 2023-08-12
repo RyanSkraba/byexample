@@ -159,6 +159,7 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
                               |  --user <str>      The user running the script, or current user if not present
                               |  --greeting <str>  A string value
                               |  --verbose         Verbose for extra output
+                              |  --plain           Don't use ansi colour codes
                               |
                               |
                               |""".stripMargin
@@ -230,13 +231,14 @@ class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
     }
 
     it(
-      "should fail with too many arguments (Me 'Hello there' VerboseFlag Invalid)"
+      "should fail with too many arguments (Me 'Hello there' VerboseFlag X Invalid)"
     ) {
       withAmmoniteExample(
         "argTest",
         "You",
         "Hello there",
         "VerboseFlag",
+        "X",
         "Invalid"
       ) { case (result, stdout, stderr) =>
         result shouldBe false

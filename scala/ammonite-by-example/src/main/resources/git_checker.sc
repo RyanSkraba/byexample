@@ -34,20 +34,21 @@ val Cli = "git_checker.sc"
 @arg(doc = "Print help to the console.")
 @main
 def help(cfg: ColourCfg): Unit = {
+  // The help header includes all of the subcommands
+  val cli = "git_checker.sc"
   println(
-    s"""${cfg.ok(Cli, bold = true)} - Do some analysis on git repositories.
-             |
-             | ${cfg.left("cherryPick")} : Get a status report on two branches
-             |
-             |${cfg.bold("Usage:")}
-             |
-             | ${cfg.ok(Cli)} ${cfg.left("  cherryPick")} [repo] [main] [branch]
-             | ${cfg.ok(Cli)} ${cfg.left("   ghOpenPrs")} [githuborg/proj]
-             | ${cfg.ok(Cli)} ${cfg.left(
-      "   ghContrib"
-    )} [USER] [DSTFILE] [--verbose]
-             | ${cfg.ok(Cli)} ${cfg.left(" rewriteDate")} [cmd]
-             |""".stripMargin
+    cfg.helpHeader(
+      cli,
+      "Do some analysis on git repositories",
+      "cherryPick" -> "Get a status report on two branches"
+    )
+  )
+  println(
+    s""" ${cfg.ok(Cli)} ${cfg.left("  cherryPick")} [repo] [main] [branch]
+       | ${cfg.ok(Cli)} ${cfg.left("   ghOpenPrs")} [githuborg/proj]
+       | ${cfg.ok(Cli)} ${cfg.left("   ghContrib")} [USER] [DSTFILE] [--verbose]
+       | ${cfg.ok(Cli)} ${cfg.left(" rewriteDate")} [cmd]
+       |""".stripMargin
   )
 }
 

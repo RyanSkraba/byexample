@@ -35,8 +35,6 @@ import com.skraba.byexample.scala.markd._
 // ==========================================================================
 // Top level variables available to the script
 
-val Cli = "getting_things_done.sc"
-
 /** A tag used to distinguish between documents. */
 val StatusTag: String =
   sys.props.get("GTD_TAG").orElse(sys.env.get("GTD_TAG")).getOrElse("GTD")
@@ -175,28 +173,35 @@ object ProjectParserCfg extends ParserCfg {
 @arg(doc = "Print help to the console.")
 @main
 def help(cfg: ColourCfg): Unit = {
+  // The help header includes all of the subcommands
+  val cli = "getting_things_done.sc"
   println(
-    s"""${cfg.ok(Cli, bold = true)} - Let's get things done!
-             |
-             | ${cfg.left("clean")} : Beautify the status document
-             | ${cfg.left("edit")} : Open the status document in a editor (Visual Code).
-             | ${cfg.left("newWeek")} : Add a new week to the status document
-             | ${cfg.left("pr")} : Add a PR review to this week
-             | ${cfg.left("stat")} : Add or update a weekly statistic
-             | ${cfg.left("statsDaily")} : Update a list of configured statistics (if any)
-             | ${cfg.left("statsExtract")} : Extract a statistic from the document
-             | ${cfg.left("task")} : Add or update a weekly task ${cfg.redBg("TODO")}
-             | ${cfg.left("week")} : Print the last week status or a specific week
-             |
-             |${cfg.bold("Usage:")}
-             |
-             | ${cfg.ok(Cli)} ${cfg.left("clean")}
-             | ${cfg.ok(Cli)} ${cfg.left("newWeek")}
-             | ${cfg.ok(Cli)} ${cfg.left("pr")} avro 9876 1234 "Implemented a thing" REVIEWED
-             | ${cfg.ok(Cli)} ${cfg.left("stat")} unread 448 [Wed]
-             | ${cfg.ok(Cli)} ${cfg.left("week")}
-             | ${cfg.ok(Cli)} ${cfg.left("week")} 2021/03/08
-             |""".stripMargin
+    cfg.helpHeader(
+      cli,
+      "Let's get things done!",
+      "clean" -> "Beautify the status document",
+      "edit" -> "Open the status document in a editor (Visual Code)",
+      "newWeek" -> "Add a new week to the status document",
+      "pr" -> "Add a PR review to this week",
+      "stat" -> "Add or update a weekly statistic",
+      "statsDaily" -> "Update a list of configured statistics (if any)",
+      "statsExtract" -> "Extract a statistic from the document",
+      "task" -> s"Add or update a weekly task ${cfg.redBg("TODO")}",
+      "week" -> "Print the last week status or a specific week"
+    )
+  )
+
+  // Usage examples
+  println(
+    s""" ${cfg.ok(cli)} ${cfg.left("clean")}
+       | ${cfg.ok(cli)} ${cfg.left("newWeek")}
+       | ${cfg.ok(cli)} ${cfg.left(
+      "pr"
+    )} avro 9876 1234 "Implemented a thing" REVIEWED
+       | ${cfg.ok(cli)} ${cfg.left("stat")} unread 448 [Wed]
+       | ${cfg.ok(cli)} ${cfg.left("week")}
+       | ${cfg.ok(cli)} ${cfg.left("week")} 2021/03/08
+       |""".stripMargin
   )
 }
 

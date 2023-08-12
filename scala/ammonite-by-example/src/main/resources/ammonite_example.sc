@@ -4,7 +4,7 @@
 
 import java.time.{DayOfWeek, LocalDate}
 import java.time.format.DateTimeFormatter
-import mainargs.{Flag, ParserForClass, arg, main}
+import mainargs.{Flag, arg, main}
 import scala.collection.{SortedMap, mutable}
 import scala.io.AnsiColor._
 import scala.util._
@@ -21,22 +21,14 @@ local_import_util.load("ammonite-by-example")
 
 @
 import com.skraba.byexample.scala.ammonite.gtd.GettingThingsDone
+import com.skraba.byexample.scala.ammonite.ColourCfg
 import com.skraba.byexample.scala.markd._
 
 // ==========================================================================
 // Top level variables available to the script
 
-@main
-case class Config(
-    @arg(doc = "Verbose for extra output")
-    verbose: Flag
-)
-
-implicit def configParser: ParserForClass[Config] = ParserForClass[Config]
-
 val YyyyMmDd = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 val MonthDay = DateTimeFormatter.ofPattern("MMM d")
-val Cli = s"${GREEN}ammonite_example.sc$RESET"
 
 // ==========================================================================
 // Main tasks
@@ -44,19 +36,23 @@ val Cli = s"${GREEN}ammonite_example.sc$RESET"
 @arg(doc = "Print help to the console.")
 @main
 def help(
-    cfg: Config
+    cfg: ColourCfg
 ): Unit = {
-  println(s"""$BOLD$Cli - Demonstrate how to script with Ammonite
-             |
-             |$CYAN    argTest$RESET: Show how ammonite arguments are used
-             |$CYAN githubJson$RESET: Parse and use the github JSON with ujson
-             |$CYAN    gitExec$RESET: Run a system call (git) and get the results
-             |
-             |Usage:
-             |
-             | $Cli ${CYAN}argTest$RESET [USER] [GREETING] [--verbose]
-             | $Cli ${CYAN}githubJson$RESET [DSTFILE] [--verbose]
-             | $Cli ${CYAN}gitExec$RESET [DSTREPO] [--verbose]
+  // The help header includes all of the subcommands
+  val cli = "ammonite_example.sc"
+  println(
+    cfg.helpHeader(
+      cli,
+      "Demonstrate how to script with Ammonite",
+      "argTest" -> "Show how ammonite arguments are used",
+      "githubJson" -> "Parse and use the github JSON with ujson",
+      "gitExec" -> "Run a system call (git) and get the results"
+    )
+  )
+
+  println(s""" ${cfg.ok(cli)} ${cfg.left("clean")} [USER] [GREETING] [--verbose]
+             | ${cfg.ok(cli)} ${cfg.left("githubJson")} [DSTFILE] [--verbose]
+             | ${cfg.ok(cli)} ${cfg.left("gitExec")} [DSTREPO] [--verbose]
              |""".stripMargin)
   if (cfg.verbose.value)
     println(s"The --verbose flag was set!")
@@ -72,8 +68,9 @@ def argTest(
     user: String = sys.env("USER"),
     @arg(doc = "A string value")
     greeting: Option[String] = None,
-    cfg: Config
+    cfg: ColourCfg
 ): Unit = {
+  val Cli = s"${GREEN}ammonite_example.sc$RESET"
   println(s"""$YELLOW${greeting.getOrElse("Hello")}, $BOLD$user$RESET""")
   if (cfg.verbose.value) {
     println(s"""$RESET
@@ -128,7 +125,7 @@ def sar(
     include: Seq[String] = Seq(".*"),
     @arg(doc = "Pairs of regular expressions to search and replace")
     re: Seq[String] = Seq(),
-    cfg: Config
+    cfg: ColourCfg
 ): Unit = {
 
   // The source path to analyse

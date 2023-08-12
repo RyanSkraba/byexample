@@ -97,6 +97,32 @@ case class ColourCfg(
   def kv(key: Any, value: Any, reset: Boolean = true, bold: Boolean = false) =
     magenta(key, reset, bold) + " : " + value
 
+  /** Print a standardized help for a script with subcommands
+    * @param cli
+    *   The script name
+    * @param description
+    *   A oneliner description of the script
+    * @param subcommands
+    *   Pairs of subcommands and their oneliner description
+    * @return
+    *   The string to print for that script.
+    */
+  def helpHeader(
+      cli: String,
+      description: String,
+      subcommands: Tuple2[String, String]*
+  ): String = {
+
+    val tmpl = s" $Cyan%1$$${subcommands.map(_._1.length).max}s$Reset : %2$$s"
+
+    s"""$Bold$Green$cli$Reset - $description
+       |
+       |${subcommands.map(p => tmpl.format(p._1, p._2)).mkString("\n")}
+       |
+       |${Bold}Usage:$Reset
+       |""".stripMargin
+  }
+
   def withVerbose: ColourCfg = this.copy(verbose = new Flag(true))
   def vPrint(in: => String): Unit = if (verbose.value) Console.print(in)
   def vPrintln(in: => String): Unit = if (verbose.value) Console.println(in)
