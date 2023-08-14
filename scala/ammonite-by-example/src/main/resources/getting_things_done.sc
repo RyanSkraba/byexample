@@ -195,9 +195,7 @@ def help(cfg: ColourCfg): Unit = {
   println(
     s""" ${cfg.ok(cli)} ${cfg.left("clean")}
        | ${cfg.ok(cli)} ${cfg.left("newWeek")}
-       | ${cfg.ok(cli)} ${cfg.left(
-      "pr"
-    )} avro 9876 1234 "Implemented a thing" REVIEWED
+       | ${cfg.ok(cli)} ${cfg.left("pr")} avro 9876 1234 "Implemented a thing" REVIEWED
        | ${cfg.ok(cli)} ${cfg.left("stat")} unread 448 [Wed]
        | ${cfg.ok(cli)} ${cfg.left("week")}
        | ${cfg.ok(cli)} ${cfg.left("week")} 2021/03/08

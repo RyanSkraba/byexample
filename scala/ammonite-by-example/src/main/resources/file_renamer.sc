@@ -11,29 +11,65 @@
   */
 
 import mainargs.{arg, main}
+
 import scala.concurrent.duration.DurationInt
 import scala.io.AnsiColor._
 import scala.util.matching.Regex
 
+import $file.local_import_util
+local_import_util.load("ammonite-by-example")
+
+@
+import com.skraba.byexample.scala.ammonite.ColourCfg
+
 // ==========================================================================
 // Top level variables available to the script
 
-val Cli = s"${GREEN}file_renamer.sc$RESET"
 val DefaultTimeGap = 30.seconds
+
+// ==========================================================================
+// help
 
 @arg(doc = "Print help to the console.")
 @main
-def help(): Unit = {
-  println(s"""$BOLD$Cli - Let's clean up some files!
-             |
-             |$CYAN  group$RESET : Rename files grouped by time.
-             |$CYAN payslip$RESET : Rename payslip files.
-             |
-             |Usage:
-             |
-             | $Cli ${CYAN}group$RESET /run/media/$$USER/MyDisk/ToSort
-             | $Cli ${CYAN}payslip$RESET /run/media/$$USER/MyDisk/ToSort
-             |""".stripMargin)
+def help(cfg: ColourCfg): Unit = {
+
+  // The help header includes all of the subcommands
+  val cli ="getting_things_done.sc"
+  println(cfg.helpHeader("file_renamer.sc", "File operations for general clean-up",
+    "group" -> "Rename files grouped by time",
+    "payslip" -> "Rename payslip files",
+    "pics" -> "Copy pics from the phone"
+  ))
+
+  // Usage examples
+  println(
+    s"""${cfg.ok(cli)} ${cfg.left("group")} [DIR]
+       |${cfg.ok(cli)} ${cfg.left("payslip")} [DIR]
+       |${cfg.ok(cli)} ${cfg.left("pics")} [DIR]
+       |""".stripMargin
+  )
+}
+
+/**
+ * @return Find the directory that corresponds to a connected USB phone, or null for None
+ */
+private[this] def findPhoneStorage(): Option[os.Path] = {
+  Some(os.root / "run" / "user")
+    .find(os.exists)
+    .flatMap(os.list(_).headOption)
+    .map(_ / "gvfs")
+    .flatMap(os.list(_).headOption)
+    .flatMap(os.list(_).headOption)
+}
+
+@arg(doc = "Group the files by time and rename them with the same root name ")
+@main
+def pics(
+    dir: Option[os.Path] = None
+): Unit = {
+  val src: os.Path = dir.orElse(findPhoneStorage()).get
+  println(src)
 }
 
 @arg(doc = "Group the files by time and rename them with the same root name ")
