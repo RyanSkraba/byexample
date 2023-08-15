@@ -46,14 +46,25 @@ def help(
       "Demonstrate how to script with Ammonite",
       "argTest" -> "Show how ammonite arguments are used",
       "githubJson" -> "Parse and use the github JSON with ujson",
-      "gitExec" -> "Run a system call (git) and get the results"
+      "sar" -> "Recursive regex search and replace",
+      "sysExec" -> "Run a system call and get the results"
     )
   )
 
-  println(s""" ${cfg.ok(cli)} ${cfg.left("clean")} [USER] [GREETING] [--verbose]
-             | ${cfg.ok(cli)} ${cfg.left("githubJson")} [DSTFILE] [--verbose]
-             | ${cfg.ok(cli)} ${cfg.left("gitExec")} [DSTREPO] [--verbose]
-             |""".stripMargin)
+  // Usage examples
+  println(
+    cfg.helpUse(
+      cli,
+      "argTest",
+      "[USER]",
+      "[GREETING]",
+      "[--verbose]",
+      "[--plain]"
+    )
+  )
+  println(cfg.helpUse(cli, "githubJson", "[DSTFILE] [--verbose]"))
+  println(cfg.helpUse(cli, "sysExec", "[DIR] [--verbose]"))
+  println()
   if (cfg.verbose.value)
     println(s"The --verbose flag was set!")
 }
@@ -89,28 +100,6 @@ def argTest(
          |$BOLD$MAGENTA     user: $RESET$user
          |$BOLD$MAGENTA greeting: $RESET$greeting
          |""".stripMargin)
-  }
-}
-
-@arg(doc = "Make a system call")
-@main
-def gitExec(repo: String): Unit = {
-  Try(
-    os.proc(
-      "git",
-      "--no-pager",
-      "log",
-      "--pretty=format:\"%h%x09%an%x09%ad%x09%s\"",
-      "--date=short"
-    ).call(os.Path(repo))
-  ) match {
-    case Success(result) if result.exitCode == 0 =>
-      result.out.lines.map(_.replace("\"", "")).foreach(println)
-    case Success(result) =>
-      println(s"Unsuccessful ${result.exitCode}")
-    case Failure(ex) =>
-      println("Failure!")
-      ex.printStackTrace()
   }
 }
 
@@ -196,6 +185,23 @@ def sar(
       )
     )
     println(s"$RESET${BOLD}Modified ${modified.flatten.size} files.")
+  }
+}
+
+@arg(doc = "Make a system call")
+@main
+def sysExec(path: Option[os.Path], cfg: ColourCfg): Unit = {
+  Try(
+    os.proc("ls").call(path.getOrElse(os.pwd))
+  ) match {
+    case Success(result) if result.exitCode == 0 =>
+      println(cfg.ok(s"Successful (${result.exitCode})", bold = true))
+      result.out.lines.map(_.replace("\"", "")).foreach(println)
+    case Success(result) =>
+      println(cfg.ok(s"Successful (${result.exitCode})"))
+    case Failure(ex) =>
+      println(cfg.error("Failure! (${result.exitCode})"))
+      ex.printStackTrace()
   }
 }
 

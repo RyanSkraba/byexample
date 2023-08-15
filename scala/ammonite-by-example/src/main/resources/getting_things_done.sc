@@ -143,7 +143,11 @@ object ProjectParserCfg extends ParserCfg {
         f"0 ${prj.toUpperCase}-0 $num%9s",
         LinkRef(
           s"${prj.toUpperCase}-$num",
-          Some(url.getOrElse(s"https://issues.apache.org/jira/browse/${prj.toUpperCase}-$num")),
+          Some(
+            url.getOrElse(
+              s"https://issues.apache.org/jira/browse/${prj.toUpperCase}-$num"
+            )
+          ),
           title
         )
       )
@@ -155,7 +159,11 @@ object ProjectParserCfg extends ParserCfg {
         f"0 ${prj.toUpperCase}-1 $num%9s",
         LinkRef(
           s"${prj.toLowerCase}#$num",
-          Some(url.getOrElse(s"https://github.com/apache/${prj.toLowerCase}/pull/$num")),
+          Some(
+            url.getOrElse(
+              s"https://github.com/apache/${prj.toLowerCase}/pull/$num"
+            )
+          ),
           title
         )
       )
@@ -192,15 +200,22 @@ def help(cfg: ColourCfg): Unit = {
   )
 
   // Usage examples
+  println(cfg.helpUse(cli, "clean"))
+  println(cfg.helpUse(cli, "newWeek"))
   println(
-    s""" ${cfg.ok(cli)} ${cfg.left("clean")}
-       | ${cfg.ok(cli)} ${cfg.left("newWeek")}
-       | ${cfg.ok(cli)} ${cfg.left("pr")} avro 9876 1234 "Implemented a thing" REVIEWED
-       | ${cfg.ok(cli)} ${cfg.left("stat")} unread 448 [Wed]
-       | ${cfg.ok(cli)} ${cfg.left("week")}
-       | ${cfg.ok(cli)} ${cfg.left("week")} 2021/03/08
-       |""".stripMargin
+    cfg.helpUse(
+      cli,
+      "pr",
+      "avro",
+      "9876",
+      "1234",
+      "\"Implemented a thing\"",
+      "REVIEWED"
+    )
   )
+  println(cfg.helpUse(cli, "stat", "unread", "448", "[Wed]"))
+  println(cfg.helpUse(cli, "week", "[2021/03/08]"))
+  println()
 }
 
 // ==========================================================================

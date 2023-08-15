@@ -43,13 +43,13 @@ def help(cfg: ColourCfg): Unit = {
       "cherryPick" -> "Get a status report on two branches"
     )
   )
-  println(
-    s""" ${cfg.ok(Cli)} ${cfg.left("  cherryPick")} [repo] [main] [branch]
-       | ${cfg.ok(Cli)} ${cfg.left("   ghOpenPrs")} [githuborg/proj]
-       | ${cfg.ok(Cli)} ${cfg.left("   ghContrib")} [USER] [DSTFILE] [--verbose]
-       | ${cfg.ok(Cli)} ${cfg.left(" rewriteDate")} [cmd]
-       |""".stripMargin
-  )
+
+  // Usage examples
+  println(cfg.helpUse(cli, "cherryPick", "[repo]", "[main]", "[branch]"))
+  println(cfg.helpUse(cli, "ghOpenPrs", "[githuborg/proj]"))
+  println(cfg.helpUse(cli, "ghContrib","[USER]","[DSTFILE]","[--verbose]"))
+  println(cfg.helpUse(cli, "rewriteDate", "[cmd]"))
+  println()
 }
 
 // ==========================================================================

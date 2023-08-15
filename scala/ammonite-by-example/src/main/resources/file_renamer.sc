@@ -35,25 +35,28 @@ val DefaultTimeGap = 30.seconds
 def help(cfg: ColourCfg): Unit = {
 
   // The help header includes all of the subcommands
-  val cli ="getting_things_done.sc"
-  println(cfg.helpHeader("file_renamer.sc", "File operations for general clean-up",
-    "group" -> "Rename files grouped by time",
-    "payslip" -> "Rename payslip files",
-    "pics" -> "Copy pics from the phone"
-  ))
+  val cli = "getting_things_done.sc"
+  println(
+    cfg.helpHeader(
+      "file_renamer.sc",
+      "File operations for general clean-up",
+      "group" -> "Rename files grouped by time",
+      "payslip" -> "Rename payslip files",
+      "pics" -> "Copy pics from the phone"
+    )
+  )
 
   // Usage examples
-  println(
-    s"""${cfg.ok(cli)} ${cfg.left("group")} [DIR]
-       |${cfg.ok(cli)} ${cfg.left("payslip")} [DIR]
-       |${cfg.ok(cli)} ${cfg.left("pics")} [DIR]
-       |""".stripMargin
-  )
+  println(cfg.helpUse(cli, "group", "[DIR]"))
+  println(cfg.helpUse(cli, "payslip", "[DIR]"))
+  println(cfg.helpUse(cli, "pics", "[DIR]"))
+  println()
 }
 
-/**
- * @return Find the directory that corresponds to a connected USB phone, or null for None
- */
+/** @return
+  *   Find the directory that corresponds to a connected USB phone, or null for
+  *   None
+  */
 private[this] def findPhoneStorage(): Option[os.Path] = {
   Some(os.root / "run" / "user")
     .find(os.exists)

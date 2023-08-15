@@ -123,6 +123,24 @@ case class ColourCfg(
        |""".stripMargin
   }
 
+  /** Print a usage line for a script.
+    * @param cli
+    *   The script name
+    * @param subcommand
+    *   The subcommand to run
+    * @param args
+    *   The arguments to demonstrate the script
+    * @return
+    *   The string to print for that script line
+    */
+  def helpUse(cli: String, subcommand: String, args: String*): String =
+    s"""$Green$cli $Cyan$subcommand$Reset """ + args
+      .map {
+        case arg if arg.startsWith("[") => arg
+        case arg                        => bold(arg)
+      }
+      .mkString(" ")
+
   def withVerbose: ColourCfg = this.copy(verbose = new Flag(true))
   def vPrint(in: => String): Unit = if (verbose.value) Console.print(in)
   def vPrintln(in: => String): Unit = if (verbose.value) Console.println(in)
