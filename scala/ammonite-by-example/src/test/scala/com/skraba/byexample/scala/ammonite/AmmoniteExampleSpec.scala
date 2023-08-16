@@ -13,7 +13,10 @@ import scala.util.Properties
 
 /** Testing ammonite scripts can be a bit tricky!
   */
-class AmmoniteSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
+class AmmoniteExampleSpec
+    extends AnyFunSpecLike
+    with BeforeAndAfterAll
+    with Matchers {
 
   /** The path containing ammonite scripts. */
   val ScriptPath: Path = find("/ammonite_example.sc")

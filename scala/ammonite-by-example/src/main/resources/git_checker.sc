@@ -26,8 +26,6 @@ import com.skraba.byexample.scala.markd._
 // ==========================================================================
 // Top level variables available to the script
 
-val Cli = "git_checker.sc"
-
 // ==========================================================================
 // Help
 
