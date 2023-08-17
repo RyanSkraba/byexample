@@ -1,22 +1,16 @@
 #!/usr/bin/env amm
 
-/** A user script for renaming files that are close together in time. This is
-  * useful for photos that were taken in close proximity.
-  *
-  * This assumes that https://ammonite.io/ is installed.
-  *
-  * Ammonite includes:
-  *   - requests (https://github.com/lihaoyi/requests-scala)
-  *   - upickle (https://github.com/lihaoyi/upickle)
-  */
-
+/** A user script concentrating on file operations */
 import mainargs.{arg, main}
-
 import scala.concurrent.duration.DurationInt
 import scala.io.AnsiColor._
 import scala.util.matching.Regex
 
+// ==========================================================================
+// Adding artifacts to your local build (from this project, from maven and
+// from local maven).
 import $file.local_import_util
+local_import_util.load("scala-by-example")
 local_import_util.load("ammonite-by-example")
 
 @

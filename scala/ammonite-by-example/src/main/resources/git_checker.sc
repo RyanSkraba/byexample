@@ -12,8 +12,8 @@ import scala.util._
 // ==========================================================================
 // Adding artifacts to your local build (from this project, from maven and
 // from local maven).
-
 import $file.local_import_util
+
 local_import_util.load("scala-by-example")
 local_import_util.load("ammonite-by-example")
 
@@ -45,7 +45,7 @@ def help(cfg: ColourCfg): Unit = {
   // Usage examples
   println(cfg.helpUse(cli, "cherryPick", "[repo]", "[main]", "[branch]"))
   println(cfg.helpUse(cli, "ghOpenPrs", "[githuborg/proj]"))
-  println(cfg.helpUse(cli, "ghContrib","[USER]","[DSTFILE]","[--verbose]"))
+  println(cfg.helpUse(cli, "ghContrib", "[USER]", "[DSTFILE]", "[--verbose]"))
   println(cfg.helpUse(cli, "rewriteDate", "[cmd]"))
   println()
 }

@@ -1,18 +1,8 @@
-// #!/usr/bin/env amm
-// Disable the shebang before developing in IntelliJ
-// https://youtrack.jetbrains.com/issue/SCL-13279
+#!/usr/bin/env amm
 
-/** A user script for interacting with status sheets and todo lists.
-  *
-  * This assumes that https://ammonite.io/ is installed.
-  *
-  * Ammonite includes:
-  *   - requests (https://github.com/lihaoyi/requests-scala)
-  *   - upickle (https://github.com/lihaoyi/upickle)
-  */
+/** A user script for interacting with status sheets and task lists. */
 
 import mainargs.{Flag, arg, main}
-
 import java.time.LocalDate
 import scala.io.AnsiColor._
 import scala.util.matching.Regex
@@ -20,7 +10,6 @@ import scala.util.matching.Regex
 // ==========================================================================
 // Adding artifacts to your local build (from this project, from maven and
 // from local maven).
-
 import $file.local_import_util
 local_import_util.load("scala-by-example")
 local_import_util.load("ammonite-by-example")

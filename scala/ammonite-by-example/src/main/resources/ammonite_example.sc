@@ -1,7 +1,13 @@
 #!/usr/bin/env amm
 
-/** Some examples on using ammonite for scripting in scala. */
-
+/** Some examples on using ammonite for scripting in scala.
+  *
+  * This assumes that https://ammonite.io/ is installed.
+  *
+  * Ammonite includes:
+  *   - requests (https://github.com/lihaoyi/requests-scala)
+  *   - upickle (https://github.com/lihaoyi/upickle)
+  */
 import java.time.{DayOfWeek, LocalDate}
 import java.time.format.DateTimeFormatter
 import mainargs.{Flag, arg, main}
@@ -14,7 +20,6 @@ import ujson.Obj
 // ==========================================================================
 // Adding artifacts to your local build (from this project, from maven and
 // from local maven).
-
 import $file.local_import_util
 local_import_util.load("scala-by-example")
 local_import_util.load("ammonite-by-example")
