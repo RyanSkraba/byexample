@@ -19,39 +19,46 @@ import com.skraba.byexample.scala.ammonite.ColourCfg
 // ==========================================================================
 // Top level variables available to the script
 
-/**
- * Configuration parameters that can be used for this tool.
- *
- * @param cfgFile A file to read all of the parameters from
- * @param key Override the key (top-level project name)
- * @param svnUrl The SVN url that contains the *dev* artifacts for the toplevel project
- * @param svnDir The local directory where SVN is checked out
- */
+/** Configuration parameters that can be used for this tool.
+  *
+  * @param cfgFile
+  *   A file to read all of the parameters from
+  * @param key
+  *   Override the key (top-level project name)
+  * @param svnUrl
+  *   The SVN url that contains the *dev* artifacts for the toplevel project
+  * @param svnDir
+  *   The local directory where SVN is checked out
+  */
 case class AsfReleaseConfig(
     cfgFile: Option[os.Path] = None,
-    key: Option[String] =None,
-    svnUrl: Option[String] =None,
-    svnDir: Option[os.Path] =None
-
+    key: Option[String] = None,
+    svnUrl: Option[String] = None,
+    svnDir: Option[os.Path] = None
 ) {
 
   import AsfReleaseConfig._
 
-  val baseCfg : Map[String, String] = cfgFile.map{ cfg=>
-    val tmp : Properties = new Properties()
-    tmp.load(cfg.getInputStream)
-    tmp
-   }.getOrElse(new Properties()).asScala.toMap
+  val baseCfg: Map[String, String] = cfgFile
+    .map { cfg =>
+      val tmp: Properties = new Properties()
+      tmp.load(cfg.getInputStream)
+      tmp
+    }
+    .getOrElse(new Properties())
+    .asScala
+    .toMap
 
   lazy val Key: String = key.orElse(baseCfg.get("key")).getOrElse(DefaultKey)
-  lazy val SvnUrl: String = svnUrl.orElse(baseCfg.get("svnUrl")).getOrElse(DefaultSvnUrl)
-  lazy val SvnDir: os.Path = svnDir.orElse(baseCfg.get("svnDir").map(os.Path(_))).getOrElse(DefaultSvnDir)
+  lazy val SvnUrl: String =
+    svnUrl.orElse(baseCfg.get("svnUrl")).getOrElse(s"https://dist.apache.org/repos/dist/dev/$Key/")
+  lazy val SvnDir: os.Path = svnDir
+    .orElse(baseCfg.get("svnDir").map(os.Path(_)))
+    .getOrElse(os.home / "working" / "apache" / "asf-svn" / s"$Key-dev-dist")
 }
 
 object AsfReleaseConfig {
- val DefaultKey: String = "flink";
-  val DefaultSvnUrl: String  = "https://dist.apache.org/repos/dist/dev/flink/"
-  val DefaultSvnDir: os.Path  = os.home / "working" / "apache" / "asf-svn" / "flink-dev-dist"
+  val DefaultKey: String = "flink"
 }
 
 implicit def asfReleaseConfigParser: ParserForClass[AsfReleaseConfig] =
