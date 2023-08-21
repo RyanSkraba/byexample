@@ -64,7 +64,7 @@ class AsfValidatorSpec extends AmmoniteScriptSpecBase {
 
     it("should print the environment with flink defaults") {
       val env = extractEnvFromHelp()
-      env("key") shouldBe "flink"
+      env("top") shouldBe "flink"
       env("svnDir") should endWith("working/apache/asf-svn/flink-dev-dist")
       env("svnUrl") shouldBe "https://dist.apache.org/repos/dist/dev/flink/"
     }
@@ -72,8 +72,8 @@ class AsfValidatorSpec extends AmmoniteScriptSpecBase {
     it(
       "should print the environment with custom values from the command line"
     ) {
-      val env = extractEnvFromHelp("--key", "avro")
-      env("key") shouldBe "avro"
+      val env = extractEnvFromHelp("--top", "avro")
+      env("top") shouldBe "avro"
       env("svnDir") should endWith("working/apache/asf-svn/avro-dev-dist")
       env("svnUrl") shouldBe "https://dist.apache.org/repos/dist/dev/avro/"
     }
@@ -81,12 +81,12 @@ class AsfValidatorSpec extends AmmoniteScriptSpecBase {
     it("should print the environment with custom values from a config file") {
       val cfgFile = Tmp / "config.properties"
       cfgFile.toFile.writeAll(
-        "key=iceberg\n",
+        "top=iceberg\n",
         "svnUrl=https://dist.apache.org/repos/dist/release/iceberg/\n"
       )
 
       val env = extractEnvFromHelp("--cfgFile", cfgFile.toString)
-      env("key") shouldBe "iceberg"
+      env("top") shouldBe "iceberg"
       env("svnDir") should endWith("working/apache/asf-svn/iceberg-dev-dist")
       env(
         "svnUrl"
@@ -94,8 +94,8 @@ class AsfValidatorSpec extends AmmoniteScriptSpecBase {
 
       // The key from the command line is prioritized, then the file, then the default
       val env2 =
-        extractEnvFromHelp("--cfgFile", cfgFile.toString, "--key", "pekko")
-      env2("key") shouldBe "pekko"
+        extractEnvFromHelp("--cfgFile", cfgFile.toString, "--top", "pekko")
+      env2("top") shouldBe "pekko"
       env2("svnDir") should endWith("working/apache/asf-svn/pekko-dev-dist")
       env2(
         "svnUrl"
