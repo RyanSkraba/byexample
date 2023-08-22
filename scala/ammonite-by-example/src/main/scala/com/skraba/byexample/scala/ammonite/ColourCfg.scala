@@ -11,9 +11,9 @@ import scala.io.AnsiColor
 @main
 case class ColourCfg(
     @arg(doc = "Verbose for extra output")
-    verbose: Flag,
+    verbose: Flag = Flag(false),
     @arg(doc = "Don't use ansi colour codes")
-    plain: Flag
+    plain: Flag = Flag(false)
 ) {
 
   val Black: String = ifAnsi(AnsiColor.BLACK)
@@ -94,7 +94,7 @@ case class ColourCfg(
     cyan(in, reset, bold)
   def right(in: Any, reset: Boolean = true, bold: Boolean = false): String =
     magenta(in, reset, bold)
-  def kv(key: Any, value: Any, reset: Boolean = true, bold: Boolean = false) =
+  def kv(key: Any, value: Any, reset: Boolean = true, bold: Boolean = false): String =
     magenta(key, reset, bold) + " : " + value
 
   /** Print a standardized help for a script with subcommands
