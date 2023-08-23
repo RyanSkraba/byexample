@@ -23,11 +23,61 @@ class ColourCfgSpec
         cfg.style("-", bold = false, reset = true) shouldBe s"$WHITE-$RESET"
         cfg.style("-", bold = true, reset = false) shouldBe s"$BOLD$WHITE-"
         cfg.style("-", bold = true, reset = true) shouldBe s"$BOLD$WHITE-$RESET"
-        cfg.style("-") shouldBe s"$WHITE-$RESET"
-        cfg.style("-", "*", bold = false, reset = false) shouldBe s"*-"
-        cfg.style("-", "*", bold = false, reset = true) shouldBe s"*-$RESET"
-        cfg.style("-", "*", bold = true, reset = false) shouldBe s"$BOLD*-"
-        cfg.style("-", "*", bold = true, reset = true) shouldBe s"$BOLD*-$RESET"
+        cfg.style("-", "", "*") shouldBe s"*-$RESET"
+        cfg.style("-", "", "*", bold = false, reset = false) shouldBe s"*-"
+        cfg.style("-", "", "*", bold = false, reset = true) shouldBe s"*-$RESET"
+        cfg.style("-", "", "*", bold = true, reset = false) shouldBe s"$BOLD*-"
+        cfg.style(
+          "-",
+          "",
+          "*",
+          bold = true,
+          reset = true
+        ) shouldBe s"$BOLD*-$RESET"
+        cfg.style("-", "x") shouldBe s"$BOLD$WHITE-$RESET$WHITE x$RESET"
+        cfg.style(
+          "-",
+          "x",
+          bold = false,
+          reset = false
+        ) shouldBe s"$BOLD$WHITE-$RESET$WHITE x"
+        cfg.style(
+          "-",
+          "x",
+          bold = false,
+          reset = true
+        ) shouldBe s"$BOLD$WHITE-$RESET$WHITE x$RESET"
+        cfg.style(
+          "-",
+          "x",
+          bold = true,
+          reset = false
+        ) shouldBe s"$BOLD$WHITE- x"
+        cfg.style(
+          "-",
+          "x",
+          bold = true,
+          reset = true
+        ) shouldBe s"$BOLD$WHITE- x$RESET"
+      }
+
+      it("disables control codes") {
+        val cfg = ColourCfg(plain = Flag(true))
+        cfg.style("-") shouldBe "-"
+        cfg.style("-", bold = false, reset = false) shouldBe "-"
+        cfg.style("-", bold = false, reset = true) shouldBe "-"
+        cfg.style("-", bold = true, reset = false) shouldBe "-"
+        cfg.style("-", bold = true, reset = true) shouldBe "-"
+        cfg.style("-", "", "*") shouldBe "-"
+        cfg.style("-", "", "*", bold = false, reset = false) shouldBe "-"
+        cfg.style("-", "", "*", bold = false, reset = true) shouldBe "-"
+        cfg.style("-", "", "*", bold = true, reset = false) shouldBe "-"
+        cfg.style("-", "", "*", bold = true, reset = true) shouldBe "-"
+        cfg.style("-", "x", "*") shouldBe "- x"
+        cfg.style("-", "x", "*", bold = false, reset = false) shouldBe "- x"
+        cfg.style("-", "x", "*", bold = false, reset = true) shouldBe "- x"
+        cfg.style("-", "x", "*", bold = true, reset = false) shouldBe "- x"
+        cfg.style("-", "x", "*", bold = true, reset = true) shouldBe "- x"
       }
     }
 
@@ -123,7 +173,7 @@ class ColourCfgSpec
         cfg.error("-") shouldBe s"$RED-$RESET"
         cfg.left("-") shouldBe s"$CYAN-$RESET"
         cfg.right("-") shouldBe s"$MAGENTA-$RESET"
-        cfg.kv("-", "*") shouldBe s"$MAGENTA-$RESET : *"
+        cfg.kv("-", "x") shouldBe s"$MAGENTA-$RESET : x"
       }
       it("can be activated and bold") {
         val cfg = ColourCfg()
@@ -132,7 +182,7 @@ class ColourCfgSpec
         cfg.error("-", bold = true) shouldBe s"$BOLD$RED-$RESET"
         cfg.left("-", bold = true) shouldBe s"$BOLD$CYAN-$RESET"
         cfg.right("-", bold = true) shouldBe s"$BOLD$MAGENTA-$RESET"
-        cfg.kv("-", "*", bold = true) shouldBe s"$BOLD$MAGENTA-$RESET : *"
+        cfg.kv("-", "x", bold = true) shouldBe s"$BOLD$MAGENTA-$RESET : x"
       }
       it("can turn off the reset") {
         val cfg = ColourCfg()
@@ -141,7 +191,7 @@ class ColourCfgSpec
         cfg.error("-", reset = false) shouldBe s"$RED-"
         cfg.left("-", reset = false) shouldBe s"$CYAN-"
         cfg.right("-", reset = false) shouldBe s"$MAGENTA-"
-        cfg.kv("-", "*", reset = false) shouldBe s"$MAGENTA- : *"
+        cfg.kv("-", "x", reset = false) shouldBe s"$MAGENTA- : x"
       }
       for (bold <- Seq(false, true); reset <- Seq(false, true)) {
         it(s"can be deactivated for non-ansi use (bold: $bold, reset $reset)") {
@@ -151,7 +201,7 @@ class ColourCfgSpec
           cfg.error("-", bold = bold, reset = reset) shouldBe "-"
           cfg.left("-", bold = bold, reset = reset) shouldBe "-"
           cfg.right("-", bold = bold, reset = reset) shouldBe "-"
-          cfg.kv("-", "*", bold = bold, reset = reset) shouldBe "- : *"
+          cfg.kv("-", "x", bold = bold, reset = reset) shouldBe "- : x"
         }
       }
     }

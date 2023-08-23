@@ -42,60 +42,179 @@ case class ColourCfg(
 
   def style(
       in: Any,
-      colour: String = White,
+      in2: Any = "",
+      clr: String = White,
       reset: Boolean = true,
       bold: Boolean = false
-  ): String = s"${if (bold) Bold else ""}$colour$in${if (reset) Reset else ""}"
+  ): String = if (in2.toString.isEmpty && plain.value)
+    in.toString
+  else if (in2.toString.isEmpty)
+    s"${if (bold) Bold else ""}$clr$in${if (reset) Reset else ""}"
+  else if (plain.value)
+    s"$in $in2"
+  else
+    s"$Bold$clr$in${if (bold) "" else s"$Reset$clr"} $in2${if (reset) Reset
+      else ""}"
 
-  def black(in: Any, reset: Boolean = true, bold: Boolean = false): String =
-    style(in, Black, reset, bold)
-  def red(in: Any, reset: Boolean = true, bold: Boolean = false): String =
-    style(in, Red, reset, bold)
-  def green(in: Any, reset: Boolean = true, bold: Boolean = false): String =
-    style(in, Green, reset, bold)
-  def yellow(in: Any, reset: Boolean = true, bold: Boolean = false): String =
-    style(in, Yellow, reset, bold)
-  def blue(in: Any, reset: Boolean = true, bold: Boolean = false): String =
-    style(in, Blue, reset, bold)
-  def magenta(in: Any, reset: Boolean = true, bold: Boolean = false): String =
-    style(in, Magenta, reset, bold)
-  def cyan(in: Any, reset: Boolean = true, bold: Boolean = false): String =
-    style(in, Cyan, reset, bold)
-  def white(in: Any, reset: Boolean = true, bold: Boolean = false): String =
-    style(in, White, reset, bold)
+  def black(
+      in: Any,
+      in2: Any = "",
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String =
+    style(in, in2, Black, reset, bold)
+  def red(
+      in: Any,
+      in2: Any = "",
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String =
+    style(in, in2, Red, reset, bold)
+  def green(
+      in: Any,
+      in2: Any = "",
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String =
+    style(in, in2, Green, reset, bold)
+  def yellow(
+      in: Any,
+      in2: Any = "",
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String =
+    style(in, in2, Yellow, reset, bold)
+  def blue(
+      in: Any,
+      in2: Any = "",
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String =
+    style(in, in2, Blue, reset, bold)
+  def magenta(
+      in: Any,
+      in2: Any = "",
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String =
+    style(in, in2, Magenta, reset, bold)
+  def cyan(
+      in: Any,
+      in2: Any = "",
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String =
+    style(in, in2, Cyan, reset, bold)
+  def white(
+      in: Any,
+      in2: Any = "",
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String =
+    style(in, in2, White, reset, bold)
 
-  def blackBg(in: Any, reset: Boolean = true, bold: Boolean = false): String =
-    style(in, BlackBg, reset, bold)
-  def redBg(in: Any, reset: Boolean = true, bold: Boolean = false): String =
-    style(in, RedBg, reset, bold)
-  def greenBg(in: Any, reset: Boolean = true, bold: Boolean = false): String =
-    style(in, GreenBg, reset, bold)
-  def yellowBg(in: Any, reset: Boolean = true, bold: Boolean = false): String =
-    style(in, YellowBg, reset, bold)
-  def blueBg(in: Any, reset: Boolean = true, bold: Boolean = false): String =
-    style(in, BlueBg, reset, bold)
-  def magentaBg(in: Any, reset: Boolean = true, bold: Boolean = false): String =
-    style(in, MagentaBg, reset, bold)
-  def cyanBg(in: Any, reset: Boolean = true, bold: Boolean = false): String =
-    style(in, CyanBg, reset, bold)
-  def whiteBg(in: Any, reset: Boolean = true, bold: Boolean = false): String =
-    style(in, WhiteBg, reset, bold)
+  def blackBg(
+      in: Any,
+      in2: Any = "",
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String =
+    style(in, in2, BlackBg, reset, bold)
+  def redBg(
+      in: Any,
+      in2: Any = "",
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String =
+    style(in, in2, RedBg, reset, bold)
+  def greenBg(
+      in: Any,
+      in2: Any = "",
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String =
+    style(in, in2, GreenBg, reset, bold)
+  def yellowBg(
+      in: Any,
+      in2: Any = "",
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String =
+    style(in, in2, YellowBg, reset, bold)
+  def blueBg(
+      in: Any,
+      in2: Any = "",
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String =
+    style(in, in2, BlueBg, reset, bold)
+  def magentaBg(
+      in: Any,
+      in2: Any = "",
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String =
+    style(in, in2, MagentaBg, reset, bold)
+  def cyanBg(
+      in: Any,
+      in2: Any = "",
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String =
+    style(in, in2, CyanBg, reset, bold)
+  def whiteBg(
+      in: Any,
+      in2: Any = "",
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String =
+    style(in, in2, WhiteBg, reset, bold)
 
-  def bold(in: Any, reset: Boolean = true): String =
-    style(in, "", reset, bold = true)
+  def bold(in: Any, in2: Any = "", reset: Boolean = true): String =
+    style(in, in2, "", reset, bold = true)
 
-  def ok(in: Any, reset: Boolean = true, bold: Boolean = false): String =
-    green(in, reset, bold)
-  def warn(in: Any, reset: Boolean = true, bold: Boolean = false): String =
-    yellow(in, reset, bold)
-  def error(in: Any, reset: Boolean = true, bold: Boolean = false): String =
-    red(in, reset, bold)
-  def left(in: Any, reset: Boolean = true, bold: Boolean = false): String =
-    cyan(in, reset, bold)
-  def right(in: Any, reset: Boolean = true, bold: Boolean = false): String =
-    magenta(in, reset, bold)
-  def kv(key: Any, value: Any, reset: Boolean = true, bold: Boolean = false): String =
-    magenta(key, reset, bold) + " : " + value
+  def ok(
+      in: Any,
+      in2: Any = "",
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String =
+    green(in, in2, reset, bold)
+  def warn(
+      in: Any,
+      in2: Any = "",
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String =
+    yellow(in, in2, reset, bold)
+  def error(
+      in: Any,
+      in2: Any = "",
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String =
+    red(in, in2, reset, bold)
+  def left(
+      in: Any,
+      in2: Any = "",
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String =
+    cyan(in, in2, reset, bold)
+  def right(
+      in: Any,
+      in2: Any = "",
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String =
+    magenta(in, in2, reset, bold)
+  def kv(
+      key: Any,
+      value: Any,
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String =
+    magenta(key, "", reset, bold) + " : " + value
 
   /** Print a standardized help for a script with subcommands
     * @param cli
@@ -110,7 +229,7 @@ case class ColourCfg(
   def helpHeader(
       cli: String,
       description: String,
-      subcommands: Tuple2[String, String]*
+      subcommands: (String, String)*
   ): String = {
 
     val tmpl = s" $Cyan%1$$${subcommands.map(_._1.length).max}s$Reset : %2$$s"
