@@ -51,22 +51,54 @@ class AsfValidatorSpec extends AmmoniteScriptSpecBase {
     }
 
     it("should print a useful message") {
-      // with helpers
-      val ansiHelp = help()
-      ansiHelp should startWith(
+      help() should startWith(
         s"$BOLD${GREEN}asf_validator.sc$RESET - Validating a release for the ASF"
       )
-      help("--verbose") shouldBe ansiHelp
-      help("--plain") should startWith(
+      // This property is necessary for reproducible help  messages
+      val ansiHelp = help("--buildBaseDir", "/tmp/validate")
+      help("--verbose", "--buildBaseDir", "/tmp/validate") shouldBe ansiHelp
+      help("--plain", "--buildBaseDir", "/tmp/validate") should startWith(
         "asf_validator.sc - Validating a release for the ASF"
       )
     }
 
     it("should print the environment with flink defaults") {
       val env = extractEnvFromHelp()
-      env("top") shouldBe "flink"
-      env("svnDir") should endWith("working/apache/asf-svn/flink-dev-dist")
+      env.keySet.toList.sorted shouldBe List(
+        "buildBaseDir",
+        "buildGithubDir",
+        "buildNexusDir",
+        "buildSvnDir",
+        "githubRcCommit",
+        "githubRcTag",
+        "githubRepo",
+        "incubation",
+        "nexusStaging",
+        "rc",
+        "svnBaseDir",
+        "svnDir",
+        "svnRcRevision",
+        "svnUrl",
+        "top",
+        "version"
+      )
+
+      env("buildBaseDir") should startWith("/tmp/validate-flink")
+      env("buildGithubDir") shouldBe s"${env("buildBaseDir")}/github"
+      env("buildNexusDir") shouldBe s"${env("buildBaseDir")}/nexus"
+      env("buildSvnDir") shouldBe s"${env("buildBaseDir")}/svn"
+      env("githubRcCommit") shouldBe empty
+      env("githubRcTag") shouldBe "1.0.0-RC1"
+      env("githubRepo") shouldBe "apache/flink"
+      env("incubation") shouldBe "false"
+      env("nexusStaging") shouldBe empty
+      env("rc") shouldBe "RC1"
+      env("svnBaseDir") should endWith("working/apache/asf-svn/flink-dev-dist")
+      env("svnDir") shouldBe env("svnBaseDir")
+      env("svnRcRevision") shouldBe empty
       env("svnUrl") shouldBe "https://dist.apache.org/repos/dist/dev/flink/"
+      env("top") shouldBe "flink"
+      env("version") shouldBe "1.0.0"
     }
 
     it(
