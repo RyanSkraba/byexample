@@ -163,6 +163,7 @@ class AmmoniteExampleSpec
                               |  --greeting <str>  A string value
                               |  --verbose         Verbose for extra output
                               |  --plain           Don't use ansi colour codes
+                              |  --yes             Don't prompt for user confirmation, assume yes
                               |
                               |
                               |""".stripMargin
@@ -241,6 +242,7 @@ class AmmoniteExampleSpec
         "You",
         "Hello there",
         "VerboseFlag",
+        "X",
         "X",
         "Invalid"
       ) { case (result, stdout, stderr) =>

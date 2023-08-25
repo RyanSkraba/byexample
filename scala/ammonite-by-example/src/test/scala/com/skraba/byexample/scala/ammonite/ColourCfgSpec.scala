@@ -1,11 +1,14 @@
 package com.skraba.byexample.scala.ammonite
 
+import com.skraba.byexample.scala.ammonite.AmmoniteScriptSpecBase.withConsoleMatch
 import mainargs.Flag
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
+import java.io.ByteArrayInputStream
 import scala.io.AnsiColor._
+import scala.reflect.io.Streamable
 
 /** Test the [[ColourCfg]] helper. */
 class ColourCfgSpec
@@ -202,6 +205,39 @@ class ColourCfgSpec
           cfg.left("-", bold = bold, reset = reset) shouldBe "-"
           cfg.right("-", bold = bold, reset = reset) shouldBe "-"
           cfg.kv("-", "x", bold = bold, reset = reset) shouldBe "- : x"
+        }
+      }
+    }
+  }
+
+  describe("The ask() method") {
+
+    it("should not prompt the user when the yes flag is set") {
+      val cfg = ColourCfg(yes = Flag(true))
+      // The short version
+      cfg.ask("What's the magic word?") {
+        "Please"
+      } shouldBe Some("Please")
+
+      // The long version, where the additional methods are never called
+      cfg.ask("What's the magic word?")(
+        yFn = "Please",
+        nFn = fail("nFn"),
+        qFn = fail("qFn"),
+        otherFn = _ => fail("otherFn")
+      ) shouldBe Some("Please")
+    }
+
+    it("should happen when the yes flag is not set") {
+      val cfg = ColourCfg()
+      Streamable.closing(new ByteArrayInputStream("y\n".getBytes)) { in =>
+        Console.withIn(in) {
+          withConsoleMatch(cfg.ask("What's the magic word?") {
+            "Please"
+          }) { case (result, out, err) =>
+            err shouldBe empty
+            out shouldBe "What's the magic word? (Y/n/q): "
+          }
         }
       }
     }

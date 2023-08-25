@@ -13,7 +13,9 @@ case class ColourCfg(
     @arg(doc = "Verbose for extra output")
     verbose: Flag = Flag(false),
     @arg(doc = "Don't use ansi colour codes")
-    plain: Flag = Flag(false)
+    plain: Flag = Flag(false),
+    @arg(doc = "Don't prompt for user confirmation, assume yes")
+    yes: Flag = Flag(false)
 ) {
 
   val Black: String = ifAnsi(AnsiColor.BLACK)
@@ -263,6 +265,55 @@ case class ColourCfg(
   def withVerbose: ColourCfg = this.copy(verbose = new Flag(true))
   def vPrint(in: => String): Unit = if (verbose.value) Console.print(in)
   def vPrintln(in: => String): Unit = if (verbose.value) Console.println(in)
+
+  /** Prompt the user and execute a function based on the response.
+    *
+    * If the --yes flag was set, the {{yFn}} is always used without prompting.
+    *
+    * @param prompt
+    *   The query to use for the user.
+    * @param yFn
+    *   A function to execute if the prompt is positive (Y)
+    * @param nFn
+    *   A function to execute if the prompt is negative (n), by default, nothing
+    * @param qFn
+    *   A function to execute if the prompt is to abort (q), by default this is
+    *   sys.exit(1)
+    * @param otherFn
+    *   A function to execute on other lines. This returns [[None]] if the
+    *   prompt should be retried, {{Some(None)}} if [[None]] is the final
+    *   answer, and {{Some(Some(x))}} if {{x}} should be returned.
+    * @tparam T
+    *   The return value of the function
+    * @return
+    *   The value returned by the function that was executed, or None if no
+    *   function was called.
+    */
+  def ask[T](prompt: String)(
+      yFn: => T,
+      nFn: => Option[T] = None,
+      qFn: => Option[T] = sys.exit(1),
+      otherFn: Function[String, Option[Option[T]]] = (v1: String) => None
+  ): Option[T] = {
+    if (!yes.value) {
+      LazyList
+        .continually {
+          print(s"$prompt (Y/n/q): ")
+          val line = Console.in.readLine()
+          val ask = line.toLowerCase().headOption
+          if (ask.isEmpty || ask.contains('y')) Some(Some(yFn))
+          else if (ask.isEmpty || ask.contains('n')) Some(nFn)
+          else if (ask.isEmpty || ask.contains('q')) Some(qFn)
+          else otherFn(line)
+        }
+        .filter(_.nonEmpty)
+        .head
+        .get
+    } else {
+      vPrintln(s"$prompt (Y/n/q): ")
+      Some(yFn)
+    }
+  }
 }
 
 object ColourCfg {
