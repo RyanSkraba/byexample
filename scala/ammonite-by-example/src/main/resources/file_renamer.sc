@@ -14,7 +14,7 @@ local_import_util.load("scala-by-example")
 local_import_util.load("ammonite-by-example")
 
 @
-import com.skraba.byexample.scala.ammonite.ColourCfg
+import com.skraba.byexample.scala.ammonite.ConsoleCfg
 
 // ==========================================================================
 // Top level variables available to the script
@@ -26,7 +26,7 @@ val DefaultTimeGap = 30.seconds
 
 @arg(doc = "Print help to the console.")
 @main
-def help(cfg: ColourCfg): Unit = {
+def help(cfg: ConsoleCfg): Unit = {
 
   // The help header includes all of the subcommands
   val cli = "getting_things_done.sc"

@@ -4,12 +4,21 @@ import mainargs._
 
 import scala.io.AnsiColor
 
-/** A configurable, colourful mechanism to print to standard out.
+/** A configurable, colourful mechanism for interacting with the user via the
+  * terminal.
+  *
   * @param verbose
+  *   True if the script should print extra verbose information. By default, be
+  *   concise.
   * @param plain
+  *   True if the script should avoid ANSI colour codes. By default, be
+  *   colourful.
+  * @param yes
+  *   True if the script should assume the user would reply yes to prompts. By
+  *   default, ask whether to proceed.
   */
 @main
-case class ColourCfg(
+case class ConsoleCfg(
     @arg(doc = "Verbose for extra output")
     verbose: Flag = Flag(false),
     @arg(doc = "Don't use ansi colour codes")
@@ -262,7 +271,7 @@ case class ColourCfg(
       }
       .mkString(" ")
 
-  def withVerbose: ColourCfg = this.copy(verbose = new Flag(true))
+  def withVerbose: ConsoleCfg = this.copy(verbose = new Flag(true))
   def vPrint(in: => String): Unit = if (verbose.value) Console.print(in)
   def vPrintln(in: => String): Unit = if (verbose.value) Console.println(in)
 
@@ -316,9 +325,9 @@ case class ColourCfg(
   }
 }
 
-object ColourCfg {
-  def apply(ansi: Boolean, verbose: Boolean): ColourCfg =
-    ColourCfg(Flag(ansi), Flag(verbose))
-  implicit def mainargsParser: ParserForClass[ColourCfg] =
-    ParserForClass[ColourCfg]
+object ConsoleCfg {
+  def apply(ansi: Boolean, verbose: Boolean): ConsoleCfg =
+    ConsoleCfg(Flag(ansi), Flag(verbose))
+  implicit def mainargsParser: ParserForClass[ConsoleCfg] =
+    ParserForClass[ConsoleCfg]
 }

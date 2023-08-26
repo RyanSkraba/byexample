@@ -20,7 +20,7 @@ local_import_util.load("ammonite-by-example")
 @
 import com.skraba.byexample.scala.ammonite.git.CherryPickerReport
 import com.skraba.byexample.scala.ammonite.git.Commit.getDateFromRepo
-import com.skraba.byexample.scala.ammonite.ColourCfg
+import com.skraba.byexample.scala.ammonite.ConsoleCfg
 import com.skraba.byexample.scala.markd._
 
 // ==========================================================================
@@ -31,7 +31,7 @@ import com.skraba.byexample.scala.markd._
 
 @arg(doc = "Print help to the console.")
 @main
-def help(cfg: ColourCfg): Unit = {
+def help(cfg: ConsoleCfg): Unit = {
   // The help header includes all of the subcommands
   val cli = "git_checker.sc"
   println(
@@ -60,7 +60,7 @@ def releaseCherryPickPrep(
     lTag: String = "main",
     rTag: String = "branch",
     statusDoc: Option[os.Path] = None,
-    cfg: ColourCfg
+    cfg: ConsoleCfg
 ): Unit = {
 
   cfg.vPrintln(cfg.bold("Arguments:"))
@@ -130,7 +130,7 @@ def ghContrib(
     user: String,
     @arg(doc = "The destination file to save the JSON")
     dstFile: String = "/tmp/github_contributions.json",
-    cfg: ColourCfg
+    cfg: ConsoleCfg
 ): Unit = {
   // You need the gh token to proceed
   val token = os.proc("gh", "auth", "token").call(os.pwd)
@@ -173,7 +173,7 @@ def rewriteDate(
     prj: String = os.pwd.toString(),
     timeZone: String = ":Europe/Paris",
     fuzz: Double = 0.1,
-    cfg: ColourCfg
+    cfg: ConsoleCfg
 ): Unit = {
 
   // Regex to match command that adjust a base date with a certain number of units.

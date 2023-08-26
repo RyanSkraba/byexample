@@ -10,8 +10,8 @@ import java.io.ByteArrayInputStream
 import scala.io.AnsiColor._
 import scala.reflect.io.Streamable
 
-/** Test the [[ColourCfg]] helper. */
-class ColourCfgSpec
+/** Test the [[ConsoleCfg]] helper. */
+class ConsoleCfgSpec
     extends AnyFunSpecLike
     with BeforeAndAfterAll
     with Matchers {
@@ -20,7 +20,7 @@ class ColourCfgSpec
 
     describe("via the style method") {
       it("controls whether bold, reset and colour control codes are added") {
-        val cfg = ColourCfg()
+        val cfg = ConsoleCfg()
         cfg.style("-") shouldBe s"$WHITE-$RESET"
         cfg.style("-", bold = false, reset = false) shouldBe s"$WHITE-"
         cfg.style("-", bold = false, reset = true) shouldBe s"$WHITE-$RESET"
@@ -65,7 +65,7 @@ class ColourCfgSpec
       }
 
       it("disables control codes") {
-        val cfg = ColourCfg(plain = Flag(true))
+        val cfg = ConsoleCfg(plain = Flag(true))
         cfg.style("-") shouldBe "-"
         cfg.style("-", bold = false, reset = false) shouldBe "-"
         cfg.style("-", bold = false, reset = true) shouldBe "-"
@@ -86,7 +86,7 @@ class ColourCfgSpec
 
     describe("for the 8 basic colours") {
       it("by default is activated and non-bold") {
-        val cfg = ColourCfg()
+        val cfg = ConsoleCfg()
         cfg.bold("-") shouldBe s"$BOLD-$RESET"
         cfg.black("-") shouldBe s"$BLACK-$RESET"
         cfg.red("-") shouldBe s"$RED-$RESET"
@@ -106,7 +106,7 @@ class ColourCfgSpec
         cfg.whiteBg("-") shouldBe s"$WHITE_B-$RESET"
       }
       it("can be activated and bold") {
-        val cfg = ColourCfg()
+        val cfg = ConsoleCfg()
         cfg.black("-", bold = true) shouldBe s"$BOLD$BLACK-$RESET"
         cfg.red("-", bold = true) shouldBe s"$BOLD$RED-$RESET"
         cfg.green("-", bold = true) shouldBe s"$BOLD$GREEN-$RESET"
@@ -125,7 +125,7 @@ class ColourCfgSpec
         cfg.whiteBg("-", bold = true) shouldBe s"$BOLD$WHITE_B-$RESET"
       }
       it("can turn off the reset") {
-        val cfg = ColourCfg()
+        val cfg = ConsoleCfg()
         cfg.bold("-", reset = false) shouldBe s"$BOLD-"
         cfg.black("-", reset = false) shouldBe s"$BLACK-"
         cfg.red("-", reset = false) shouldBe s"$RED-"
@@ -146,7 +146,7 @@ class ColourCfgSpec
       }
       for (bold <- Seq(false, true); reset <- Seq(false, true)) {
         it(s"can be deactivated for non-ansi use (bold: $bold, reset $reset)") {
-          val cfg = ColourCfg(plain = Flag(true))
+          val cfg = ConsoleCfg(plain = Flag(true))
           cfg.bold("-", reset = reset) shouldBe "-"
           cfg.black("-", bold = bold, reset = reset) shouldBe "-"
           cfg.red("-", bold = bold, reset = reset) shouldBe "-"
@@ -170,7 +170,7 @@ class ColourCfgSpec
 
     describe("for some semantic colours") {
       it("by default is activated and non-bold") {
-        val cfg = ColourCfg()
+        val cfg = ConsoleCfg()
         cfg.ok("-") shouldBe s"$GREEN-$RESET"
         cfg.warn("-") shouldBe s"$YELLOW-$RESET"
         cfg.error("-") shouldBe s"$RED-$RESET"
@@ -179,7 +179,7 @@ class ColourCfgSpec
         cfg.kv("-", "x") shouldBe s"$MAGENTA-$RESET : x"
       }
       it("can be activated and bold") {
-        val cfg = ColourCfg()
+        val cfg = ConsoleCfg()
         cfg.ok("-", bold = true) shouldBe s"$BOLD$GREEN-$RESET"
         cfg.warn("-", bold = true) shouldBe s"$BOLD$YELLOW-$RESET"
         cfg.error("-", bold = true) shouldBe s"$BOLD$RED-$RESET"
@@ -188,7 +188,7 @@ class ColourCfgSpec
         cfg.kv("-", "x", bold = true) shouldBe s"$BOLD$MAGENTA-$RESET : x"
       }
       it("can turn off the reset") {
-        val cfg = ColourCfg()
+        val cfg = ConsoleCfg()
         cfg.ok("-", reset = false) shouldBe s"$GREEN-"
         cfg.warn("-", reset = false) shouldBe s"$YELLOW-"
         cfg.error("-", reset = false) shouldBe s"$RED-"
@@ -198,7 +198,7 @@ class ColourCfgSpec
       }
       for (bold <- Seq(false, true); reset <- Seq(false, true)) {
         it(s"can be deactivated for non-ansi use (bold: $bold, reset $reset)") {
-          val cfg = ColourCfg(plain = Flag(true))
+          val cfg = ConsoleCfg(plain = Flag(true))
           cfg.ok("-", bold = bold, reset = reset) shouldBe "-"
           cfg.warn("-", bold = bold, reset = reset) shouldBe "-"
           cfg.error("-", bold = bold, reset = reset) shouldBe "-"
@@ -213,7 +213,7 @@ class ColourCfgSpec
   describe("The ask() method") {
 
     it("should not prompt the user when the yes flag is set") {
-      val cfg = ColourCfg(yes = Flag(true))
+      val cfg = ConsoleCfg(yes = Flag(true))
       // The short version
       cfg.ask("What's the magic word?") {
         "Please"
@@ -229,7 +229,7 @@ class ColourCfgSpec
     }
 
     it("should happen when the yes flag is not set") {
-      val cfg = ColourCfg()
+      val cfg = ConsoleCfg()
       Streamable.closing(new ByteArrayInputStream("y\n".getBytes)) { in =>
         Console.withIn(in) {
           withConsoleMatch(cfg.ask("What's the magic word?") {

@@ -14,7 +14,7 @@ local_import_util.load("scala-by-example")
 local_import_util.load("ammonite-by-example")
 
 @
-import com.skraba.byexample.scala.ammonite.ColourCfg
+import com.skraba.byexample.scala.ammonite.ConsoleCfg
 
 // ==========================================================================
 // Top level variables available to the script
@@ -115,7 +115,7 @@ case class AsfReleaseConfig(
   lazy val NexusStaging: String =
     nexusStaging.orElse(props.get("nexusStaging")).getOrElse("")
 
-  def properties(cfg: ColourCfg): String =
+  def properties(cfg: ConsoleCfg): String =
     s"""${cfg.bold("Environment:")}
        |
        |${cfg.left("top")}=${cfg.right(Top)}
@@ -156,7 +156,7 @@ implicit def asfReleaseConfigParser: ParserForClass[AsfReleaseConfig] =
 
 @arg(doc = "Print help to the console.")
 @main
-def help(asf: AsfReleaseConfig, cfg: ColourCfg): Unit = {
+def help(asf: AsfReleaseConfig, cfg: ConsoleCfg): Unit = {
   // The help header includes all of the subcommands
   val cli = "asf_validator.sc"
   println(
@@ -181,7 +181,7 @@ def help(asf: AsfReleaseConfig, cfg: ColourCfg): Unit = {
   *   Colour configuration for the output
   */
 @main
-def svn(asf: AsfReleaseConfig, cfg: ColourCfg): Unit = {
+def svn(asf: AsfReleaseConfig, cfg: ConsoleCfg): Unit = {
   cfg.vPrintln(asf.properties(cfg))
   if (!os.exists(asf.SvnDir)) {
     cfg.vPrintln(

@@ -11,7 +11,7 @@ import os.CommandResult
 
 import scala.util.{Success, Try}
 import CherryPickerReport._
-import com.skraba.byexample.scala.ammonite.ColourCfg
+import com.skraba.byexample.scala.ammonite.ConsoleCfg
 
 case class CherryPickerReport(
     lBranch: String,
@@ -20,7 +20,7 @@ case class CherryPickerReport(
     right: Seq[Commit],
     issuesUrl: Option[String] = None,
     doc: Header = Header(0, ""),
-    cfg: ColourCfg = ColourCfg(ansi = true, verbose = false)
+    cfg: ConsoleCfg = ConsoleCfg(ansi = true, verbose = false)
 ) {
 
   /** The left branch name with colour and indicator. */

@@ -26,7 +26,7 @@ local_import_util.load("ammonite-by-example")
 
 @
 import com.skraba.byexample.scala.ammonite.gtd.GettingThingsDone
-import com.skraba.byexample.scala.ammonite.ColourCfg
+import com.skraba.byexample.scala.ammonite.ConsoleCfg
 import com.skraba.byexample.scala.markd._
 
 // ==========================================================================
@@ -41,7 +41,7 @@ val MonthDay = DateTimeFormatter.ofPattern("MMM d")
 @arg(doc = "Print help to the console.")
 @main
 def help(
-    cfg: ColourCfg
+    cfg: ConsoleCfg
 ): Unit = {
   // The help header includes all of the subcommands
   val cli = "ammonite_example.sc"
@@ -84,7 +84,7 @@ def argTest(
     user: String = sys.env("USER"),
     @arg(doc = "A string value")
     greeting: Option[String] = None,
-    cfg: ColourCfg
+    cfg: ConsoleCfg
 ): Unit = {
   val Cli = s"${GREEN}ammonite_example.sc$RESET"
   println(s"""$YELLOW${greeting.getOrElse("Hello")}, $BOLD$user$RESET""")
@@ -119,7 +119,7 @@ def sar(
     include: Seq[String] = Seq(".*"),
     @arg(doc = "Pairs of regular expressions to search and replace")
     re: Seq[String] = Seq(),
-    cfg: ColourCfg
+    cfg: ConsoleCfg
 ): Unit = {
 
   // The source path to analyse
@@ -195,7 +195,7 @@ def sar(
 
 @arg(doc = "Make a system call")
 @main
-def sysExec(path: Option[os.Path], cfg: ColourCfg): Unit = {
+def sysExec(path: Option[os.Path], cfg: ConsoleCfg): Unit = {
   Try(
     os.proc("ls").call(path.getOrElse(os.pwd))
   ) match {
