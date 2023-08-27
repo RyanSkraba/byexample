@@ -7,6 +7,7 @@ import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
 import java.io.ByteArrayInputStream
+import scala.collection.immutable.Seq
 import scala.io.AnsiColor._
 import scala.reflect.io.Streamable
 
@@ -212,34 +213,71 @@ class ConsoleCfgSpec
 
   describe("The ask() method") {
 
-    it("should not prompt the user when the yes flag is set") {
-      val cfg = ConsoleCfg(yes = Flag(true))
-      // The short version
-      cfg.ask("What's the magic word?") {
-        "Please"
-      } shouldBe Some("Please")
-
-      // The long version, where the additional methods are never called
-      cfg.ask("What's the magic word?")(
-        yFn = "Please",
-        nFn = fail("nFn"),
-        qFn = fail("qFn"),
-        otherFn = _ => fail("otherFn")
-      ) shouldBe Some("Please")
-    }
-
-    it("should happen when the yes flag is not set") {
-      val cfg = ConsoleCfg()
-      Streamable.closing(new ByteArrayInputStream("y\n".getBytes)) { in =>
-        Console.withIn(in) {
-          withConsoleMatch(cfg.ask("What's the magic word?") {
-            "Please"
-          }) { case (result, out, err) =>
+    def simpleAsk(
+        userResponse: String,
+        cfg: ConsoleCfg = new ConsoleCfg()
+    ): (String, Option[String]) = Streamable.closing(
+      new ByteArrayInputStream(s"$userResponse\n".getBytes)
+    ) { in =>
+      Console.withIn(in) {
+        withConsoleMatch(cfg.ask("Password?") { "Open sesame" }) {
+          case (result, out, err) =>
             err shouldBe empty
-            out shouldBe "What's the magic word? (Y/n/q): "
-          }
+            (out, result)
         }
       }
+    }
+
+    // Test yes responses
+    for (response <- Seq("y", "Y", "yes", "Yah", ""))
+      it(s"executes and returns Some value when the user responds $response") {
+        simpleAsk(response) shouldBe ("Password? (Y/n/q): ", Some(
+          "Open sesame"
+        ))
+      }
+
+    // Test no responses
+    for (response <- Seq("n", "N", "no", "Nope"))
+      it(s"executes and returns None when the user responds $response") {
+        simpleAsk(response) shouldBe ("Password? (Y/n/q): ", None)
+      }
+
+    // Test a yes responses after an invalid response
+    for (response <- Seq("Xx\ny", "True\nYeah", "Maybe\n"))
+      it(s"executes and returns Some value when the user responds $response") {
+        simpleAsk(
+          response
+        ) shouldBe ("Password? (Y/n/q): Password? (Y/n/q): ", Some(
+          "Open sesame"
+        ))
+      }
+
+    // Test a no responses after an invalid response
+    for (response <- Seq("Xx\nn", "True\nNever"))
+      it(s"executes and returns Some value when the user responds $response") {
+        simpleAsk(
+          response
+        ) shouldBe ("Password? (Y/n/q): Password? (Y/n/q): ", None)
+      }
+
+    it("Doesn't prompt the user when the --yes flag is set") {
+      val cfg = ConsoleCfg(yes = Flag(true))
+      simpleAsk("anything", cfg) shouldBe ("", Some(
+        "Open sesame"
+      ))
+    }
+
+    it("Prints the prompts silently when verbose and --yes flag is set") {
+      val cfg = ConsoleCfg(yes = Flag(true)).withVerbose
+      simpleAsk(
+        "anything",
+        cfg
+      ) shouldBe (s"Password? (Y/n/q): ${BOLD}Y$RESET\n", Some("Open sesame"))
+      val cfg2 =
+        ConsoleCfg(yes = Flag(true), plain = Flag(true), verbose = Flag(true))
+      simpleAsk("anything", cfg2) shouldBe (s"Password? (Y/n/q): Y\n", Some(
+        "Open sesame"
+      ))
     }
   }
 }

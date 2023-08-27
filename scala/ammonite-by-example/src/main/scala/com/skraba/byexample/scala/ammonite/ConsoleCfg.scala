@@ -319,7 +319,7 @@ case class ConsoleCfg(
         .head
         .get
     } else {
-      vPrintln(s"$prompt (Y/n/q): ")
+      vPrintln(s"$prompt (Y/n/q): " + bold("Y"))
       Some(yFn)
     }
   }
