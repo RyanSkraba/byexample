@@ -25,8 +25,8 @@ local_import_util.load("scala-by-example")
 local_import_util.load("ammonite-by-example")
 
 @
-import com.skraba.byexample.scala.ammonite.gtd.GettingThingsDone
 import com.skraba.byexample.scala.ammonite.ConsoleCfg
+import com.skraba.byexample.scala.ammonite.gtd.GettingThingsDone
 import com.skraba.byexample.scala.markd._
 
 // ==========================================================================
@@ -51,6 +51,7 @@ def help(
       "Demonstrate how to script with Ammonite",
       "argTest" -> "Show how ammonite arguments are used",
       "githubJson" -> "Parse and use the github JSON with ujson",
+      "idfbm" -> "Create bookmark shortcuts for Ile-de-France transport",
       "sar" -> "Recursive regex search and replace",
       "sysExec" -> "Run a system call and get the results"
     )
@@ -69,6 +70,7 @@ def help(
   )
   println(cfg.helpUse(cli, "githubJson", "[DSTFILE] [--verbose]"))
   println(cfg.helpUse(cli, "sysExec", "[DIR] [--verbose]"))
+  println(cfg.helpUse(cli, "idfbm", "help"))
   println()
   if (cfg.verbose.value)
     println(s"The --verbose flag was set!")
@@ -323,4 +325,48 @@ def gitJsonDecorated(
 
   spec.map(_.split(":")).foreach { case Array(tag, repo) => augment(tag, repo) }
   println(calendarize(byDate, "**0**").build())
+}
+
+/** Create bookmarks for the transilien site.
+  *
+  * @param src
+  *   A three letter code for the train source, or help to list all codes.
+  * @param dst
+  *   A three letter code for the train destination
+  */
+@main
+def idfbm(
+    src: String = "vda",
+    dst: String = "vda",
+    cfg: ConsoleCfg
+): Unit = {
+
+  val tags = Map(
+    "lad" -> ("La Défense", "stop_area%3AIDFM%3A71517", "La Déf"),
+    "vch" -> ("Versailles Chantiers", "stop_area%3AIDFM%3A63880", "Vers Ch"),
+    "vda" -> ("Sèvres - Ville-d'Avray", "stop_area%3AIDFM%3A70686", "V d'A"),
+    "vdr" -> ("Versailles Rive Droite", "stop_area%3AIDFM%3A64021", "Vers RD")
+  )
+
+  if (src == "help") {
+    tags.foreach { case (tag, (name, stop, shortTxt)) =>
+      println(s"${cfg.bold(tag)} -> $name")
+    }
+  } else {
+
+    def idfBm(
+        src: (String, String, String),
+        dst: (String, String, String)
+    ): (String, String) =
+      (
+        s"${src._3} -> ${dst._3}",
+        s"https://www.transilien.com/fr/les-fiches-horaires/resultats/?completeDayResearch=true&departure=${src._1}&idUic7Departure=${src._2}&destination=${dst._1}&idStopPointDestination=${dst._2}"
+      )
+
+    val there = idfBm(tags(src), tags(dst))
+    val back = idfBm(tags(dst), tags(src))
+    println(there)
+    println(back)
+    println()
+  }
 }
