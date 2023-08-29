@@ -126,7 +126,7 @@ def sar(
 
   // The source path to analyse
   val src: os.Path = dir.getOrElse(os.pwd)
-  if (!(os.exists(src))) {
+  if (!os.exists(src)) {
     println(s"$RED${BOLD}ERROR:$RESET $src does not exist.")
     System.exit(1)
   }
@@ -296,6 +296,7 @@ def gitJsonDecorated(
   val contribs = ujson.read(os.read(os.Path(srcFile))).asInstanceOf[Obj]
   val byDate = mutable.SortedMap.empty[Long, Int] ++ githubJsonParse(contribs)
     .filter(_._2 != 0)
+    .view
     .mapValues(_.toString)
 
   def git(prj: String): Seq[String] = {
@@ -338,14 +339,17 @@ def gitJsonDecorated(
 def idfbm(
     src: String = "vda",
     dst: String = "vda",
-    cfg: ConsoleCfg
+    cfg: ConsoleCfg,
+    open: Flag
 ): Unit = {
 
   val tags = Map(
     "lad" -> ("La Défense", "stop_area%3AIDFM%3A71517", "La Déf"),
+    "srg" -> ("Sèvres Rive Gauche", "stop_area%3AIDFM%3A463754", "Sevre RG"),
+    "mnt" -> ("Paris Montparnasse", "stop_area%3AIDFM%3A71139", "Montparnasse"),
     "vch" -> ("Versailles Chantiers", "stop_area%3AIDFM%3A63880", "Vers Ch"),
     "vda" -> ("Sèvres - Ville-d'Avray", "stop_area%3AIDFM%3A70686", "V d'A"),
-    "vdr" -> ("Versailles Rive Droite", "stop_area%3AIDFM%3A64021", "Vers RD")
+    "vdr" -> ("Versailles Rive Droite", "stop_area%3AIDFM%3A64021", "Vers RD"),
   )
 
   if (src == "help") {
@@ -368,5 +372,9 @@ def idfbm(
     println(there)
     println(back)
     println()
+
+    if (open.value) {
+      os.proc("xdg-open",there._2).call(os.pwd)
+    }
   }
 }
