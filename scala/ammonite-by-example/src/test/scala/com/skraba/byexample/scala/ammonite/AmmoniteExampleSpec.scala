@@ -82,8 +82,8 @@ class AmmoniteExampleSpec
 
     it("using the short-form, script-specific helper") {
       withAmmoniteExample("help") { case (result, stdout, stderr) =>
-        result shouldBe true
         stderr shouldBe empty
+        result shouldBe true
         stdout should startWith(first)
       }
     }
@@ -95,8 +95,8 @@ class AmmoniteExampleSpec
         ScriptPath.toString,
         "help"
       ) { case (result, stdout, stderr) =>
-        result shouldBe true
         stderr shouldBe empty
+        result shouldBe true
         stdout should startWith(first)
       }
     }
@@ -117,8 +117,8 @@ class AmmoniteExampleSpec
           HomeFolder,
           arguments: _*
         ) { case (result, stdout, stderr) =>
-          result shouldBe true
           stderr shouldBe empty
+          result shouldBe true
           stdout
         }
       }
@@ -147,8 +147,8 @@ class AmmoniteExampleSpec
               Console.err
             )
           ) { case (result, stdout, stderr) =>
-            result shouldBe true
             stderr shouldBe empty
+            result shouldBe true
             stdout should startWith(first)
           }
         }
@@ -182,8 +182,8 @@ class AmmoniteExampleSpec
         HomeFolder,
         arguments: _*
       ) { case (result, stdout, stderr) =>
-        result shouldBe true
         stderr shouldBe empty
+        result shouldBe true
         stdout
       }
     }
@@ -269,8 +269,8 @@ class AmmoniteExampleSpec
         "--re",
         "Hi"
       ) { case (result, stdout, stderr) =>
-        result shouldBe true
         stderr shouldBe empty
+        result shouldBe true
         stdout shouldBe empty
 
         File(Basic / "greet").slurp() shouldBe "Hi world!"
