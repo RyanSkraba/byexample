@@ -2,6 +2,9 @@
 
 /** A user script concentrating on file operations */
 import mainargs.{arg, main}
+
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import scala.concurrent.duration.DurationInt
 import scala.io.AnsiColor._
 import scala.util.matching.Regex
@@ -34,39 +37,92 @@ def help(cfg: ConsoleCfg): Unit = {
     cfg.helpHeader(
       "file_renamer.sc",
       "File operations for general clean-up",
+      "cameraphone" -> "Backs up pictures from the connected phone",
       "group" -> "Rename files grouped by time",
-      "payslip" -> "Rename payslip files",
-      "pics" -> "Copy pics from the phone"
+      "payslip" -> "Rename payslip files"
     )
   )
 
   // Usage examples
   println(cfg.helpUse(cli, "group", "[DIR]"))
   println(cfg.helpUse(cli, "payslip", "[DIR]"))
-  println(cfg.helpUse(cli, "pics", "[DIR]"))
+  println(cfg.helpUse(cli, "cameraphone", "[DIR]"))
   println()
 }
 
-/** @return
+/** @param phoneTag
+  *   A substring that must be in the path of the phone (i.e. SAMSUNG or the
+  *   phone model).
+  * @return
   *   Find the directory that corresponds to a connected USB phone, or null for
   *   None
   */
-private[this] def findPhoneStorage(): Option[os.Path] = {
+private[this] def findPhoneStorage(
+    phoneDir: Option[String] = None,
+    phoneTag: Option[String] = None
+): Option[os.Path] = {
   Some(os.root / "run" / "user")
     .find(os.exists)
     .flatMap(os.list(_).headOption)
-    .map(_ / "gvfs")
-    .flatMap(os.list(_).headOption)
+    .map(_ / "gvfs") // /run/user/1000/gvfs
+    .map(os.list(_).filter(_.toString.contains(phoneTag.getOrElse(""))))
+    .flatMap(_.headOption)
     .flatMap(os.list(_).headOption)
 }
 
-@arg(doc = "Group the files by time and rename them with the same root name ")
+@arg(doc = "Backs up pictures from the connected phone")
 @main
-def pics(
-    dir: Option[os.Path] = None
+def cameraphone(
+    cfg: ConsoleCfg,
+    src: Option[os.Path] = None,
+    dst: Option[os.Path] = None,
+    phoneTag: Option[String] = None
 ): Unit = {
-  val src: os.Path = dir.orElse(findPhoneStorage()).get
-  println(src)
+  // The root of the device to copy from
+  val srcDir = src
+    .orElse(findPhoneStorage(phoneTag))
+    .getOrElse(throw new RuntimeException("Unable to find pics storage."))
+  println(srcDir)
+
+  val photoDir = srcDir / "DCIM" / "Camera"
+  if (!os.exists(photoDir)) {
+    println(cfg.error("Source directory not found", photoDir))
+    return
+  }
+
+  val files = os.list(photoDir).filter(os.isFile)
+  cfg.vPrintln(s"There are ${files.size} files.")
+  val byExtension = files.groupBy(_.ext)
+  for (ext <- byExtension)
+    cfg.vPrintln(s"  ${cfg.bold(ext._1)}: ${ext._2.size}")
+
+  val filesToCopy = Seq("jpg", "mp4").flatMap(byExtension.get).flatten
+  if (filesToCopy.isEmpty) {
+    println(cfg.ok("No files to copy", bold = true))
+    return
+  }
+
+  val dst2 = dst.getOrElse(os.home / "Pictures")
+  if (!os.exists(dst2)) {
+    println(cfg.error("Destination directory not found", dst2))
+    return
+  }
+
+  val dstDir = dst2 / (DateTimeFormatter
+    .ofPattern("yyyyMMdd")
+    .format(LocalDate.now()) + " Cameraphone")
+  os.makeDir(dstDir)
+
+  val backupDir = photoDir / "backedup"
+  os.makeDir.all(backupDir)
+
+  for (file <- filesToCopy) {
+    cfg.vPrint(s"${dstDir / file.baseName}.")
+    os.copy(file, dstDir / file.baseName)
+    cfg.vPrint(".")
+    os.move(file, backupDir / file.baseName)
+    cfg.vPrintln(".")
+  }
 }
 
 @arg(doc = "Group the files by time and rename them with the same root name ")
