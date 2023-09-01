@@ -2,6 +2,8 @@ package com.skraba.byexample.scala.markd
 
 import org.docopt.Docopt
 import org.docopt.DocoptExitException
+
+import java.time.format.DateTimeFormatter
 import scala.collection.JavaConverters._
 import scala.reflect.io.{Directory, File, Path}
 
@@ -32,7 +34,7 @@ object MarkdGo {
   class InternalDocoptException(msg: String, val docopt: String = Doc)
       extends RuntimeException(msg)
 
-  val Tasks: Seq[Task] = Seq(BeautifyTask.Task)
+  val Tasks: Seq[Task] = Seq(BeautifyTask.Task, DateCountdownTask.Task)
 
   val Doc: String =
     """A driver for the various markdown utilities.
@@ -55,6 +57,28 @@ object MarkdGo {
         .map(task => s"%${col + 2}s  %s".format(task.cmd, task.description))
         .mkString("\n")
     }.trim
+
+  /** A helper method to process a list of files supplied on the command line.
+    * @param files
+    *   Files and directories relative to the current directory as string
+    *   arguments. Markdown files are discovered recursively in the directory.
+    * @param fn
+    *   A method to call on each discovered file.
+    */
+  def processMd(files: Seq[String])(fn: File => Unit): Unit = files
+    .map(Path(_).toAbsolute)
+    .flatMap {
+      case f: File if f.exists => Some(f)
+      case d: Directory if d.exists =>
+        d.walkFilter(p =>
+          p.isDirectory || """.*\.md$""".r.findFirstIn(p.name).isDefined
+        ).map(_.toFile)
+      case p =>
+        throw new InternalDocoptException(
+          s"The file ${p.name} doesn't exist."
+        )
+    }
+    .foreach(fn)
 
   /** Runs the tool. This does not handle any docopt exception automatically
     * while parsing the command line.
@@ -169,26 +193,72 @@ object MarkdGo {
         sortLinkRefs = opts.get("--sortLinkRefs").toString.toBoolean
       )
 
-      files
-        .map(Path(_).toAbsolute)
-        .flatMap {
-          case f: File if f.exists => Some(f)
-          case d: Directory if d.exists =>
-            d.walkFilter(p =>
-              p.isDirectory || """.*\.md$""".r.findFirstIn(p.name).isDefined
-            ).map(_.toFile)
-          case p =>
-            throw new InternalDocoptException(
-              s"The file ${p.name} doesn't exist."
-            )
-        }
-        .foreach(f => {
+      val x: File => Unit = (f: File) => {
+        val md = Header.parse(f.slurp(), cfg)
+        f.writeAll(md.build().toString)
+      }
+
+      MarkdGo.processMd(files) { f =>
+        {
           val md = Header.parse(f.slurp(), cfg)
           f.writeAll(md.build().toString)
-        })
+        }
+      }
     }
 
     val Task: MarkdGo.Task = MarkdGo.Task(Doc, Cmd, Description, go)
   }
 
+  object DateCountdownTask {
+
+    val YyyyMmDd = DateTimeFormatter.ofPattern("yyyy/MM/dd")
+
+    val Doc: String =
+      """Look for tables with dates in a countdown format and fix them.
+        |
+        |Usage:
+        |  MarkdGo datecount FILE...
+        |
+        |Options:
+        |  -h --help       Show this screen.
+        |  --version       Show version.
+        |  FILE            File(s) to find and add date countdowns.
+        |
+        |If a table has a cell with a value "T 2024/06/03" (for example), all of the
+        |cells in the same column with the format "T-100 2023/08/22" will have the date
+        |adjusted to fit the countdown.  In this case, the value will be modified to
+        |"T-100 2024/02/20".
+        |
+        |All of the cells in the same column with the format "T-XX 2023/08/22" will have
+        |the countdown modified to fit the date.  In this case, the value would be
+        |modified to "T-286 2023/08/22".
+        |
+        |Other cells will not be modified.
+        |""".stripMargin.trim
+
+    val Cmd = "datecount"
+
+    val Description = "Adjust countdown cells in tables."
+
+    def go(opts: java.util.Map[String, AnyRef]): Unit = {
+
+      val files: Seq[String] =
+        opts
+          .get("FILE")
+          .asInstanceOf[java.lang.Iterable[String]]
+          .asScala
+          .toSeq
+
+      MarkdGo.processMd(files) { f =>
+        {
+          f.writeAll(process(Header.parse(f.slurp())).build().toString)
+        }
+      }
+    }
+
+    // TODO!
+    private def process(md: Header): Header = md
+
+    val Task: MarkdGo.Task = MarkdGo.Task(Doc, Cmd, Description, go)
+  }
 }

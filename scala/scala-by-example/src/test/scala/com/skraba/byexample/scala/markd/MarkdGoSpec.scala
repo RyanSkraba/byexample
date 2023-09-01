@@ -1,17 +1,13 @@
 package com.skraba.byexample.scala.markd
 
 import com.skraba.byexample.scala.markd.MarkdGo.InternalDocoptException
-import com.skraba.byexample.scala.markd.MarkdGoSpec.{
-  withMarkdGo,
-  withMarkdGoMatch
-}
+import com.skraba.byexample.scala.markd.MarkdGoSpec.withMarkdGo
 import org.docopt.DocoptExitException
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 
-/** Unit tests for [[MarkdGo]]
-  */
+/** Unit tests for [[MarkdGo]] */
 class MarkdGoSpec
     extends AnyFunSpecLike
     with Matchers
@@ -71,13 +67,78 @@ class MarkdGoSpec
     }
   }
 
-  describe("MarkdGo beautify invalid command lines") {
+  describe("MarkdGo beautify") {
     it("throws an exception if no files are specified") {
       val t = intercept[InternalDocoptException] {
         withMarkdGo("beautify")
       }
       t.getMessage shouldBe null
       t.docopt shouldBe MarkdGo.BeautifyTask.Doc
+    }
+  }
+
+  describe("MarkdGo datecount") {
+    it("throws an exception if no files are specified") {
+      val t = intercept[InternalDocoptException] {
+        withMarkdGo("datecount")
+      }
+      t.getMessage shouldBe null
+      t.docopt shouldBe MarkdGo.DateCountdownTask.Doc
+    }
+  }
+
+  for (task <- MarkdGo.Tasks) {
+    describe(s"MarkdGo ${task.cmd} docopt check") {
+      it("should have less than 80 characters per string for readability") {
+        for (line <- task.doc.split("\n")) {
+          withClue(task.cmd -> line) {
+            line.length should be < 80
+          }
+        }
+      }
+    }
+
+    describe(s"MarkdGo ${task.cmd} invalid command lines") {
+      it("throws an exception if no files are specified") {
+        val t = intercept[InternalDocoptException] {
+          withMarkdGo(task.cmd)
+        }
+        t.getMessage shouldBe null
+        t.docopt shouldBe task.doc
+      }
+
+      it("throws an exception with --version") {
+        val t = intercept[DocoptExitException] {
+          withMarkdGo(task.cmd, "--version")
+        }
+        t.getExitCode shouldBe 0
+        t.getMessage shouldBe MarkdGo.Version
+      }
+
+      it("throws an exception with --help") {
+        val t = intercept[DocoptExitException] {
+          withMarkdGo(task.cmd, "--help")
+        }
+        t.getExitCode shouldBe 0
+        t.getMessage shouldBe task.doc
+      }
+
+      it(s"throws an exception with unknown options") {
+        for (
+          args <- Seq(
+            Seq(task.cmd, "--garbage"),
+            Seq(task.cmd, "--debug", "--garbage"),
+            Seq(task.cmd, "--garbage", "--debug"),
+            Seq(task.cmd, "--garbage", "garbage")
+          )
+        ) withClue(s"Using: $args") {
+          val t = intercept[InternalDocoptException] {
+            withMarkdGo(args: _*)
+          }
+          t.docopt shouldBe task.doc
+          t.getMessage shouldBe null
+        }
+      }
     }
   }
 }
