@@ -3,7 +3,6 @@ package com.skraba.byexample.scala
 import com.skraba.byexample.scala.markd.Align.Align
 import play.api.libs.json.Json
 
-import scala.collection.GenSeq
 import scala.util.Try
 import scala.util.matching.Regex
 
@@ -210,12 +209,12 @@ package object markd {
     }
 
     def escape(in: String): String = in
-      .replaceAllLiterally("\\", "\\\\")
-      .replaceAllLiterally("\"", "\\\"")
+      .replace("\\", "\\\\")
+      .replace("\"", "\\\"")
 
     def unescape(in: String): String = in
-      .replaceAllLiterally("\\\\", "\\")
-      .replaceAllLiterally("\\\"", "\"")
+      .replace("\\\\", "\\")
+      .replace("\\\"", "\"")
   }
 
   /** An element that can contain other elements. */
@@ -315,7 +314,7 @@ package object markd {
     def flatMapFirstIn(
         ifNotFound: => Seq[T] = Seq.empty,
         replace: Boolean = false
-    )(pf: PartialFunction[T, GenSeq[T]]): Self = {
+    )(pf: PartialFunction[T, Seq[T]]): Self = {
       copyMds(
         Option(mds.indexWhere(pf.isDefinedAt))
           .filter(_ != -1)
@@ -394,7 +393,8 @@ package object markd {
     def collectFirstRecursive[B](pf: PartialFunction[Markd, B]): Option[B] =
       if (pf.isDefinedAt(this)) Some(pf(this))
       else
-        mds.toStream
+        mds
+          .to(LazyList)
           .map {
             case md if pf.isDefinedAt(md) => Some(pf(md))
             case md: MultiMarkd[_]        => md.collectFirstRecursive(pf)
@@ -402,6 +402,17 @@ package object markd {
           }
           .find(_.isDefined)
           .flatten
+
+    def replaceRecursively(pf: PartialFunction[Markd, Markd]): Self = {
+      replaceIn() {
+        case (Some(md), _) if pf.isDefinedAt(md) =>
+          Seq(pf.apply(md).asInstanceOf[T])
+        case (Some(md: MultiMarkd[_]), _) =>
+          Seq(md.replaceRecursively(pf).asInstanceOf[T])
+        case (Some(md), _) => Seq(md)
+        case (None, _)     => Seq.empty
+      }
+    }
   }
 
   /** Markdown header or section.
@@ -427,8 +438,6 @@ package object markd {
       extends MultiMarkd[Markd] {
 
     type Self = Header
-
-    // override def mds: Seq[Markd] = mds
 
     override def copyMds(newMds: Seq[Markd]): Self = copy(mds = newMds)
 
@@ -481,7 +490,7 @@ package object markd {
       )
 
     def apply(level: Int, title: String, sub: Markd*): Header =
-      Header(title, level, sub.toSeq)
+      Header(title, level, sub)
 
     /** Extract the level and title from a matching header. */
     private[this] def extractHeader(m: Regex.Match): Header = {
@@ -806,7 +815,7 @@ package object markd {
 
     /** Shortcut method just for the varargs */
     def from(aligns: Seq[Align], mds: TableRow*): Table =
-      Table(aligns, mds.toSeq)
+      Table(aligns, mds)
 
     /** Determines if some content can be reasonably parsed into a [[Table]].
       * @param content
@@ -892,8 +901,8 @@ package object markd {
       val aligned =
         for (i <- 0 until Math.max(aligns.length, cells.length)) yield {
           val align = aligns.applyOrElse(i, (_: Int) => Align.LEFT)
-          val width = widths.applyOrElse(i, (_: Int) => 0);
-          val cell = cells.applyOrElse(i, (_: Int) => "");
+          val width = widths.applyOrElse(i, (_: Int) => 0)
+          val cell = cells.applyOrElse(i, (_: Int) => "")
 
           val lPad =
             if (align == Align.CENTER) (width - cell.length) / 2
@@ -912,7 +921,7 @@ package object markd {
   object TableRow {
 
     /** Shortcut method just for the varargs */
-    def from(cells: String*): TableRow = TableRow(cells.toSeq)
+    def from(cells: String*): TableRow = TableRow(cells)
   }
 
   /** Helps build the model when parsing contents.

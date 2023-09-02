@@ -1,10 +1,10 @@
 package com.skraba.byexample.scala.markd
 
-import org.docopt.Docopt
-import org.docopt.DocoptExitException
+import org.docopt.{Docopt, DocoptExitException}
 
 import java.time.format.DateTimeFormatter
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
+import scala.collection.immutable.Seq
 import scala.reflect.io.{Directory, File, Path}
 
 /** A driver for the various utilities that use the [[Markd]] model.
@@ -193,11 +193,6 @@ object MarkdGo {
         sortLinkRefs = opts.get("--sortLinkRefs").toString.toBoolean
       )
 
-      val x: File => Unit = (f: File) => {
-        val md = Header.parse(f.slurp(), cfg)
-        f.writeAll(md.build().toString)
-      }
-
       MarkdGo.processMd(files) { f =>
         {
           val md = Header.parse(f.slurp(), cfg)
@@ -250,14 +245,20 @@ object MarkdGo {
           .toSeq
 
       MarkdGo.processMd(files) { f =>
-        {
-          f.writeAll(process(Header.parse(f.slurp())).build().toString)
-        }
+        f.writeAll(
+          Header
+            .parse(f.slurp())
+            .replaceRecursively { case tbl: Table =>
+              process(tbl)
+            }
+            .build()
+            .toString
+        )
       }
     }
 
-    // TODO!
-    private def process(md: Header): Header = md
+    /** Given any table, update any rows with date information. */
+    private def process(tbl: Table): Table = tbl
 
     val Task: MarkdGo.Task = MarkdGo.Task(Doc, Cmd, Description, go)
   }

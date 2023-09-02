@@ -1542,6 +1542,40 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
             !| 10 | 30 |
             !""".stripMargin('!')
       }
+
+      it("should replace recursively with identity") {
+        md.replaceRecursively { case tbl: Table => tbl } shouldBe md
+      }
+
+      it("should replace table rows recursively") {
+        val replaced = md.replaceRecursively {
+          case row: TableRow if row.head == "B1" => TableRow.from("C1", "C2")
+        }
+
+        replaced.build().toString shouldBe
+          """One
+            !==============================================================================
+            !
+            !| A1 | A2 |
+            !|----|----|
+            !| 1  | 2  |
+            !
+            !| C1 | C2 |
+            !|----|----|
+            !| 10 | 20 |
+            !
+            !Two
+            !==============================================================================
+            !
+            !| A1 | A2 |
+            !|----|----|
+            !| 1  | 2  |
+            !
+            !| C1 | C2 |
+            !|----|----|
+            !| 10 | 30 |
+            !""".stripMargin('!')
+      }
     }
   }
 }
