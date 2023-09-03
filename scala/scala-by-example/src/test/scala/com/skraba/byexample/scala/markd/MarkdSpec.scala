@@ -694,6 +694,9 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         .value
 
       // Get a row by index
+      md.title shouldBe "A"
+      md.colSize shouldBe 3
+      md.rowSize shouldBe 7
       md(0) shouldBe TableRow.from("A", "B", "A")
       md(1) shouldBe TableRow.from("a", "b1", "c1")
       md(2) shouldBe TableRow.from("a2", "b2", "c2")
@@ -779,6 +782,9 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
       val tb2 = TableRow.from("2")
       val tb3 = TableRow.from()
 
+      md.title shouldBe "Id"
+      md.colSize shouldBe 2
+      md.rowSize shouldBe 4
       md shouldBe Table.from(
         Seq(Align.LEFT, Align.LEFT),
         TableRow.from("Id", "Name"),
@@ -887,7 +893,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
 
     it("should handle ragged rows") {
       val md = Table
-        .parse("""AAA|BBB|CCC|DDD
+        .parse("""AAA|BBB|CCC|DDD|||||
           !---|:-:|--:|---
           !a
           !b|b
@@ -923,6 +929,8 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           !|     |     |     |     |  |  |  | f |
           !""".stripMargin('!')
       md.title shouldBe "AAA"
+      md.colSize shouldBe 4
+      md.rowSize shouldBe 14
       Table.parse(cleaned).value shouldBe md
     }
 
@@ -940,6 +948,8 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           !| a | b | c | d |
           !""".stripMargin('!')
       md.title shouldBe ""
+      md.colSize shouldBe 4
+      md.rowSize shouldBe 2
       Table.parse(cleaned).value shouldBe md
     }
 
@@ -965,6 +975,8 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           !|    | 5     | Five |
           !""".stripMargin('!')
       md.title shouldBe "Id"
+      md.colSize shouldBe 2
+      md.rowSize shouldBe 6
       Table.parse(cleaned).value shouldBe md
     }
 
@@ -982,6 +994,8 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           !| a\|a | b\|  | \|c | d |
           !""".stripMargin('!')
       md.title shouldBe ""
+      md.colSize shouldBe 4
+      md.rowSize shouldBe 2
       Table.parse(cleaned).value shouldBe md
     }
 
@@ -1005,6 +1019,8 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           !| a | b |
           !""".stripMargin('!')
       md.title shouldBe "A"
+      md.colSize shouldBe 2
+      md.rowSize shouldBe 2
       Table.parse(cleaned).value shouldBe md
 
       // Other ways to represent the same table

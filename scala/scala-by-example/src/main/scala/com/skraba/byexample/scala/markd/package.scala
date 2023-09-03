@@ -619,16 +619,17 @@ package object markd {
     /** A simple definition of the title cell is the top left cell value. */
     lazy val title: String = mds.headOption.map(_.head).getOrElse("")
 
+    /** The number of columns that this table has. A row can have more than this
+      * number of columns, but the extra cells will be appended, not aligned.
+      */
+    lazy val colSize: Int = aligns.length
+
+    /** The number of rows that this table has, including the header row. */
+    lazy val rowSize: Int = mds.length
+
     /** The maximum cell string length for each column, not including margins */
-    lazy val widths: Seq[Int] = Seq.tabulate(aligns.length) { i =>
-      Math.max(
-        1,
-        mds
-          .map(
-            _.cells.applyOrElse(i, (_: Int) => "").length
-          )
-          .max
-      )
+    lazy val widths: Seq[Int] = Seq.tabulate(colSize) { i =>
+      Math.max(1, mds.map(_(i).length).max)
     }
 
     /** @param row
