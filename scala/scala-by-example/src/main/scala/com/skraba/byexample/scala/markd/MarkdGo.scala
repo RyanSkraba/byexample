@@ -2,10 +2,14 @@ package com.skraba.byexample.scala.markd
 
 import org.docopt.{Docopt, DocoptExitException}
 
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import scala.jdk.CollectionConverters._
 import scala.collection.immutable.Seq
 import scala.reflect.io.{Directory, File, Path}
+import scala.util.Try
+import scala.util.matching.Regex
 
 /** A driver for the various utilities that use the [[Markd]] model.
   */
@@ -206,8 +210,6 @@ object MarkdGo {
 
   object DateCountdownTask {
 
-    val YyyyMmDd = DateTimeFormatter.ofPattern("yyyy/MM/dd")
-
     val Doc: String =
       """Look for tables with dates in a countdown format and fix them.
         |
@@ -257,8 +259,77 @@ object MarkdGo {
       }
     }
 
+    val YyyyMmDd = DateTimeFormatter.ofPattern("yyyy/MM/dd")
+
+    val DateRegex: Regex =
+      raw"([*_(\[]*)T([-+]?[\d+X]+)?([*_)\]]*)\s+([*_(\[]*)(\d\d\d\d/\d\d/\d\d)([*_)\]]*)(.*)".r
+
     /** Given any table, update any rows with date information. */
-    private def process(tbl: Table): Table = tbl
+    def process(tbl: Table): Table = {
+
+      // A two dimensional ragged array of all the parsed table cells.
+      val parsed = tbl.mds.map(row =>
+        row.cells.map {
+          case DateRegex(preT, t, postT, pre, date, post, rest) =>
+            Some(
+              (
+                Try(if (t == null) 0 else t.toLong).getOrElse(Long.MaxValue),
+                preT,
+                t,
+                postT,
+                pre,
+                date,
+                post,
+                rest
+              )
+            )
+          case _ => None
+        }
+      )
+
+      // Find the T0 date for each column, or None if there isn't any.  The T0 date is the measured relative
+      // to the smallest magnitude T number discovered in the parsed cells for that column
+      val t0s: Seq[Option[LocalDate]] = Seq.tabulate(tbl.colSize) { col =>
+        parsed
+          .filter(_.isDefinedAt(col))
+          .flatMap(_(col))
+          .sortBy(_._1.abs)
+          .headOption
+          .map(x => LocalDate.parse(x._6, YyyyMmDd).minusDays(x._1))
+      }
+
+      // For every single cell, if it has been parsed, then rewrite either the t number or the date according to the T0 value
+      val mds = tbl.mds.zipWithIndex.map { row =>
+        TableRow.from(row._1.cells.zipWithIndex.map {
+          case (cell, col)
+              if col < tbl.colSize && parsed
+                .isDefinedAt(row._2) && parsed(row._2).isDefinedAt(col) =>
+            parsed(row._2)(col)
+              .map { x =>
+                val base = t0s(col).getOrElse(LocalDate.now)
+
+                // Resolve either the t number or the date according to the base.
+                val (t, date) = if (x._1 == Long.MaxValue) {
+                  val date = LocalDate.parse(x._6, YyyyMmDd)
+                  (ChronoUnit.DAYS.between(base, date), date)
+                } else {
+                  (x._1, base.plusDays(x._1))
+                }
+
+                val number =
+                  if (t == 0) "T"
+                  else if (t > 0) s"T+$t"
+                  else s"T$t"
+
+                s"${x._2}$number${x._4} ${x._5}${YyyyMmDd.format(date)}${x._7}"
+
+              }
+              .getOrElse(cell)
+          case (cell, _) => cell
+        }: _*)
+      }
+      tbl.copy(mds = mds)
+    }
 
     val Task: MarkdGo.Task = MarkdGo.Task(Doc, Cmd, Description, go)
   }

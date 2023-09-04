@@ -85,6 +85,48 @@ class MarkdGoSpec
       t.getMessage shouldBe null
       t.docopt shouldBe MarkdGo.DateCountdownTask.Doc
     }
+
+    it("should process a Table") {
+      val md = Table
+        .parse("""# | Top T0      | Bottom T0 | No T0
+           !---|---|---|---
+           !a | T 2000/01/01   |
+           !b | T-0 1999/01/01 |
+           !c | T0 1999/01/01  |
+           !d | T+0 1999/01/01 |
+           !e | T-1 2000/01/01 | T-1 2000/01/01 | T-1 2000/01/01
+           !f | T1 2000/01/01  | T1 2000/01/01  | T1 2000/01/01
+           !g | T+1 2000/01/01 | T+1 2000/01/01 | T+1 2000/01/01
+           !h | T-X 2000/01/02 | T-X 2000/01/02 | T-X 2000/01/02
+           !i | T+X 1999/12/31 | T+X 1999/12/31 | T+X 1999/12/31
+           !j |                | T 2000/01/01
+           !k |                | T-0 1999/01/01
+           !l |                | T0 1999/01/01
+           !m |                | T+0 1999/01/01
+           !""".stripMargin('!'))
+        .get
+
+      val cleaned = MarkdGo.DateCountdownTask.process(md)
+      cleaned.build().toString shouldBe
+        """| # | Top T0         | Bottom T0      | No T0          |
+          !|---|----------------|----------------|----------------|
+          !| a | T 2000/01/01   |                |                |
+          !| b | T 2000/01/01   |                |                |
+          !| c | T 2000/01/01   |                |                |
+          !| d | T 2000/01/01   |                |                |
+          !| e | T-1 1999/12/31 | T-1 1999/12/31 | T-1 2000/01/01 |
+          !| f | T+1 2000/01/02 | T+1 2000/01/02 | T+1 2000/01/03 |
+          !| g | T+1 2000/01/02 | T+1 2000/01/02 | T+1 2000/01/03 |
+          !| h | T+1 2000/01/02 | T+1 2000/01/02 | T 2000/01/02   |
+          !| i | T-1 1999/12/31 | T-1 1999/12/31 | T-2 1999/12/31 |
+          !| j |                | T 2000/01/01   |                |
+          !| k |                | T 2000/01/01   |                |
+          !| l |                | T 2000/01/01   |                |
+          !| m |                | T 2000/01/01   |                |
+          !""".stripMargin('!')
+
+      MarkdGo.DateCountdownTask.process(cleaned) shouldBe cleaned
+    }
   }
 
   for (task <- MarkdGo.Tasks) {
