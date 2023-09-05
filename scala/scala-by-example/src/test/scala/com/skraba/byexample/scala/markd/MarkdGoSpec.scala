@@ -127,6 +127,65 @@ class MarkdGoSpec
 
       MarkdGo.DateCountdownTask.process(cleaned) shouldBe cleaned
     }
+
+    it("should retain some markdown around modified cells") {
+      val md = Table
+        .parse(
+          """|Date |
+            !|---|
+            !| *T* 2000/01/01
+            !| **T** 1999/01/01
+            !| _T-1_ 1999/01/01
+            !| __T0__ 1999/01/01
+            !| (T-1) 1999/01/01
+            !| [T+2] 1999/01/01
+            !| T+3 *1999/01/01*
+            !| T+4 **1999/01/01**
+            !| T+5 _1999/01/01_
+            !| T+6 __1999/01/01__
+            !| T+7 (1999/01/01)
+            !| T+8 [1999/01/01]
+            !| T+9 [1999/01/01][l1]
+            !| T+10 **[1999/01/01](http://l2)**
+            !| T+11 1999/01/01 Lots of other stuff
+            !| *T+X* 2000/01/02
+            !| **T+X** 2000/01/03
+            !| _T+X_ 2000/01/04
+            !| __T+X__ 2000/01/05
+            !| (T+X) 2000/01/06
+            !| [T+X] 2000/01/07
+            !""".stripMargin('!'))
+        .get
+
+      val cleaned = MarkdGo.DateCountdownTask.process(md)
+      cleaned.build().toString shouldBe
+        """| Date                                |
+          !|-------------------------------------|
+          !| *T* 2000/01/01                      |
+          !| **T** 2000/01/01                    |
+          !| _T-1_ 1999/12/31                    |
+          !| __T__ 2000/01/01                    |
+          !| (T-1) 1999/12/31                    |
+          !| [T+2] 2000/01/03                    |
+          !| T+3 *2000/01/04*                    |
+          !| T+4 **2000/01/05**                  |
+          !| T+5 _2000/01/06_                    |
+          !| T+6 __2000/01/07__                  |
+          !| T+7 (2000/01/08)                    |
+          !| T+8 [2000/01/09]                    |
+          !| T+9 [2000/01/10][l1]                |
+          !| T+10 **[2000/01/11](http://l2)**    |
+          !| T+11 2000/01/12 Lots of other stuff |
+          !| *T+1* 2000/01/02                    |
+          !| **T+2** 2000/01/03                  |
+          !| _T+3_ 2000/01/04                    |
+          !| __T+4__ 2000/01/05                  |
+          !| (T+5) 2000/01/06                    |
+          !| [T+6] 2000/01/07                    |
+          !""".stripMargin('!')
+
+      MarkdGo.DateCountdownTask.process(cleaned) shouldBe cleaned
+    }
   }
 
   for (task <- MarkdGo.Tasks) {

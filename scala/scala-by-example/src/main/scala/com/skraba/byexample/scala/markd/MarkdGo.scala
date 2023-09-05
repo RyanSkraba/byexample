@@ -321,7 +321,7 @@ object MarkdGo {
                   else if (t > 0) s"T+$t"
                   else s"T$t"
 
-                s"${x._2}$number${x._4} ${x._5}${YyyyMmDd.format(date)}${x._7}"
+                s"${x._2}$number${x._4} ${x._5}${YyyyMmDd.format(date)}${x._7}${x._8}"
 
               }
               .getOrElse(cell)
