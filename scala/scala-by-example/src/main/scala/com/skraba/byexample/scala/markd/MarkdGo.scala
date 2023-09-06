@@ -262,7 +262,7 @@ object MarkdGo {
     val YyyyMmDd = DateTimeFormatter.ofPattern("yyyy/MM/dd")
 
     val DateRegex: Regex =
-      raw"([*_(\[]*)T([-+]?[\d+X]+)?([*_)\]]*)\s+([*_(\[]*)(\d\d\d\d/\d\d/\d\d)([*_)\]]*)(.*)".r
+      raw"(.*?)\b([*_(\[]*)T([-+]?[\d+X]+)?([*_)\]]*)\s+([*_(\[]*)(\d\d\d\d/\d\d/\d\d)([*_)\]]*)(.*)".r
 
     /** Given any table, update any rows with date information. */
     def process(tbl: Table): Table = {
@@ -270,17 +270,18 @@ object MarkdGo {
       // A two dimensional ragged array of all the parsed table cells.
       val parsed = tbl.mds.map(row =>
         row.cells.map {
-          case DateRegex(preT, t, postT, pre, date, post, rest) =>
+          case DateRegex(before, preT, t, postT, pre, date, post, after) =>
             Some(
               (
                 Try(if (t == null) 0 else t.toLong).getOrElse(Long.MaxValue),
+                before,
                 preT,
                 t,
                 postT,
                 pre,
                 date,
                 post,
-                rest
+                after
               )
             )
           case _ => None
@@ -295,7 +296,7 @@ object MarkdGo {
           .flatMap(_(col))
           .sortBy(_._1.abs)
           .headOption
-          .map(x => LocalDate.parse(x._6, YyyyMmDd).minusDays(x._1))
+          .map(x => LocalDate.parse(x._7, YyyyMmDd).minusDays(x._1))
       }
 
       // For every single cell, if it has been parsed, then rewrite either the t number or the date according to the T0 value
@@ -310,7 +311,7 @@ object MarkdGo {
 
                 // Resolve either the t number or the date according to the base.
                 val (t, date) = if (x._1 == Long.MaxValue) {
-                  val date = LocalDate.parse(x._6, YyyyMmDd)
+                  val date = LocalDate.parse(x._7, YyyyMmDd)
                   (ChronoUnit.DAYS.between(base, date), date)
                 } else {
                   (x._1, base.plusDays(x._1))
@@ -321,7 +322,8 @@ object MarkdGo {
                   else if (t > 0) s"T+$t"
                   else s"T$t"
 
-                s"${x._2}$number${x._4} ${x._5}${YyyyMmDd.format(date)}${x._7}${x._8}"
+                s"${x._2}${x._3}$number${x._5} ${x._6}${YyyyMmDd
+                    .format(date)}${x._8}${x._9}"
 
               }
               .getOrElse(cell)

@@ -130,8 +130,7 @@ class MarkdGoSpec
 
     it("should retain some markdown around modified cells") {
       val md = Table
-        .parse(
-          """|Date |
+        .parse("""|Date |
             !|---|
             !| *T* 2000/01/01
             !| **T** 1999/01/01
@@ -148,6 +147,7 @@ class MarkdGoSpec
             !| T+9 [1999/01/01][l1]
             !| T+10 **[1999/01/01](http://l2)**
             !| T+11 1999/01/01 Lots of other stuff
+            !| Lots of other stuff T+12 1999/01/01
             !| *T+X* 2000/01/02
             !| **T+X** 2000/01/03
             !| _T+X_ 2000/01/04
@@ -176,6 +176,7 @@ class MarkdGoSpec
           !| T+9 [2000/01/10][l1]                |
           !| T+10 **[2000/01/11](http://l2)**    |
           !| T+11 2000/01/12 Lots of other stuff |
+          !| Lots of other stuff T+12 2000/01/13 |
           !| *T+1* 2000/01/02                    |
           !| **T+2** 2000/01/03                  |
           !| _T+3_ 2000/01/04                    |
