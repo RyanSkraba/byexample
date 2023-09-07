@@ -261,8 +261,11 @@ object MarkdGo {
 
     val YyyyMmDd = DateTimeFormatter.ofPattern("yyyy/MM/dd")
 
-    val DateRegex: Regex =
+    val TnumDateRegex: Regex =
       raw"(.*?)\b([*_(\[]*)T([-+]?[\d+X]+)?([*_)\]]*)\s+([*_(\[]*)(\d\d\d\d/\d\d/\d\d)([*_)\]]*)(.*)".r
+
+    val DateTnumRegex: Regex =
+      raw"(.*?)([*_(\[]*)(\d\d\d\d/\d\d/\d\d)([*_)\]]*)\s+([*_(\[]*)T([-+]?[\d+X]+)?([*_)\]]*)(.*)".r
 
     /** Given any table, update any rows with date information. */
     def process(tbl: Table): Table = {
@@ -270,7 +273,21 @@ object MarkdGo {
       // A two dimensional ragged array of all the parsed table cells.
       val parsed = tbl.mds.map(row =>
         row.cells.map {
-          case DateRegex(before, preT, t, postT, pre, date, post, after) =>
+          case TnumDateRegex(before, preT, t, postT, pre, date, post, after) =>
+            Some(
+              (
+                Try(if (t == null) 0 else t.toLong).getOrElse(Long.MaxValue),
+                before,
+                preT,
+                t,
+                postT,
+                pre,
+                date,
+                post,
+                after
+              )
+            )
+          case DateTnumRegex(before, pre, date, post, preT, t, postT, after) =>
             Some(
               (
                 Try(if (t == null) 0 else t.toLong).getOrElse(Long.MaxValue),

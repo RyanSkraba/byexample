@@ -126,6 +126,27 @@ class MarkdGoSpec
           !""".stripMargin('!')
 
       MarkdGo.DateCountdownTask.process(cleaned) shouldBe cleaned
+
+      MarkdGo.DateCountdownTask.process(
+        Table
+          .parse("""# | Top T0      | Bottom T0 | No T0
+            !---|---|---|---
+            !a | 2000/01/01 T   |
+            !b | 1999/01/01 T-0 |
+            !c | 1999/01/01 T0  |
+            !d | 1999/01/01 T+0 |
+            !e | 2000/01/01 T-1 | 2000/01/01 T-1 | 2000/01/01 T-1
+            !f | 2000/01/01 T1  | 2000/01/01 T1  | 2000/01/01 T1
+            !g | 2000/01/01 T+1 | 2000/01/01 T+1 | 2000/01/01 T+1
+            !h | 2000/01/02 T-X | 2000/01/02 T-X | 2000/01/02 T-X
+            !i | 1999/12/31 T+X | 1999/12/31 T+X | 1999/12/31 T+X
+            !j |                | 2000/01/01 T
+            !k |                | 1999/01/01 T-0
+            !l |                | 1999/01/01 T0
+            !m |                | 1999/01/01 T+0
+            !""".stripMargin('!'))
+          .get
+      ) shouldBe cleaned
     }
 
     it("should retain some markdown around modified cells") {
@@ -186,6 +207,73 @@ class MarkdGoSpec
           !""".stripMargin('!')
 
       MarkdGo.DateCountdownTask.process(cleaned) shouldBe cleaned
+
+      // TODO: Note that the T+10 isn't exactly what we're looking for.  The regex should be adjusted to include links.
+      MarkdGo.DateCountdownTask
+        .process(
+          Table
+            .parse("""|Date |
+             !|---|
+             !| 2000/01/01 *T*
+             !| 1999/01/01 **T**
+             !| 1999/01/01 _T-1_
+             !| 1999/01/01 __T0__
+             !| 1999/01/01 (T-1)
+             !| 1999/01/01 [T+2]
+             !| *1999/01/01* T+3
+             !| **1999/01/01** T+4
+             !| _1999/01/01_ T+5
+             !|  __1999/01/01__ T+6
+             !|  (1999/01/01) T+7
+             !| [1999/01/01] T+8
+             !| [1999/01/01] T+9[l1]
+             !| **[1999/01/01] T+10(http://l2)**
+             !| 1999/01/01 T+11 Lots of other stuff
+             !| Lots of other stuff 1999/01/01 T+12
+             !| 2000/01/02 *T+X*
+             !| 2000/01/03 **T+X**
+             !| 2000/01/04 _T+X_
+             !| 2000/01/05 __T+X__
+             !| 2000/01/06 (T+X)
+             !| 2000/01/07 [T+X]
+             !""".stripMargin('!'))
+            .get
+        )
+        .build()
+        .toString shouldBe cleaned.build().toString
+    }
+
+    it("flibbity flib") {
+      val md = Table
+        .parse("""|Date |
+             !|---|
+             !| *T* 2000/01/01
+             !| [T+3) *1999/01/01_
+             !""".stripMargin('!'))
+        .get
+
+      val cleaned = MarkdGo.DateCountdownTask.process(md)
+      cleaned.build().toString shouldBe
+        """| Date               |
+          !|--------------------|
+          !| *T* 2000/01/01     |
+          !| [T+3) *2000/01/04_ |
+          !""".stripMargin('!')
+
+      MarkdGo.DateCountdownTask.process(cleaned) shouldBe cleaned
+
+      MarkdGo.DateCountdownTask
+        .process(
+          Table
+            .parse("""|Date |
+                 !|---|
+                 !| *T* 2000/01/01
+                 !| *1999/01/01_ [T+3)
+                 !""".stripMargin('!'))
+            .get
+        )
+        .build()
+        .toString shouldBe cleaned.build().toString
     }
   }
 
