@@ -327,7 +327,7 @@ case class ConsoleCfg(
 
 object ConsoleCfg {
   def apply(ansi: Boolean, verbose: Boolean): ConsoleCfg =
-    ConsoleCfg(Flag(ansi), Flag(verbose))
+    ConsoleCfg(plain = Flag(!ansi), verbose = Flag(verbose))
   implicit def mainargsParser: ParserForClass[ConsoleCfg] =
     ParserForClass[ConsoleCfg]
 }

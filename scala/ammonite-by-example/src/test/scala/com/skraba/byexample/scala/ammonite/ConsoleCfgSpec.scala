@@ -211,6 +211,31 @@ class ConsoleCfgSpec
     }
   }
 
+  describe("The verbose flag") {
+    val cfgNoV = ConsoleCfg(ansi = false, verbose = false)
+    val cfgV = ConsoleCfg(ansi = false, verbose = true)
+
+    it("when enabled, prints text through the vPrint and vPrintln methods") {
+      withConsoleMatch {
+        cfgV.vPrintln("Hey")
+        cfgV.vPrint("Hey")
+      } { case (_, out, err) =>
+        err shouldBe empty
+        out shouldBe "Hey\nHey"
+      }
+    }
+
+    it("when disabled, ignores calls to vPrint and vPrintln methods") {
+      withConsoleMatch {
+        cfgNoV.vPrintln("Hey")
+        cfgNoV.vPrint("Hey")
+      } { case (_, out, err) =>
+        err shouldBe empty
+        out shouldBe empty
+      }
+    }
+  }
+
   describe("The ask() method") {
 
     def simpleAsk(
