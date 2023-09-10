@@ -113,7 +113,7 @@ def argTest(
 @arg(doc = "Search and replace text patterns recursively in this directory.")
 @main
 def sar(
-    @arg(doc = "The directory to recursely search")
+    @arg(doc = "The directory to recursively search")
     dir: Option[os.Path] = None,
     @arg(doc = "Files to exclude from the search")
     exclude: Seq[String] = Seq(),
