@@ -26,14 +26,16 @@ class OsLibSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 
     it("should ignore a test if the command doesn't exist") {
       // How to check a command exists
-      assume(os.proc("which", "no-exist").call(os.pwd, check = false).exitCode == 0)
+      assume(
+        os.proc("which", "no-exist").call(os.pwd, check = false).exitCode == 0
+      )
       1 shouldBe 2
     }
 
     it("should run a test when the command exists") {
       // This command does exist
       assume(os.proc("which", "cat").call(os.pwd, check = false).exitCode == 0)
-      val cmd = os.proc("cat", (Basic/"greet").toString).call(os.pwd)
+      val cmd = os.proc("cat", (Basic / "greet").toString).call(os.pwd)
       cmd.exitCode shouldBe 0
       cmd.out.lines() shouldBe Seq("Hello world!")
       cmd.err.lines() shouldBe Seq.empty
