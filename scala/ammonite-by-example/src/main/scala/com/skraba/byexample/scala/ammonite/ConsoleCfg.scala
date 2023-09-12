@@ -272,8 +272,8 @@ case class ConsoleCfg(
       .mkString(" ")
 
   def withVerbose: ConsoleCfg = this.copy(verbose = new Flag(true))
-  def vPrint(in: => String): Unit = if (verbose.value) Console.print(in)
-  def vPrintln(in: => String): Unit = if (verbose.value) Console.println(in)
+  def vPrint(in: => Any): Unit = if (verbose.value) Console.print(in)
+  def vPrintln(in: => Any): Unit = if (verbose.value) Console.println(in)
 
   /** Prompt the user and execute a function based on the response.
     *

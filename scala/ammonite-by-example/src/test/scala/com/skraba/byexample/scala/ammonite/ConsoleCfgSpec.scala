@@ -219,9 +219,11 @@ class ConsoleCfgSpec
       withConsoleMatch {
         cfgV.vPrintln("Hey")
         cfgV.vPrint("Hey")
+        cfgV.vPrint(Int.MaxValue)
+        cfgV.vPrintln(Int.MinValue)
       } { case (_, out, err) =>
         err shouldBe empty
-        out shouldBe "Hey\nHey"
+        out shouldBe "Hey\nHey2147483647-2147483648\n"
       }
     }
 
@@ -229,6 +231,8 @@ class ConsoleCfgSpec
       withConsoleMatch {
         cfgNoV.vPrintln("Hey")
         cfgNoV.vPrint("Hey")
+        cfgNoV.vPrint(Int.MinValue)
+        cfgNoV.vPrintln(Int.MaxValue)
       } { case (_, out, err) =>
         err shouldBe empty
         out shouldBe empty
