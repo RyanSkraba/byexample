@@ -8,14 +8,15 @@
   *   - requests (https://github.com/lihaoyi/requests-scala)
   *   - upickle (https://github.com/lihaoyi/upickle)
   */
-import java.time.{DayOfWeek, LocalDate}
-import java.time.format.DateTimeFormatter
 import mainargs.{Flag, arg, main}
+import ujson.Obj
+
+import java.time.format.DateTimeFormatter
+import java.time.{DayOfWeek, LocalDate}
 import scala.collection.{SortedMap, mutable}
 import scala.io.AnsiColor._
 import scala.util._
 import scala.util.matching.Regex
-import ujson.Obj
 
 // ==========================================================================
 // Adding artifacts to your local build (from this project, from maven and
@@ -353,7 +354,7 @@ def idfbm(
   )
 
   if (src == "help") {
-    tags.foreach { case (tag, (name, stop, shortTxt)) =>
+    tags.foreach { case (tag, (name, _, _)) =>
       println(s"${cfg.bold(tag)} -> $name")
     }
   } else {
