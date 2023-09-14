@@ -212,8 +212,8 @@ class ConsoleCfgSpec
   }
 
   describe("The verbose flag") {
-    val cfgNoV = ConsoleCfg(ansi = false, verbose = false)
-    val cfgV = ConsoleCfg(ansi = false, verbose = true)
+    val cfgNoV = ConsoleCfg(plain = false, verbose = false)
+    val cfgV = ConsoleCfg(plain = false, verbose = true)
 
     it("when enabled, prints text through the vPrint and vPrintln methods") {
       withConsoleMatch {

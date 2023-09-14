@@ -20,7 +20,7 @@ case class CherryPickerReport(
     right: Seq[Commit],
     issuesUrl: Option[String] = None,
     doc: Header = Header(0, ""),
-    cfg: ConsoleCfg = ConsoleCfg(ansi = true, verbose = false)
+    cfg: ConsoleCfg = ConsoleCfg(plain = false, verbose = false)
 ) {
 
   /** The left branch name with colour and indicator. */
