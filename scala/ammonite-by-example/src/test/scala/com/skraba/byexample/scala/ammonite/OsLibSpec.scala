@@ -5,12 +5,7 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-import java.io.ByteArrayInputStream
-import scala.Console._
-import scala.io.AnsiColor.{BOLD, RESET, YELLOW}
 import scala.reflect.io._
-import scala.sys.process.stdout
-import scala.util.Properties
 
 /** Tests on the [[https://github.com/com-lihaoyi/os-lib os-lib]] library. */
 class OsLibSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
@@ -18,7 +13,15 @@ class OsLibSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
   /** A temporary directory for playing with files. */
   val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
 
-  describe("Running a command with os.proc()") {
+  /** A helper method used to ensure that commands exist before runnign on the
+    */
+  def commandExists(cmds: String*): Unit = cmds.foreach(cmd =>
+    assume(
+      os.proc("which", cmd).call(os.pwd, check = false).exitCode == 0
+    )
+  )
+
+  describe("Running a command with os.proc(...).call(...)") {
 
     // Hello world scenario
     val Basic = (Tmp / "basic").createDirectory()
@@ -26,19 +29,63 @@ class OsLibSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 
     it("should ignore a test if the command doesn't exist") {
       // How to check a command exists
-      assume(
-        os.proc("which", "no-exist").call(os.pwd, check = false).exitCode == 0
-      )
+      commandExists("no-exists")
       1 shouldBe 2
     }
 
     it("should run a test when the command exists") {
       // This command does exist
-      assume(os.proc("which", "cat").call(os.pwd, check = false).exitCode == 0)
+      commandExists("cat")
       val cmd = os.proc("cat", (Basic / "greet").toString).call(os.pwd)
       cmd.exitCode shouldBe 0
-      cmd.out.lines() shouldBe Seq("Hello world!")
-      cmd.err.lines() shouldBe Seq.empty
+      cmd.out.text() shouldBe "Hello world!"
+      cmd.err.text() shouldBe empty
+    }
+
+    it("does not send to console stdout by default") {
+      commandExists("cat")
+      // Success case
+      withConsoleMatch {
+        val cmd = os.proc("cat", (Basic / "greet").toString).call(os.pwd)
+        cmd.exitCode shouldBe 0
+        cmd.out.text() shouldBe "Hello world!"
+        cmd.err.text() shouldBe empty
+      } { case (_, stdout, stderr) =>
+        // The console doesn't see anything.
+        stdout shouldBe empty
+        stderr shouldBe empty
+      }
+    }
+
+    it("does not send to console stderr by default") {
+      withConsoleMatch {
+        // By default, stderr is captured by the test runner.
+        val cmd = os
+          .proc("cat", (Basic / "no-exists").toString)
+          .call(os.pwd, check = false)
+        cmd.exitCode shouldBe 1
+        cmd.out.text() shouldBe empty
+        cmd.err.text() shouldBe empty
+      } { case (_, stdout, stderr) =>
+        // The console doesn't see anything.
+        stdout shouldBe empty
+        stderr shouldBe empty
+      }
+
+      withConsoleMatch {
+        // We can send stderr to a pipe, which captures the output in the command output
+        val cmd = os
+          .proc("cat", (Basic / "no-exists").toString)
+          .call(os.pwd, stderr = os.Pipe, check = false)
+        cmd.exitCode shouldBe 1
+        cmd.out.text() shouldBe empty
+        cmd.err
+          .text() shouldBe s"cat: $Tmp/basic/no-exists: No such file or directory\n"
+      } { case (_, stdout, stderr) =>
+        // The console doesn't see anything.
+        stdout shouldBe empty
+        stderr shouldBe empty
+      }
     }
   }
 }
