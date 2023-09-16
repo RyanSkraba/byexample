@@ -23,9 +23,16 @@ class FilesSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
         ex.printStackTrace()
     }
 
-  describe("File operations") {
+  describe("Filesystem operations") {
     val Basic = (Tmp / "basic").createDirectory()
     File(Basic / "count").writeAll("1;one\n2;two\n")
+    (Basic / "subdir1").createDirectory()
+    (Basic / "subdir2").createDirectory()
+
+    it("should list files in a directory") {
+      Basic.files.map(_.name).toSeq should contain only "count"
+      Basic.dirs.map(_.name).toSeq should contain allOf ("subdir1", "subdir2")
+    }
 
     it("should create and append to a file") {
       Streamable.closing(
