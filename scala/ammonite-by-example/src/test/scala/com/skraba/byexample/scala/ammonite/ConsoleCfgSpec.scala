@@ -220,10 +220,10 @@ class ConsoleCfgSpec
         cfgV.vPrintln("Hey")
         cfgV.vPrint("Hey")
         cfgV.vPrint(Int.MaxValue)
-        cfgV.vPrintln(Int.MinValue)
+        cfgV.vPrintln()
       } { case (_, out, err) =>
         err shouldBe empty
-        out shouldBe "Hey\nHey2147483647-2147483648\n"
+        out shouldBe "Hey\nHey2147483647\n"
       }
     }
 
@@ -232,7 +232,7 @@ class ConsoleCfgSpec
         cfgNoV.vPrintln("Hey")
         cfgNoV.vPrint("Hey")
         cfgNoV.vPrint(Int.MinValue)
-        cfgNoV.vPrintln(Int.MaxValue)
+        cfgNoV.vPrintln()
       } { case (_, out, err) =>
         err shouldBe empty
         out shouldBe empty
@@ -297,7 +297,7 @@ class ConsoleCfgSpec
     }
 
     it("Prints the prompts silently when verbose and --yes flag is set") {
-      val cfg = ConsoleCfg(yes = Flag(true)).withVerbose
+      val cfg = ConsoleCfg(yes = Flag(true)).withVerbose()
       simpleAsk(
         "anything",
         cfg

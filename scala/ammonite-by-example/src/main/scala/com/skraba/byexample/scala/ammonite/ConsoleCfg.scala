@@ -271,9 +271,18 @@ case class ConsoleCfg(
       }
       .mkString(" ")
 
-  def withVerbose: ConsoleCfg = this.copy(verbose = new Flag(true))
+  /** Makes a copy of this configuration, turning the config on or off. */
+  def withVerbose(verbose: Boolean = true): ConsoleCfg =
+    this.copy(verbose = new Flag(verbose))
+
+  /** Only if verbose is turned on, calls [[Console.print]] on the input. */
   def vPrint(in: => Any): Unit = if (verbose.value) Console.print(in)
+
+  /** Only if verbose is turned on, calls [[Console.println]] on the input. */
   def vPrintln(in: => Any): Unit = if (verbose.value) Console.println(in)
+
+  /** Only if verbose is turned on, calls [[Console.println]] on the input. */
+  def vPrintln(): Unit = if (verbose.value) Console.println
 
   /** Prompt the user and execute a function based on the response.
     *
