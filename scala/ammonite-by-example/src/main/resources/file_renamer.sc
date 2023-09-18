@@ -1,7 +1,7 @@
 #!/usr/bin/env amm
 
 /** A user script concentrating on file operations */
-import mainargs.{arg, main}
+import mainargs.{Flag, arg, main}
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -13,7 +13,6 @@ import scala.util.matching.Regex
 // Adding artifacts to your local build (from this project, from maven and
 // from local maven).
 import $file.local_import_util
-local_import_util.load("scala-by-example")
 local_import_util.load("ammonite-by-example")
 
 @
@@ -58,7 +57,6 @@ def help(cfg: ConsoleCfg): Unit = {
   *   None
   */
 private[this] def findPhoneStorage(
-    phoneDir: Option[String] = None,
     phoneTag: Option[String] = None
 ): Option[os.Path] = {
   Some(os.root / "run" / "user")
@@ -70,27 +68,34 @@ private[this] def findPhoneStorage(
     .flatMap(os.list(_).headOption)
 }
 
-@arg(doc = "Backs up pictures from the connected phone")
+@arg(doc = "Backs up pictures and media from the connected phone")
 @main
 def cameraphone(
-    cfg: ConsoleCfg,
+    @arg(doc = "The root path of the device containing pictures, or None to detect")
     src: Option[os.Path] = None,
+    @arg(doc = "The destination directory where a subdirectory should be created to copy out media")
     dst: Option[os.Path] = None,
-    phoneTag: Option[String] = None
+    @arg(doc = "Verbose for extra output")
+    phoneTag: Option[String] = None,
+    @arg(doc = "True if no files should actually be copied or moved")
+    dryRun: Flag,
+    cfgGroup: ConsoleCfg
 ): Unit = {
-  // The root of the device to copy from
-  val srcDir = src
-    .orElse(findPhoneStorage(phoneTag))
-    .getOrElse(throw new RuntimeException("Unable to find pics storage."))
-  println(srcDir)
+  val cfg = cfgGroup.withVerbose(cfgGroup.verbose.value || dryRun.value)
 
-  val photoDir = srcDir / "DCIM" / "Camera"
-  if (!os.exists(photoDir)) {
-    println(cfg.error("Source directory not found", photoDir))
+  // Use the given src for the device, or try to detect it
+  val srcDir = src.orElse(findPhoneStorage(phoneTag))
+    .getOrElse(throw new RuntimeException("Unable to find pics storage."))
+  cfg.vPrintln(srcDir)
+
+  // This is one directory that might contain media in the device
+  val mediaDir = srcDir / "DCIM" / "Camera"
+  if (!os.exists(mediaDir)) {
+    println(cfg.error("Source directory not found", mediaDir))
     return
   }
 
-  val files = os.list(photoDir).filter(os.isFile)
+  val files = os.list(mediaDir).filter(os.isFile)
   cfg.vPrintln(s"There are ${files.size} files.")
   val byExtension = files.groupBy(_.ext)
   for (ext <- byExtension)
@@ -111,17 +116,22 @@ def cameraphone(
   val dstDir = dst2 / (DateTimeFormatter
     .ofPattern("yyyyMMdd")
     .format(LocalDate.now()) + " Cameraphone")
-  os.makeDir(dstDir)
+  if (!dryRun.value) os.makeDir(dstDir)
 
-  val backupDir = photoDir / "backedup"
-  os.makeDir.all(backupDir)
+  val backupDir = mediaDir / "backedup"
+  if (!dryRun.value) os.makeDir.all(backupDir)
 
   for (file <- filesToCopy) {
-    cfg.vPrint(s"${dstDir / file.baseName}.")
-    os.copy(file, dstDir / file.baseName)
-    cfg.vPrint(".")
-    os.move(file, backupDir / file.baseName)
-    cfg.vPrintln(".")
+    if (dryRun.value) {
+      println(s"cp $file ${ dstDir / file.last}")
+      println(s"mv $file ${ backupDir / file.last}")
+    } else {
+      cfg.vPrint(s"${dstDir / file.last}.")
+      os.copy(file, dstDir / file.last)
+      cfg.vPrint(".")
+      os.move(file, backupDir / file.last)
+      cfg.vPrintln(".")
+    }
   }
 }
 
