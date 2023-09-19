@@ -75,7 +75,7 @@ def cameraphone(
     src: Option[os.Path] = None,
     @arg(doc = "The destination directory where a subdirectory should be created to copy out media")
     dst: Option[os.Path] = None,
-    @arg(doc = "Verbose for extra output")
+    @arg(doc = "A substring to search for when finding where the phone might be mounted")
     phoneTag: Option[String] = None,
     @arg(doc = "True if no files should actually be copied or moved")
     dryRun: Flag,
