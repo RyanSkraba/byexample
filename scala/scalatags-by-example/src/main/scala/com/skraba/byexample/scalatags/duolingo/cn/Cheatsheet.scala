@@ -225,10 +225,10 @@ object Cheatsheet {
     // Move exponents to plain numbers
     val unexponented: String = "⁰¹²³⁴".zipWithIndex.foldLeft(pinyin) {
       case (acc: String, (c: Char, i: Int)) =>
-        acc.replaceAllLiterally(c.toString, i.toString)
+        acc.replace(c.toString, i.toString)
     }
     Tones.foldLeft(unexponented) { case (acc, (accented, (bare, tone))) =>
-      acc.replaceAllLiterally(s"$bare$tone", accented.toString)
+      acc.replace(s"$bare$tone", accented.toString)
     }
   }
 
@@ -244,7 +244,7 @@ object Cheatsheet {
           "https://raw.githubusercontent.com/RyanSkraba/anki-deck-for-duolingo-chinese/master/words.tsv"
         )
         // There a minor adjustment to make with one line!
-        val raw = html.mkString.replaceAllLiterally("\"\n", "\"")
+        val raw = html.mkString.replace("\"\n", "\"")
         cached.writeAll(raw)
         raw
       }

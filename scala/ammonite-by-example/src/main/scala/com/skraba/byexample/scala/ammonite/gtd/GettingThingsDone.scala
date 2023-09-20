@@ -284,7 +284,7 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
                   TableRow(
                     cells.updated(
                       0,
-                      taskText.replaceAllLiterally(MaybeToDo.txt, LaterToDo.txt)
+                      taskText.replace(MaybeToDo.txt, LaterToDo.txt)
                     )
                   )
                 )

@@ -145,7 +145,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
             |```bash.....
             |.....echo Hello world.....
             |```.....
-        """.stripMargin.replaceAllLiterally(".", " "))
+        """.stripMargin.replace(".", " "))
         md shouldBe Header(0, "", Code("bash", "     echo Hello world     \n"))
 
         val cleaned = md.build().toString
@@ -153,7 +153,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           """```bash
             |.....echo Hello world.....
             |```
-            |""".stripMargin.replaceAllLiterally(".", " ")
+            |""".stripMargin.replace(".", " ")
         Header.parse(cleaned) shouldBe md
       }
 
@@ -162,7 +162,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
                                 |   ```bash
                                 |echo Hello world
                                 |```
-        """.stripMargin.replaceAllLiterally(".", " "))
+        """.stripMargin.replace(".", " "))
         // TODO: What do we expect here?  This is probably not what we want and cleaning breaks.
         // md shouldBe Header(0, "", Paragraph("   ```bash\necho Hello world\n```"))
 
@@ -172,7 +172,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
             |echo Hello world
             |
             |``
-            |""".stripMargin.replaceAllLiterally(".", " ")
+            |""".stripMargin.replace(".", " ")
         Header.parse(cleaned) shouldBe md
       }
 
@@ -193,7 +193,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
             |```json
             |{"id": 1, "names": ["One", "Un"]}
             |```
-            |""".stripMargin.replaceAllLiterally(".", " "))
+            |""".stripMargin.replace(".", " "))
 
         val cleaned = md.build().toString
         cleaned shouldBe
@@ -203,7 +203,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
             |  "names" : [ "One", "Un" ]
             |}
             |```
-            |""".stripMargin.replaceAllLiterally(".", " ")
+            |""".stripMargin.replace(".", " ")
         Header.parse(cleaned).build().toString shouldBe cleaned
       }
 
@@ -212,14 +212,14 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
             |```json
             |{"id": ##, "names": ["One", "Un"]}
             |```
-            |""".stripMargin.replaceAllLiterally(".", " "))
+            |""".stripMargin.replace(".", " "))
 
         val cleaned = md.build().toString
         cleaned shouldBe
           """```json
             |{"id": ##, "names": ["One", "Un"]}
             |```
-            |""".stripMargin.replaceAllLiterally(".", " ")
+            |""".stripMargin.replace(".", " ")
         Header.parse(cleaned) shouldBe md
       }
 
@@ -229,7 +229,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
             |{"id": 1, "names": ["One", "Un"]}
             |{"id": 2, "names": ["Two", "Deux"]}
             |```
-            |""".stripMargin.replaceAllLiterally(".", " "))
+            |""".stripMargin.replace(".", " "))
 
         val cleaned = md.build().toString
         cleaned shouldBe
@@ -237,7 +237,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
             |{"id":1,"names":["One","Un"]}
             |{"id":2,"names":["Two","Deux"]}
             |```
-            |""".stripMargin.replaceAllLiterally(".", " ")
+            |""".stripMargin.replace(".", " ")
         Header.parse(cleaned).build().toString shouldBe cleaned
       }
 
@@ -263,7 +263,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
             |{"id": 7, "names": ["Sept", "Seven"]}
             |{"id": 8,     "names": ["Eight", "Huit"}
             |```
-            |""".stripMargin.replaceAllLiterally(".", " "))
+            |""".stripMargin.replace(".", " "))
 
         val cleaned = md.build().toString
         cleaned shouldBe
@@ -289,7 +289,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
             |{"id":7,"names":["Sept","Seven"]}
             |{"id": 8,     "names": ["Eight", "Huit"}
             |```
-            |""".stripMargin.replaceAllLiterally(".", " ")
+            |""".stripMargin.replace(".", " ")
         Header.parse(cleaned).build().toString shouldBe cleaned
       }
     }
@@ -331,7 +331,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
             |.world -->
             |
             |world
-            |""".stripMargin.replaceAllLiterally(".", "\t")
+            |""".stripMargin.replace(".", "\t")
         Header.parse(cleaned) shouldBe md
       }
     }
@@ -357,7 +357,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           |[all-midws]: all-midws "all-midws"
           |[all-postws]: all-postws "all-postws"
           |[all-empty-title]: all-empty-title
-          |""".stripMargin.replaceAllLiterally(".", " ")
+          |""".stripMargin.replace(".", " ")
 
       it("and sort, clean and deduplicate by default") {
         val md = Header.parse(linkrefs)
@@ -468,7 +468,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
     val md = Header.parse("""
                             |[url]: url
                             | [space-before]: Leading space?  Not a link ref
-                            |""".stripMargin.replaceAllLiterally(".", " "))
+                            |""".stripMargin.replace(".", " "))
 
     val cleaned = md.build().toString
     cleaned shouldBe """[space-before]: Leading space?  Not a link ref
