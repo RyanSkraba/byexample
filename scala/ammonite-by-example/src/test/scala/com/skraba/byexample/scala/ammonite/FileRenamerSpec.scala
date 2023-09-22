@@ -85,7 +85,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
       }
     }
 
-    it("should move files from the source to the directory") {
+    it("should move files from the source to the directory with all defaults") {
       // Set up a scenario
       val (src, dst) = scenario("basic")
 
@@ -99,6 +99,33 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
       val dstDirs = dst.toDirectory.dirs.toSeq
       dstDirs should have size 1
       dstDirs.head.files should have size 3
+      (dstDirs.head / "image1.jpg").toFile.slurp() shouldBe "image1.jpg"
+    }
+
+    it("should move files from the source to the directory with a dst tag") {
+      // Set up a scenario
+      val (src, dst) = scenario("basic2")
+
+      val stdout = cameraphone(
+        "--src",
+        src.toString,
+        "--dst",
+        dst.toString,
+        "--dstSub",
+        "Copied"
+      )
+      stdout shouldBe empty
+
+      (src / "DCIM" / "Camera").toDirectory.files shouldBe empty
+      (src / "DCIM" / "Camera" / "backedup").toDirectory.files should have size 3
+
+      dst.toDirectory.files shouldBe empty
+      val dstDirs = dst.toDirectory.dirs.toSeq
+      dstDirs should have size 1
+      dstDirs.head.name shouldBe "Copied"
+
+      dstDirs.head.files should have size 3
+      (dstDirs.head / "image1.jpg").toFile.slurp() shouldBe "image1.jpg"
     }
   }
 }

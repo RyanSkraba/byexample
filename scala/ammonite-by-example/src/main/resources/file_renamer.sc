@@ -73,8 +73,10 @@ private[this] def findPhoneStorage(
 def cameraphone(
     @arg(doc = "The root path of the device containing pictures, or None to detect")
     src: Option[os.Path] = None,
-    @arg(doc = "The destination directory where a subdirectory should be created to copy out media")
+    @arg(doc = "The destination directory will have directories created to copy or move out media. (Default: ~/Pictures).")
     dst: Option[os.Path] = None,
+    @arg(doc = "If specified, the name of the created subdirectory in dst (Default: Autocreated with a date prefix)")
+    dstSub: Option[String] = None,
     @arg(doc = "A substring to search for when finding where the phone might be mounted")
     phoneTag: Option[String] = None,
     @arg(doc = "True if no files should actually be copied or moved")
@@ -113,9 +115,13 @@ def cameraphone(
     return
   }
 
-  val dstDir = dst2 / (DateTimeFormatter
-    .ofPattern("yyyyMMdd")
-    .format(LocalDate.now()) + " Cameraphone")
+  val tag: String = dstSub.getOrElse(
+    DateTimeFormatter
+      .ofPattern("yyyyMMdd")
+      .format(LocalDate.now()) + " Cameraphone"
+  )
+
+  val dstDir = dst2 / tag
   if (!dryRun.value) os.makeDir(dstDir)
 
   val backupDir = mediaDir / "backedup"
@@ -123,8 +129,8 @@ def cameraphone(
 
   for (file <- filesToCopy) {
     if (dryRun.value) {
-      println(s"cp $file ${ dstDir / file.last}")
-      println(s"mv $file ${ backupDir / file.last}")
+      println(s"cp $file ${dstDir / file.last}")
+      println(s"mv $file ${backupDir / file.last}")
     } else {
       cfg.vPrint(s"${dstDir / file.last}.")
       os.copy(file, dstDir / file.last)
