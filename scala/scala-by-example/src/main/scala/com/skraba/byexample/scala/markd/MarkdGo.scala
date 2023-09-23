@@ -35,8 +35,11 @@ object MarkdGo {
   )
 
   /** [[DocoptExitException]] constructors are protected. */
-  class InternalDocoptException(msg: String, val docopt: String = Doc)
-      extends RuntimeException(msg)
+  class InternalDocoptException(
+      msg: String,
+      ex: Throwable = None.orNull,
+      val docopt: String = Doc
+  ) extends RuntimeException(msg, ex)
 
   val Tasks: Seq[Task] = Seq(BeautifyTask.Task, DateCountdownTask.Task)
 
@@ -110,7 +113,7 @@ object MarkdGo {
 
     // This is only here to rewrap any internal docopt exception with the current docopt
     if (cmd == "???")
-      throw new InternalDocoptException("Missing command", Doc)
+      throw new InternalDocoptException("Missing command", docopt = Doc)
 
     // Reparse with the specific command.
     val task = Tasks
@@ -126,10 +129,11 @@ object MarkdGo {
     } catch {
       // This is only here to rewrap any internal docopt exception with the current docopt
       case ex: InternalDocoptException =>
-        throw new InternalDocoptException(ex.getMessage, task.doc)
+        throw new InternalDocoptException(ex.getMessage, ex, task.doc)
       case ex: DocoptExitException if ex.getMessage == null =>
         throw new InternalDocoptException(
           null,
+          ex,
           task.doc
         )
     }
