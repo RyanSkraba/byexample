@@ -7,6 +7,8 @@ import org.scalatest.matchers.should.Matchers
   *
   * @see
   *   [[https://docs.scala-lang.org/tour/tour-of-scala.html]]
+  * @see
+  *   [[com.skraba.byexample.scala.RegexSpec]]
   */
 class Tour090SingletonRegexExtractorsSpec extends AnyFunSpecLike with Matchers {
 
