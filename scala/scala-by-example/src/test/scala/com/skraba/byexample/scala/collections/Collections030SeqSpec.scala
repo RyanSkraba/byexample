@@ -31,7 +31,7 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
 
     // Instance for testing.
     val xs = Seq(1, 2, 3)
-    val xsInf = Stream.from(1)
+    val xsInf = LazyList.from(1)
 
     it("has a default implementation of immutable.List") {
       xs shouldBe a[List[_]]
@@ -48,9 +48,9 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
       xs.length shouldBe 3
       xs.size shouldBe 3 // alias
 
-      xs.hasDefiniteSize shouldBe true
-      xsInf.hasDefiniteSize shouldBe false
-      // xsInf.length shouldBe 3) // Infinite
+      xs.knownSize shouldBe -1
+      xsInf.knownSize shouldBe -1
+      // xsInf.length shouldBe 3 // Infinite
 
       // Useful for comparing to an infinite sequence, returns -1, 0, 1
       xs.lengthCompare(3) shouldBe 0
@@ -72,7 +72,7 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
       xs indexWhere (_ % 2 == 0) shouldBe 1
       xs segmentLength (_ < 3, 0) shouldBe 2
       xs segmentLength (_ < 3, 1) shouldBe 1
-      xs prefixLength (_ < 3) shouldBe 2
+      xs segmentLength (_ < 3) shouldBe 2
     }
 
     it("support additions") {
@@ -114,7 +114,7 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
     it("supports reversals") {
       xs.reverse shouldBe Seq(3, 2, 1)
       xs.reverseIterator sameElements Seq(3, 2, 1).iterator shouldBe true
-      xs.reverseMap(100 - _) shouldBe Seq(97, 98, 99)
+      xs.reverseIterator.map(100 - _) shouldBe Seq(97, 98, 99)
     }
 
     it("supports comparisons") {
@@ -128,8 +128,8 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
     it("supports multi-set operations") {
       xs intersect Seq(3, 2, 4) shouldBe Seq(2, 3) // preserves order in xs
       xs diff Seq(3, 4) shouldBe Seq(1, 2) // preserves order in xs
-      xs union Seq(3, 4) shouldBe Seq(1, 2, 3, 3, 4) // same as ++
-      (xs union Seq(3, 4)).distinct shouldBe Seq(1, 2, 3, 4)
+      xs concat Seq(3, 4) shouldBe Seq(1, 2, 3, 3, 4) // same as ++
+      (xs concat Seq(3, 4)).distinct shouldBe Seq(1, 2, 3, 4)
     }
   }
 
@@ -177,10 +177,10 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
       buf remove (2, 3)
       buf shouldBe mutable.Buffer(-2, -1, 1, 2, 3, 4, 5, 6, 7, 8, 9)
 
-      buf trimStart 2
+      buf dropInPlace 2
       buf shouldBe mutable.Buffer(1, 2, 3, 4, 5, 6, 7, 8, 9)
 
-      buf trimEnd 6
+      buf dropRightInPlace 6
       buf shouldBe mutable.Buffer(1, 2, 3)
 
       buf.clear
