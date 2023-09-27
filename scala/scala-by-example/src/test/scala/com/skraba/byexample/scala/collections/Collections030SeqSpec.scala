@@ -3,6 +3,7 @@ package com.skraba.byexample.scala.collections
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
+import scala.collection.immutable.LinearSeq
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -114,7 +115,7 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
     it("supports reversals") {
       xs.reverse shouldBe Seq(3, 2, 1)
       xs.reverseIterator sameElements Seq(3, 2, 1).iterator shouldBe true
-      xs.reverseIterator.map(100 - _) shouldBe Seq(97, 98, 99)
+      xs.reverseIterator.map(100 - _).toSeq shouldBe Seq(97, 98, 99)
     }
 
     it("supports comparisons") {
@@ -130,6 +131,26 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
       xs diff Seq(3, 4) shouldBe Seq(1, 2) // preserves order in xs
       xs concat Seq(3, 4) shouldBe Seq(1, 2, 3, 3, 4) // same as ++
       (xs concat Seq(3, 4)).distinct shouldBe Seq(1, 2, 3, 4)
+    }
+
+    it("has aliases for operators") {
+      Seq(1, 2, 3) :+ 0 shouldBe Seq(1, 2, 3, 0)
+      99 +: Seq(1, 2, 3) shouldBe Seq(99, 1, 2, 3)
+
+      // These look the same, but...
+      Seq(1, 2, 3) :++ Seq(0, 99) shouldBe Seq(1, 2, 3, 0, 99)
+      Seq(1, 2, 3) ++: Seq(0, 99) shouldBe Seq(1, 2, 3, 0, 99)
+      Seq(1, 2, 3) ++ Seq(0, 99) shouldBe Seq(1, 2, 3, 0, 99)
+
+      // Takes the resulting type from the first:
+      LinearSeq(1) :++ IndexedSeq(99) shouldBe a[LinearSeq[_]]
+      IndexedSeq(1) :++ LinearSeq(99) shouldBe a[IndexedSeq[_]]
+      IndexedSeq(1) ++ LinearSeq(99) shouldBe a[IndexedSeq[_]]
+      LinearSeq(1) ++ IndexedSeq(99) shouldBe a[LinearSeq[_]]
+
+      // Takes the resulting type from the last:
+      LinearSeq(1) ++: IndexedSeq(99) shouldBe a[IndexedSeq[_]]
+      IndexedSeq(1) ++: LinearSeq(99) shouldBe a[LinearSeq[_]]
     }
   }
 
