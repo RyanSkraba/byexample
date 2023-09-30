@@ -1,10 +1,10 @@
 package com.skraba.byexample.scala
 
+import org.scalatest.OptionValues._
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
 import scala.util.matching.Regex
-import org.scalatest.OptionValues._
 
 /** Using [[Regex]] in Scala.
   *
@@ -74,6 +74,14 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
         "BYEX-234"
       )
       IssueRegex.findAllIn("byex-23 BYEX -123") shouldBe empty
+
+      // returns Iterator[Match]
+      val ms = IssueRegex.findAllMatchIn("Not BYEX-123 but BYEX-234.").toSeq
+      ms should have size 2
+      ms.collect { case Regex.Match(s) => s } shouldBe Seq(
+        "BYEX-123",
+        "BYEX-234"
+      )
     }
 
     it("should split based on a regex") {
