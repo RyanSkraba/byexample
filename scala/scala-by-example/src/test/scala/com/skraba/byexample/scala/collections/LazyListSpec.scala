@@ -13,7 +13,7 @@ import org.scalatest.matchers.should.Matchers
 class LazyListSpec extends AnyFunSpecLike with Matchers {
 
   describe("LazyList") {
-    it("can be infinitely repeating") {
+    it("looks a lot like a Seq, but can be infinite") {
       val x: LazyList[Int] = LazyList.continually(0)
       x.knownSize shouldBe -1
 
@@ -45,5 +45,41 @@ class LazyListSpec extends AnyFunSpecLike with Matchers {
 
       y.drop(5) shouldBe a[LazyList[_]]
     }
+  }
+
+  it("can be iterate over a state and detect loops detection") {
+    // This mystery function takes and returns an Int.
+    def mystery(in: Int): Int =
+      if (in == 83) 47 else if (in == 1099) 1095 else in + 1
+
+    // states is the list of repeatedly applying the mystery function to the previous value, starting at 0
+    val states = LazyList.iterate(0)(mystery)
+
+    // We can mostly treat it as a sequence
+    states.take(3) shouldBe Seq(0, 1, 2)
+    states(99) shouldBe 62
+
+    // If we wanted to find the billionth element in the list, we'd have to apply the mystery function a billion times.
+    val index = 1000000000
+    // states(index) shouldBe 75 // Very very slow
+
+    // Iterate from the start until we find a state we've already seen
+    val cache = collection.mutable.Set[Int]()
+    val repeat = states.dropWhile(cache.add)
+
+    // The length of the cycle is found by counting until the head is found again
+    val repeat1 = repeat.head
+    val repeatLen = 1 + repeat.tail.takeWhile(_ != repeat1).size
+    // The cache includes the first cycle, so repeat0 is the number of element before the cycle starts
+    val repeat0 = cache.size - repeatLen
+
+    // After skipping the number of repeated cycles, we still need to iterate a few times
+    val remaining = (index - repeat0) % repeatLen
+
+    // Find a cycle
+    val end = repeat.drop(remaining).head
+
+    // This is the equivalent value for states(1000000000)
+    end shouldBe 75
   }
 }
