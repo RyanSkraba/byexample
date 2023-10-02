@@ -572,7 +572,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
 
     it("should create a new week in an empty document") {
       val empty = GettingThingsDone("")
-      val updated = empty.newWeek()
+      val updated = empty.newWeek(None)
       updated.h0.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
@@ -594,7 +594,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            !| read   |     | 12  | 13  |     | 20  |     | 30  |
            !| unread | 1   | 2   |     | 13  | 2   |     | 3   |
            !""".stripMargin('!'))
-      val updated = gtd.newWeek()
+      val updated = gtd.newWeek(None)
       updated.h0.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
@@ -635,7 +635,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            !| G | 7 |
            !""".stripMargin('!'))
 
-      val updated = gtd.newWeek()
+      val updated = gtd.newWeek(None)
       updated.h0.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
@@ -677,7 +677,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            ![20220214-1]: http://example.com/
            !""".stripMargin('!'))
 
-      val updated = gtd.newWeek()
+      val updated = gtd.newWeek(None)
       updated.h0.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
@@ -697,6 +697,88 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            ![20220214-1]: http://example.com/
            !""".stripMargin('!')
     }
+
+    it("should roll over all text to a requested date") {
+      val gtd = GettingThingsDone(s"""Weekly Status
+           !==============================================================================
+           !
+           !2022/02/14
+           !------------------------------------------------------------------------------
+           !
+           !* My status
+           !""".stripMargin('!'))
+
+      // These should not change the document at all
+      gtd.newWeek(Some("000")) shouldBe gtd
+      gtd.newWeek(Some("2022/02/12")) shouldBe gtd
+      gtd.newWeek(Some("2022/02/12 Extra")) shouldBe gtd
+      gtd.newWeek(Some("2022/02/14")) shouldBe gtd
+      gtd.newWeek(Some("2022/02/14 More")) shouldBe gtd
+      gtd.newWeek(Some("2022/02/15")) shouldBe gtd
+      gtd.newWeek(Some("2022/02/20")) shouldBe gtd
+
+      val updated = gtd.newWeek(Some("2022/02/21"))
+      updated.h0.build().toString() shouldBe
+        s"""Weekly Status
+           !==============================================================================
+           !
+           !2022/02/21
+           !------------------------------------------------------------------------------
+           !
+           !* My status
+           !
+           !2022/02/14
+           !------------------------------------------------------------------------------
+           !
+           !* My status
+           !""".stripMargin('!')
+
+      gtd.newWeek(Some("2022/02/21")) shouldBe updated
+      gtd.newWeek(Some("2022/02/21 Stuff")) shouldBe updated
+      gtd.newWeek(Some("2022/02/22")) shouldBe updated
+      gtd.newWeek(Some("2022/02/27 Stuff")) shouldBe updated
+
+      val updated2 = gtd.newWeek(Some("2022/04"))
+      updated2.h0.build().toString() shouldBe
+        s"""Weekly Status
+           !==============================================================================
+           !
+           !2022/03/28
+           !------------------------------------------------------------------------------
+           !
+           !* My status
+           !
+           !2022/03/21
+           !------------------------------------------------------------------------------
+           !
+           !* My status
+           !
+           !2022/03/14
+           !------------------------------------------------------------------------------
+           !
+           !* My status
+           !
+           !2022/03/07
+           !------------------------------------------------------------------------------
+           !
+           !* My status
+           !
+           !2022/02/28
+           !------------------------------------------------------------------------------
+           !
+           !* My status
+           !
+           !2022/02/21
+           !------------------------------------------------------------------------------
+           !
+           !* My status
+           !
+           !2022/02/14
+           !------------------------------------------------------------------------------
+           !
+           !* My status
+           !""".stripMargin('!')
+    }
   }
 
   describe("Extracting statistics") {
@@ -704,9 +786,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     def stringify(
         in: Seq[(LocalDate, String, String)]
     ): Seq[(String, String, String)] =
-      in.map { case (d, stat, value) =>
-        (d.format(Pattern), stat, value)
-      }
+      in.map { case (d, stat, value) => (d.format(Pattern), stat, value) }
 
     val withWeeklyStats = GettingThingsDone(s"""Weekly Status
          !==============================================================================
@@ -1192,7 +1272,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     }
   }
 
-  describe("Utility for calculating a new week") {
+  describe("The nextWeekStart(...) utility for calculating a new week") {
 
     it("should ignore suffixes") {
       nextWeekStart(

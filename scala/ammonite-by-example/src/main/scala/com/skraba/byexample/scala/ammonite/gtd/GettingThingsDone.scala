@@ -4,7 +4,8 @@ import com.skraba.byexample.scala.ammonite.gtd.GettingThingsDone._
 import com.skraba.byexample.scala.markd.{Comment, _}
 
 import java.time.format.DateTimeFormatter
-import java.time.{DayOfWeek, LocalDate}
+import java.time.{DayOfWeek, LocalDate, ZoneId, ZoneOffset}
+import java.util.Locale
 import scala.util.Try
 import scala.util.matching.Regex
 
@@ -236,13 +237,17 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
     }
   }
 
-  /** Add a new week to the top of the weeklies section. Tasks and stats are
+  /** Add new weeks to the top of the weeklies section. Tasks and stats are
     * rolled over, cleaned and pruned correctly.
     *
+    * @param upTo
+    *   if present, new weeks will be added until the week header prefix is
+    *   lexicographically equal or greater than this value. If None, then simply
+    *   add one week to the weeklies section.
     * @return
     *   A document with the new week present.
     */
-  def newWeek(): GettingThingsDone = {
+  def newWeek(upTo: Option[String]): GettingThingsDone = {
 
     /** Create the new head week from the last week, if any is present. */
     def createHead(oldWeek: Option[Header]): Header = {
@@ -292,21 +297,30 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
         }
     }
 
-    // Add the new head week to the weekly statuses.
-    updateWeeklies { weeklies =>
-      val headWeek = createHead(weeklies.mds.collectFirst {
-        case h2 @ Header(_, 2, _) => h2
-      })
-      weeklies.flatMapFirstIn(
-        ifNotFound = headWeek +: weeklies.mds,
-        replace = true
-      ) {
-        case h2 @ Header(_, 2, _) if h2 != headWeek =>
-          Seq(headWeek, updateLastHead(h2))
+    if (upTo.nonEmpty) {
+      LazyList
+        .iterate(this)(_.newWeek(None))
+        .takeWhile(_.topWeek.map(_.title).getOrElse("") <= upTo.get)
+        .lastOption
+        .getOrElse(this)
+    } else {
+
+      // Add the new head week to the weekly statuses.
+      updateWeeklies { weeklies =>
+        val headWeek = createHead(weeklies.mds.collectFirst {
+          case h2 @ Header(_, 2, _) => h2
+        })
+        weeklies.flatMapFirstIn(
+          ifNotFound = headWeek +: weeklies.mds,
+          replace = true
+        ) {
+          case h2 @ Header(_, 2, _) if h2 != headWeek =>
+            Seq(headWeek, updateLastHead(h2))
+        }
       }
+        // Ensure that at least the week was added
+        .updateTopWeek(identity)
     }
-      // Ensure that at least the week was added
-      .updateTopWeek(identity)
   }
 
   /** Extract statistics from [[TableStats]] tables in the weekly section.
@@ -446,7 +460,9 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
 object GettingThingsDone {
 
   /** A date pattern */
-  val Pattern: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd")
+  val Pattern: DateTimeFormatter = DateTimeFormatter
+    .ofPattern("yyyy/MM/dd")
+    .withZone(ZoneId.from(ZoneOffset.UTC))
 
   /** The name of the statistics table, the value found in the upper left
     * column.

@@ -3,7 +3,8 @@
 /** A user script for interacting with status sheets and task lists. */
 
 import mainargs.{Flag, arg, main}
-import java.time.LocalDate
+
+import java.time.{Instant, LocalDate}
 import scala.io.AnsiColor._
 import scala.util.matching.Regex
 
@@ -15,10 +16,10 @@ local_import_util.load("scala-by-example")
 local_import_util.load("ammonite-by-example")
 
 @
-import com.skraba.byexample.scala.ammonite.gtd._
+import com.skraba.byexample.scala.ammonite.ConsoleCfg
 import com.skraba.byexample.scala.ammonite.gtd.GettingThingsDone._
 import com.skraba.byexample.scala.ammonite.gtd.ThunderbirdMailbox.getNumberOfMessagesFromMailbox
-import com.skraba.byexample.scala.ammonite.ConsoleCfg
+import com.skraba.byexample.scala.ammonite.gtd._
 import com.skraba.byexample.scala.markd._
 
 // ==========================================================================
@@ -242,10 +243,19 @@ def edit(): Unit = {
 
 @arg(doc = "Add a new week")
 @main
-def newWeek(): Unit = {
+def newWeek(
+    @arg(doc = "Continue to add new weeks until we reach the current date")
+    now: Flag
+): Unit = {
   // Read the existing document.
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
-  val gtdUpdated = gtd.newWeek()
+  val gtdUpdated: GettingThingsDone = if (now.value) {
+    val token = GettingThingsDone.Pattern.format(Instant.now())
+    gtd.newWeek(Some(token))
+  } else {
+    // Simply add one week to the document.
+    gtd.newWeek(None)
+  }
   writeGtd(
     gtdUpdated,
     Some(
