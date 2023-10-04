@@ -96,9 +96,17 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
 
   describe("Using Regex extractors in a match") {
     it("should extract groups to variables") {
+      // Matching all the groups
       ("BYEX-1234" match {
         case IssueRegex(prj, num) => Some((prj, num))
         case _                    => None
+      }) shouldBe Some("BYEX", "1234")
+
+      // Unanchored matches
+      val re = IssueRegex.unanchored
+      ("My favourite bug is BYEX-1234 hooray!" match {
+        case re(prj, num) => Some((prj, num))
+        case _            => None
       }) shouldBe Some("BYEX", "1234")
     }
   }
