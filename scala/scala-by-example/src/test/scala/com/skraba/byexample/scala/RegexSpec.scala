@@ -21,7 +21,21 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
 
   // Constructing regular expressions
 
-  describe("Using Regex") {
+  describe("Using Regex for matching") {
+
+    it("should match an entire or partial string") {
+      IssueRegex.matches("BYEX-1234") shouldBe true
+      IssueRegex.matches(" BYEX-1234 ") shouldBe false
+      IssueRegex.matches("BYE1-1234") shouldBe false
+      IssueRegex.matches("byex-1234") shouldBe false
+      IssueRegex.matches("Not BYEX-123 but BYEX-234.") shouldBe false
+
+      // Finding an internal match
+      IssueRegex.unanchored.matches("Not BYEX-123 but BYEX-234.") shouldBe true
+
+      // Other constructions
+      raw"[A-Z]+".r.matches("ABCDE") shouldBe true
+    }
 
     // findPrefixOf
     // findPrefixMatchOf
