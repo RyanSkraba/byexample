@@ -37,12 +37,6 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
       raw"[A-Z]+".r.matches("ABCDE") shouldBe true
     }
 
-    // findPrefixOf
-    // findPrefixMatchOf
-    // replaceAllIn (x2)
-    // replaceSomeIn
-    // replaceFirstIn
-
     it("should find the first match anywhere in the string") {
       // findFirstIn returns Option[String]
       IssueRegex.findFirstIn("No match") shouldBe None
@@ -96,6 +90,22 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
         "BYEX-123",
         "BYEX-234"
       )
+    }
+
+    it("should find the first match if it's a prefix of the string") {
+      // findPrefixOf returns Option[String]
+      IssueRegex.findPrefixOf("No match") shouldBe None
+      IssueRegex.findPrefixOf("BYEX-1234") shouldBe Some("BYEX-1234")
+      IssueRegex.findPrefixOf("BYEX-1234 matches") shouldBe Some("BYEX-1234")
+      IssueRegex.findPrefixOf("This is BYEX-123.") shouldBe None
+      IssueRegex.findPrefixOf("Not BYEX-123 but BYEX-234.") shouldBe None
+      IssueRegex.findPrefixOf("byex-23 BYEX -123") shouldBe None
+
+      // findPrefixMatchOf returns Option[Match]
+      IssueRegex
+        .findPrefixMatchOf("BYEX-1234 matches")
+        .value
+        .matched shouldBe "BYEX-1234"
     }
 
     it("should split based on a regex") {
