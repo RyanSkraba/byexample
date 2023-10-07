@@ -107,6 +107,13 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
         .value
         .matched shouldBe "BYEX-1234"
     }
+  }
+
+  describe("Using a regex to modify strings") {
+
+    // replaceAllIn (x2)
+    // replaceSomeIn
+    // replaceFirstIn
 
     it("should split based on a regex") {
       // Endings tokens are thrown away
