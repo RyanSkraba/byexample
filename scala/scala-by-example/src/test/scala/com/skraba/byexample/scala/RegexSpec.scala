@@ -19,7 +19,25 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
   /** Split on :: or , or ; punctuation. */
   val SplitRegex: Regex = raw"(::|,|;)".r
 
-  // Constructing regular expressions
+  describe("Using Regex groups") {
+    // Separates into three groups
+    val Group3Regex: Regex =
+      raw"(?<one>[A-Z]+)-(?<two>[A-Z]+)-(?<three>[A-Z]+)".r
+
+    it("Should separate into three groups") {
+      val m = Group3Regex.findFirstMatchIn("xxA-B-Cxx")
+      m.value.matched shouldBe "A-B-C"
+      m.value.groupCount shouldBe 3
+      m.value.subgroups shouldBe Seq("A", "B", "C")
+      m.value.group(0) shouldBe "A-B-C"
+      m.value.group(1) shouldBe "A"
+      m.value.group(2) shouldBe "B"
+      m.value.group(3) shouldBe "C"
+      m.value.group("one") shouldBe "A"
+      m.value.group("two") shouldBe "B"
+      m.value.group("three") shouldBe "C"
+    }
+  }
 
   describe("Using Regex for matching") {
 
@@ -109,14 +127,14 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
     }
   }
 
-  describe("Using a regex to modify strings") {
+  describe("Using a Regex to process and modify") {
 
     // replaceAllIn (x2)
     // replaceSomeIn
     // replaceFirstIn
 
-    it("should split based on a regex") {
-      // Endings tokens are thrown away
+    it("should split a string") {
+      // Endings tokens are thrown away, but middle empty tokens are kept
       SplitRegex.split("a::b,c") shouldBe Seq("a", "b", "c")
       SplitRegex.split("a:::b::c") shouldBe Seq("a", ":b", "c")
       SplitRegex.split("a::::b::c") shouldBe Seq("a", "", "b", "c")
@@ -126,6 +144,7 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
   }
 
   describe("Using Regex extractors in a match") {
+
     it("should extract groups to variables") {
       // Matching all the groups
       ("BYEX-1234" match {
