@@ -24,6 +24,9 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
     val Group3Regex: Regex =
       raw"(?<one>[A-Z]+)-(?<two>[A-Z]+)-(?<three>[A-Z]+)".r
 
+    // Separates into N groups
+    val RepeatedGroupsRegex: Regex = raw"((?<one>[A-Z]+)-?)+".r
+
     it("Should separate into three groups") {
       val m = Group3Regex.findFirstMatchIn("xxA-B-Cxx")
       m.value.matched shouldBe "A-B-C"
@@ -36,6 +39,19 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
       m.value.group("one") shouldBe "A"
       m.value.group("two") shouldBe "B"
       m.value.group("three") shouldBe "C"
+    }
+
+    it("Should separate into N groups") {
+      // When a group is repeated internally, we can only find the strictly LAST match
+      val m = RepeatedGroupsRegex.findFirstMatchIn("xxA-B-Cxx")
+      m.value.matched shouldBe "A-B-C"
+      // There are two groups: the outer one that is repeated and the inner one containing the token
+      m.value.groupCount shouldBe 2
+      m.value.subgroups shouldBe Seq("C", "C")
+      m.value.group(0) shouldBe "A-B-C"
+      m.value.group(1) shouldBe "C"
+      m.value.group(2) shouldBe "C"
+      m.value.group("one") shouldBe "C"
     }
   }
 
