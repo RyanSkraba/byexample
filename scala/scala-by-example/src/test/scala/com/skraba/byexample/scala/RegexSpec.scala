@@ -19,42 +19,6 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
   /** Split on :: or , or ; punctuation. */
   val SplitRegex: Regex = raw"(::|,|;)".r
 
-  describe("Using Regex groups") {
-    // Separates into three groups
-    val Group3Regex: Regex =
-      raw"(?<one>[A-Z]+)-(?<two>[A-Z]+)-(?<three>[A-Z]+)".r
-
-    // Separates into N groups
-    val RepeatedGroupsRegex: Regex = raw"((?<one>[A-Z]+)-?)+".r
-
-    it("Should separate into three groups") {
-      val m = Group3Regex.findFirstMatchIn("xxA-B-Cxx")
-      m.value.matched shouldBe "A-B-C"
-      m.value.groupCount shouldBe 3
-      m.value.subgroups shouldBe Seq("A", "B", "C")
-      m.value.group(0) shouldBe "A-B-C"
-      m.value.group(1) shouldBe "A"
-      m.value.group(2) shouldBe "B"
-      m.value.group(3) shouldBe "C"
-      m.value.group("one") shouldBe "A"
-      m.value.group("two") shouldBe "B"
-      m.value.group("three") shouldBe "C"
-    }
-
-    it("Should separate into N groups") {
-      // When a group is repeated internally, we can only find the strictly LAST match
-      val m = RepeatedGroupsRegex.findFirstMatchIn("xxA-B-Cxx")
-      m.value.matched shouldBe "A-B-C"
-      // There are two groups: the outer one that is repeated and the inner one containing the token
-      m.value.groupCount shouldBe 2
-      m.value.subgroups shouldBe Seq("C", "C")
-      m.value.group(0) shouldBe "A-B-C"
-      m.value.group(1) shouldBe "C"
-      m.value.group(2) shouldBe "C"
-      m.value.group("one") shouldBe "C"
-    }
-  }
-
   describe("Using Regex for matching") {
 
     it("should match an entire or partial string") {
@@ -143,11 +107,67 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
     }
   }
 
-  describe("Using a Regex to process and modify") {
+  describe("Using Regex groups") {
+    // Separates into three groups
+    val Group3Regex: Regex =
+      raw"(?<one>[A-Z]+)-(?<two>[A-Z]+)-(?<three>[A-Z]+)".r
+
+    // Separates into N groups. The inner group is repeated.
+    val RepeatedGroupsRegex: Regex = raw"((?<one>[A-Z]+)-?)+".r
+
+    it("Should separate into three groups") {
+      val m = Group3Regex.findFirstMatchIn("xxA-B-Cxx")
+      m.value.matched shouldBe "A-B-C"
+      m.value.groupCount shouldBe 3
+      m.value.subgroups shouldBe Seq("A", "B", "C")
+      m.value.group(0) shouldBe "A-B-C"
+      m.value.group(1) shouldBe "A"
+      m.value.group(2) shouldBe "B"
+      m.value.group(3) shouldBe "C"
+      m.value.group("one") shouldBe "A"
+      m.value.group("two") shouldBe "B"
+      m.value.group("three") shouldBe "C"
+    }
+
+    it("Should separate into N groups") {
+      // When a group is repeated internally, we can only find the strictly LAST match
+      val m = RepeatedGroupsRegex.findFirstMatchIn("xxA-B-Cxx")
+      m.value.matched shouldBe "A-B-C"
+      // There are two groups: the outer one that is repeated and the inner one containing the token
+      m.value.groupCount shouldBe 2
+      m.value.subgroups shouldBe Seq("C", "C")
+      m.value.group(0) shouldBe "A-B-C"
+      m.value.group(1) shouldBe "C"
+      m.value.group(2) shouldBe "C"
+      m.value.group("one") shouldBe "C"
+    }
+  }
+
+  describe("Using a Regex to split and replace") {
+
+    it("should replace first matches") {
+      IssueRegex.replaceFirstIn("No match", "PRJ-000") shouldBe "No match"
+      IssueRegex.replaceFirstIn("BYEX-1234", "PRJ-000") shouldBe "PRJ-000"
+      IssueRegex.replaceFirstIn(
+        "BYEX-1234 matches",
+        "PRJ-000"
+      ) shouldBe "PRJ-000 matches"
+      IssueRegex.replaceFirstIn(
+        "This is BYEX-123.",
+        "PRJ-000"
+      ) shouldBe "This is PRJ-000."
+      IssueRegex.replaceFirstIn(
+        "Not BYEX-123 but BYEX-234.",
+        "PRJ-000"
+      ) shouldBe "Not PRJ-000 but BYEX-234."
+      IssueRegex.replaceFirstIn(
+        "byex-23 BYEX -123",
+        "PRJ-000"
+      ) shouldBe "byex-23 BYEX -123"
+    }
 
     // replaceAllIn (x2)
     // replaceSomeIn
-    // replaceFirstIn
 
     it("should split a string") {
       // Endings tokens are thrown away, but middle empty tokens are kept
