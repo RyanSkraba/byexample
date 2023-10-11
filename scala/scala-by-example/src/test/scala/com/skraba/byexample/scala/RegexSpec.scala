@@ -166,7 +166,28 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
       ) shouldBe "byex-23 BYEX -123"
     }
 
-    // replaceAllIn (x2)
+    it("should replace all matches") {
+      IssueRegex.replaceAllIn("No match", "PRJ-000") shouldBe "No match"
+      IssueRegex.replaceAllIn("BYEX-1234", "PRJ-000") shouldBe "PRJ-000"
+      IssueRegex.replaceAllIn(
+        "BYEX-1234 matches",
+        "PRJ-000"
+      ) shouldBe "PRJ-000 matches"
+      IssueRegex.replaceAllIn(
+        "This is BYEX-123.",
+        "PRJ-000"
+      ) shouldBe "This is PRJ-000."
+      IssueRegex.replaceAllIn(
+        "Not BYEX-123 but BYEX-234.",
+        "PRJ-000"
+      ) shouldBe "Not PRJ-000 but PRJ-000."
+      IssueRegex.replaceAllIn(
+        "byex-23 BYEX -123",
+        "PRJ-000"
+      ) shouldBe "byex-23 BYEX -123"
+    }
+
+    // replaceAllIn (x1)
     // replaceSomeIn
 
     it("should split a string") {
