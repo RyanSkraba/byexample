@@ -187,7 +187,30 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
       ) shouldBe "byex-23 BYEX -123"
     }
 
-    // replaceAllIn (x1)
+    it("should replace all matches using a function") {
+      val fn: Regex.Match => String =
+        m => s"${m.group("prj").reverse}-${m.group("num").toInt + 1}"
+
+      IssueRegex.replaceAllIn("No match", fn) shouldBe "No match"
+      IssueRegex.replaceAllIn("BYEX-1234", fn) shouldBe "XEYB-1235"
+      IssueRegex.replaceAllIn(
+        "BYEX-1234 matches",
+        fn
+      ) shouldBe "XEYB-1235 matches"
+      IssueRegex.replaceAllIn(
+        "This is XEYB-123.",
+        fn
+      ) shouldBe "This is BYEX-124."
+      IssueRegex.replaceAllIn(
+        "Not XEYB-123 but XEYB-234.",
+        fn
+      ) shouldBe "Not BYEX-124 but BYEX-235."
+      IssueRegex.replaceAllIn(
+        "byex-23 BYEX -123",
+        fn
+      ) shouldBe "byex-23 BYEX -123"
+    }
+
     // replaceSomeIn
 
     it("should split a string") {
