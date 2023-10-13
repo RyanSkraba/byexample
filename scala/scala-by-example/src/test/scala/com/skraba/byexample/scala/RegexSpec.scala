@@ -13,8 +13,21 @@ import scala.util.matching.Regex
   */
 class RegexSpec extends AnyFunSpecLike with Matchers {
 
-  /** Group into the project and the issue number, like BYEX-1234 */
-  val IssueRegex: Regex = raw"(?<prj>[A-Z]+)-(?<num>\d+)".r
+  /** Match an issue tag with a project and an issue number, like BYEX-1234 */
+  val IssueRegex: Regex = raw"\b(?<prj>[A-Z]+)-(?<num>\d+)\b".r
+
+  /** Some common example strings to use with the IssueRegex. */
+  val IssueExamples: Seq[String] = Seq(
+    "",
+    "No match",
+    "BYEX-123",
+    "pre BYEX-123",
+    "BYEX-123 post",
+    "pre BYEX-123 post",
+    "** BYEX-123, BYEX-234 **",
+    "- ByEx-123, BYEX-I23, BY3X-123 -",
+    "- ByEx-123, BYEX-123, BYEX-23A, BY3X-234A -"
+  )
 
   /** Split on :: or , or ; punctuation. */
   val SplitRegex: Regex = raw"(::|,|;)".r
@@ -24,12 +37,21 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
     it("should match an entire or partial string") {
       IssueRegex.matches("BYEX-1234") shouldBe true
       IssueRegex.matches(" BYEX-1234 ") shouldBe false
-      IssueRegex.matches("BYE1-1234") shouldBe false
       IssueRegex.matches("byex-1234") shouldBe false
-      IssueRegex.matches("Not BYEX-123 but BYEX-234.") shouldBe false
 
-      // Finding an internal match
+      // In all of the examples, only the full string is matched
+      IssueExamples.filter(IssueRegex.matches) shouldBe Seq("BYEX-123")
+
+      // But unanchored checks anywhere in the string
       IssueRegex.unanchored.matches("Not BYEX-123 but BYEX-234.") shouldBe true
+      IssueExamples.filter(IssueRegex.unanchored.matches) shouldBe Seq(
+        "BYEX-123",
+        "pre BYEX-123",
+        "BYEX-123 post",
+        "pre BYEX-123 post",
+        "** BYEX-123, BYEX-234 **",
+        "- ByEx-123, BYEX-123, BYEX-23A, BY3X-234A -"
+      )
 
       // Other constructions
       raw"[A-Z]+".r.matches("ABCDE") shouldBe true
@@ -38,20 +60,30 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
     it("should find the first match anywhere in the string") {
       // findFirstIn returns Option[String]
       IssueRegex.findFirstIn("No match") shouldBe None
-      IssueRegex.findFirstIn("BYEX-1234") shouldBe Some("BYEX-1234")
       IssueRegex.findFirstIn("This is BYEX-123.") shouldBe Some("BYEX-123")
-      IssueRegex.findFirstIn("Not BYEX-123 but BYEX-234.") shouldBe Some(
+      IssueRegex.findFirstIn("** BYEX-123, BYEX-234 **") shouldBe Some(
         "BYEX-123"
       )
-      IssueRegex.findFirstIn("byex-23 BYEX -123") shouldBe None
+
+      // Over all the examples, excluding the non matches
+      IssueExamples.flatMap(x =>
+        IssueRegex.findFirstIn(x).map(x -> _)
+      ) shouldBe Seq(
+        "BYEX-123" -> "BYEX-123",
+        "pre BYEX-123" -> "BYEX-123",
+        "BYEX-123 post" -> "BYEX-123",
+        "pre BYEX-123 post" -> "BYEX-123",
+        "** BYEX-123, BYEX-234 **" -> "BYEX-123",
+        "- ByEx-123, BYEX-123, BYEX-23A, BY3X-234A -" -> "BYEX-123"
+      )
     }
 
     it("should find information in the match") {
       // the findFirstMatch returns the instance describing the match, not the matching string
-      val m = IssueRegex.findFirstMatchIn("Not BYEX-123 but BYEX-234.")
-      m.value.start shouldBe 4
-      m.value.end shouldBe 12
-      m.value.source shouldBe "Not BYEX-123 but BYEX-234."
+      val m = IssueRegex.findFirstMatchIn("** BYEX-123, BYEX-234 **")
+      m.value.start shouldBe 3
+      m.value.end shouldBe 11
+      m.value.source shouldBe "** BYEX-123, BYEX-234 **"
       m.value.matched shouldBe "BYEX-123"
       m.value.groupCount shouldBe 2
       m.value.group(0) shouldBe "BYEX-123"
@@ -60,14 +92,14 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
       m.value.subgroups shouldBe List("BYEX", "123")
       m.value.group("prj") shouldBe "BYEX"
       m.value.group("num") shouldBe "123"
-      m.value.before shouldBe "Not "
-      m.value.before(0) shouldBe "Not "
-      m.value.before(1) shouldBe "Not "
-      m.value.before(2) shouldBe "Not BYEX-"
-      m.value.after shouldBe " but BYEX-234."
-      m.value.after(0) shouldBe " but BYEX-234."
-      m.value.after(1) shouldBe "-123 but BYEX-234."
-      m.value.after(2) shouldBe " but BYEX-234."
+      m.value.before shouldBe "** "
+      m.value.before(0) shouldBe "** "
+      m.value.before(1) shouldBe "** "
+      m.value.before(2) shouldBe "** BYEX-"
+      m.value.after shouldBe ", BYEX-234 **"
+      m.value.after(0) shouldBe ", BYEX-234 **"
+      m.value.after(1) shouldBe "-123, BYEX-234 **"
+      m.value.after(2) shouldBe ", BYEX-234 **"
     }
 
     it("should find all matches anywhere in the string") {
