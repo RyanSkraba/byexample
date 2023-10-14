@@ -105,13 +105,21 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
     it("should find all matches anywhere in the string") {
       // findAllIn returns Iterator[String]
       IssueRegex.findAllIn("No match") shouldBe empty
-      IssueRegex.findAllIn("BYEX-1234").toSeq shouldBe Seq("BYEX-1234")
-      IssueRegex.findAllIn("This is BYEX-123.").toSeq shouldBe Seq("BYEX-123")
-      IssueRegex.findAllIn("Not BYEX-123 but BYEX-234.").toSeq shouldBe Seq(
+      IssueRegex.findAllIn("BYEX-123 and BYEX-234").toSeq shouldBe Seq(
         "BYEX-123",
         "BYEX-234"
       )
-      IssueRegex.findAllIn("byex-23 BYEX -123") shouldBe empty
+
+      IssueExamples
+        .map(x => x -> IssueRegex.findAllIn(x).toSeq)
+        .filter(_._2.nonEmpty) shouldBe Seq(
+        "BYEX-123" -> Seq("BYEX-123"),
+        "pre BYEX-123" -> Seq("BYEX-123"),
+        "BYEX-123 post" -> Seq("BYEX-123"),
+        "pre BYEX-123 post" -> Seq("BYEX-123"),
+        "** BYEX-123, BYEX-234 **" -> Seq("BYEX-123", "BYEX-234"),
+        "- ByEx-123, BYEX-123, BYEX-23A, BY3X-234A -" -> Seq("BYEX-123")
+      )
 
       // returns Iterator[Match]
       val ms = IssueRegex.findAllMatchIn("Not BYEX-123 but BYEX-234.").toSeq
