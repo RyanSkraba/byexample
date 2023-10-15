@@ -110,6 +110,7 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
         "BYEX-234"
       )
 
+      // Over all the examples, excluding the non matches
       IssueExamples
         .map(x => x -> IssueRegex.findAllIn(x).toSeq)
         .filter(_._2.nonEmpty) shouldBe Seq(
@@ -133,11 +134,15 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
     it("should find the first match if it's a prefix of the string") {
       // findPrefixOf returns Option[String]
       IssueRegex.findPrefixOf("No match") shouldBe None
-      IssueRegex.findPrefixOf("BYEX-1234") shouldBe Some("BYEX-1234")
       IssueRegex.findPrefixOf("BYEX-1234 matches") shouldBe Some("BYEX-1234")
-      IssueRegex.findPrefixOf("This is BYEX-123.") shouldBe None
-      IssueRegex.findPrefixOf("Not BYEX-123 but BYEX-234.") shouldBe None
-      IssueRegex.findPrefixOf("byex-23 BYEX -123") shouldBe None
+
+      // Over all the examples, excluding the non matches
+      IssueExamples.flatMap(x =>
+        IssueRegex.findPrefixOf(x).map(x -> _)
+      ) shouldBe Seq(
+        "BYEX-123" -> "BYEX-123",
+        "BYEX-123 post" -> "BYEX-123"
+      )
 
       // findPrefixMatchOf returns Option[Match]
       IssueRegex
@@ -148,11 +153,12 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
   }
 
   describe("Using Regex groups") {
-    // Separates into three groups
+
+    /** Separates into three named groups */
     val Group3Regex: Regex =
       raw"(?<one>[A-Z]+)-(?<two>[A-Z]+)-(?<three>[A-Z]+)".r
 
-    // Separates into N groups. The inner group is repeated.
+    /** Separates into N groups. The inner group is named and repeated. */
     val RepeatedGroupsRegex: Regex = raw"((?<one>[A-Z]+)-?)+".r
 
     it("Should separate into three groups") {
