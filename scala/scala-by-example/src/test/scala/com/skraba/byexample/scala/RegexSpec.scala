@@ -193,23 +193,22 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
 
     it("should replace first matches") {
       IssueRegex.replaceFirstIn("No match", "PRJ-000") shouldBe "No match"
-      IssueRegex.replaceFirstIn("BYEX-1234", "PRJ-000") shouldBe "PRJ-000"
       IssueRegex.replaceFirstIn(
-        "BYEX-1234 matches",
+        "BYEX-123 BYEX-234",
         "PRJ-000"
-      ) shouldBe "PRJ-000 matches"
-      IssueRegex.replaceFirstIn(
-        "This is BYEX-123.",
-        "PRJ-000"
-      ) shouldBe "This is PRJ-000."
-      IssueRegex.replaceFirstIn(
-        "Not BYEX-123 but BYEX-234.",
-        "PRJ-000"
-      ) shouldBe "Not PRJ-000 but BYEX-234."
-      IssueRegex.replaceFirstIn(
-        "byex-23 BYEX -123",
-        "PRJ-000"
-      ) shouldBe "byex-23 BYEX -123"
+      ) shouldBe "PRJ-000 BYEX-234"
+
+      // Over all the examples, excluding the unmodified ones
+      IssueExamples
+        .map(x => x -> IssueRegex.replaceFirstIn(x, "PRJ-000"))
+        .filterNot(x => x._1 == x._2) shouldBe Seq(
+        "BYEX-123" -> "PRJ-000",
+        "pre BYEX-123" -> "pre PRJ-000",
+        "BYEX-123 post" -> "PRJ-000 post",
+        "pre BYEX-123 post" -> "pre PRJ-000 post",
+        "** BYEX-123, BYEX-234 **" -> "** PRJ-000, BYEX-234 **",
+        "- ByEx-123, BYEX-123, BYEX-23A, BY3X-234A -" -> "- ByEx-123, PRJ-000, BYEX-23A, BY3X-234A -"
+      )
     }
 
     it("should replace all matches") {
