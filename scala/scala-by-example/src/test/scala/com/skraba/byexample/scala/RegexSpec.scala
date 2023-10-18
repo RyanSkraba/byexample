@@ -236,23 +236,22 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
         m => s"${m.group("prj").reverse}-${m.group("num").toInt + 1}"
 
       IssueRegex.replaceAllIn("No match", fn) shouldBe "No match"
-      IssueRegex.replaceAllIn("BYEX-1234", fn) shouldBe "XEYB-1235"
       IssueRegex.replaceAllIn(
-        "BYEX-1234 matches",
+        "BYEX-123 BYEX-234",
         fn
-      ) shouldBe "XEYB-1235 matches"
-      IssueRegex.replaceAllIn(
-        "This is XEYB-123.",
-        fn
-      ) shouldBe "This is BYEX-124."
-      IssueRegex.replaceAllIn(
-        "Not XEYB-123 but XEYB-234.",
-        fn
-      ) shouldBe "Not BYEX-124 but BYEX-235."
-      IssueRegex.replaceAllIn(
-        "byex-23 BYEX -123",
-        fn
-      ) shouldBe "byex-23 BYEX -123"
+      ) shouldBe "XEYB-124 XEYB-235"
+
+      // Over all the examples, excluding the unmodified ones
+      IssueExamples
+        .map(x => x -> IssueRegex.replaceAllIn(x, fn))
+        .filterNot(x => x._1 == x._2) shouldBe Seq(
+        "BYEX-123" -> "XEYB-124",
+        "pre BYEX-123" -> "pre XEYB-124",
+        "BYEX-123 post" -> "XEYB-124 post",
+        "pre BYEX-123 post" -> "pre XEYB-124 post",
+        "** BYEX-123, BYEX-234 **" -> "** XEYB-124, XEYB-235 **",
+        "- ByEx-123, BYEX-123, BYEX-23A, BY3X-234A -" -> "- ByEx-123, XEYB-124, BYEX-23A, BY3X-234A -"
+      )
     }
 
     // replaceSomeIn
