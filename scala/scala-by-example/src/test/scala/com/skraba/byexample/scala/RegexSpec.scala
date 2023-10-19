@@ -254,7 +254,31 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
       )
     }
 
-    // replaceSomeIn
+    it("should replace some matches using a function") {
+      // This is similar to the preceding replaceAllIn example, but returns an option
+      // If the return value is none, the replacement doesn't proceed.
+      val fn: Regex.Match => Option[String] = { m =>
+        if (m.matched.startsWith("PRJ-99")) None // Skip all PRJ-99* issues
+        else Some(s"${m.group("prj").reverse}-${m.group("num").toInt + 1}")
+      }
+
+      IssueRegex.replaceSomeIn(
+        "BYEX-999 BYEX-123 PRJ-112 PRJ-999",
+        fn
+      ) shouldBe "XEYB-1000 XEYB-124 JRP-113 PRJ-999"
+
+      // Over all the examples, excluding the unmodified ones
+      IssueExamples
+        .map(x => x -> IssueRegex.replaceSomeIn(x, fn))
+        .filterNot(x => x._1 == x._2) shouldBe Seq(
+        "BYEX-123" -> "XEYB-124",
+        "pre BYEX-123" -> "pre XEYB-124",
+        "BYEX-123 post" -> "XEYB-124 post",
+        "pre BYEX-123 post" -> "pre XEYB-124 post",
+        "** BYEX-123, BYEX-234 **" -> "** XEYB-124, XEYB-235 **",
+        "- ByEx-123, BYEX-123, BYEX-23A, BY3X-234A -" -> "- ByEx-123, XEYB-124, BYEX-23A, BY3X-234A -"
+      )
+    }
 
     it("should split a string") {
       // Endings tokens are thrown away, but middle empty tokens are kept
