@@ -161,7 +161,7 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
     /** Separates into N groups. The inner group is named and repeated. */
     val RepeatedGroupsRegex: Regex = raw"((?<one>[A-Z]+)-?)+".r
 
-    it("Should separate into three groups") {
+    it("Should separate into three named groups") {
       val m = Group3Regex.findFirstMatchIn("xxA-B-Cxx")
       m.value.matched shouldBe "A-B-C"
       m.value.groupCount shouldBe 3
@@ -175,7 +175,7 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
       m.value.group("three") shouldBe "C"
     }
 
-    it("Should separate into N groups") {
+    it("Should separate into repeated groups") {
       // When a group is repeated internally, we can only find the strictly LAST match
       val m = RepeatedGroupsRegex.findFirstMatchIn("xxA-B-Cxx")
       m.value.matched shouldBe "A-B-C"
@@ -209,6 +209,13 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
         "** BYEX-123, BYEX-234 **" -> "** PRJ-000, BYEX-234 **",
         "- ByEx-123, BYEX-123, BYEX-23A, BY3X-234A -" -> "- ByEx-123, PRJ-000, BYEX-23A, BY3X-234A -"
       )
+    }
+
+    it("should replace groups by number or name") {
+      // The replacement text can refer to the entire match or the group by number or name
+      IssueRegex.replaceAllIn("BYEX-123", "($0)") shouldBe "(BYEX-123)"
+      IssueRegex.replaceAllIn("BYEX-123", "$2-$1") shouldBe "123-BYEX"
+      IssueRegex.replaceAllIn("BYEX-123", "${num}-${prj}") shouldBe "123-BYEX"
     }
 
     it("should replace all matches") {
