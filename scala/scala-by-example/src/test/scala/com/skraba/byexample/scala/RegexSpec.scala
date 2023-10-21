@@ -10,6 +10,10 @@ import scala.util.matching.Regex
   *
   * @see
   *   [[com.skraba.byexample.scala.tour.Tour090SingletonRegexExtractorsSpec]]
+  * @see
+  *   [[https://regex101.com/]]
+  * @see
+  *   [[https://www.regular-expressions.info/]]
   */
 class RegexSpec extends AnyFunSpecLike with Matchers {
 
@@ -159,7 +163,7 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
       raw"(?<one>[A-Z]+)-(?<two>[A-Z]+)-(?<three>[A-Z]+)".r
 
     /** Separates into N groups. The inner group is named and repeated. */
-    val RepeatedGroupsRegex: Regex = raw"((?<one>[A-Z]+)-?)+".r
+    val RepeatedGroupsRegex: Regex = raw"(-?(?<one>[A-Z]+))+".r
 
     it("Should separate into three named groups") {
       val m = Group3Regex.findFirstMatchIn("xxA-B-Cxx")
@@ -181,11 +185,25 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
       m.value.matched shouldBe "A-B-C"
       // There are two groups: the outer one that is repeated and the inner one containing the token
       m.value.groupCount shouldBe 2
-      m.value.subgroups shouldBe Seq("C", "C")
+      m.value.subgroups shouldBe Seq("-C", "C")
       m.value.group(0) shouldBe "A-B-C"
-      m.value.group(1) shouldBe "C"
+      m.value.group(1) shouldBe "-C"
       m.value.group(2) shouldBe "C"
       m.value.group("one") shouldBe "C"
+    }
+
+    it("supports non-capturing groups") {
+      // Similar to RepeatedGroupsRegex without names
+      val re1 = raw"(-?([A-Z]+))+".r
+      // Specifying the outer group as non-capturing
+      val re2 = raw"(?:-?([A-Z]+))+".r
+
+      val m1 = re1.findFirstMatchIn("BY-EX")
+      m1.value.groupCount shouldBe 2
+      m1.value.subgroups shouldBe Seq("-EX", "EX")
+      val m2 = re2.findFirstMatchIn("BY-EX")
+      m2.value.groupCount shouldBe 1
+      m2.value.subgroups shouldBe Seq("EX")
     }
   }
 
