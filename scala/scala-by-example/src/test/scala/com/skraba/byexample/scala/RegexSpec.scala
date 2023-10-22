@@ -192,6 +192,18 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
       m.value.group("one") shouldBe "C"
     }
 
+    it("should mix names and numbers") {
+      // Named groups can be used in addition to their position
+      val re = raw"(.)(?<one>.)(.)(?<two>.)".r
+      val m = re.findFirstMatchIn("1234")
+      m.value.group(1) shouldBe "1"
+      m.value.group(2) shouldBe "2"
+      m.value.group(3) shouldBe "3"
+      m.value.group(4) shouldBe "4"
+      m.value.group("one") shouldBe "2"
+      m.value.group("two") shouldBe "4"
+    }
+
     it("supports non-capturing groups") {
       // Similar to RepeatedGroupsRegex without names
       val re1 = raw"(-?([A-Z]+))+".r
