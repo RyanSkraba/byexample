@@ -217,6 +217,22 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
       m2.value.groupCount shouldBe 1
       m2.value.subgroups shouldBe Seq("EX")
     }
+
+    it("supports backreference to groups") {
+      // The same as Group3Regex but where the last group MUST be the same as the first
+      val re1 = raw"(?<one>[A-Z]+)-(?<two>[A-Z]+)-\1".r
+
+      Group3Regex.matches("A-B-C") shouldBe true
+      re1.matches("A-B-C") shouldBe false
+      re1.matches("A-B-A") shouldBe true
+      re1.matches("XXX-B-XXX") shouldBe true
+
+      // You can also do a backreference by name
+      val re2 = raw"(?<one>[A-Z]+)-(?<two>[A-Z]+)-\k<two>".r
+      re2.matches("A-B-A") shouldBe false
+      re2.matches("A-B-B") shouldBe true
+      re2.matches("A-XXX-XXX") shouldBe true
+    }
   }
 
   describe("Using a Regex to split and replace") {
