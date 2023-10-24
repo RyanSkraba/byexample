@@ -47,8 +47,35 @@ class LazyListSpec extends AnyFunSpecLike with Matchers {
     }
   }
 
-  it("can be iterate over a state and detect loops detection") {
-    // This mystery function takes and returns an Int.
+  it("never evaluates until it is accessed") {
+    // A side effect baked into a LazyList that always returns 0
+    var evaluated: Int = 0
+    val x = LazyList.continually({ evaluated = evaluated + 1; 0 })
+
+    // Nothing was evaluated
+    evaluated shouldBe 0
+
+    // Fetching a list and causes evaluations
+    val y = x.tail
+    evaluated shouldBe 1
+    x.head shouldBe 0
+    evaluated shouldBe 1
+    // Another element
+    y.head shouldBe 0
+    evaluated shouldBe 2
+    x(1) shouldBe 0
+    evaluated shouldBe 2
+
+    x(10) shouldBe 0
+    evaluated shouldBe 11
+    x.take(3) shouldBe Seq(0, 0, 0)
+    evaluated shouldBe 11
+  }
+
+  it("can be iterate over a state and detect loops") {
+    // This mystery function deterministically takes and returns a state (int).  We want to see if
+    // applying it consecutively on the state ends up in a loop so we can efficiently calculate
+    // the BILLIONTH index (for example)
     def mystery(in: Int): Int =
       if (in == 83) 47 else if (in == 1099) 1095 else in + 1
 
