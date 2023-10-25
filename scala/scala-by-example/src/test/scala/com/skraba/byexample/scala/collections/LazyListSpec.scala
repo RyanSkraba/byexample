@@ -72,6 +72,37 @@ class LazyListSpec extends AnyFunSpecLike with Matchers {
     evaluated shouldBe 11
   }
 
+  it("can refer to itself") {
+    // This example is taken right out of the scaladoc for [[LazyList]]
+    lazy val fibs: LazyList[BigInt] =
+      BigInt(0) #:: BigInt(1) #:: fibs.zip(fibs.tail).map { n => n._1 + n._2 }
+
+    // Even zipping itself with it's own tail is lazily evaluated!  However, it's necessary for
+    // fibs.tail itself to be concretely defined, or it would be recurse forever.
+    fibs.take(5) shouldBe Seq(
+      BigInt(0),
+      BigInt(1),
+      BigInt(1),
+      BigInt(2),
+      BigInt(3)
+    )
+    fibs(100) shouldBe BigInt("354224848179261915075")
+
+    // Here's an implementation that does not use tail.
+    lazy val fibs2: LazyList[BigInt] = {
+      def loop(h: BigInt, n: BigInt): LazyList[BigInt] = h #:: loop(n, h + n)
+      loop(0, 1)
+    }
+    fibs2.take(5) shouldBe Seq(
+      BigInt(0),
+      BigInt(1),
+      BigInt(1),
+      BigInt(2),
+      BigInt(3)
+    )
+    fibs2(100) shouldBe BigInt("354224848179261915075")
+  }
+
   it("can be iterate over a state and detect loops") {
     // This mystery function deterministically takes and returns a state (int).  We want to see if
     // applying it consecutively on the state ends up in a loop so we can efficiently calculate
