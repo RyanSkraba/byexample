@@ -3,6 +3,8 @@ package com.skraba.byexample.scala.collections
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
+import scala.collection.View
+
 /** Examples from the scala collections doc. Each spec covers a page.
   *
   * Iterable adds a hasNext/next methods and some functions that require this to
@@ -68,6 +70,9 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
       xs zip ys1 shouldBe Iterable((1, "a"), (2, "b"))
       xs zip ys2 shouldBe Iterable((1, "a"), (2, "b"), (3, "c"))
 
+      // lazyZip is the same, without evaluating (see LazyList)
+      (xs lazyZip ys1).toSeq should contain allOf ((1, "a"), (2, "b"))
+
       // Using the longest and providing defaults.
       xs.zipAll(ys1, 99, "z") shouldBe Iterable((1, "a"), (2, "b"), (3, "z"))
       xs.zipAll(ys2, 99, "z") shouldBe Iterable(
@@ -76,12 +81,15 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
         (3, "c"),
         (99, "d")
       )
+
+      // Iterate with it's own index (the second value)
       xs.zipWithIndex shouldBe Iterable((1, 0), (2, 1), (3, 2))
+
     }
 
     it("supports comparison") {
       val ys1 = Iterable("a", "b")
-      xs sameElements ys1 shouldBe false
+      xs.iterator sameElements ys1.iterator shouldBe false
     }
   }
 }
