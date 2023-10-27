@@ -103,6 +103,24 @@ class LazyListSpec extends AnyFunSpecLike with Matchers {
     fibs2(100) shouldBe BigInt("354224848179261915075")
   }
 
+  it("can merge two LazyLists") {
+
+    /** Merges a sequence of LazyLists taking elements in a round robin */
+    def roundRobin[T](in: LazyList[T]*): LazyList[T] = in.headOption
+      .map {
+        case Seq()      => roundRobin(in.tail: _*)
+        case h #:: rest => h #:: roundRobin(in.tail.appended(rest): _*)
+      }
+      .getOrElse(LazyList.empty)
+
+    // This works with bounded and infinite lists
+    roundRobin(LazyList(1, 2), LazyList(3, 4, 5)) shouldBe Seq(1, 3, 2, 4, 5)
+    roundRobin(LazyList(50, 51), LazyList(60, 61), LazyList.from(1))
+      .take(10) shouldBe Seq(50, 60, 1, 51, 61, 2, 3, 4, 5, 6)
+    roundRobin(LazyList.continually(-1), LazyList.from(1))
+      .take(10) shouldBe Seq(-1, 1, -1, 2, -1, 3, -1, 4, -1, 5)
+  }
+
   it("can be iterate over a state and detect loops") {
     // This mystery function deterministically takes and returns a state (int).  We want to see if
     // applying it consecutively on the state ends up in a loop so we can efficiently calculate
