@@ -4,7 +4,7 @@ import com.skraba.byexample.scalatags.duolingo.cn.DuolingoCnCheatsheetTask
 import com.skraba.byexample.scalatags.palette.PaletteTask
 import org.docopt.{Docopt, DocoptExitException}
 
-import scala.collection.JavaConverters._
+scala.jdk.CollectionConverters._
 
 /** A driver for the various utilities written with Scalatags.
   */

@@ -1,7 +1,7 @@
 package com.skraba.byexample.scala
 
 import org.docopt.{Docopt, DocoptExitException}
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class ScalaGo(params: Either[GreeterBean, ScalaCaseClass]) {
 
@@ -22,7 +22,7 @@ object ScalaGo {
   val Version: String = "0.0.1-SNAPSHOT"
 
   /** Recycle the doc with this class name. */
-  val Doc = JavaScalaGo.DOC.replaceAll(
+  val Doc: String = JavaScalaGo.DOC.replaceAll(
     classOf[JavaScalaGo].getSimpleName,
     ScalaGo.getClass.getSimpleName.replaceAll("\\$", "")
   )

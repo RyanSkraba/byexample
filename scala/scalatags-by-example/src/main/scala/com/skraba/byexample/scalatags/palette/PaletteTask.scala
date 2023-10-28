@@ -3,7 +3,7 @@ package com.skraba.byexample.scalatags.palette
 import com.skraba.byexample.scalatags.ScalatagsGo
 import com.skraba.byexample.scalatags.ScalatagsGo.InternalDocoptException
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 /** Command-line driver for generating a Palette SVG
   */
