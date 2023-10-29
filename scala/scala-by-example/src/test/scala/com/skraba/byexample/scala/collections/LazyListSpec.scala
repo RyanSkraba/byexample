@@ -3,6 +3,8 @@ package com.skraba.byexample.scala.collections
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
+import scala.collection.mutable
+
 /** The [[LazyList]] replaces the old Stream collect, and is useful for lists
   * that are programmatically calculated, especially infinite. An element of a
   * LazyList shouldn't be calculated until it is necessary.
@@ -140,7 +142,7 @@ class LazyListSpec extends AnyFunSpecLike with Matchers {
     // states(index) shouldBe 75 // Very very slow
 
     // Iterate from the start until we find a state we've already seen
-    val cache = collection.mutable.Set[Int]()
+    val cache = mutable.Set[Int]()
     val repeat = states.dropWhile(cache.add)
 
     // The length of the cycle is found by counting until the head is found again

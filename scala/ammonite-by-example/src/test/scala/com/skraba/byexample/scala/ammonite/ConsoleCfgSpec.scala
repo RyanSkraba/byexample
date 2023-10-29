@@ -7,7 +7,6 @@ import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
 import java.io.ByteArrayInputStream
-import scala.collection.immutable.Seq
 import scala.io.AnsiColor._
 import scala.reflect.io.Streamable
 

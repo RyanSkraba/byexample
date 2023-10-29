@@ -2,7 +2,6 @@ package com.skraba.byexample.scala.collections
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-import scala.collection.Seq
 import scala.util.Sorting
 
 /** Collections, [[Sorting]] and [[Ordering]]

@@ -6,7 +6,6 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import scala.jdk.CollectionConverters._
-import scala.collection.immutable.Seq
 import scala.reflect.io.{Directory, File, Path}
 import scala.util.Try
 import scala.util.matching.Regex

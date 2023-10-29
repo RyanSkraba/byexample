@@ -2,10 +2,8 @@ package com.skraba.byexample.scalatags
 
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
-import scalatags.Text
 import scalatags.generic.AttrPair
 
-import scala.collection.immutable
 import scala.xml.XML
 
 class BasicSpec extends AnyFunSpecLike with Matchers {
