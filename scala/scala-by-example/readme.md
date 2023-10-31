@@ -16,7 +16,7 @@ of these are highly recommended!
 | Source                                                                                            | Examples                                                                                         |
 |---------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|
 | [Official Tour of Scala](https://docs.scala-lang.org/tour/tour-of-scala.html)                     | [com.skraba.byexample.scala.tour](src/test/scala/com/skraba/byexample/scala/tour/)               |
-| [Scala collections overview](https://docs.scala-lang.org/overviews/collections/introduction.html) | [com.skraba.byexample.scala.collections](src/test/scala/com/skraba/byexample/scala/collections/) |
+| [Scala collections overview](https://docs.scala-lang.org/overviews/collections-2.13/introduction.html) | [com.skraba.byexample.scala.collections](src/test/scala/com/skraba/byexample/scala/collections/) |
 | [ScalaTest overview](https://www.scalatest.org/user_guide)                                        | [com.skraba.byexample.scala.scalatest](src/test/scala/com/skraba/byexample/scala/scalatest/)     |
 
 Resources

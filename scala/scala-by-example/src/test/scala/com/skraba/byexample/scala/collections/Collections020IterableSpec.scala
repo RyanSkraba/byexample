@@ -7,39 +7,68 @@ import scala.collection.mutable.ListBuffer
 
 /** Examples from the scala collections doc. Each spec covers a page.
   *
-  * Iterable adds a hasNext/next methods and some functions that require this to
-  * have high performance.
+  * All methods in the [[Iterable]] trait are implemented via `iterator`
   *
   * It has three major subclasses:
   *
-  * Seq (PartialFunction, apply returns the element at that index, isDefinedAt)
-  * Map (PartialFunction, apply returns the value for that key, isDefinedAt) Set
-  * (apply returns whether or not the element exists.)
+  *   - Seq (PartialFunction, apply returns the element at that index,
+  *     isDefinedAt)
+  *   - Map (PartialFunction, apply returns the value for that key, isDefinedAt)
+  *   - Set (apply returns whether or not the element exists.)
   *
   * @see
-  *   [[https://docs.scala-lang.org/overviews/collections/introduction.html]]
+  *   [[https://docs.scala-lang.org/overviews/collections-2.13/introduction.html]]
   */
 class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
 
+  // Instance for testing.
+  val xs: Iterable[Int] = Iterable(1, 2, 3)
+
+  describe("Iterator") {
+    it("has high-performance next() and hasNext() methods") {
+      val it: Iterator[Int] = xs.iterator
+      it.hasNext shouldBe true
+      it.next shouldBe 1
+      it.hasNext shouldBe true
+      it.nextOption shouldBe Some(2)
+      it.hasNext shouldBe true
+      it.next shouldBe 3
+
+      // nextOption is OK, but don't call next if hasNext is false.
+      it.hasNext shouldBe false
+      it.nextOption shouldBe None
+      val t = intercept[NoSuchElementException] { it.next }
+      t.getMessage shouldBe "head of empty list"
+    }
+
+    it("has other methods that can be found in Iterable") {
+      // The contains method works on Iterator, but should only be used *once*
+      // on the instance, then discarded
+      xs.iterator.contains(-1) shouldBe false
+
+      // The return value is undefined after a contains() call!
+      val it = xs.iterator
+      it.contains(3) shouldBe true
+      it.contains(1) shouldBe false
+
+      // Many other methods that can efficiently be implemented through an
+      // iterator, such as scanLeft, exist with the same semantics as Iterable
+    }
+  }
+
   describe("Iterable") {
-
-    // Instance for testing.
-    val xs = Iterable(1, 2, 3)
-
     it("has a default implementation of immutable.List") {
       xs shouldBe a[List[_]]
 
-      // And you can iterate through an iterable.
-      xs.foreach(
-        _ should (be > 0 and be <= 3)
-      )
-
-      // It defines foreach via iterator.
-      val it = xs.iterator
-      it shouldBe an[Iterator[_]]
+      // All methods in this trait are implemented via .iterator
+      val it: Iterator[Int] = xs.iterator
       // An Iterator is a collection too -- with hasNext() and next()
       while (it.hasNext) it.next should (be > 0 and be <= 3)
 
+      // For example
+      xs.foreach(
+        _ should (be > 0 and be <= 3)
+      )
     }
 
     it("supports addition") {

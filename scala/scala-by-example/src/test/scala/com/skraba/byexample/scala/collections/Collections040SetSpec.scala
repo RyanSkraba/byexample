@@ -8,7 +8,7 @@ import scala.collection.{SortedSet, immutable, mutable}
 /** Examples from the scala collections doc. Each spec covers a page.
   *
   * @see
-  *   [[https://docs.scala-lang.org/overviews/collections/introduction.html]]
+  *   [[https://docs.scala-lang.org/overviews/collections-2.13/introduction.html]]
   */
 class Collections040SetSpec extends AnyFunSpecLike with Matchers {
 
