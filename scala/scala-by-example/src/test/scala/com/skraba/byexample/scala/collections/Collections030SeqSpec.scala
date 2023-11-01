@@ -38,6 +38,11 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
       xs shouldBe a[PartialFunction[_, _]] // Int, T
     }
 
+    it("has aliases") {
+      // TODO: verify and improve
+      (xs ++ xs).size shouldBe 6
+    }
+
     it("supports indexing and length") {
       // Partial function
       xs(1) shouldBe 2
@@ -160,6 +165,12 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
       buf shouldBe a[ArrayBuffer[_]]
     }
 
+    it("has aliases") {
+      val buf = mutable.Buffer(1, 2, 3)
+      // TODO: verify and improve
+      (buf ++ buf).size shouldBe 6
+    }
+
     it("supports additions") {
       val buf = mutable.Buffer(1, 2, 3)
 
@@ -217,6 +228,12 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
   }
 
   describe("Queue") {
+
+    it("has aliases") {
+      val buf = mutable.Queue(1, 2, 3)
+      // TODO: verify and improve
+      (buf ++ buf).size shouldBe 6
+    }
 
     it("supports additions") {
       val buf = mutable.Queue(1, 2, 3)

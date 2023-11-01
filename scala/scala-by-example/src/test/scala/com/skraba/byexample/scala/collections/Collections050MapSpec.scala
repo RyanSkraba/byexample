@@ -31,6 +31,11 @@ class Collections050MapSpec extends AnyFunSpecLike with Matchers {
       List(1, 2, 3).collect(ms.andThen(_.length)) shouldBe List(3, 3, 5)
     }
 
+    it("has aliases") {
+      // TODO: verify and improve
+      (ms ++ ms).size shouldBe 3
+    }
+
     it("support lookups") {
       // Get as option
       ms.get(1) shouldBe Some("one")
@@ -127,6 +132,12 @@ class Collections050MapSpec extends AnyFunSpecLike with Matchers {
       xs.toSeq shouldBe Seq(1 -> "A", 2 -> "X", 3 -> "B", 4 -> "A", 5 -> "A")
     }
 
+    it("has aliases") {
+      val ms = SortedMap(5 -> "A", 4 -> "A", 3 -> "B", 2 -> "X", 1 -> "A")
+      // TODO: verify and improve
+      (ms ++ ms).size shouldBe 5
+    }
+
     it("can be created from an existing map") {
       val xs = SortedMap(5 -> "A", 4 -> "A", 3 -> "B", 2 -> "X", 1 -> "A")
       val sortedXs = SortedMap.empty[Int, String] ++ xs
@@ -164,6 +175,12 @@ class Collections050MapSpec extends AnyFunSpecLike with Matchers {
   }
 
   describe("Mutable maps") {
+
+    it("has aliases") {
+      val ms = mutable.Map(1 -> "one", 2 -> "two", 3 -> "three")
+      // TODO: verify and improve
+      (ms ++ ms).size shouldBe 3
+    }
 
     it("support additions and updates") {
       val ms = mutable.Map(1 -> "one", 2 -> "two", 3 -> "three")

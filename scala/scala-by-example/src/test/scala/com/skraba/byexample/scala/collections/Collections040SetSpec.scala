@@ -32,6 +32,11 @@ class Collections040SetSpec extends AnyFunSpecLike with Matchers {
       List("one", "two", "three").map(f) shouldBe List(true, true, false)
     }
 
+    it("has aliases") {
+      // TODO: verify and improve
+      (xs ++ xs).size shouldBe 3
+    }
+
     it("supports tests") {
       xs contains 3 shouldBe true
       xs(3) shouldBe true // alias
@@ -66,6 +71,12 @@ class Collections040SetSpec extends AnyFunSpecLike with Matchers {
   }
 
   describe("Mutable sets") {
+
+    it("has aliases") {
+      val xs = mutable.Set(1, 2, 3)
+      // TODO: verify and improve
+      (xs ++ xs).size shouldBe 3
+    }
 
     it("support additions") {
       val xs = mutable.Set(1, 2, 3)
@@ -108,12 +119,19 @@ class Collections040SetSpec extends AnyFunSpecLike with Matchers {
   }
 
   describe("Sorted sets") {
+
     it("has a default implementation of immutable.TreeSet") {
       // Any smaller sets may have a specialized implementation.
       val xs = SortedSet(1, 2, 3, 4, 5)
       xs shouldBe a[immutable.TreeSet[_]]
       // And it has an order
       xs.toSeq shouldBe Seq(1, 2, 3, 4, 5)
+    }
+
+    it("has aliases") {
+      val xs = SortedSet(1, 2, 3)
+      // TODO: verify and improve
+      (xs ++ xs).size shouldBe 3
     }
 
     it("can be created from an existing set") {
@@ -152,6 +170,12 @@ class Collections040SetSpec extends AnyFunSpecLike with Matchers {
       xs(3) shouldBe false
       xs.toSeq shouldBe Seq(1, 2, 5, 100, 200)
       xs.range(2, 200).toSeq shouldBe Seq(2, 5, 100)
+    }
+
+    it("has aliases") {
+      val xs = immutable.BitSet(1, 2, 3)
+      // TODO: verify and improve
+      (xs ++ xs).size shouldBe 3
     }
   }
 }

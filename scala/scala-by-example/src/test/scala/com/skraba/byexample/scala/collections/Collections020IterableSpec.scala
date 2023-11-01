@@ -41,6 +41,12 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
       t.getMessage shouldBe "head of empty list"
     }
 
+    it("has aliases") {
+      // The only alias for Iterator is concat
+      val it: Iterator[Int] = xs.iterator ++ xs.iterator
+      it.length shouldBe 6
+    }
+
     it("has other methods that can be found in Iterable") {
       // The contains method works on Iterator, but should only be used *once*
       // on the instance, then discarded
@@ -71,8 +77,14 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
       )
     }
 
+    it("has aliases") {
+      // The only alias for Iterable is concat
+      (xs ++ xs).size shouldBe 6
+    }
+
     it("supports addition") {
       Iterable(1, 2) ++ Iterable(3) shouldBe Iterable(1, 2, 3)
+      Iterable(1, 2).concat(Iterable(3)) shouldBe Iterable(1, 2, 3)
     }
 
     it("supports map operations") {
