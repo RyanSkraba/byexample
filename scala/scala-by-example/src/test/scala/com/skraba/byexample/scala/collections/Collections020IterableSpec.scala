@@ -3,7 +3,7 @@ package com.skraba.byexample.scala.collections
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable
 
 /** Examples from the scala collections doc. Each spec covers a page.
   *
@@ -82,6 +82,48 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
       (xs ++ xs).size shouldBe 6
     }
 
+    it("has factories") {
+      // Nothing
+      Iterable.empty shouldBe Iterable()
+
+      // From something
+      Iterable(1, 2, 3) shouldBe Iterable(1, 2, 3)
+
+      // From repeatedly applying a funtion
+      Iterable.iterate(1, 4)(_ * 2) shouldBe Iterable(1, 2, 4, 8)
+
+      // Unfold takes a state (accumulator) and applies a function to it that
+      // returns the next value of the Iterable -> newState, or the end.
+      Iterable.unfold('d') { c =>
+        if (c <= 'f') Some(c - 'a', (c + 1).toChar) else None
+      } shouldBe Iterable(3, 4, 5)
+
+      // Ranges fill the iterable
+      Iterable.range(0, 3) shouldBe Iterable(0, 1, 2)
+      Iterable.range(0, 10, 3) shouldBe Iterable(0, 3, 6, 9)
+
+      // Iterable dimensional
+      Iterable.fill(5)("A") shouldBe Iterable("A", "A", "A", "A", "A")
+      Iterable.tabulate(5)(x => s"A$x") shouldBe
+        Iterable("A0", "A1", "A2", "A3", "A4")
+
+      // Up to five dimensions are possible.
+      Iterable.fill(5, 2)("A") shouldBe Iterable(
+        Iterable("A", "A"),
+        Iterable("A", "A"),
+        Iterable("A", "A"),
+        Iterable("A", "A"),
+        Iterable("A", "A")
+      )
+      Iterable.tabulate(5, 2)((x, y) => s"A$x$y") shouldBe Iterable(
+        Iterable("A00", "A01"),
+        Iterable("A10", "A11"),
+        Iterable("A20", "A21"),
+        Iterable("A30", "A31"),
+        Iterable("A40", "A41")
+      )
+    }
+
     it("supports addition") {
       Iterable(1, 2) ++ Iterable(3) shouldBe Iterable(1, 2, 3)
       Iterable(1, 2).concat(Iterable(3)) shouldBe Iterable(1, 2, 3)
@@ -95,23 +137,25 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
     }
 
     it("supports conversion") {
+      xs.to(LazyList) shouldBe a[LazyList[_]]
       xs.toArray shouldBe an[Array[_]]
+      xs.toBuffer shouldBe an[mutable.Buffer[_]]
+      xs.toIndexedSeq shouldBe an[IndexedSeq[_]]
       xs.toList shouldBe a[List[_]]
       xs.toSeq shouldBe a[Seq[_]]
-      xs.toIndexedSeq shouldBe an[IndexedSeq[_]]
       xs.toSet shouldBe a[Set[_]]
-      xs.to(LazyList) shouldBe a[LazyList[_]]
+      xs.toVector shouldBe a[Vector[_]]
       // Static error if the Iterable is not a tuple.
       xs.map(x => (x, x + 1)).toMap shouldBe Map(1 -> 2, 2 -> 3, 3 -> 4)
     }
 
     it("supports copying") {
-      val buf = ListBuffer[Int]()
-      buf ++= xs
-      buf shouldBe ListBuffer(1, 2, 3)
       val arr = Array.ofDim[Int](3)
       xs.copyToArray(arr, 0, 3)
       arr shouldBe Array(1, 2, 3)
+      // If you want to copy into a buffer, do it the other way around
+      val buf = mutable.ListBuffer[Int]() ++= xs
+      buf shouldBe mutable.ListBuffer(1, 2, 3)
     }
 
     it("supports size info") {
@@ -120,6 +164,11 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
       xs.size shouldBe 3
       xs.knownSize shouldBe -1
       xs.toIndexedSeq.knownSize shouldBe 3
+      // A comparator that can be a more efficient when calculating the
+      // actual size is prohibitive.
+      xs.sizeCompare(LazyList.continually(0)) shouldBe -1
+      xs.sizeCompare(2) shouldBe 1
+      xs.sizeIs >= 3 shouldBe true
     }
 
     it("supports element retrieval") {
@@ -130,19 +179,28 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
       xs find (_ % 2 == 0) shouldBe Some(2)
     }
 
-    it("supports subcollections") {
+    it("supports subcollection") {
       xs.tail shouldBe Iterable(2, 3)
       xs.init shouldBe Iterable(1, 2)
       xs.slice(0, 2) shouldBe Iterable(1, 2)
       xs.take(2) shouldBe Iterable(1, 2)
+      xs.takeRight(2) shouldBe Iterable(2, 3)
       xs.drop(2) shouldBe Iterable(3)
+      xs.dropRight(2) shouldBe Iterable(1)
       xs.takeWhile(_ <= 2) shouldBe Iterable(1, 2)
       xs.dropWhile(_ <= 2) shouldBe Iterable(3)
       xs.filter(_ % 2 == 0) shouldBe Iterable(2)
+      xs.filterNot(_ % 2 == 0) shouldBe Iterable(1, 3)
       // Used to optimize for comprehensions (non-strict), provides further map operations without
       // actually running yet.
-      xs.withFilter(_ % 2 == 0).map(x => x) shouldBe Iterable(2)
-      xs.filterNot(_ % 2 == 0) shouldBe Iterable(1, 3)
+      xs.withFilter(_ % 2 == 0).map(identity) shouldBe Iterable(2)
+
+      // When creating subcollections out of bounds
+      xs.slice(0, 999) shouldBe Iterable(1, 2, 3)
+      xs.take(999) shouldBe Iterable(1, 2, 3)
+      xs.takeRight(999) shouldBe Iterable(1, 2, 3)
+      xs.drop(999) shouldBe empty
+      xs.dropRight(999) shouldBe empty
     }
 
     it("supports subdivisions") {
@@ -152,10 +210,20 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
       xs span (_ <= 2) shouldBe (Iterable(1, 2), Iterable(3))
       // (xs filter p, xs.filterNot p)
       xs partition (_ % 2 == 0) shouldBe (Iterable(2), Iterable(1, 3))
-      // Arbitrary discrimator function.
+      // Arbitrary discrimator function for the key.
       xs groupBy (_ <= 2) shouldBe Map(
         false -> Iterable(3),
         true -> Iterable(1, 2)
+      )
+      // As well as arbitrary function for the value.
+      xs.groupMap(_ % 2)(_ + 100) shouldBe Map(
+        0 -> Iterable(102),
+        1 -> Iterable(101, 103)
+      )
+      // Or even to accumulate the values.
+      xs.groupMapReduce(_ % 2)(_ + 100)(_ * _) shouldBe Map(
+        0 -> 102,
+        1 -> 10403
       )
     }
 
@@ -195,51 +263,34 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
       }
     }
 
-    it("supports specific folds") {
+    it("supports specific numeric folds") {
       xs.sum shouldBe 6
       xs.product shouldBe 6
       xs.min shouldBe 1
       xs.max shouldBe 3
+
+      // On an empty iterable
+      val xs0 = xs.drop(3)
+      xs0.sum shouldBe 0
+      xs0.product shouldBe 1
+      intercept[UnsupportedOperationException] {
+        xs0.min
+      }.getMessage shouldBe "empty.min"
+      intercept[UnsupportedOperationException] {
+        xs0.max
+      }.getMessage shouldBe "empty.max"
+
+      xs.minOption shouldBe Some(1)
+      xs.maxOption shouldBe Some(3)
+      xs0.minOption shouldBe None
+      xs0.maxOption shouldBe None
     }
 
     it("supports some string operations") {
       val b = new StringBuilder()
-      xs.addString(b, "a", "b", "c") shouldBe new StringBuilder("a1b2b3c")
+      xs.addString(b, "a", "b", "c")
+      b shouldBe new StringBuilder("a1b2b3c")
       xs.mkString("x", "y", "z") shouldBe "x1y2y3z"
-    }
-
-    it("supports views") {
-      // See spec on views in this package. TL;DR --> they're lazy.
-      xs.view should contain theSameElementsAs List(1, 2, 3)
-      xs.view.slice(1, 2) should contain theSameElementsAs List(2)
-    }
-
-    it("supports creation") {
-      // Iterable dimensional
-      Iterable.fill(5)("A") shouldBe Iterable("A", "A", "A", "A", "A")
-      Iterable.tabulate(5)(x => s"A$x") shouldBe Iterable(
-        "A0",
-        "A1",
-        "A2",
-        "A3",
-        "A4"
-      )
-
-      // Up to five dimensions are possible.
-      Iterable.fill(5, 2)("A") shouldBe Iterable(
-        Iterable("A", "A"),
-        Iterable("A", "A"),
-        Iterable("A", "A"),
-        Iterable("A", "A"),
-        Iterable("A", "A")
-      )
-      Iterable.tabulate(5, 2)((x, y) => s"A$x$y") shouldBe Iterable(
-        Iterable("A00", "A01"),
-        Iterable("A10", "A11"),
-        Iterable("A20", "A21"),
-        Iterable("A30", "A31"),
-        Iterable("A40", "A41")
-      )
     }
 
     it("supports grouped sub-iterators") {
@@ -260,12 +311,6 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
       it.hasNext shouldBe true
       it.next shouldBe Iterable(2, 3)
       it.hasNext shouldBe false
-    }
-
-    it("supports additional subcollection") {
-      // In addition to take/drop
-      xs takeRight 2 shouldBe Iterable(2, 3)
-      xs dropRight 2 shouldBe Iterable(1)
     }
 
     it("supports iterating together") {
@@ -295,6 +340,12 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
     it("supports comparison") {
       val ys1 = Iterable("a", "b")
       xs.iterator sameElements ys1.iterator shouldBe false
+    }
+
+    it("supports views") {
+      // See spec on views in this package. TL;DR --> they're lazy.
+      xs.view should contain theSameElementsAs List(1, 2, 3)
+      xs.view.slice(1, 2) should contain theSameElementsAs List(2)
     }
   }
 }
