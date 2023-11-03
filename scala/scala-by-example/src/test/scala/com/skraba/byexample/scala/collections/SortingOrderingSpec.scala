@@ -75,5 +75,15 @@ class SortingOrderingSpec extends AnyFunSpecLike with Matchers {
       Sorting.stableSort(xs, (x: ABC, y: ABC) => x.a < y.a)
       xs shouldBe Array(ABC("a", 5, 2), ABC("b", 1, 3, 2, 1), ABC("c", 3))
     }
+
+    it("can be added for a case class") {
+      object ABCOrderingByB extends Ordering[ABC] {
+        def compare(a: ABC, b: ABC): Int = a.b.compare(b.b)
+      }
+
+      Sorting.quickSort(xs)(ABCOrderingByB)
+      xs.map(_.a) shouldBe Seq("b", "c", "a")
+    }
+
   }
 }
