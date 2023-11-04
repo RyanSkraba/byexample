@@ -11,13 +11,20 @@ import scala.util.Sorting
   */
 class SortingOrderingSpec extends AnyFunSpecLike with Matchers {
 
-  case class ABC(a: String, b: Int, c: Int*)
-  val xs: Array[ABC] = Array(ABC("a", 5, 2), ABC("c", 3), ABC("b", 1, 3, 2, 1))
+  case class Issue(prj: String, num: Int, priorities: Int*)
+
+  def sample(): Array[Issue] = Array(
+    Issue("a", 5, 2),
+    Issue("b", 1, 3, 2, 1),
+    Issue("c", 3)
+  )
+
+  def prj(in: Array[Issue]): Seq[String] = in.map(_.prj)
 
   describe("Sorting.quickSort") {
     it("can be used to sort common arrays") {
       val xs = Array(3, 2, 1)
-      Sorting.quickSort(xs)
+      Sorting.quickSort(xs) // Unit
       // The array is modified in place
       xs shouldBe Array(1, 2, 3)
     }
@@ -65,25 +72,44 @@ class SortingOrderingSpec extends AnyFunSpecLike with Matchers {
     }
 
     it("can be customized for case classes") {
-      // Sort by B
-      Sorting.quickSort(xs)(_.b compare _.b)
-      xs shouldBe Array(ABC("b", 1, 3, 2, 1), ABC("c", 3), ABC("a", 5, 2))
-      // Sort by the length of c
-      Sorting.quickSort(xs)(_.c.length compare _.c.length)
-      xs shouldBe Array(ABC("c", 3), ABC("a", 5, 2), ABC("b", 1, 3, 2, 1))
+      // Sort by num
+      val xs = sample()
+      Sorting.quickSort(xs)(_.num compare _.num)
+      xs shouldBe Array(Issue("b", 1, 3, 2, 1), Issue("c", 3), Issue("a", 5, 2))
 
-      Sorting.stableSort(xs, (x: ABC, y: ABC) => x.a < y.a)
-      xs shouldBe Array(ABC("a", 5, 2), ABC("b", 1, 3, 2, 1), ABC("c", 3))
+      // Sort by the number of priorities
+      Sorting.quickSort(xs)(_.priorities.length compare _.priorities.length)
+      xs shouldBe Array(Issue("c", 3), Issue("a", 5, 2), Issue("b", 1, 3, 2, 1))
+
+      // Sort by project
+      Sorting.stableSort(xs, (x: Issue, y: Issue) => x.prj < y.prj)
+      xs shouldBe Array(Issue("a", 5, 2), Issue("b", 1, 3, 2, 1), Issue("c", 3))
     }
 
     it("can be added for a case class") {
-      object ABCOrderingByB extends Ordering[ABC] {
-        def compare(a: ABC, b: ABC): Int = a.b.compare(b.b)
+      object IssueOrderByNum extends Ordering[Issue] {
+        def compare(a: Issue, b: Issue): Int = a.num.compare(b.num)
       }
 
-      Sorting.quickSort(xs)(ABCOrderingByB)
-      xs.map(_.a) shouldBe Seq("b", "c", "a")
+      val xs = sample()
+      Sorting.quickSort(xs)(IssueOrderByNum)
+      xs.map(_.prj) shouldBe Seq("b", "c", "a")
     }
 
+    it("can be added implicitly for a case class") {
+      implicit object IssueOrderByPrio extends Ordering[Issue] {
+        def compare(a: Issue, b: Issue): Int = a.priorities.maxOption
+          .getOrElse(Int.MinValue)
+          .compare(b.priorities.maxOption.getOrElse(Int.MinValue))
+      }
+
+      val xs = sample()
+      // We don't need to provide the implicit ordering.
+      Sorting.quickSort(xs)
+      xs.map(_.prj) shouldBe Seq("c", "a", "b")
+      // We can even modify the implicit ordering without knowing it!
+      Sorting.quickSort(xs)(implicitly[Ordering[Issue]].reverse)
+      xs.map(_.prj) shouldBe Seq("b", "a", "c")
+    }
   }
 }
