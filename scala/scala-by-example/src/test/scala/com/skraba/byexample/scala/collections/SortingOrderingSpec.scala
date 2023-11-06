@@ -24,19 +24,50 @@ class SortingOrderingSpec extends AnyFunSpecLike with Matchers {
   def prj(in: Seq[Issue]): Seq[String] = in.map(_.prj)
 
   describe("When sorting a collection") {
-    val xs = issueSample().toSeq
 
-    it("the sorted method requires an Ordering") {
-      val ys = xs.sorted(Ordering.by[Issue, Int](_.num))
-      prj(xs) shouldBe Seq("a", "b", "c", "d", "e")
-      prj(ys) shouldBe Seq("b", "e", "c", "d", "a")
+    describe("and the ordering is known") {
+      val xs = Seq(5, 3, 1, 2, 4)
+      it("the sorted method creates a new collection") {
+        val sorted = xs.sorted
+        xs shouldBe Seq(5, 3, 1, 2, 4)
+        sorted shouldBe Seq(1, 2, 3, 4, 5)
+      }
+
+      it("the sortWith method specifies a 'less than' predicate.") {
+        val sorted = xs.sortWith(_ > _)
+        sorted shouldBe Seq(5, 4, 3, 2, 1)
+      }
+
+      it("the sortBy method specifies a function to a known ordering") {
+        val sorted = xs.sortBy(i => i + 100 * (i % 2))
+        sorted shouldBe Seq(2, 4, 1, 3, 5)
+      }
+    }
+
+    describe("and the ordering is unknown") {
+      val is = issueSample()
+      it("the sorted method can take an explicit Ordering") {
+        val sorted = is.sorted(Ordering.by[Issue, Int](_.num))
+        prj(is) shouldBe Seq("a", "b", "c", "d", "e")
+        prj(sorted) shouldBe Seq("b", "e", "c", "d", "a")
+      }
+
+      it("the sortWith method specifies a 'less than' predicate.") {
+        val sorted = is.sortWith(_.num < _.num)
+        prj(sorted) shouldBe Seq("b", "e", "c", "d", "a")
+      }
+
+      it("the sortBy method specifies a function to a known ordering") {
+        val sorted = is.sortBy(-_.num)
+        prj(sorted) shouldBe Seq("a", "c", "d", "e", "b")
+      }
     }
   }
 
   describe("Sorting.quickSort") {
     it("can be used to sort common arrays") {
       val xs = Array(3, 2, 1)
-      Sorting.quickSort(xs) // Unit
+      Sorting.quickSort(xs) shouldBe () // returns Unit
       // The array is modified in place
       xs shouldBe Array(1, 2, 3)
     }
