@@ -28,6 +28,22 @@ class StringInterpolationSpec extends AnyFunSpecLike with Matchers {
     }
   }
 
+  describe("Using a raw-string or raw interpolator") {
+    it("behaves as an s-string without converting literals") {
+      val x = (".*", 456)
+      // No interpolation, but literals are converted
+      "${x._1}\n${x._2}" shouldBe "${x._1}\n${x._2}"
+      // Interpolation, and literals are converted
+      s"${x._1}\n${x._2}" shouldBe ".*\n456"
+      s"${x._1}\n${x._2}".exists(_.isWhitespace) shouldBe true
+      // Interpolation, and literals are not converted
+      raw"${x._1}\n${x._2}" shouldBe ".*\\n456"
+      raw"${x._1}\n${x._2}".exists(_.isWhitespace) shouldBe false
+      // This is especially useful for regex!
+      raw"${x._1}\n${x._2}".r matches ("123\n456") shouldBe true
+    }
+  }
+
   describe("Using a format from a string") {
     it("should order arguments correctly") {
       "%1s %2s".format("one", "two") shouldBe "one two"
