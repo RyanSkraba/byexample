@@ -63,6 +63,34 @@ class StringInterpolationSpec extends AnyFunSpecLike with Matchers {
       val unit2 = "centimetre"
       f"$unit1%s is $conversion%2.1f $unit2%s" shouldBe "inch is 2.5 centimetre"
     }
+
+    it("should format dates") {
+      // Saturday, February 14, 2015 3:14:15.926 Pm
+      val time = 1423926855926L
+
+      // Standard 2 digits 24 hour clock
+      f"$time%tH:$time%tM:$time%tS" shouldBe "16:14:15"
+      f"$time%tT" shouldBe "16:14:15"
+      f"$time%tR" shouldBe "16:14"
+      f"$time%tT.$time%tL" shouldBe "16:14:15.926"
+      f"$time%tT.$time%tN" shouldBe "16:14:15.926000000"
+
+      // Standard 12 hour clock
+      f"$time%tI:$time%tM:$time%tS $time%Tp" shouldBe "04:14:15 PM"
+      f"$time%tr" shouldBe "04:14:15 PM"
+
+      // Weird non-standard MM/DD/YYYY date that everyone hates
+      f"$time%tm/$time%td/$time%ty" shouldBe "02/14/15"
+      f"$time%tD" shouldBe "02/14/15"
+
+      // ISO-8601
+      f"$time%tY-$time%tm-$time%td" shouldBe "2015-02-14"
+      f"$time%tF" shouldBe "2015-02-14"
+
+      // Git-like dates (the time zone is taken from the local)
+      f"$time%ta $time%tb $time%td $time%tT $time%tZ $time%tY" should fullyMatch regex "Sat Feb 14 16:14:15 .* 2015"
+      f"$time%tc" should fullyMatch regex "Sat Feb 14 16:14:15 .* 2015"
+    }
   }
 
 }
