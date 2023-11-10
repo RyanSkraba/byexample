@@ -36,6 +36,23 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
   /** Split on :: or , or ; punctuation. */
   val SplitRegex: Regex = raw"(::|,|;)".r
 
+  describe("Using ScalaTest to test regex") {
+    it("can match regular expressions") {
+      val name = "Example"
+      name should startWith regex "Ex.m"
+      name should endWith regex "m.le"
+      name should include regex "x.m"
+      name should fullyMatch regex """[Ee].*[Ee]"""
+    }
+
+    it("can match regular expressions with groups") {
+      "ExxampleStuff" should startWith regex ("E(x*).*(p.e)" withGroups ("xx", "ple"))
+      "myExxxxampLe" should endWith regex ("E(x*).*(p.e)" withGroups ("xxxx", "pLe"))
+      "myExxxampieStuff" should include regex ("E(x*).*(p.e)" withGroups ("xxx", "pie"))
+      "Eamp&e" should fullyMatch regex ("E(x*).*(p.e)" withGroups ("", "p&e"))
+    }
+  }
+
   describe("Using Regex for matching") {
 
     it("should match an entire or partial string") {
