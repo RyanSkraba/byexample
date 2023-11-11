@@ -9,6 +9,8 @@ import scala.util.matching.Regex
   *
   * @see
   *   [[java.util.Formatter]]
+  * @see
+  *   https://docs.scala-lang.org/scala3/book/string-interpolation.html
   */
 class StringInterpolationSpec extends AnyFunSpecLike with Matchers {
 
@@ -90,6 +92,22 @@ class StringInterpolationSpec extends AnyFunSpecLike with Matchers {
       // Git-like dates (the time zone is taken from the local)
       f"$time%ta $time%tb $time%td $time%tT $time%tZ $time%tY" should fullyMatch regex "Sat Feb 14 16:14:15 .* 2015"
       f"$time%tc" should fullyMatch regex "Sat Feb 14 16:14:15 .* 2015"
+    }
+  }
+
+  describe("Using a custom interpolator") {
+    it("you can create a custom interpolator by providing an extension") {
+      case class Issue(prj: String, num: Int)
+
+      // This really should implement AnyVal
+      implicit class IssueHelper(val sc: StringContext) {
+        def i(args: Any*): Issue = {
+          val xx = sc.parts.mkString.split("-")
+          Issue(xx.head, xx(1).toInt)
+        }
+      }
+      i"ABC-123".num shouldBe 123
+      i"ABC-123".prj shouldBe "ABC"
     }
   }
 
