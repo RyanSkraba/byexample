@@ -48,8 +48,15 @@ class StringInterpolationSpec extends AnyFunSpecLike with Matchers {
 
   describe("Using a format from a string") {
     it("should order arguments correctly") {
+      // No argument index
+      "%s %s".format("one", "two") shouldBe "one two"
+      // With argument indices (both formats)
       "%1s %2s".format("one", "two") shouldBe "one two"
       "%2$s %1$s".format("one", "two") shouldBe "two one"
+      // Mixed
+      "%2$s %s".format("one", "two") shouldBe "two one"
+      "%2$s %s %s".format("one", "two") shouldBe "two one two"
+      "%2$s %s %2$s %s %1$s".format("one", "two") shouldBe "two one two two one"
     }
 
     it("should align strings") {
