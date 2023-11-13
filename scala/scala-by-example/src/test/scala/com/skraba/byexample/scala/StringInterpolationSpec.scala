@@ -63,6 +63,27 @@ class StringInterpolationSpec extends AnyFunSpecLike with Matchers {
       "%1$-10s".format("one") shouldBe "one       "
       "%1$10s".format("one") shouldBe "       one"
     }
+
+    it("should resolve booleans") {
+      "%b %b %b".format(None.orNull, true, false) shouldBe "false true false"
+      "%b %b %b".format("false", "true", "") shouldBe "true true true"
+      "%b %b %b".format(0, -1, math.Pi) shouldBe "true true true"
+      "%B %B %B".format(None.orNull, true, false) shouldBe "FALSE TRUE FALSE"
+    }
+
+    it("should resolve hashcodes") {
+      "%h %h %h".format(None.orNull, true, false) shouldBe "null 4cf 4d5"
+      "%h %h %h".format("false", "true", "") shouldBe "5cb1923 36758e 0"
+      "%h %h %h".format(0, -1, math.Pi) shouldBe "0 ffffffff 144d0ce3"
+      "%H %H %H".format(None.orNull, true, false) shouldBe "NULL 4CF 4D5"
+    }
+
+    it("should resolve strings") {
+      "%s %s %s".format(None.orNull, true, false) shouldBe "null true false"
+      "%s %s %s".format("false", "true", "") shouldBe "false true "
+      "%s %s %s".format(0, -1, math.Pi) shouldBe "0 -1 3.141592653589793"
+      "%S %S %S".format(None.orNull, "hello", false) shouldBe "NULL HELLO FALSE"
+    }
   }
 
   describe("Using an f-string or F interpolator") {
