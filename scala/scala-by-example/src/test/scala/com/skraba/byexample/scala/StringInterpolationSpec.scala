@@ -84,6 +84,14 @@ class StringInterpolationSpec extends AnyFunSpecLike with Matchers {
       "%s %s %s".format(0, -1, math.Pi) shouldBe "0 -1 3.141592653589793"
       "%S %S %S".format(None.orNull, "hello", false) shouldBe "NULL HELLO FALSE"
     }
+
+    it("should convert characters") {
+      "%c %c %c".format(None.orNull, 66, 'a') shouldBe "null B a"
+      "%c %c".format('\u0151', 'ő') shouldBe "ő ő"
+      "%C %C %C".format(None.orNull, 66, 'a') shouldBe "NULL B A"
+      "%C %C".format('\u0151', 'ő') shouldBe "Ő Ő"
+    }
+
   }
 
   describe("Using an f-string or F interpolator") {
