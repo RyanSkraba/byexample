@@ -92,6 +92,12 @@ class StringInterpolationSpec extends AnyFunSpecLike with Matchers {
       "%C %C".format('\u0151', 'ő') shouldBe "Ő Ő"
     }
 
+    it("should convert integers") {
+      "%d %d %d".format(None.orNull, 3, -14) shouldBe "null 3 -14"
+      "%o %o %o".format(None.orNull, 3, -14) shouldBe "null 3 37777777762"
+      "%x %x %x".format(None.orNull, 3, -14) shouldBe "null 3 fffffff2"
+      "%X %X %X".format(None.orNull, 3, -14) shouldBe "NULL 3 FFFFFFF2"
+    }
   }
 
   describe("Using an f-string or F interpolator") {
