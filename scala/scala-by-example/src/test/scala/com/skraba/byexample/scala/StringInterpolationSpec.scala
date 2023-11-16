@@ -98,6 +98,20 @@ class StringInterpolationSpec extends AnyFunSpecLike with Matchers {
       "%x %x %x".format(None.orNull, 3, -14) shouldBe "null 3 fffffff2"
       "%X %X %X".format(None.orNull, 3, -14) shouldBe "NULL 3 FFFFFFF2"
     }
+
+    it("should convert floating points") {
+      val pi = math.Pi
+      val e = -math.E
+      "%e %e".format(pi, e) shouldBe "3.141593e+00 -2.718282e+00"
+      "%f %f".format(pi, e) shouldBe "3.141593 -2.718282"
+      "%f %f".format(pi, e) shouldBe "3.141593 -2.718282"
+      "%g %g".format(pi * 1e4, e * 1e5) shouldBe "31415.9 -271828"
+      "%g %g".format(pi * 1e6, e * 1e7) shouldBe "3.14159e+06 -2.71828e+07"
+      "%a %a".format(pi, e) shouldBe "0x1.921fb54442d18p1 -0x1.5bf0a8b145769p1"
+      "%E %E".format(pi, e) shouldBe "3.141593E+00 -2.718282E+00"
+      "%G %G".format(pi * 1e6, e * 1e7) shouldBe "3.14159E+06 -2.71828E+07"
+      "%A %A".format(pi, e) shouldBe "0X1.921FB54442D18P1 -0X1.5BF0A8B145769P1"
+    }
   }
 
   describe("Using an f-string or F interpolator") {
