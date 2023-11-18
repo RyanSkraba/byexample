@@ -18,12 +18,12 @@ Advent of Code 2022
 | [Day 8][AoC2022-08] ([Solution][Sol-AoC2022-08])  |                                                                                                    |
 | [Day 9][AoC2022-09] ([Solution][Sol-AoC2022-09])  |                                                                                                    |
 | [Day 10][AoC2022-10] ([Solution][Sol-AoC2022-10]) |                                                                                                    |
-| [Day 11][AoC2022-11] ([Solution][Sol-AoC2022-11]) |                                                                                                    |
-| [Day 12][AoC2022-12] ([Solution][Sol-AoC2022-12]) |                                                                                                    |
+| [Day 11][AoC2022-11] ([Solution][Sol-AoC2022-11]) | Manually hard-coding some inputs instead of parsing.                                               |
+| [Day 12][AoC2022-12] ([Solution][Sol-AoC2022-12]) | Breadth-First Search on a height map.                                                              |
 | [Day 13][AoC2022-13] ([Solution][Sol-AoC2022-13]) |                                                                                                    |
-| [Day 14][AoC2022-14] ([Solution][Sol-AoC2022-14]) |                                                                                                    |
+| [Day 14][AoC2022-14] ([Solution][Sol-AoC2022-14]) | Calculate falling sand in a cave.                                                                  |
 | [Day 15][AoC2022-15] ([Solution][Sol-AoC2022-15]) |                                                                                                    |
-| [Day 16][AoC2022-16] ([Solution][Sol-AoC2022-16]) |                                                                                                    |
+| [Day 16][AoC2022-16] ([Solution][Sol-AoC2022-16]) | Floyd-Warshall minimum paths.  Depth-First Search optimising open valves. (57 minutes)             |
 | [Day 17][AoC2022-17] ([Solution][Sol-AoC2022-17]) |                                                                                                    |
 | [Day 18][AoC2022-18] ([Solution][Sol-AoC2022-18]) |                                                                                                    |
 | [Day 19][AoC2022-19] ([Solution][Sol-AoC2022-19]) |                                                                                                    |
