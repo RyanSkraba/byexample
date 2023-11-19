@@ -23,13 +23,13 @@ Advent of Code 2022
 | [Day 13][AoC2022-13] ([Solution][Sol-AoC2022-13]) |                                                                                                    |
 | [Day 14][AoC2022-14] ([Solution][Sol-AoC2022-14]) | Calculate falling sand in a cave.                                                                  |
 | [Day 15][AoC2022-15] ([Solution][Sol-AoC2022-15]) |                                                                                                    |
-| [Day 16][AoC2022-16] ([Solution][Sol-AoC2022-16]) | Floyd-Warshall minimum paths.  Depth-First Search optimising open valves. (57 minutes)             |
-| [Day 17][AoC2022-17] ([Solution][Sol-AoC2022-17]) |                                                                                                    |
-| [Day 18][AoC2022-18] ([Solution][Sol-AoC2022-18]) |                                                                                                    |
-| [Day 19][AoC2022-19] ([Solution][Sol-AoC2022-19]) |                                                                                                    |
+| [Day 16][AoC2022-16] ([Solution][Sol-AoC2022-16]) | Floyd-Warshall minimum paths.  Depth-First Search optimising open valves. _(57 minutes)_           |
+| [Day 17][AoC2022-17] ([Solution][Sol-AoC2022-17]) | Cycle detection in a tetris like falling-rock game.                                                |
+| [Day 18][AoC2022-18] ([Solution][Sol-AoC2022-18]) | Three-dimensional surface detection.                                                               |
+| [Day 19][AoC2022-19] ([Solution][Sol-AoC2022-19]) | Building golems to build golems: DFS optimisation with some tricky heuristics. _(2 minutes)_       |
 | [Day 20][AoC2022-20] ([Solution][Sol-AoC2022-20]) |                                                                                                    |
 | [Day 21][AoC2022-21] ([Solution][Sol-AoC2022-21]) |                                                                                                    |
-| [Day 22][AoC2022-22] ([Solution][Sol-AoC2022-22]) |                                                                                                    |
+| [Day 22][AoC2022-22] ([Solution][Sol-AoC2022-22]) | Moving around an unfolded cube, manually setting up the folded edges.                              |
 | [Day 23][AoC2022-23] ([Solution][Sol-AoC2022-23]) |                                                                                                    |
 | [Day 24][AoC2022-24] ([Solution][Sol-AoC2022-24]) |                                                                                                    |
 | [Day 25][AoC2022-25] ([Solution][Sol-AoC2022-25]) |                                                                                                    |
