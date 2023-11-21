@@ -128,8 +128,8 @@ class AdventOfCodeDay18Spec
     }
   }
 
-  describe("Solution") {
-    val input = puzzleInput("Day18Input.txt").filter(_.nonEmpty)
+  describe("🔑 Solution 🔑") {
+    lazy val input = puzzleInput("Day18Input.txt").filter(_.nonEmpty)
     it("should have answers") {
       part1(Pos.parse(input: _*)) shouldBe 4320
       part2(Pos.parse(input: _*)) shouldBe 2456

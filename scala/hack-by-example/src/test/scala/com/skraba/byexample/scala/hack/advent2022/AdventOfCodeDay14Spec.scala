@@ -337,8 +337,8 @@ class AdventOfCodeDay14Spec
     }
   }
 
-  describe("Solution") {
-    val input = puzzleInput("Day14Input.txt").filter(_.nonEmpty)
+  describe("🔑 Solution 🔑") {
+    lazy val input = puzzleInput("Day14Input.txt").filter(_.nonEmpty)
     it("should have answers") {
       val (coordinates, (offsetX, offsetY, dx, dy)) =
         Cave.parseRockCoordinates(input: _*)

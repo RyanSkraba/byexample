@@ -50,8 +50,8 @@ class AdventOfCodeDay6Spec
     }
   }
 
-  describe("Solution") {
-    val input = puzzleInput("Day6Input.txt")
+  describe("🔑 Solution 🔑") {
+    lazy val input = puzzleInput("Day6Input.txt")
     it("should have answers") {
       findStartOfPacket(input.head) shouldBe 1582
       findStartOfMessage(input.head) shouldBe 3588

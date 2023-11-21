@@ -189,8 +189,8 @@ class AdventOfCodeDay16Spec
     }
   }
 
-  describe("Solution") {
-    val input = puzzleInput("Day16Input.txt")
+  describe("🔑 Solution 🔑") {
+    lazy val input = puzzleInput("Day16Input.txt")
 
     it("should have answers to part 1 (1 second)", Slow) {
       part1(valves = parse(input: _*)) shouldBe 1724

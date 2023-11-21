@@ -289,8 +289,8 @@ class AdventOfCodeDay23Spec
     }
   }
 
-  describe("Solution") {
-    val input = puzzleInput("Day23Input.txt")
+  describe("🔑 Solution 🔑") {
+    lazy val input = puzzleInput("Day23Input.txt")
     it("should have answers for part 1") {
       val plan = Plan(input: _*)
       plan.elves.size shouldBe 2683

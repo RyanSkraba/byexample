@@ -108,8 +108,8 @@ class AdventOfCodeDay2Spec
     }
   }
 
-  describe("Solution") {
-    val input = puzzleInput("Day2Input.txt")
+  describe("🔑 Solution 🔑") {
+    lazy val input = puzzleInput("Day2Input.txt")
     it("should have answers") {
       Solution.naiveStrategyGuide1(input: _*) shouldBe 14069
       Solution.naiveStrategyGuide2(input: _*) shouldBe 12411

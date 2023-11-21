@@ -315,9 +315,9 @@ class AdventOfCodeDay19Spec
     }
   }
 
-  describe("Solution") {
-    val input = puzzleInput("Day19Input.txt")
-    val bps = parse(input: _*)
+  describe("🔑 Solution 🔑") {
+    lazy val input = puzzleInput("Day19Input.txt")
+    lazy val bps = parse(input: _*)
 
     it("should have answers for part 1 (20 seconds)", Slow) {
       part1(24, bps) shouldBe 1650

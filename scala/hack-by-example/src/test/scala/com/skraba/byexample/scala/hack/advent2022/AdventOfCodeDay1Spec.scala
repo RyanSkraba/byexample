@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.hack.advent2022
 
-import com.skraba.byexample.scala.hack.advent2022.AdventUtils.puzzleInput
+import com.skraba.byexample.scala.hack.advent2022.AdventUtils._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
@@ -71,11 +71,15 @@ class AdventOfCodeDay1Spec
     }
   }
 
-  describe("Solution") {
-    val input = puzzleInput("Day1Input.txt")
+  describe("🔑 Solution 🔑") {
+    lazy val input = puzzleInput("Day1Input.txt")
     it("should have answers") {
-      elfWithMostCalories(input: _*) shouldBe 75501
-      threeElvesWithMostCalories(input: _*) shouldBe 215594
+      elfWithMostCalories(input: _*) shouldBe decryptLong(
+        "FTYpuJrtzel2PvCVTEIppw=="
+      )
+      threeElvesWithMostCalories(input: _*) shouldBe decryptLong(
+        "RelObyfSNaKcVxgSuHYRUg=="
+      )
     }
   }
 }

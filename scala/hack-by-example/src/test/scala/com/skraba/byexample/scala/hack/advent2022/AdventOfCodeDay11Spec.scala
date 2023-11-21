@@ -195,8 +195,8 @@ class AdventOfCodeDay11Spec
 
   }
 
-  describe("Solution") {
-    val input = puzzleInput("Day11Input.txt").filter(_.nonEmpty)
+  describe("🔑 Solution 🔑") {
+    lazy val input = puzzleInput("Day11Input.txt").filter(_.nonEmpty)
 
     // Manually hardcode the monkeys
     val monkeys = List(

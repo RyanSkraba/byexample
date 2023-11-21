@@ -267,8 +267,8 @@ class AdventOfCodeDay24Spec
     }
   }
 
-  describe("Solution") {
-    val input = puzzleInput("Day24Input.txt").mkString("\n")
+  describe("🔑 Solution 🔑") {
+    lazy val input = puzzleInput("Day24Input.txt").mkString("\n")
     it("should have answers for part 1") {
       val b = Blizzards(input)
       b.height shouldBe 25

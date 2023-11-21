@@ -122,8 +122,8 @@ class AdventOfCodeDay20Spec
     }
   }
 
-  describe("Solution") {
-    val input =
+  describe("🔑 Solution 🔑") {
+    lazy val input =
       puzzleInput("Day20Input.txt").filter(_.nonEmpty).map(_.toLong).toList
 
     it("should have answers (4 seconds)", Slow) {

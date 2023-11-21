@@ -42,6 +42,12 @@ class AdventUtils {
     new SecretKeySpec(Base64.getDecoder.decode(keyEnv), "AES")
   }
 
+  /** Causes a test to be canceled (but not failed) if the key isn't present. */
+  def requireAdventOfCodeKey(): Unit = Assertions.assume(
+    sys.env.filter(_._1 == AdventOfCodeKey).contains(AdventOfCodeKey),
+    "(missing key for running solutions)"
+  )
+
   /** A helper method for testing and getting the encrypted answer. This can be
     * used temporarily but shouldn't be committed to a repo.
     */
@@ -50,14 +56,13 @@ class AdventUtils {
     cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKey())
     cipher.update(in.toString.getBytes)
     val encrypted = Base64.getEncoder.encodeToString(cipher.doFinal())
-    println(s"Encrypted $in: $encrypted")
+    println(s"Encrypted $in: decryptLong(\"$encrypted\")")
     in
   }
 
   /** @return the long value encrypted in the string */
   def decryptLong(in: String): Long = {
-    Assertions.assume(sys.env.contains(AdventOfCodeKey))
-
+    requireAdventOfCodeKey()
     val cipher = Cipher.getInstance("AES")
     cipher.init(Cipher.DECRYPT_MODE, getOrCreateKey())
     cipher.update(Base64.getDecoder.decode(in))
@@ -78,8 +83,7 @@ class AdventUtils {
 
     // If the file exists but was encrypted, then attempt to decrypt it with the environment variable.
     if (in.headOption.exists(_.startsWith(AdventOfCodeEncrypted))) {
-      // Cancel this specific test if the environment isn't set.
-      Assertions.assume(sys.env.contains(AdventOfCodeKey))
+      requireAdventOfCodeKey()
       val cipher = Cipher.getInstance("AES")
       cipher.init(Cipher.DECRYPT_MODE, getOrCreateKey())
       new String(

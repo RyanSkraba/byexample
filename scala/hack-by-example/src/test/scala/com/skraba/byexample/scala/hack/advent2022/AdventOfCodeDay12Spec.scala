@@ -117,8 +117,8 @@ class AdventOfCodeDay12Spec
     }
   }
 
-  describe("Solution") {
-    val input = puzzleInput("Day12Input.txt").filter(_.nonEmpty)
+  describe("🔑 Solution 🔑") {
+    lazy val input = puzzleInput("Day12Input.txt").filter(_.nonEmpty)
     it("should have answers") {
       val map = Terrain(input: _*)
       map.src shouldBe 2860

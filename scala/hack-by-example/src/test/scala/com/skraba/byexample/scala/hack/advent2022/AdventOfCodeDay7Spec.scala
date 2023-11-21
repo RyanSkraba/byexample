@@ -136,8 +136,8 @@ class AdventOfCodeDay7Spec
     }
   }
 
-  describe("Solution") {
-    val input = puzzleInput("Day7Input.txt")
+  describe("🔑 Solution 🔑") {
+    lazy val input = puzzleInput("Day7Input.txt")
     it("should have answers") {
       val root = parse(input.toBuffer).subs.head
       part1(root.subs, 100000) shouldBe 1086293

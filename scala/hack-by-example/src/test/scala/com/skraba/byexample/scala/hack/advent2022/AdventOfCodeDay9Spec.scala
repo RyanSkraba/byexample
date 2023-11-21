@@ -134,8 +134,8 @@ class AdventOfCodeDay9Spec
     }
   }
 
-  describe("Solution") {
-    val input = puzzleInput("Day9Input.txt").filter(_.nonEmpty)
+  describe("🔑 Solution 🔑") {
+    lazy val input = puzzleInput("Day9Input.txt").filter(_.nonEmpty)
     it("should have answers (10 seconds)", Slow) {
       part1(input: _*) shouldBe 6464
       part2(10, input: _*) shouldBe 2604

@@ -128,8 +128,8 @@ class AdventOfCodeDay8Spec
     }
   }
 
-  describe("Solution") {
-    val input = puzzleInput("Day8Input.txt").filter(_.nonEmpty)
+  describe("🔑 Solution 🔑") {
+    lazy val input = puzzleInput("Day8Input.txt").filter(_.nonEmpty)
     it("should have answers") {
       visibilityCount(
         input.length,

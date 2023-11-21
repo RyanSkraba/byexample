@@ -88,8 +88,8 @@ class AdventOfCodeDay25Spec
     }
   }
 
-  describe("Solution") {
-    val input = puzzleInput("Day25Input.txt")
+  describe("🔑 Solution 🔑") {
+    lazy val input = puzzleInput("Day25Input.txt")
     it("should have answers for part 1") {
       part1(input: _*) shouldBe "2=--=0000-1-0-=1=0=2"
     }

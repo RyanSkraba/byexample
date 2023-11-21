@@ -75,8 +75,8 @@ class AdventOfCodeDay3Spec
     }
   }
 
-  describe("Solution") {
-    val input = puzzleInput("Day3Input.txt")
+  describe("🔑 Solution 🔑") {
+    lazy val input = puzzleInput("Day3Input.txt")
     it("should have answers") {
       priorities(input: _*) shouldBe 8139
       badgePriorities(input: _*) shouldBe 2668

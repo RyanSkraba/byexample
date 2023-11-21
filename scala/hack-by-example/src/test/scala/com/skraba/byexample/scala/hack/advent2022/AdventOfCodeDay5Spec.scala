@@ -100,8 +100,8 @@ class AdventOfCodeDay5Spec
     }
   }
 
-  describe("Solution") {
-    val input = puzzleInput("Day5Input.txt")
+  describe("🔑 Solution 🔑") {
+    lazy val input = puzzleInput("Day5Input.txt")
     it("should have answers") {
       val crates = parseCrates(input: _*)
       crates shouldBe Seq(

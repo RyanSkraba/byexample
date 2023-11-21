@@ -61,7 +61,7 @@ class AdventOfCodeDay10Spec
         |addx 3
         |addx -5
         |""".stripMargin.split("\n").filter(_.nonEmpty)
-    val input = puzzleInput("Day10InputSmall.txt").filter(_.nonEmpty)
+    lazy val input = puzzleInput("Day10InputSmall.txt").filter(_.nonEmpty)
 
     it("should match the puzzle description") {
       radio(inputTiny: _*) shouldBe Seq(1, 1, 1, 4, 4, -1)
@@ -88,8 +88,8 @@ class AdventOfCodeDay10Spec
     }
   }
 
-  describe("Solution") {
-    val input = puzzleInput("Day10Input.txt").filter(_.nonEmpty)
+  describe("🔑 Solution 🔑") {
+    lazy val input = puzzleInput("Day10Input.txt").filter(_.nonEmpty)
     it("should have answers") {
       part1(input: _*) shouldBe 12980
       part2(radio(input: _*)) shouldBe

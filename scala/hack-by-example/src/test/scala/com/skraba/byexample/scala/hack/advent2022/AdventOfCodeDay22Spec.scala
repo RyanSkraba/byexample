@@ -321,8 +321,8 @@ class AdventOfCodeDay22Spec
     }
   }
 
-  describe("Solution") {
-    val input = puzzleInput("Day22Input.txt")
+  describe("🔑 Solution 🔑") {
+    lazy val input = puzzleInput("Day22Input.txt")
 
     it("should have answers for part 1") {
       val (init, moves) = Pos.parse(input: _*)
