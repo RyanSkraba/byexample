@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.hack.advent2022
 
-import com.skraba.byexample.scala.hack.advent2022.AdventUtils.puzzleInput
+import com.skraba.byexample.scala.hack.advent2022.AdventUtils._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
@@ -104,48 +104,26 @@ class AdventOfCodeDay5Spec
     lazy val input = puzzleInput("Day5Input.txt")
     it("should have answers") {
       val crates = parseCrates(input: _*)
-      crates shouldBe Seq(
-        "CSGB",
-        "GVNJHWMT",
-        "SQM",
-        "MNWTLSB",
-        "PWGVTFZJ",
-        "SHQGBTC",
-        "WBPJT",
-        "MQTFZCDG",
-        "FPBHSN"
+      crates.mkString(",") shouldBe decrypt(
+        "vPQOujFIkxxh9/5ADbAm6/49KEva6I+u7ZxbrRodqh7cZouYfV2Lw1dreSYnVqUnoH5WDDzs/lpq3czjkkLcV6g9OALaDYL2V8G8vBhq+qw="
       )
+
       val moves = parseMoves(input: _*)
-      moves should have size 501
+      moves should have size decryptLong("NLfxxhehN14Tbgc7kiV/Eg==")
       moves.head shouldBe (2, 3, 1)
       moves.last shouldBe (1, 7, 5)
-      val newCrates = part1(crates, moves)
-      newCrates shouldBe Seq(
-        "CSFTM",
-        "FLMPB",
-        "FBTWB",
-        "HTPQCZ",
-        "VGDMMZWBSHGGTGJST",
-        "V",
-        "HJPBQQNWJ",
-        "NGTN",
-        "CSWS"
-      )
-      topCrates(newCrates) shouldBe "CFFHVVHNC"
-      val newCrates2 = part2(crates, moves)
-      newCrates2 shouldBe Seq(
-        "FBMCG",
-        "SQWMV",
-        "ZCSTB",
-        "WJDMBS",
-        "BQPJTHGTNGFGNWFQW",
-        "P",
-        "TMJHSPTCZ",
-        "BVTN",
-        "GHSL"
-      )
-      topCrates(newCrates2) shouldBe "FSZWBPTBG"
 
+      val newCrates = part1(crates, moves)
+      newCrates.mkString(",") shouldBe decrypt(
+        "2+ScvkQDIOVhlHb473W1EqZb94ia8LlQC5eHgkdIeh5Am7pnnQS3H+o5PWfWXtTTi+gV8gWXL/8Eq/yD+LE1xKg9OALaDYL2V8G8vBhq+qw="
+      )
+      topCrates(newCrates) shouldBe decrypt("yJ63bO0goBLZSY6eubQ0Bw==")
+
+      val newCrates2 = part2(crates, moves)
+      newCrates2.mkString(",") shouldBe decrypt(
+        "Et5+FYu5bHmHXR3vb1fz34KrPD/rp2EOwpTGiZl66majJ0eQnUZMRq569guK365XJ93cc/n9ldVVk8CrYkA3I6g9OALaDYL2V8G8vBhq+qw="
+      )
+      topCrates(newCrates2) shouldBe decrypt("6RX8dcRlvo+UnaeE1gHrnQ==")
     }
   }
 }

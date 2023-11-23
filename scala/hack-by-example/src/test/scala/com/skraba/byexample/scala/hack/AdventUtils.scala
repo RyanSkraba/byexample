@@ -54,19 +54,38 @@ class AdventUtils {
   def decryptLongDoNotSubmit(in: Long): Long = {
     val cipher = Cipher.getInstance("AES")
     cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKey())
-    cipher.update(in.toString.getBytes)
-    val encrypted = Base64.getEncoder.encodeToString(cipher.doFinal())
+    val encrypted =
+      Base64.getEncoder.encodeToString(cipher.doFinal(in.toString.getBytes))
     println(s"Encrypted $in: decryptLong(\"$encrypted\")")
+    in
+  }
+
+  /** A helper method for testing and getting the encrypted answer. This can be
+    * used temporarily but shouldn't be committed to a repo.
+    */
+  def decryptDoNotSubmit(in: String): String = {
+    val cipher = Cipher.getInstance("AES")
+    cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKey())
+    val encrypted =
+      Base64.getEncoder.encodeToString(cipher.doFinal(in.getBytes))
+    println(s"Encrypted $in: decrypt(\"$encrypted\")")
     in
   }
 
   /** @return the long value encrypted in the string */
   def decryptLong(in: String): Long = {
+    decrypt(in).toLong
+  }
+
+  /** @return the long value encrypted in the string */
+  def decrypt(in: String): String = {
     requireAdventOfCodeKey()
     val cipher = Cipher.getInstance("AES")
     cipher.init(Cipher.DECRYPT_MODE, getOrCreateKey())
-    cipher.update(Base64.getDecoder.decode(in))
-    new String(cipher.doFinal(), StandardCharsets.UTF_8).toLong
+    new String(
+      cipher.doFinal(Base64.getDecoder.decode(in)),
+      StandardCharsets.UTF_8
+    )
   }
 
   /** Get the puzzle input corresponding to the filename, in the right Advent of
