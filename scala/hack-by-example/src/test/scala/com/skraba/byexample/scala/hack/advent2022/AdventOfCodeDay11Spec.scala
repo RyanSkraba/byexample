@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.hack.advent2022
 
-import com.skraba.byexample.scala.hack.advent2022.AdventUtils.puzzleInput
+import com.skraba.byexample.scala.hack.advent2022.AdventUtils._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
@@ -211,8 +211,6 @@ class AdventOfCodeDay11Spec
     )
 
     it("should have answers") {
-      // part1(monkeys: _*) shouldBe 102399
-
       val mnks = Monkeys(monkeys)
       mnks.processMonkey(1, 3)
       mnks.counts shouldBe Seq(6, 5, 10, 2, 3, 9, 7, 16)
@@ -255,8 +253,8 @@ class AdventOfCodeDay11Spec
       mnks.processMonkey(1, 3)
       mnks.counts shouldBe Seq(106, 28, 32, 133, 117, 53, 25, 125)
 
-      part1(monkeys: _*) shouldBe 102399
-      part2(monkeys: _*) shouldBe 23641658401L
+      part1(monkeys: _*) shouldBe decryptLong("DYUeQPdffRo1bKOYLlPMCA==")
+      part2(monkeys: _*) shouldBe decryptLong("IpX/OQ3vfYaEILYZ9iBSIQ==")
     }
   }
 

@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.hack.advent2022
 
-import com.skraba.byexample.scala.hack.advent2022.AdventUtils.puzzleInput
+import com.skraba.byexample.scala.hack.advent2022.AdventUtils._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
@@ -121,13 +121,13 @@ class AdventOfCodeDay12Spec
     lazy val input = puzzleInput("Day12Input.txt").filter(_.nonEmpty)
     it("should have answers") {
       val map = Terrain(input: _*)
-      map.src shouldBe 2860
-      map.dst shouldBe 2980
-      map.w shouldBe 143
-      map.h shouldBe 41
+      map.src shouldBe decryptLong("YXQEuTt1X2PVOtVTXSdSBw==")
+      map.dst shouldBe decryptLong("UTg8jabxMiHfbiZ6bTrIqA==")
+      map.w shouldBe decryptLong("fsKP63dQnJEcsVlRv/73Pg==")
+      map.h shouldBe decryptLong("ootW7SlKq7CqlS17zX96CQ==")
 
-      map.part1() shouldBe 462
-      map.part2() shouldBe 451
+      map.part1() shouldBe decryptLong("FUiDO3tiu2k+mAvlrzIooQ==")
+      map.part2() shouldBe decryptLong("yCRrKwiKg0wuvwSFlR24qA==")
     }
   }
 }

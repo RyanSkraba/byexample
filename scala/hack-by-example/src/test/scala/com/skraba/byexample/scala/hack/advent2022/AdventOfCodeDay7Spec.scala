@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.hack.advent2022
 
-import com.skraba.byexample.scala.hack.advent2022.AdventUtils.puzzleInput
+import com.skraba.byexample.scala.hack.advent2022.AdventUtils._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
@@ -140,10 +140,13 @@ class AdventOfCodeDay7Spec
     lazy val input = puzzleInput("Day7Input.txt")
     it("should have answers") {
       val root = parse(input.toBuffer).subs.head
-      part1(root.subs, 100000) shouldBe 1086293
+      part1(root.subs, 100000) shouldBe decryptLong("PmSVPFReCpuUfoUxHnatzQ==")
 
-      root.size shouldBe 40358913
-      part2(root, 30000000 - (70000000 - root.size)) shouldBe 366028
+      root.size shouldBe decryptLong("b3TkteyegwfIDDAmeKcOUg==")
+      part2(
+        root,
+        30000000 - (70000000 - root.size)
+      ) shouldBe decryptLong("zTbCXe3N/Av04hE13TdiMw==")
     }
   }
 }

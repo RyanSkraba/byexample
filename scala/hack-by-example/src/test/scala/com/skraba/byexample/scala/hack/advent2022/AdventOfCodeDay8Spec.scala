@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.hack.advent2022
 
-import com.skraba.byexample.scala.hack.advent2022.AdventUtils.puzzleInput
+import com.skraba.byexample.scala.hack.advent2022.AdventUtils._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
@@ -135,13 +135,15 @@ class AdventOfCodeDay8Spec
         input.length,
         input.head.length,
         isVisibleNaive(input: _*)
-      ) shouldBe 1818
+      ) shouldBe decryptLong("slS4sw2FojZ+hy6T6tthsw==")
       visibilityCount(
         input.length,
         input.head.length,
         isVisibleWithMemo(input: _*)
-      ) shouldBe 1818
-      maxSceneryScore(input: _*) shouldBe 368368
+      ) shouldBe decryptLong("slS4sw2FojZ+hy6T6tthsw==")
+      maxSceneryScore(input: _*) shouldBe decryptLong(
+        "m0GxsYZCEQ6pm66DvtRDsg=="
+      )
     }
   }
 }

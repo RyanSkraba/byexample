@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.hack.advent2022
 
-import com.skraba.byexample.scala.hack.advent2022.AdventUtils.puzzleInput
+import com.skraba.byexample.scala.hack.advent2022.AdventUtils._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
@@ -91,15 +91,16 @@ class AdventOfCodeDay10Spec
   describe("🔑 Solution 🔑") {
     lazy val input = puzzleInput("Day10Input.txt").filter(_.nonEmpty)
     it("should have answers") {
-      part1(input: _*) shouldBe 12980
-      part2(radio(input: _*)) shouldBe
-        """###..###....##.#....####.#..#.#....###..
-          |#..#.#..#....#.#....#....#..#.#....#..#.
-          |###..#..#....#.#....###..#..#.#....#..#.
-          |#..#.###.....#.#....#....#..#.#....###..
-          |#..#.#.#..#..#.#....#....#..#.#....#....
-          |###..#..#..##..####.#.....##..####.#....
-          |""".stripMargin.trim
+      part1(input: _*) shouldBe decryptLong("2SQ5A9SPW8A3tmAqZAL4mQ==")
+      val code = part2(radio(input: _*))
+      code shouldBe decrypt(
+        "CBuYmAlDkestd/UvVR3qJz93i2QJ+DU6jpOHpQ6rQ3yQvUW9uCO/wtaOq+xf8aLE/7xl" +
+          "bah6M8jfldz4ze/fgKiDcEtKAAlGm8vD5MWNotc7s2cGQQ8a6p53aayyWwc7uirDqI" +
+          "A4b376TsmZeL8O+KJ7QLFmYY4TyvJQ4gkN3z7zzw90k/p9ivwVpYl+a9ttJQsCnMeC" +
+          "xgL8I0pCsZ9Gczk41fzrF1G0ONvseA3bR2Xk7c1UY3/1o8xumt1+w9p3mDYpQQqq8G" +
+          "bcLq7DKkeh+xW1zxWBLH86LcRzT+JgmV7WwqaJOhMj7sHNsU5d8IQtTqDJZexJiwud" +
+          "n8Sbi1/J9Q=="
+      )
     }
   }
 }
