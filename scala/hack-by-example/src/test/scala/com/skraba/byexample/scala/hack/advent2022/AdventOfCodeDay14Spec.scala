@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.hack.advent2022
 
-import com.skraba.byexample.scala.hack.advent2022.AdventUtils.puzzleInput
+import com.skraba.byexample.scala.hack.advent2022.AdventUtils._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
@@ -342,11 +342,11 @@ class AdventOfCodeDay14Spec
     it("should have answers") {
       val (coordinates, (offsetX, offsetY, dx, dy)) =
         Cave.parseRockCoordinates(input: _*)
-      coordinates should have size 126
-      offsetX shouldBe 450
-      offsetY shouldBe 13
-      dx shouldBe 71
-      dy shouldBe 155
+      coordinates should have size decryptLong("QzKFkZZnz13qZIC+c2G2aw==")
+      offsetX shouldBe decryptLong("OFs3MWTzmIwZ9EVMjKrmQA==")
+      offsetY shouldBe decryptLong("lVvwcBvOnuz1czNSHUZXfA==")
+      dx shouldBe decryptLong("iTtTqafYl3EMRrzHuQQwNg==")
+      dy shouldBe decryptLong("9Daffwcf4BGp2pZNyVjvXg==")
 
       val cave = Cave(input: _*)
       cave.view.mkString("\n") shouldBe
@@ -669,10 +669,10 @@ class AdventOfCodeDay14Spec
           |.#####.#####.#####.....................................................
           |.......................................................................""".stripMargin
 
-      endState.count(_ == 'o') shouldBe 672
+      endState.count(_ == 'o') shouldBe decryptLong("WGS6kI6XaBXfLxf2lOfYwQ==")
 
-      part1(input: _*) shouldBe 672
-      part2(input: _*) shouldBe 26831
+      part1(input: _*) shouldBe decryptLong("WGS6kI6XaBXfLxf2lOfYwQ==")
+      part2(input: _*) shouldBe decryptLong("tWdnaiKYQxCEj3PzFXkirA==")
     }
   }
 }

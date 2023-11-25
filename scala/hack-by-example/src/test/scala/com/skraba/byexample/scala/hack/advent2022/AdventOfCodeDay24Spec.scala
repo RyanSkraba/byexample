@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.hack.advent2022
 
-import com.skraba.byexample.scala.hack.advent2022.AdventUtils.puzzleInput
+import com.skraba.byexample.scala.hack.advent2022.AdventUtils._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
@@ -271,20 +271,24 @@ class AdventOfCodeDay24Spec
     lazy val input = puzzleInput("Day24Input.txt").mkString("\n")
     it("should have answers for part 1") {
       val b = Blizzards(input)
-      b.height shouldBe 25
-      b.width shouldBe 120
+      b.height shouldBe decryptLong("s4kbSoAoHCRig6BvUwWtOg==")
+      b.width shouldBe decryptLong("2dzW8/OZiZSfW85xox28Dw==")
       // DFS doesn't finish
-      // MoveState(blizzards = b).dfsTimeToDestination() shouldBe 253
-      MoveState(b).bfsTimeToDestination() shouldBe 253
+      // MoveState(blizzards = b).dfsTimeToDestination() shouldBe ...
+      MoveState(b).bfsTimeToDestination() shouldBe decryptLong(
+        "piIPjzUyZdLca0FJr1c8dw=="
+      )
     }
 
     it("should have answers for part 2") {
       val b = Blizzards(input)
-      MoveState(b).bfsTimeToDestination() shouldBe 253
+      MoveState(b).bfsTimeToDestination() shouldBe decryptLong(
+        "piIPjzUyZdLca0FJr1c8dw=="
+      )
       MoveState(b, 253, (b.width - 1, b.height), (0, -1))
-        .bfsTimeToDestination() shouldBe 521
+        .bfsTimeToDestination() shouldBe decryptLong("9/BfWfAD6Qs1DaF3t7wtAA==")
       MoveState(b, 521, (0, -1), (b.width - 1, b.height))
-        .bfsTimeToDestination() shouldBe 794
+        .bfsTimeToDestination() shouldBe decryptLong("dgbMoCEc+a1P5jo4QRQjbQ==")
     }
   }
 }

@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.hack.advent2022
 
-import com.skraba.byexample.scala.hack.advent2022.AdventUtils.puzzleInput
+import com.skraba.byexample.scala.hack.advent2022.AdventUtils._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
@@ -127,8 +127,8 @@ class AdventOfCodeDay20Spec
       puzzleInput("Day20Input.txt").filter(_.nonEmpty).map(_.toLong).toList
 
     it("should have answers (4 seconds)", Slow) {
-      part1(input) shouldBe 7278
-      part2(input) shouldBe 14375678667089L
+      part1(input) shouldBe decryptLong("X9qejlx3HqAwNldNn+L0VA==")
+      part2(input) shouldBe decryptLong("VNvVbTQes5y748ZE4Nz35w==")
     }
   }
 }

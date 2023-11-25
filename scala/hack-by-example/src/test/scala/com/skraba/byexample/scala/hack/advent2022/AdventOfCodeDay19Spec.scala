@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.hack.advent2022
 
-import com.skraba.byexample.scala.hack.advent2022.AdventUtils.puzzleInput
+import com.skraba.byexample.scala.hack.advent2022.AdventUtils._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
@@ -320,11 +320,11 @@ class AdventOfCodeDay19Spec
     lazy val bps = parse(input: _*)
 
     it("should have answers for part 1 (20 seconds)", Slow) {
-      part1(24, bps) shouldBe 1650
+      part1(24, bps) shouldBe decryptLong("qpLyiTwKt/cyp45AVdQP1A==")
     }
 
     it("should have answers for part 2 (2 minutes)", Slow) {
-      part2(32, bps.take(3)) shouldBe 5824
+      part2(32, bps.take(3)) shouldBe decryptLong("hkdXLrLagO7WIap0aYFwSg==")
     }
   }
 }
