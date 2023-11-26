@@ -138,7 +138,69 @@ class AdventUtils {
       // Return the unencrypted input
       in
     }
-
   }
+}
 
+object AdventUtils {
+
+  /** Create a whole new year of Advent of code! */
+  def main(args: Array[String]): Unit = {
+    val year = args.headOption.getOrElse("2023")
+
+    // If we can find this class' source, we can write code next to it in subpackages
+    val uri = Thread
+      .currentThread()
+      .getContextClassLoader
+      .getResource(getClass.getName.replace('.', '/') + ".class")
+
+    if (uri.getProtocol == "file") {
+
+      // The ./src/test/ directory to add files to
+      val root = uri.getFile
+        .split("/target/")
+        .headOption
+        .map(File(_))
+        .map(_ / "src/test")
+
+      // Copy the resource files over
+      root
+        .map(_ / "resources" / getClass.getPackageName.replace('.', '/'))
+        .foreach { hack =>
+          val src = hack / "advent2022"
+          val dst = hack / s"advent$year"
+
+          dst.toDirectory.createDirectory(failIfExists = true)
+
+          val txt = (src / "Day0Input.txt").toFile.slurp()
+          for (day <- 0 to 25)
+            (dst / s"Day${day}Input.txt").toFile.writeAll(txt)
+        }
+
+      // Create basic test files for each day
+      root
+        .map(_ / "scala" / getClass.getPackageName.replace('.', '/'))
+        .foreach { hack =>
+          val src = hack / "advent2022"
+          val dst = hack / s"advent$year"
+
+          dst.toDirectory.createDirectory(failIfExists = true)
+
+          val util = (src / "AdventUtils.scala").toFile.slurp()
+          (dst / "AdventUtils.scala").toFile.writeAll(
+            util.replaceAll("advent2022", s"advent$year")
+          )
+
+          val txt = (src / "AdventOfCodeDay0Spec.scala").toFile.slurp()
+          for (day <- 0 to 25)
+            (dst / s"AdventOfCodeDay${day}Spec.scala").toFile.writeAll(
+              txt
+                .replaceAll("2022", s"$year")
+                .replaceAll("ZERO", day.toString)
+                .replaceAll("Day0", s"Day${day}")
+            )
+        }
+    } else {
+      println("Can't find sources.")
+    }
+  }
 }
