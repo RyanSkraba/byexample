@@ -166,3 +166,17 @@ Advent of Code 2022
 [Sol-AoC2022-23]: src/test/scala/com/skraba/byexample/scala/hack/advent2022/AdventOfCodeDay23Spec.scala
 [Sol-AoC2022-24]: src/test/scala/com/skraba/byexample/scala/hack/advent2022/AdventOfCodeDay24Spec.scala
 [Sol-AoC2022-25]: src/test/scala/com/skraba/byexample/scala/hack/advent2022/AdventOfCodeDay25Spec.scala
+
+Running Advent of Code
+-----
+
+The Advent of Code challenges are all run as unit tests:
+
+```
+mvn clean verify
+
+```
+
+By default: tests tagged `Slow` are not run.  See [scala-by-example](../scala-by-example/) for running the slow tests from the command line or from an IDE.
+
+The author of [Advent of Code](https://adventofcode.com/about) asks us not to check in or share our personalized inputs or answers to the puzzles (although the example inputs and answer are shareable). Although they are checked in here, they are only readable when the `ADVENT_OF_CODE_KEY` environment variable is set to _**my**_ private 256-bit AES key (Base64-encoded). If this environment variable is not set, these tests should be automatically ignored.
