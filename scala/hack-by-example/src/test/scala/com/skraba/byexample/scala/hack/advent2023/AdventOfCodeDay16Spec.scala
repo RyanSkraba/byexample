@@ -37,7 +37,7 @@ class AdventOfCodeDay16Spec
   describe("Example case") {
     val input =
       """
-        |""".stripMargin.split("\n")
+        |""".trim.stripMargin.split("\n")
 
     it("should match the puzzle description for part 1") {
       part1(input: _*) shouldBe 100
