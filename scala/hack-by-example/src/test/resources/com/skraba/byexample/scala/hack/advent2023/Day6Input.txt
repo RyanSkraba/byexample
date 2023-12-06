@@ -1,2 +1,2 @@
 !! Set ADVENT_OF_CODE_KEY to decrypt (https://adventofcode.com/about)
-g6nexIDgFMyQFVY6fruWbg==
+uS5SHFzO/ZOxYw48AeEeZ+x+fuxNWtaZqhceOLvdAuY2/TdjKM4Ptla25g0ymEJpaxAnJTXvNFpgXR7nGG4mJhlvtaJswvRfBNHECg3vxYo=
