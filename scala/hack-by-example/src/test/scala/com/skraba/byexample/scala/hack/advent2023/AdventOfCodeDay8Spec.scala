@@ -7,11 +7,16 @@ import org.scalatest.matchers.should.Matchers
 
 /** =Advent of Code 2023 Day 8 Solutions in scala=
   *
-  * Input:
+  * Input: A string containing directions (in the form of Ls and Rs), followed
+  * by a map of nodes (three letters) that each have a right path and a left
+  * path that they go to.
   *
-  * Part 1:
+  * Part 1: Starting at AAA follow the directions until you reach ZZZ. Count the
+  * number of steps required to get there.
   *
-  * Part 2:
+  * Part 2: Putting a ghost at every node that ends with an A, each of them
+  * follow the directions until they all are simultaneously at a node that ends
+  * with Z. Count the number of steps until this is true.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/8]]
