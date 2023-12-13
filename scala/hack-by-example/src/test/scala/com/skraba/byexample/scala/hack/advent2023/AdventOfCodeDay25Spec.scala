@@ -52,6 +52,7 @@ class AdventOfCodeDay25Spec
     lazy val input = puzzleInput("Day25Input.txt")
     lazy val answer1 = decryptLong("tTNGygZ0+O4PEH+5IiCrBw==")
     lazy val answer2 = decryptLong("U9BZNCixKWAgOXNrGyDe5A==")
+
     it("should have answers for part 1") {
       part1(input: _*) shouldBe answer1
     }
