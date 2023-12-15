@@ -141,7 +141,7 @@ class AdventOfCodeDay10Spec
   }
 
   describe("🔑 Solution 🔑") {
-    val input = puzzleInput("Day10Input.txt")
+    lazy val input = puzzleInput("Day10Input.txt")
     lazy val answer1 = decryptLong("tMh3A4fEoiUgve/H9PqFTQ==")
     lazy val answer2 = decryptLong("NLfxxhehN14Tbgc7kiV/Eg==")
 
