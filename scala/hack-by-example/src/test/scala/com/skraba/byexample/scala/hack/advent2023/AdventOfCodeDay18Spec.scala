@@ -10,11 +10,15 @@ import scala.collection.mutable
 
 /** =Advent of Code 2023 Day 18 Solutions in scala=
   *
-  * Input:
+  * Input: A list of directions that the trench cutter should take on a map, in
+  * the form R,L,U,D followed by the number of metres to go in that direction.
+  * This will end up as a closed shape.
   *
-  * Part 1:
+  * Part 1: Calculate the surface covered by the shape when it is filled in.
   *
-  * Part 2:
+  * Part 2: The same problem as part 1, but it turns out that the colour code
+  * alongside the directions are the *real* directions with much, much larger
+  * values.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/18]]
@@ -64,7 +68,7 @@ class AdventOfCodeDay18Spec
         }
       }
 
-      // Find and adjust the boundaries
+      // Find and adjust the boundaries to align to a minimum of 0, 0
       val (rawX, rawY) = (rawPoints.minBy(_.x).x, rawPoints.minBy(_.y).y)
       val ps = rawPoints.map(p => Pos(p.x - rawX, p.y - rawY)).toSet
 

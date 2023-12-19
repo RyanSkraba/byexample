@@ -9,11 +9,16 @@ import scala.util.matching.Regex
 
 /** =Advent of Code 2023 Day 19 Solutions in scala=
   *
-  * Input: A list of functions and a list of parts.
+  * Input: A list of workflow functions, each with a name, that take a part and
+  * check its ratings to decide whether it is accepted ("A"), rejected ("R") or
+  * applied to another workflow function, followed by a list of parts and their
+  * ratings.
   *
-  * Part 1:
+  * Part 1: Apply the functions to each of the parts to see if it's accepted or
+  * rejected. Return the sum of all the ratings of all the accepted parts.
   *
-  * Part 2:
+  * Part 2: Ignoring the list of parts, find how many different combinations of
+  * ratings could possibly be accepted (where the ratings are from 1 to 4000).
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/19]]
@@ -62,9 +67,10 @@ class AdventOfCodeDay19Spec
     }
 
     def part1(in: String*): Long = {
+
       val (fn, part) = parse(in: _*)
 
-      // Parse the input into functions
+      // Parse the input into scala functions
       def go(fns: Seq[Part => Option[String]])(p: Part): String =
         fns.flatMap(_(p)).head
       val op: Map[String, Fn] = fn
@@ -86,18 +92,19 @@ class AdventOfCodeDay19Spec
           )
         )
 
-      // For each part, find if the function returns an "A" or an "R".  This relies on all workflow functions having a name longer than one character, and the end state only being one character.
+      // For each part, find if the function returns an "A" or an "R".  This
+      // relies on all workflow functions having a name longer than one
+      // character, and the end states only being one character.
       val accepted = part.filter { p =>
         LazyList.iterate("in") { op(_)(p) }.dropWhile(_.length > 1).head == "A"
       }
-
-      accepted.map(_.values.sum).sum
+      accepted.flatMap(_.values).sum
     }
 
     def part2(in: String*): Long = {
       val (fn, _) = parse(in: _*)
 
-      /** The workflows are basically a DFS where each edge is a constraint.
+      /** The workflows are basically a tree where each edge is a constraint.
         * Work down the tree to find the most restrictive rating constraints
         * when you arrive at A
         * @param name
