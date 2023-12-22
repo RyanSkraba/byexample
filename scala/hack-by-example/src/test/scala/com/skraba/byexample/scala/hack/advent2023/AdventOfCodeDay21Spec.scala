@@ -61,8 +61,100 @@ class AdventOfCodeDay21Spec
         )(d)
     }
 
-    def part2(d: Int, in: String*): Long =
-      if (d < 100) part1(d, in: _*).size else 200
+    def part2(d: Int, in: String*): Long = {
+      val dx: Int = in.headOption.map(_.length).getOrElse(0)
+      val full: String = in.mkString
+      val s0 = full.indexOf('S')
+
+      // Inspecting the input manually:
+
+      // The input is square and has an empty border all the way around it, and
+      // there is an empty path from the start to the border in all directions.
+      // We are guaranteed that the each border position is reachable in at
+      // most the taxicab distance.
+
+      // The start position is in the exact center, and there is an even number
+      // of rows.
+
+      // There is a clear diamond shaped path around the start position.  We
+      // can expect the growing "area" covered by the steps to be diamond
+      // shaped.  The input looks pretty sparse, we might make an exact diamond
+      // by the time we cover enough steps to reach the border?
+
+      // And again when we pass through another dx steps?
+
+      // Using a chessboard argument and considering S to be RED, all odd steps
+      // are on white and all even steps are on black.  Once any tile is lit,
+      // it will alternate between on and off.
+
+      // Check square input, and the central start position
+      val start = s0 % dx -> s0 / dx
+      if (full.length != dx * dx && dx % 2 != 1) return -1
+      if (start._1 != start._2 && start._1 != dx / 2) return -1
+
+      // Memo to memorize distances from the center
+      var memoMaxStep = 0L
+      val memo = mutable.Map(start -> 0L)
+      def memoDistances(step: Long): Long = {
+        // If we're going farther than we've gone before, calculate the distances
+        if (step > memoMaxStep) {
+
+          def isRock(pos: Tuple2[Int, Int]): Boolean =
+            '#' == full(
+              math.floorMod(pos._2, dx) * dx + math.floorMod(pos._1, dx)
+            )
+
+          val bfs: mutable.Queue[((Int, Int), Long)] =
+            mutable.Queue.from(memo.filter(_._2 == memoMaxStep))
+          while (bfs.nonEmpty) {
+            val ((x, y), dist) = bfs.dequeue()
+            val next = Set(
+              (x + 1, y),
+              (x - 1, y),
+              (x, y + 1),
+              (x, y - 1)
+            ).filterNot(memo.contains)
+              .filterNot(isRock)
+              .map(p => (p, dist + 1L))
+            memo.addAll(next)
+            bfs.enqueueAll(next.filter(_._2 < step))
+          }
+          memoMaxStep = step
+        }
+
+        // The number of positions that can be reached from the given step, taking
+        // into account whether it is on a RED or BLACK square
+        memo.filter(_._2 <= step).count(_._2 % 2 == step % 2)
+      }
+
+      if (d < 10000) memoDistances(d)
+
+      // 65 steps will reach the border
+
+      // 131 steps plus the length should cover another tile in each direction
+
+      // Aha, the input covers 202300 widths and 65 extra steps
+      val (tiles, remainder) = (d / dx, d % dx)
+
+      // OK at this point, I looked at other solutions to see it's a quadratic
+      // function to be fit.  Oh well, I can do that.
+
+      val p2 = memoDistances(2 * dx + remainder)
+      val p1 = memoDistances(1 * dx + remainder)
+      val p0 = memoDistances(remainder)
+
+      // p0 = 0a + 0b + c
+      // p1 =  a +  b + c
+      // p2 = 4a + 2b + c
+
+      // Calculating the coefficients
+      val c = p0
+      val a = (p2 + c) / 2 - p1
+      val b = p1 - a - c
+
+      // And applying to the number of tiles
+      a * tiles * tiles + b * tiles + c
+    }
   }
 
   import Solution._
@@ -87,6 +179,8 @@ class AdventOfCodeDay21Spec
     }
 
     ignore("should match the puzzle description for part 2") {
+      // These are true, but my part2 solution depends on characteristics
+      // that aren't in the example puzzle
       part2(6, input: _*) shouldBe 16
       part2(10, input: _*) shouldBe 50
       part2(50, input: _*) shouldBe 1594
@@ -100,7 +194,7 @@ class AdventOfCodeDay21Spec
   describe("🔑 Solution 🔑") {
     lazy val input = puzzleInput("Day21Input.txt")
     lazy val answer1 = decryptLong("MUZ3tq06UzkU/J+IryXpQw==")
-    lazy val answer2 = decryptLong("U9BZNCixKWAgOXNrGyDe5A==")
+    lazy val answer2 = decryptLong("n3NDxRwNP1J7B88/pHjRqg==")
 
     it("should have answers for part 1") {
       part1(64, input: _*).size shouldBe answer1
