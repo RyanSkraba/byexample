@@ -6,7 +6,6 @@ import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
 import scala.annotation.tailrec
-import scala.collection.mutable
 
 /** =Advent of Code 2023 Day 22 Solutions in scala=
   *
