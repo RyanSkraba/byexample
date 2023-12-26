@@ -130,7 +130,119 @@ class AdventOfCodeDay24Spec
       intersects.size
     }
 
-    def part2(in: String*): Long = 47
+    def matrixReduce(in: Seq[Seq[Double]]): Seq[Seq[Double]] = {
+      // An ordering that attempts to put a non-zero value at the
+      // diagonal while the matrix is being reduced.
+      val byCol: Ordering[Seq[Double]] = Ordering.by { in =>
+        val row = in.map(math.abs)
+        (row.head, row(1), row(2), row(3), row(4), row(5))
+      }
+
+      // Solve for a diagonal of 1s from 0,0 to 5,5
+      in.indices.foldLeft(in) { (acc, toReduce) =>
+        val m = acc.sorted(byCol).reverse
+
+        val reducedRow = m(toReduce).map(_ / m(toReduce)(toReduce))
+        val reduced = for (row <- m.indices) yield {
+          if (toReduce == row) reducedRow
+          else {
+            val multiplier = m(row)(toReduce) / reducedRow(toReduce)
+            m(row).zip(reducedRow).map(x => x._1 - multiplier * x._2)
+          }
+        }
+        reduced
+      }
+    }
+
+    def part2(in: String*): Long = {
+      val hail = in.map(Hail.parse)
+
+      // We want to find a rock with a trajectory (6 unknowns)
+      // rx, ry, rz, vrx, vry, vrz
+
+      // We know:
+      // x = rx + vrx*t
+      // y = ry + vry*t
+      // z = rz + vrz*t
+
+      // And at a certain t0 it will collide with hailstone 0
+      // x = rx + vrx*t0 = p0x + v0x*t0
+      // y = ry + vry*t0 = p0y + v0y*t0
+      // z = rz + vrz*t0 = p0z + v0z*t0
+
+      // Solving for t0:
+      // t0 = (rx - p0x) / (v0x - vrx)   [A]
+      // t0 = (ry - p0y) / (v0y - vry)   [B]
+      // t0 = (rz - p0z) / (v0z - vrz)   [C]
+
+      // Combining these gives us three equations:
+      // (rx - p0x) / (v0x - vrx) = (ry - p0y) / (v0y - vry)  [D: A+B}
+      // (rx - p0x) / (v0x - vrx) = (rz - p0z) / (v0z - vrz)  [E: A+C}
+      // (ry - p0y) / (v0y - vry) = (rz - p0z) / (v0z - vrz)  [F: B+C}
+
+      // These can be expanded out to three equations (still not linear, non-linear unknowns on the left):
+      // v0y*rx - p0x*v0y - rx*vry + p0x*vry = v0x*ry - p0y*v0x - ry*vrx + p0y*vrx
+      // ry*vrx - rx*vry = v0x*ry - p0y*v0x  + p0y*vrx - v0y*rx + p0x*v0y - p0x*vry [G from D]
+      // rz*vrx - rx*vrz = v0x*rz - p0z*v0x  + p0z*vrx - v0z*rx + p0x*v0z - p0x*vrz [H from E]
+      // ry*vrz - rz*vry = v0z*ry - p0y*v0z  + p0y*vrz - v0y*rz + p0z*v0y - p0z*vry [I from F]
+
+      // Every constant with a digit is known, and we can find more easily:
+      // ry*vrx - rx*vry = v1x*ry - p1y*v1x  + p1y*vrx - v1y*rx + p1x*v1y - p1x*vry [J]
+      // rz*vrx - rx*vrz = v1x*rz - p1z*v1x  + p1z*vrx - v1z*rx + p1x*v1z - p1x*vrz [K]
+      // ry*vrz - rz*vry = v1z*ry - p1y*v1z  + p1y*vrz - v1y*rz + p1z*v1y - p1z*vry [L]
+
+      // So making them linear:
+      // v0x*ry - p0y*v0x  + p0y*vrx - v0y*rx + p0x*v0y - p0x*vry = v1x*ry - p1y*v1x  + p1y*vrx - v1y*rx + p1x*v1y - p1x*vry [G and J]
+      // v0x*rz - p0z*v0x  + p0z*vrx - v0z*rx + p0x*v0z - p0x*vrz = v1x*rz - p1z*v1x  + p1z*vrx - v1z*rx + p1x*v1z - p1x*vrz [H and K]
+      // v0z*ry - p0y*v0z  + p0y*vrz - v0y*rz + p0z*v0y - p0z*vry = v1z*ry - p1y*v1z  + p1y*vrz - v1y*rz + p1z*v1y - p1z*vry [I and L]
+
+      //           rx             ry             rz             vrx             vry             vrz = Constant
+      // (v1y-v0y)*rx + (v0x-v1x)*ry                + (p0y-p1y)*vrx + (p1x-p0x)*vry                 = p0y*v0x - p0x*v0y + p1x*v1y - p1y*v1x
+      // (v1z-v0z)*rx                + (v0x-v1x)*rz + (p0z-p1z)*vrx                 + (p1x-p0x)*vrz = p0z*v0x - p0x*v0z + p1x*v1z - p1z*v1x
+      //                (v0z-v1z)*ry + (v1y-v0y)*rz +               + (p1z-p0z)*vry + (p0y-p1y)*vrz = p0y*v0z - p0z*v0y + p1z*v1y - p1y*v1z
+
+      // For any two points, this returns the above matrix.
+      def matrix3(h0: Hail, h1: Hail): Seq[Seq[Double]] = {
+        val (p0x, p0y, p0z, v0x, v0y, v0z) = h0.toTuple
+        val (p1x, p1y, p1z, v1x, v1y, v1z) = h1.toTuple
+        Seq(
+          Seq(
+            v1y - v0y,
+            v0x - v1x,
+            0,
+            p0y - p1y,
+            p1x - p0x,
+            0,
+            p0y * v0x - p0x * v0y + p1x * v1y - p1y * v1x
+          ),
+          Seq(
+            v1z - v0z,
+            0,
+            v0x - v1x,
+            p0z - p1z,
+            0,
+            p1x - p0x,
+            p0z * v0x - p0x * v0z + p1x * v1z - p1z * v1x
+          ),
+          Seq(
+            0,
+            v0z - v1z,
+            v1y - v0y,
+            0,
+            p1z - p0z,
+            p0y - p1y,
+            p0y * v0z - p0z * v0y + p1z * v1y - p1y * v1z
+          )
+        ).map(_.map(_.toDouble))
+      }
+
+      // Reduce the matrix using any three points.
+      val solved = matrixReduce(
+        matrix3(hail.head, hail(1)) ++ matrix3(hail.head, hail(2))
+      )
+
+      solved.map(_.last).map(math.round).take(3).sum
+    }
   }
 
   import Solution._
@@ -156,7 +268,7 @@ class AdventOfCodeDay24Spec
   describe("🔑 Solution 🔑") {
     lazy val input = puzzleInput("Day24Input.txt")
     lazy val answer1 = decryptLong("FUPj0qX4bdoYoTrgpbmUdQ==")
-    lazy val answer2 = decryptLong("gZ+Z45JUgEs4NByF20+YHA==")
+    lazy val answer2 = decryptLong("b1SEz1TocSBtGc37FTnMEg==")
 
     it("should have answers for part 1") {
       part1(
