@@ -4,6 +4,7 @@ import com.skraba.byexample.scala.hack.advent2023.AdventUtils._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.tagobjects.Slow
 
 import scala.collection.mutable
 
@@ -61,16 +62,16 @@ class AdventOfCodeDay23Spec
       }
 
       def dfsRecursive(
-          cs: Set[Cursor] = Set(start),
+          path: Set[Cursor] = Set(start),
           pos: Cursor = start,
           slippery: Boolean = true
       ): Int = {
         if (pos == end)
-          cs.size
+          path.size
         else
           (if (slippery) pos.nextSlippery else pos.next)
-            .filterNot(cs)
-            .map(p => dfsRecursive(cs + p, p, slippery))
+            .filterNot(path)
+            .map(p => dfsRecursive(path + p, p, slippery))
             .maxOption
             .getOrElse(Int.MinValue)
       }
@@ -111,6 +112,64 @@ class AdventOfCodeDay23Spec
         max
       }
 
+      def simplify(slippery: Boolean = true): Set[(Cursor, Cursor, Int)] = {
+
+        // each of these points are "nodes" in the simplified graph
+        val forks = full.indices
+          .map(Cursor.apply)
+          .filterNot(_.at == '#')
+          .filter(_.next.size > 2)
+          .toSet + start + end
+
+        // from any point to the next forks, including the distance.
+        def dfsNextBranch(
+            src: Cursor = start,
+            distance: Int = 0,
+            path: Option[(Cursor, Cursor)] = None,
+            slippery: Boolean = true
+        ): Set[(Cursor, Cursor, Int)] = {
+          val (last, current) = path.getOrElse(src -> src)
+          if (current != src && forks.contains(current))
+            Set((src, current, distance))
+          else
+            (if (slippery) current.nextSlippery else current.next)
+              .filterNot(_ == last)
+              .flatMap(p =>
+                dfsNextBranch(
+                  src,
+                  distance + 1,
+                  Some(current -> p),
+                  slippery
+                )
+              )
+        }
+
+        // the simplified graph edges, from points where there are options
+        forks.flatMap(c => dfsNextBranch(src = c, slippery = false))
+      }
+
+      def bfsSimplifiedIterative(
+          pos: Cursor = start,
+          slippery: Boolean = true
+      ): Int = {
+
+        val graph = simplify(slippery)
+
+        var max = Int.MinValue
+        val queue = mutable.Queue(Set(pos) -> pos -> 0)
+        while (queue.nonEmpty) {
+          val ((path, current), distance) = queue.dequeue()
+          if (current == end)
+            max = max max distance
+          val next =
+            graph.filter(_._1 == current).filterNot(x => path.contains(x._2))
+          queue.enqueueAll(
+            next.map(x => path + x._2 -> x._2 -> (distance + x._3))
+          )
+        }
+        max
+      }
+
       /** A cursor moving through the plan. */
       case class Cursor(pos: Int) {
         lazy val e: Cursor = Cursor(pos + 1)
@@ -139,7 +198,7 @@ class AdventOfCodeDay23Spec
 
     def part2(in: String*): Long = {
       val plan = Plan(in)
-      plan.bfsIterative(slippery = false) - 1
+      plan.bfsSimplifiedIterative(slippery = false)
     }
   }
 
@@ -172,6 +231,21 @@ class AdventOfCodeDay23Spec
         |#####################.#
         |""".trim.stripMargin.split("\n")
 
+    it("should match the puzzle description for part 1 (DFS recursive)") {
+      val plan = Plan(input)
+      plan.dfsRecursive() shouldBe 95
+    }
+
+    it("should match the puzzle description for part 1 (DFS iterative)") {
+      val plan = Plan(input)
+      plan.dfsIterative() shouldBe 95
+    }
+
+    it("should match the puzzle description for part 1 (BFS iterative)") {
+      val plan = Plan(input)
+      plan.bfsIterative() shouldBe 95
+    }
+
     it("should match the puzzle description for part 1") {
       part1(input: _*) shouldBe 94
     }
@@ -184,13 +258,13 @@ class AdventOfCodeDay23Spec
   describe("🔑 Solution 🔑") {
     lazy val input = puzzleInput("Day23Input.txt")
     lazy val answer1 = decryptLong("1YUyld8OEDiUZDewrAkKqQ==")
-    lazy val answer2 = decryptLong("1YUyld8OEDiUZDewrAkKqQ==")
+    lazy val answer2 = decryptLong("gsHJVAFg7ZdyYFgkWbO8bw==")
 
     it("should have answers for part 1") {
       part1(input: _*) shouldBe answer1
     }
 
-    ignore("should have answers for part 2") {
+    it("should have answers for part 2", Slow) {
       part2(input: _*) shouldBe answer2
     }
   }
