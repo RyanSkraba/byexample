@@ -29,24 +29,29 @@ class AdventUtils {
     *   the [[Key]] being used to decrypt inputs and solutions.
     */
   def getOrCreateKey(): Key = {
-    val keyEnv = sys.env.getOrElse(
-      AdventOfCodeKey, {
-        val gen = KeyGenerator.getInstance("AES")
-        gen.init(256)
-        val key = gen.generateKey
-        val encoded = Base64.getEncoder.encodeToString(key.getEncoded)
-        println(s"Using temporary key: $encoded")
-        encoded
-      }
-    )
+    val keyEnv = sys.env.get(AdventOfCodeKey).filter(_.nonEmpty).getOrElse {
+      val gen = KeyGenerator.getInstance("AES")
+      gen.init(256)
+      val key = gen.generateKey
+      val encoded = Base64.getEncoder.encodeToString(key.getEncoded)
+      println(s"Using temporary key: $encoded")
+      encoded
+    }
     new SecretKeySpec(Base64.getDecoder.decode(keyEnv), "AES")
   }
 
   /** Causes a test to be canceled (but not failed) if the key isn't present. */
-  def requireAdventOfCodeKey(): Unit = Assertions.assume(
-    sys.env.filter(_._1 == AdventOfCodeKey).contains(AdventOfCodeKey),
-    "(missing key for running solutions)"
-  )
+  def requireAdventOfCodeKey(): Unit = {
+    val filteredEnv = sys.env.filter(_._1 == AdventOfCodeKey)
+    Assertions.assume(
+      filteredEnv.contains(AdventOfCodeKey),
+      "(missing key for running solutions)"
+    )
+    Assertions.assume(
+      filteredEnv.get(AdventOfCodeKey).exists(_.nonEmpty),
+      "(\"\" key for running solutions)"
+    )
+  }
 
   /** A helper method for testing and getting the encrypted answer. This can be
     * used temporarily but shouldn't be committed to a repo.
