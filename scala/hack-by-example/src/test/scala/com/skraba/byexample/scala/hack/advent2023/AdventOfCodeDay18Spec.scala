@@ -5,7 +5,6 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-import scala.collection.immutable.List
 import scala.collection.mutable
 
 /** =Advent of Code 2023 Day 18 Solutions in scala=

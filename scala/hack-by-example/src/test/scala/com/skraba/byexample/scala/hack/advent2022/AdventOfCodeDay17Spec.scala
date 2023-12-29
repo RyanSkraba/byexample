@@ -88,7 +88,7 @@ class AdventOfCodeDay17Spec
         jets: String,
         rocksToDrop: Int = 2022
     ): Seq[String] = {
-      Stream
+      LazyList
         .from(0)
         .scanLeft(EmptyTower -> 0)(addRock(jets))
         .drop(rocksToDrop)
@@ -100,7 +100,7 @@ class AdventOfCodeDay17Spec
 
       // The endless stream of dropped rocks
       val dropped: Seq[(Seq[String], Int)] =
-        Stream.from(0).scanLeft(EmptyTower -> 0)(addRock(jets))
+        LazyList.from(0).scanLeft(EmptyTower -> 0)(addRock(jets))
 
       // These were calculated by investigation...
       val targetJetI = if (jets.length == 40) 2 else 1

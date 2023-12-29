@@ -5,6 +5,8 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
+import scala.collection.mutable
+
 /** =Advent of Code 2022 Day 12 Solutions in scala=
   *
   * Input: A height map where each lower-case character corresponds to a height,
@@ -13,7 +15,7 @@ import org.scalatest.matchers.should.Matchers
   *
   * Part 1: Find the length of the shortest path from 'S' to 'E'
   *
-  * Part 2: Find the length of the any path from 'a' to 'E'
+  * Part 2: Find the length of the shortest path from any 'a' to 'E'
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/12]]
@@ -46,7 +48,7 @@ class AdventOfCodeDay12Spec
         // The distances that have been calculated from the end
         val dx: Array[Int] = Array.fill(map.length)(Int.MaxValue)
         // The positions to search next (this can contain invalid values)
-        val bfs = scala.collection.mutable.Queue((dst, dst))
+        val bfs = mutable.Queue((dst, dst))
 
         while (bfs.nonEmpty) {
           // Get the next position to calculate and the position we're coming from

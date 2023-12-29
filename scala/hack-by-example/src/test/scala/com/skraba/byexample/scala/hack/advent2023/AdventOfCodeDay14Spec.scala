@@ -5,6 +5,8 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
+import scala.collection.mutable
+
 /** =Advent of Code 2023 Day 14 Solutions in scala=
   *
   * Input: A map of a platform of boulders, where # are unmovable boulders and O
@@ -65,7 +67,7 @@ class AdventOfCodeDay14Spec
       val nLeft = rotateCcw(in)
 
       // Iterate until we find a state we've already seen
-      val cache = collection.mutable.Set[Seq[String]]()
+      val cache = mutable.Set[Seq[String]]()
       val repeat = LazyList.iterate(nLeft)(cycle).dropWhile(cache.add)
 
       // The length of the cycle is found by counting until the head is found again

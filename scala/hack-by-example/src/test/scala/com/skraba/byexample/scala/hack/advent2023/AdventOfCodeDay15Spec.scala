@@ -5,6 +5,8 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
+import scala.collection.mutable
+
 /** =Advent of Code 2023 Day 15 Solutions in scala=
   *
   * Input: A long string of inputs separated by commas, indicating which lens of
@@ -88,8 +90,8 @@ class AdventOfCodeDay15Spec
 
       // Starting from the back, filter out all of the labels that are followed by a removal
       // For all non-removed lens, set the focal length to the last value
-      val removed = collection.mutable.Set[String]()
-      val focalLength = collection.mutable.HashMap[String, Int]()
+      val removed = mutable.Set[String]()
+      val focalLength = mutable.HashMap[String, Int]()
       val filtered = cmds.reverse.flatMap {
         case (label, -1)                  => removed.add(label); None
         case (label, _) if removed(label) => None

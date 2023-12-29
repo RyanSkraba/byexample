@@ -5,7 +5,7 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-import scala.collection.{Seq, mutable}
+import scala.collection.mutable
 import scala.util.matching.Regex
 
 /** =Advent of Code 2022 Day 7 Solutions in scala=

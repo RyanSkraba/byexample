@@ -44,7 +44,7 @@ class AdventOfCodeDay17Spec
         val bfs = mutable.Queue(Cursor(0, Horiz), Cursor(0, Vert))
 
         // The distances that have been calculated from the start, when arriving there horizontally / vertically
-        val memo: collection.mutable.Map[Cursor, Int] = collection.mutable.Map()
+        val memo: mutable.Map[Cursor, Int] = mutable.Map()
         bfs.foreach(memo(_) = 0)
 
         while (bfs.nonEmpty) {

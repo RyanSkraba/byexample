@@ -30,7 +30,6 @@ class AdventOfCodeDay16Spec
 
   object Solution {
 
-    /** Reusable North, South, East, West */
     object Dir extends Enumeration {
       type Dir = Value
       val East, South, West, North = Value
@@ -53,11 +52,17 @@ class AdventOfCodeDay16Spec
 
       /** A cursor moving through the plan. */
       case class Cursor(pos: Int, dir: Dir) {
-        lazy val e: Cursor = Cursor(pos + 1, Dir.East)
-        lazy val s: Cursor = Cursor(pos + dx, Dir.South)
-        lazy val w: Cursor = Cursor(pos - 1, Dir.West)
-        lazy val n: Cursor = Cursor(pos - dx, Dir.North)
+        lazy val e: Cursor = Cursor(pos + 1, East)
+        lazy val s: Cursor = Cursor(pos + dx, South)
+        lazy val w: Cursor = Cursor(pos - 1, West)
+        lazy val n: Cursor = Cursor(pos - dx, North)
         lazy val straight: Cursor = mv(dir)
+        lazy val rot180: Cursor = copy(dir = dir match {
+          case East  => West
+          case South => North
+          case West  => East
+          case North => South
+        })
         lazy val at: Char = full(pos)
 
         def mv(to: Dir): Cursor = to match {

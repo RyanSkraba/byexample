@@ -159,9 +159,9 @@ class AdventOfCodeDay22Spec
       val initS = initE.cw
       val initW = initE.cw.cw
       val initN = initE.cw.cw.cw
-      initS shouldBe initE.copy(facing = Dir.South)
-      initW shouldBe initE.copy(facing = Dir.West)
-      initN shouldBe initE.copy(facing = Dir.North)
+      initS shouldBe initE.copy(facing = South)
+      initW shouldBe initE.copy(facing = West)
+      initN shouldBe initE.copy(facing = North)
 
       initE.cw.cw.cw.cw shouldBe initE
       initE.ccw shouldBe initN

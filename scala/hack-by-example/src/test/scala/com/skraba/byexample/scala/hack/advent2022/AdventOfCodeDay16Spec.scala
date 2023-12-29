@@ -6,7 +6,7 @@ import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.tagobjects.Slow
 
-import scala.collection.{Seq, mutable}
+import scala.collection.mutable
 
 /** =Advent of Code 2022 Day 16 Solutions in scala=
   *

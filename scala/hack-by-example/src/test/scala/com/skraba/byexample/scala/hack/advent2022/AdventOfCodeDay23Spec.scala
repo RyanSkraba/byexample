@@ -4,9 +4,8 @@ import com.skraba.byexample.scala.hack.advent2022.AdventUtils._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.tagobjects.Slow
 
-import scala.collection.immutable
+import scala.collection.mutable
 
 /** =Advent of Code 2022 Day 23 Solutions in scala=
   *
@@ -81,7 +80,7 @@ class AdventOfCodeDay23Spec
       lazy val height: Int = maxY - minY + 1
 
       def part1Iterate(i: Int): Plan = {
-        val newElves = collection.mutable.Set[Pos]()
+        val newElves = mutable.Set[Pos]()
         val priorities = Priorities(i % Dir.maxId)
         for (e <- elves) {
           priorities.find(e.unblocked(elves)) match {

@@ -5,6 +5,8 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
+import scala.collection.mutable
+
 /** =Advent of Code 2023 Day 12 Solutions in scala=
   *
   * Input: Given a list of springs where . is working, # is damaged and ? is
@@ -34,7 +36,7 @@ class AdventOfCodeDay12Spec
       lazy val checkSum: Int = check.sum
 
       def count(
-          memo: collection.mutable.Map[Springs, Long] = collection.mutable.Map()
+          memo: mutable.Map[Springs, Long] = mutable.Map()
       ): Long =
         memo.getOrElseUpdate(
           this,
