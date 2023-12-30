@@ -97,7 +97,6 @@ class AdventOfCodeDay2Spec
       val games: Seq[Game] = Game.parse(input: _*)
       extractGamesWithMax(12, 13, 14, games: _*) shouldBe 8
       extractPower(games: _*) shouldBe 2286
-
     }
   }
 
