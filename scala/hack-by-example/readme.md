@@ -8,35 +8,35 @@ For the Advent of Code, this is a pretty good coding challenge and lots of fun. 
 Advent of Code 2023
 ------------------------------------------------------------------------------
 
-🟢 Easy / 🔶 Medium / 🟥 Hard / ❤️ Fun / 🔵 Needed hints / 💥 Needed help
+🟢 Easy / 🔶 Medium / 🟥 Hard / ❤️ Fun / 🗯️ Frustrating / 🔵 Needed hints / 💥 Needed help
 
-| Day                                               | Techniques and notes                                                             |
-|---------------------------------------------------|----------------------------------------------------------------------------------|
-| [Day 1][AoC2023-01] ([Solution][Sol-AoC2023-01])  | 🟢 Extracting digits from a string with regular expressions.                     |
-| [Day 2][AoC2023-02] ([Solution][Sol-AoC2023-02])  | 🟢 Simple math.                                                                  |
-| [Day 3][AoC2023-03] ([Solution][Sol-AoC2023-03])  | 🟢 Two dimensional map of characters, represented internally as a single string. |
-| [Day 4][AoC2023-04] ([Solution][Sol-AoC2023-04])  | 🔶 Math, counting and counting and counting with some tricky cases.              |
-| [Day 5][AoC2023-05] ([Solution][Sol-AoC2023-05])  | 🔶 Working through ranges of numbers, implemented an Interval class.             |
-| [Day 6][AoC2023-06] ([Solution][Sol-AoC2023-06])  |                                                                                  |
-| [Day 7][AoC2023-07] ([Solution][Sol-AoC2023-07])  |                                                                                  |
-| [Day 8][AoC2023-08] ([Solution][Sol-AoC2023-08])  |                                                                                  |
-| [Day 9][AoC2023-09] ([Solution][Sol-AoC2023-09])  |                                                                                  |
-| [Day 10][AoC2023-10] ([Solution][Sol-AoC2023-10]) |                                                                                  |
-| [Day 11][AoC2023-11] ([Solution][Sol-AoC2023-11]) |                                                                                  |
-| [Day 12][AoC2023-12] ([Solution][Sol-AoC2023-12]) |                                                                                  |
-| [Day 13][AoC2023-13] ([Solution][Sol-AoC2023-13]) |                                                                                  |
-| [Day 14][AoC2023-14] ([Solution][Sol-AoC2023-14]) |                                                                                  |
-| [Day 15][AoC2023-15] ([Solution][Sol-AoC2023-15]) |                                                                                  |
-| [Day 16][AoC2023-16] ([Solution][Sol-AoC2023-16]) |                                                                                  |
-| [Day 17][AoC2023-17] ([Solution][Sol-AoC2023-17]) |                                                                                  |
-| [Day 18][AoC2023-18] ([Solution][Sol-AoC2023-18]) |                                                                                  |
-| [Day 19][AoC2023-19] ([Solution][Sol-AoC2023-19]) |                                                                                  |
-| [Day 20][AoC2023-20] ([Solution][Sol-AoC2023-20]) |                                                                                  |
-| [Day 21][AoC2023-21] ([Solution][Sol-AoC2023-21]) |                                                                                  |
-| [Day 22][AoC2023-22] ([Solution][Sol-AoC2023-22]) |                                                                                  |
-| [Day 23][AoC2023-23] ([Solution][Sol-AoC2023-23]) |                                                                                  |
-| [Day 24][AoC2023-24] ([Solution][Sol-AoC2023-24]) |                                                                                  |
-| [Day 25][AoC2023-25] ([Solution][Sol-AoC2023-25]) |                                                                                  |
+| Day                                               | Techniques and notes                                                                                                                                                                                        |
+|---------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [Day 1][AoC2023-01] ([Solution][Sol-AoC2023-01])  | 🟢 Extracting digits from a string with regular expressions.                                                                                                                                                |
+| [Day 2][AoC2023-02] ([Solution][Sol-AoC2023-02])  | 🟢 Simple math.                                                                                                                                                                                             |
+| [Day 3][AoC2023-03] ([Solution][Sol-AoC2023-03])  | 🟢 Two dimensional map of characters, represented internally as a single string.                                                                                                                            |
+| [Day 4][AoC2023-04] ([Solution][Sol-AoC2023-04])  | 🔶 Math, counting and counting and counting with some tricky cases.                                                                                                                                         |
+| [Day 5][AoC2023-05] ([Solution][Sol-AoC2023-05])  | 🔶 Working through ranges of numbers, implemented an Interval class.                                                                                                                                        |
+| [Day 6][AoC2023-06] ([Solution][Sol-AoC2023-06])  | 🟢 Math, worked out on paper before starting.                                                                                                                                                               |
+| [Day 7][AoC2023-07] ([Solution][Sol-AoC2023-07])  | 🔶❤️ Implementing a custom ordering for card hands.                                                                                                                                                         |
+| [Day 8][AoC2023-08] ([Solution][Sol-AoC2023-08])  | 🟥🗯 Traversing a graph. Part 1 was simply following the instructions, but Part 2 needed us to deduce input characteristics that weren't obvious. The solution is special for the carefully crafted inputs. |
+| [Day 9][AoC2023-09] ([Solution][Sol-AoC2023-09])  | 🟢❤️ Math series, super simple but elegantly fun.                                                                                                                                                           |
+| [Day 10][AoC2023-10] ([Solution][Sol-AoC2023-10]) | 🟥❤️ 2D map of characters again, with pipe shapes.  Solved with regexes. A bit trickier but fell on the right approach early and had fun.                                                                   |
+| [Day 11][AoC2023-11] ([Solution][Sol-AoC2023-11]) | 🟢 2D map of galaxies, converted into a sparse set of positions and doing the calculations around the spaces.                                                                                               |
+| [Day 12][AoC2023-12] ([Solution][Sol-AoC2023-12]) |                                                                                                                                                                                                             |
+| [Day 13][AoC2023-13] ([Solution][Sol-AoC2023-13]) |                                                                                                                                                                                                             |
+| [Day 14][AoC2023-14] ([Solution][Sol-AoC2023-14]) |                                                                                                                                                                                                             |
+| [Day 15][AoC2023-15] ([Solution][Sol-AoC2023-15]) |                                                                                                                                                                                                             |
+| [Day 16][AoC2023-16] ([Solution][Sol-AoC2023-16]) |                                                                                                                                                                                                             |
+| [Day 17][AoC2023-17] ([Solution][Sol-AoC2023-17]) |                                                                                                                                                                                                             |
+| [Day 18][AoC2023-18] ([Solution][Sol-AoC2023-18]) |                                                                                                                                                                                                             |
+| [Day 19][AoC2023-19] ([Solution][Sol-AoC2023-19]) |                                                                                                                                                                                                             |
+| [Day 20][AoC2023-20] ([Solution][Sol-AoC2023-20]) |                                                                                                                                                                                                             |
+| [Day 21][AoC2023-21] ([Solution][Sol-AoC2023-21]) |                                                                                                                                                                                                             |
+| [Day 22][AoC2023-22] ([Solution][Sol-AoC2023-22]) |                                                                                                                                                                                                             |
+| [Day 23][AoC2023-23] ([Solution][Sol-AoC2023-23]) |                                                                                                                                                                                                             |
+| [Day 24][AoC2023-24] ([Solution][Sol-AoC2023-24]) |                                                                                                                                                                                                             |
+| [Day 25][AoC2023-25] ([Solution][Sol-AoC2023-25]) |                                                                                                                                                                                                             |
 
 [AoC2023-01]: https://adventofcode.com/2023/day/1
 [AoC2023-02]: https://adventofcode.com/2023/day/2
