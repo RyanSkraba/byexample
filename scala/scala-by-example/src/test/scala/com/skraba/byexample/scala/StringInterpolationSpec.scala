@@ -3,6 +3,8 @@ package com.skraba.byexample.scala
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
+import java.time.ZoneId
+import java.util.{Locale, TimeZone}
 import scala.util.matching.Regex
 
 /** String formats and interpolation in scala.
@@ -13,6 +15,17 @@ import scala.util.matching.Regex
   *   https://docs.scala-lang.org/scala3/book/string-interpolation.html
   */
 class StringInterpolationSpec extends AnyFunSpecLike with Matchers {
+
+  /** A helper function to run a test in UTC */
+  def inUtc[T](fn: => T): T = {
+    val tz = TimeZone.getDefault
+    try {
+      TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
+      fn
+    } finally {
+      TimeZone.setDefault(tz)
+    }
+  }
 
   describe("Using an s-string or S interpolator") {
     it("should easily format strings and numbers") {
@@ -126,28 +139,30 @@ class StringInterpolationSpec extends AnyFunSpecLike with Matchers {
       // Saturday, February 14, 2015 3:14:15.926 Pm
       val time = 1423926855926L
 
-      // Standard 2 digits 24 hour clock
-      f"$time%tH:$time%tM:$time%tS" shouldBe "16:14:15"
-      f"$time%tT" shouldBe "16:14:15"
-      f"$time%tR" shouldBe "16:14"
-      f"$time%tT.$time%tL" shouldBe "16:14:15.926"
-      f"$time%tT.$time%tN" shouldBe "16:14:15.926000000"
+      inUtc {
+        // Standard 2 digits 24 hour clock
+        f"$time%tH:$time%tM:$time%tS" shouldBe "15:14:15"
+        f"$time%tT" shouldBe "15:14:15"
+        f"$time%tR" shouldBe "15:14"
+        f"$time%tT.$time%tL" shouldBe "15:14:15.926"
+        f"$time%tT.$time%tN" shouldBe "15:14:15.926000000"
 
-      // Standard 12 hour clock
-      f"$time%tI:$time%tM:$time%tS $time%Tp" shouldBe "04:14:15 PM"
-      f"$time%tr" shouldBe "04:14:15 PM"
+        // Standard 12 hour clock
+        f"$time%tI:$time%tM:$time%tS $time%Tp" shouldBe "03:14:15 PM"
+        f"$time%tr" shouldBe "03:14:15 PM"
 
-      // Weird non-standard MM/DD/YYYY date that everyone hates
-      f"$time%tm/$time%td/$time%ty" shouldBe "02/14/15"
-      f"$time%tD" shouldBe "02/14/15"
+        // Weird non-standard MM/DD/YYYY date that everyone hates
+        f"$time%tm/$time%td/$time%ty" shouldBe "02/14/15"
+        f"$time%tD" shouldBe "02/14/15"
 
-      // ISO-8601
-      f"$time%tY-$time%tm-$time%td" shouldBe "2015-02-14"
-      f"$time%tF" shouldBe "2015-02-14"
+        // ISO-8601
+        f"$time%tY-$time%tm-$time%td" shouldBe "2015-02-14"
+        f"$time%tF" shouldBe "2015-02-14"
 
-      // Git-like dates (the time zone is taken from the local)
-      f"$time%ta $time%tb $time%td $time%tT $time%tZ $time%tY" should fullyMatch regex "Sat Feb 14 16:14:15 .* 2015"
-      f"$time%tc" should fullyMatch regex "Sat Feb 14 16:14:15 .* 2015"
+        // Git-like dates (the time zone is taken from the local)
+        f"$time%ta $time%tb $time%td $time%tT $time%tZ $time%tY" should fullyMatch regex "Sat Feb 14 15:14:15 .* 2015"
+        f"$time%tc" should fullyMatch regex "Sat Feb 14 15:14:15 .* 2015"
+      }
     }
   }
 
