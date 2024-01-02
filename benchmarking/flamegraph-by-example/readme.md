@@ -9,9 +9,12 @@ They have the following characteristics:
   *samples* that were spent in the method call.
 * Vertical height is the depth of the call stack (and order is relevant).
 
-Building this project will create an image `flamegraph-influxdb:1.7.4` (based on the influxdb image)
+Building this project will create an image `flamegraph-influxdb:2.7.4` (based on the influxdb image)
 with a couple of useful scripts and some code gluing them together for easy deployment.  There's
 also an java application used in the examples below.
+
+**TODO:** The image is currently broken because the older code relies on Python 2, which is no longer
+supported in many repositories. 
 
 Resources
 ------------------------------------------------------------------------------
@@ -29,15 +32,15 @@ Running the launcher
 
 ```bash
 # Either of the commands build the image.
-mvn package -Ddocker.verbose=true
-docker build -t flamegraph-influxdb:1.7.4 src/main/docker/
+mvn package -Ddocker.verbose=true -Dflamegraph.docker.skip=false
+docker build -t flamegraph-influxdb:2.7.4 src/main/docker/
 
 # Run the server in one process
 docker run --rm \
     --name influxdb \
     -p 8086:8086 \
     -e INFLUXDB_DB=profiler \
-    flamegraph-influxdb:1.7.4
+    flamegraph-influxdb:2.7.4
 
 # If necessary, get the profiler java agent out of the image.  
 JAVAAGENT_DIR=/tmp/javaagent

@@ -1,4 +1,4 @@
-FROM influxdb:2.7.1
+FROM influxdb:2.7.4
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
 	python-all-dev=2.7.18-3 \
