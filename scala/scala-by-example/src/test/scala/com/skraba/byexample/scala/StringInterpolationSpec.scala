@@ -55,7 +55,7 @@ class StringInterpolationSpec extends AnyFunSpecLike with Matchers {
       raw"${x._1}\n${x._2}" shouldBe ".*\\n456"
       raw"${x._1}\n${x._2}".exists(_.isWhitespace) shouldBe false
       // This is especially useful for regex!
-      raw"${x._1}\n${x._2}".r matches ("123\n456") shouldBe true
+      raw"${x._1}\n${x._2}".r matches "123\n456" shouldBe true
     }
   }
 
@@ -77,42 +77,42 @@ class StringInterpolationSpec extends AnyFunSpecLike with Matchers {
       "%1$10s".format("one") shouldBe "       one"
     }
 
-    it("should resolve booleans") {
+    it("should format booleans") {
       "%b %b %b".format(None.orNull, true, false) shouldBe "false true false"
       "%b %b %b".format("false", "true", "") shouldBe "true true true"
       "%b %b %b".format(0, -1, math.Pi) shouldBe "true true true"
       "%B %B %B".format(None.orNull, true, false) shouldBe "FALSE TRUE FALSE"
     }
 
-    it("should resolve hashcodes") {
+    it("should format hashcodes") {
       "%h %h %h".format(None.orNull, true, false) shouldBe "null 4cf 4d5"
       "%h %h %h".format("false", "true", "") shouldBe "5cb1923 36758e 0"
       "%h %h %h".format(0, -1, math.Pi) shouldBe "0 ffffffff 144d0ce3"
       "%H %H %H".format(None.orNull, true, false) shouldBe "NULL 4CF 4D5"
     }
 
-    it("should resolve strings") {
+    it("should format strings") {
       "%s %s %s".format(None.orNull, true, false) shouldBe "null true false"
       "%s %s %s".format("false", "true", "") shouldBe "false true "
       "%s %s %s".format(0, -1, math.Pi) shouldBe "0 -1 3.141592653589793"
       "%S %S %S".format(None.orNull, "hello", false) shouldBe "NULL HELLO FALSE"
     }
 
-    it("should convert characters") {
+    it("should format characters") {
       "%c %c %c".format(None.orNull, 66, 'a') shouldBe "null B a"
       "%c %c".format('\u0151', 'ő') shouldBe "ő ő"
       "%C %C %C".format(None.orNull, 66, 'a') shouldBe "NULL B A"
       "%C %C".format('\u0151', 'ő') shouldBe "Ő Ő"
     }
 
-    it("should convert integers") {
+    it("should format integers") {
       "%d %d %d".format(None.orNull, 3, -14) shouldBe "null 3 -14"
       "%o %o %o".format(None.orNull, 3, -14) shouldBe "null 3 37777777762"
       "%x %x %x".format(None.orNull, 3, -14) shouldBe "null 3 fffffff2"
       "%X %X %X".format(None.orNull, 3, -14) shouldBe "NULL 3 FFFFFFF2"
     }
 
-    it("should convert floating points") {
+    it("should format floating points") {
       val pi = math.Pi
       val e = -math.E
       "%e %e".format(pi, e) shouldBe "3.141593e+00 -2.718282e+00"
@@ -133,6 +133,13 @@ class StringInterpolationSpec extends AnyFunSpecLike with Matchers {
       val conversion = 2.54d
       val unit2 = "centimetre"
       f"$unit1%s is $conversion%2.1f $unit2%s" shouldBe "inch is 2.5 centimetre"
+    }
+
+    it("should format floating point") {
+      val pi: Double = math.Pi
+      val negpi: Double = -math.Pi
+      f"$pi%(,.2f" shouldBe "3.14"
+      f"$negpi%(,.2f" shouldBe "(3.14)"
     }
 
     it("should format dates") {
