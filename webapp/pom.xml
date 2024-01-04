@@ -28,7 +28,7 @@
 
     <!-- Plugins -->
     <!-- It looks like this needs to be hard-coded below. -->
-    <plugin.maven.jetty.version>11.0.12</plugin.maven.jetty.version>
+    <plugin.maven.jetty.version>11.0.19</plugin.maven.jetty.version>
   </properties>
 
   <dependencyManagement>
@@ -61,7 +61,7 @@
           <groupId>org.eclipse.jetty</groupId>
           <artifactId>jetty-maven-plugin</artifactId>
           <!-- Needs to be hard-coded? -->
-          <version>11.0.15</version>
+          <version>11.0.19</version>
         </plugin>
       </plugins>
     </pluginManagement>
