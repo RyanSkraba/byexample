@@ -30,17 +30,17 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <!-- Dependencies -->
-    <ammonite.version>2.5.9</ammonite.version>
-    <assertj.version>3.24.2</assertj.version>
+    <ammonite.version>2.5.11</ammonite.version>
+    <assertj.version>3.25.1</assertj.version>
     <docopt.version>0.6.0.20150202</docopt.version>
     <hamcrest.version>2.2</hamcrest.version>
-    <junit5.version>5.9.3</junit5.version>
+    <junit5.version>5.10.1</junit5.version>
     <scala.binary.version>2.13</scala.binary.version>
-    <scala.version>2.13.11</scala.version>
+    <scala.version>2.13.12</scala.version>
     <scalafmt.version>3.7.7</scalafmt.version>
-    <scalatest.version>3.2.10</scalatest.version>
-    <slf4j.version>2.0.7</slf4j.version>
-    <testcontainers.version>1.18.3</testcontainers.version>
+    <scalatest.version>3.2.17</scalatest.version>
+    <slf4j.version>2.0.10</slf4j.version>
+    <testcontainers.version>1.19.3</testcontainers.version>
 
     <!-- The main class that can be overridden in subprojects -->
     <exec.mainClass>com.skraba.byexample.ToDoGo</exec.mainClass>
