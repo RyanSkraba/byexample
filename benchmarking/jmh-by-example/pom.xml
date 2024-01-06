@@ -19,7 +19,7 @@
     <!-- Launcher class -->
     <exec.mainClass>org.openjdk.jmh.Main</exec.mainClass>
     <!-- other project dependency versions as properties -->
-    <big-math.version>2.3.0</big-math.version>
+    <big-math.version>2.3.2</big-math.version>
   </properties>
 
   <dependencies>

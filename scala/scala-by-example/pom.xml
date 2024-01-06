@@ -20,7 +20,7 @@
     <!-- Launcher class -->
     <exec.mainClass>com.skraba.byexample.scala.ScalaGo</exec.mainClass>
     <!-- other project dependency versions as properties -->
-    <play-json.version>2.9.2</play-json.version>
+    <play-json.version>2.10.3</play-json.version>
   </properties>
 
   <dependencies>

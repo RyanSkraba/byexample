@@ -34,7 +34,7 @@
     <dependency>
       <groupId>com.lihaoyi</groupId>
       <artifactId>os-lib_${scala.binary.version}</artifactId>
-      <version>0.9.1</version>
+      <version>0.9.3</version>
     </dependency>
 
     <dependency>

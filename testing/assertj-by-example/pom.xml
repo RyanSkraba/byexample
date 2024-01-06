@@ -18,8 +18,6 @@
     <scalafmt.conf.path>${project.basedir}/../../.scalafmt.conf</scalafmt.conf.path>
     <!-- Launcher class -->
     <exec.mainClass/>
-    <!-- other project dependency versions as properties -->
-    <assertj.version>3.23.1</assertj.version>
   </properties>
 
   <dependencies>
