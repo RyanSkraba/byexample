@@ -14,7 +14,7 @@ with a couple of useful scripts and some code gluing them together for easy depl
 also an java application used in the examples below.
 
 **TODO:** The image is currently broken because the older code relies on Python 2, which is no longer
-supported in many repositories. 
+supported in many repositories.
 
 Resources
 ------------------------------------------------------------------------------
