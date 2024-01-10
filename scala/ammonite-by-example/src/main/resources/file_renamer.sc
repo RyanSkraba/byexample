@@ -81,9 +81,11 @@ def cameraphone(
     phoneTag: Option[String] = None,
     @arg(doc = "True if no files should actually be copied or moved")
     dryRun: Flag,
+    @arg(doc = "True if the action should be silent (verbose by default)")
+    noVerbose: Flag = Flag(false),
     cfgGroup: ConsoleCfg
 ): Unit = {
-  val cfg = cfgGroup.withVerbose(cfgGroup.verbose.value || dryRun.value)
+  val cfg = cfgGroup.withVerbose(!noVerbose.value)
 
   // Use the given src for the device, or try to detect it
   val srcDir = src.orElse(findPhoneStorage(phoneTag))

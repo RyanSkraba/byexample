@@ -77,7 +77,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
       *   stdout
       */
     def cameraphone(args: String*): String = {
-      val arguments: Seq[String] = Seq("cameraphone") ++ args
+      val arguments: Seq[String] = Seq("cameraphone", "--noVerbose") ++ args
       withScript(arguments: _*) { case (result, stdout, stderr) =>
         stderr shouldBe empty
         result shouldBe true
