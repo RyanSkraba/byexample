@@ -77,7 +77,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
       *   stdout
       */
     def cameraphone(args: String*): String = {
-      val arguments: Seq[String] = Seq("cameraphone", "--noVerbose") ++ args
+      val arguments: Seq[String] = Seq("cameraphone") ++ args
       withScript(arguments: _*) { case (result, stdout, stderr) =>
         stderr shouldBe empty
         result shouldBe true
@@ -89,7 +89,8 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
       // Set up a scenario
       val (src, dst) = scenario("basic")
 
-      val stdout = cameraphone("--src", src.toString, "--dst", dst.toString)
+      val stdout =
+        cameraphone("--noVerbose", "--src", src.toString, "--dst", dst.toString)
       stdout shouldBe empty
 
       (src / "DCIM" / "Camera").toDirectory.files shouldBe empty
@@ -107,6 +108,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
       val (src, dst) = scenario("basic2")
 
       val stdout = cameraphone(
+        "--noVerbose",
         "--src",
         src.toString,
         "--dst",
