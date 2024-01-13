@@ -135,7 +135,7 @@ def cameraphone(
 
     // Find alternatives if the directory already exists
     LazyList
-      .from(1)
+      .from(2)
       .map("-" + _)
       .prepended("")
       .map(today + _ + " Cameraphone")

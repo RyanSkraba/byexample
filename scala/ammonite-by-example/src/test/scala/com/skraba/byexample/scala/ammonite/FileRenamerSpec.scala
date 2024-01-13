@@ -55,17 +55,15 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
       * @param tag
       *   a string to use to uniquely identify the scenario
       */
-    def scenario(tag: String): (Directory, Directory) = {
-      val src = (Tmp / tag / "src").createDirectory(failIfExists = true)
-      val dst = (Tmp / tag / "dst").createDirectory(failIfExists = true)
-
+    def scenario(
+        tag: String,
+        cameraFiles: Seq[String] = Seq("image1.jpg", "image2.jpg", "image3.jpg")
+    ): (Directory, Directory) = {
+      val src = (Tmp / tag / "src").createDirectory(failIfExists = false)
+      val dst = (Tmp / tag / "dst").createDirectory(failIfExists = false)
       val cameraSrc =
-        (src / "DCIM" / "Camera").createDirectory(failIfExists = true)
-
-      (cameraSrc / "image1.jpg").createFile().writeAll("image1.jpg")
-      (cameraSrc / "image2.jpg").createFile().writeAll("image2.jpg")
-      (cameraSrc / "image3.jpg").createFile().writeAll("image3.jpg")
-
+        (src / "DCIM" / "Camera").createDirectory(failIfExists = false)
+      cameraFiles.foreach(f => (cameraSrc / f).createFile().writeAll(f))
       (src, dst)
     }
 
@@ -89,18 +87,54 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
       // Set up a scenario
       val (src, dst) = scenario("basic")
 
-      val stdout =
-        cameraphone("--noVerbose", "--src", src.toString, "--dst", dst.toString)
-      stdout shouldBe empty
+      // Running the first time should move all of the files
+      {
+        val stdout =
+          cameraphone(
+            "--noVerbose",
+            "--src",
+            src.toString,
+            "--dst",
+            dst.toString
+          )
+        stdout shouldBe empty
 
-      (src / "DCIM" / "Camera").toDirectory.files shouldBe empty
-      (src / "DCIM" / "Camera" / "backedup").toDirectory.files should have size 3
+        (src / "DCIM" / "Camera").toDirectory.files shouldBe empty
+        (src / "DCIM" / "Camera" / "backedup").toDirectory.files should have size 3
 
-      dst.toDirectory.files shouldBe empty
-      val dstDirs = dst.toDirectory.dirs.toSeq
-      dstDirs should have size 1
-      dstDirs.head.files should have size 3
-      (dstDirs.head / "image1.jpg").toFile.slurp() shouldBe "image1.jpg"
+        dst.toDirectory.files shouldBe empty
+        val dstDirs = dst.toDirectory.dirs.toSeq
+        dstDirs should have size 1
+        dstDirs.head.files should have size 3
+        (dstDirs.head / "image1.jpg").toFile.slurp() shouldBe "image1.jpg"
+      }
+
+      // Add another image to the camera
+      scenario("basic", Seq("image4.jpg"))
+
+      // Running the second time should create a new default destination
+      {
+        val stdout =
+          cameraphone(
+            "--noVerbose",
+            "--src",
+            src.toString,
+            "--dst",
+            dst.toString
+          )
+        stdout shouldBe empty
+
+        (src / "DCIM" / "Camera").toDirectory.files shouldBe empty
+        (src / "DCIM" / "Camera" / "backedup").toDirectory.files should have size 4
+
+        dst.toDirectory.files shouldBe empty
+        val dstDirs = dst.toDirectory.dirs.toSeq
+        dstDirs should have size 2
+
+        val newDst = dstDirs.find(_.name.endsWith("-2 Cameraphone")).get
+        newDst.files should have size 1
+        (newDst / "image4.jpg").toFile.slurp() shouldBe "image4.jpg"
+      }
     }
 
     it("should move files from the source to the directory with a dst tag") {
