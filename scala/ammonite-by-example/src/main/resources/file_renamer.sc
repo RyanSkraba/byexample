@@ -76,8 +76,11 @@ def cameraphone(
     )
     src: Option[os.Path] = None,
     @arg(
-      doc =
-        "The destination directory will have directories created to copy or move out media. (Default: ~/Pictures)."
+      doc = "The subdirectory to move source directories once they are copied"
+    )
+    srcSub: Option[String] = None,
+    @arg(
+      doc = "The destination directory will have directories created to copy or move out media. (Default: ~/Pictures)."
     )
     dst: Option[os.Path] = None,
     @arg(
@@ -146,7 +149,8 @@ def cameraphone(
   val dstDir = dst2 / tag
   if (!dryRun.value) os.makeDir(dstDir)
 
-  val backupDir = mediaDir / "backedup"
+  val backupDir = mediaDir / s"backedup${DateTimeFormatter.ofPattern("yyyy").format(LocalDate.now())}"
+
   if (!dryRun.value) os.makeDir.all(backupDir)
 
   for (file <- filesToCopy) {

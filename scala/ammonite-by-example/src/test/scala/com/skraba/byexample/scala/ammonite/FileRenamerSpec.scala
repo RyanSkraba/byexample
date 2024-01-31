@@ -1,5 +1,7 @@
 package com.skraba.byexample.scala.ammonite
 
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import scala.Console._
 import scala.io.AnsiColor.{BOLD, RESET}
 import scala.reflect.io.{Directory, File}
@@ -43,6 +45,9 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
   }
 
   describe("Using file_renamer.sc cameraphone") {
+
+    val backedup =
+      "backedup" + DateTimeFormatter.ofPattern("yyyy").format(LocalDate.now())
 
     /** Creates a simplified scenario with the following items:
       *
@@ -100,7 +105,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
         stdout shouldBe empty
 
         (src / "DCIM" / "Camera").toDirectory.files shouldBe empty
-        (src / "DCIM" / "Camera" / "backedup").toDirectory.files should have size 3
+        (src / "DCIM" / "Camera" / backedup).toDirectory.files should have size 3
 
         dst.toDirectory.files shouldBe empty
         val dstDirs = dst.toDirectory.dirs.toSeq
@@ -125,7 +130,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
         stdout shouldBe empty
 
         (src / "DCIM" / "Camera").toDirectory.files shouldBe empty
-        (src / "DCIM" / "Camera" / "backedup").toDirectory.files should have size 4
+        (src / "DCIM" / "Camera" / backedup).toDirectory.files should have size 4
 
         dst.toDirectory.files shouldBe empty
         val dstDirs = dst.toDirectory.dirs.toSeq
@@ -153,7 +158,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
       stdout shouldBe empty
 
       (src / "DCIM" / "Camera").toDirectory.files shouldBe empty
-      (src / "DCIM" / "Camera" / "backedup").toDirectory.files should have size 3
+      (src / "DCIM" / "Camera" / backedup).toDirectory.files should have size 3
 
       dst.toDirectory.files shouldBe empty
       val dstDirs = dst.toDirectory.dirs.toSeq
