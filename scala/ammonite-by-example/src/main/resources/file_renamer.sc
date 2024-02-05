@@ -5,6 +5,7 @@ import mainargs.{Flag, arg, main}
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import os.Path
 import scala.concurrent.duration.DurationInt
 import scala.io.AnsiColor._
 import scala.util.matching.Regex
@@ -50,11 +51,9 @@ def help(cfg: ConsoleCfg): Unit = {
 }
 
 /** @param phoneTag
-  *   A substring that must be in the path of the phone (i.e. SAMSUNG or the
-  *   phone model).
+  *   A substring that must be in the path of the phone (i.e. SAMSUNG or the phone model).
   * @return
-  *   Find the directory that corresponds to a connected USB phone, or null for
-  *   None
+  *   Find the directory that corresponds to a connected USB phone, or null for None
   */
 private[this] def findPhoneStorage(
     phoneTag: Option[String] = None
@@ -84,13 +83,11 @@ def cameraphone(
     )
     dst: Option[os.Path] = None,
     @arg(
-      doc =
-        "If specified, the name of the created subdirectory in dst (Default: Autocreated with a date prefix)"
+      doc = "If specified, the name of the created subdirectory in dst (Default: Autocreated with a date prefix)"
     )
     dstSub: Option[String] = None,
     @arg(
-      doc =
-        "A substring to search for when finding where the phone might be mounted"
+      doc = "A substring to search for when finding where the phone might be mounted"
     )
     phoneTag: Option[String] = None,
     @arg(doc = "True if no files should actually be copied or moved")
@@ -149,7 +146,8 @@ def cameraphone(
   val dstDir = dst2 / tag
   if (!dryRun.value) os.makeDir(dstDir)
 
-  val backupDir = mediaDir / s"backedup${DateTimeFormatter.ofPattern("yyyy").format(LocalDate.now())}"
+  val srcSubDir: String = srcSub.getOrElse(s"backedup${DateTimeFormatter.ofPattern("yyyyMM").format(LocalDate.now())}")
+  val backupDir: Path = mediaDir / srcSubDir
 
   if (!dryRun.value) os.makeDir.all(backupDir)
 
@@ -189,8 +187,7 @@ def group(
     (acc, file) =>
       acc match {
         // If there is already a head group within the gap, then add this one before in the same group.
-        case headGroup :: rest
-            if (os.mtime(file) - os.mtime(headGroup.head)) < gap =>
+        case headGroup :: rest if (os.mtime(file) - os.mtime(headGroup.head)) < gap =>
           (file :: headGroup) :: rest
         // If there isn't a list, or the head element is outside the gap then add it as a new group
         case rest => List(file) :: rest

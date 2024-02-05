@@ -47,7 +47,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
   describe("Using file_renamer.sc cameraphone") {
 
     val backedup =
-      "backedup" + DateTimeFormatter.ofPattern("yyyy").format(LocalDate.now())
+      "backedup" + DateTimeFormatter.ofPattern("yyyyMM").format(LocalDate.now())
 
     /** Creates a simplified scenario with the following items:
       *
