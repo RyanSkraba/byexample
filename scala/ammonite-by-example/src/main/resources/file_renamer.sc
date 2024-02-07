@@ -165,7 +165,57 @@ def cameraphone(
   }
 }
 
-@arg(doc = "Group the files by time and rename them with the same root name ")
+@arg(
+  doc =
+    "Given a directory with dated photo files, moves them to directories sorted by YYYYMM"
+)
+@main
+def monthify(
+    @arg(doc = "The directory to analyse and move files from")
+    src: os.Path,
+    @arg(doc = "The destination directory (before adding a YYYYMM suffix)")
+    dst: Option[os.Path] = None,
+    @arg(doc = "True if no files should actually be copied or moved")
+    dryRun: Flag,
+    @arg(doc = "True if the action should be silent (verbose by default)")
+    noVerbose: Flag = Flag(false),
+    cfgGroup: ConsoleCfg
+): Unit = {
+  val cfg = cfgGroup.withVerbose(!noVerbose.value)
+
+  // Use the given src for the device, or try to detect it
+  val dst2 = dst.getOrElse(src)
+  cfg.vPrintln(s"dst: $dst2")
+
+  // The regex used too extract dates from the filenames
+  val DateExtract: Regex =
+    raw"^(\D+_)?(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2}).*".r
+
+  val files: Map[String, Seq[String]] =
+    os.list(src)
+      .filter(os.isFile)
+      .map(_.last)
+      .map(f => f -> f)
+      .collect { case (f, DateExtract(_, yy, mm, _*)) =>
+        (yy + mm, f)
+      }
+      .groupMap(_._1)(_._2)
+
+  files.keySet.toSeq.sorted.foreach { yymm =>
+    val fToMove = files(yymm)
+    val dstDir = dst2 / os.up / (dst2.last + yymm)
+    cfg.vPrintln(s"YYYYMM: $yymm (${fToMove.size} files) to ${dstDir.last}")
+
+    if (!dryRun.value) os.makeDir.all(dstDir)
+    fToMove.foreach { fmv =>
+      cfg.vPrint(".")
+      if (!dryRun.value) os.move(src / fmv, dstDir / fmv)
+    }
+    cfg.vPrintln(".")
+  }
+}
+
+@arg(doc = "Group the files by time and rename them with the same root name")
 @main
 def group(
     dir: Option[os.Path] = None,
