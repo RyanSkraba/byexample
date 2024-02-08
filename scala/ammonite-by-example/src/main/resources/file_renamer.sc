@@ -70,25 +70,15 @@ private[this] def findPhoneStorage(
 @arg(doc = "Backs up pictures and media from the connected phone")
 @main
 def cameraphone(
-    @arg(
-      doc = "The root path of the device containing pictures, or None to detect"
-    )
+    @arg(doc = "The root path of the device containing pictures, or None to detect")
     src: Option[os.Path] = None,
-    @arg(
-      doc = "The subdirectory to move source directories once they are copied"
-    )
+    @arg(doc = "The subdirectory to move source directories once they are copied")
     srcSub: Option[String] = None,
-    @arg(
-      doc = "The destination directory will have directories created to copy or move out media. (Default: ~/Pictures)."
-    )
+    @arg(doc = "Create directories here to copy or move out media. (Default: ~/Pictures).")
     dst: Option[os.Path] = None,
-    @arg(
-      doc = "If specified, the name of the created subdirectory in dst (Default: Autocreated with a date prefix)"
-    )
+    @arg(doc = "If specified, the name of the created subdirectory in dst (Default: Autocreated with a date prefix)")
     dstSub: Option[String] = None,
-    @arg(
-      doc = "A substring to search for when finding where the phone might be mounted"
-    )
+    @arg(doc = "A substring to search for when finding where the phone might be mounted")
     phoneTag: Option[String] = None,
     @arg(doc = "True if no files should actually be copied or moved")
     dryRun: Flag,
@@ -99,9 +89,8 @@ def cameraphone(
   val cfg = cfgGroup.withVerbose(!noVerbose.value)
 
   // Use the given src for the device, or try to detect it
-  val srcDir = src
-    .orElse(findPhoneStorage(phoneTag))
-    .getOrElse(throw new RuntimeException("Unable to find pics storage."))
+  val srcDir =
+    src.orElse(findPhoneStorage(phoneTag)).getOrElse(throw new RuntimeException("Unable to find pics storage."))
   cfg.vPrintln(srcDir)
 
   // This is one directory that might contain media in the device
@@ -165,10 +154,7 @@ def cameraphone(
   }
 }
 
-@arg(
-  doc =
-    "Given a directory with dated photo files, moves them to directories sorted by YYYYMM"
-)
+@arg(doc = "Given a directory with dated photo files, moves them to directories sorted by YYYYMM")
 @main
 def monthify(
     @arg(doc = "The directory to analyse and move files from")
@@ -237,18 +223,14 @@ def group(
     (acc, file) =>
       acc match {
         // If there is already a head group within the gap, then add this one before in the same group.
-        case headGroup :: rest if (os.mtime(file) - os.mtime(headGroup.head)) < gap =>
-          (file :: headGroup) :: rest
+        case headGroup :: rest if (os.mtime(file) - os.mtime(headGroup.head)) < gap => (file :: headGroup) :: rest
         // If there isn't a list, or the head element is outside the gap then add it as a new group
         case rest => List(file) :: rest
       }
 
   // And the grouped files.
   val groupedByTime: List[List[os.Path]] =
-    files
-      .foldLeft[List[List[os.Path]]](Nil)(foldGroupByTime)
-      .reverse
-      .map(_.reverse)
+    files.foldLeft[List[List[os.Path]]](Nil)(foldGroupByTime).reverse.map(_.reverse)
 
   // This just asks for a name and prints out the mv command.
   val commands: Seq[String] = groupedByTime.flatMap { files =>
@@ -258,9 +240,7 @@ def group(
     files.foreach { f => println(s"  ${BOLD}${os.mtime(f)}:$RESET ${f.last}") }
 
     // Prompt for a new name
-    val prompt1: String = scala.io.StdIn.readLine(
-      s"  $BLUE${BOLD}Rename group:$RESET"
-    )
+    val prompt1: String = scala.io.StdIn.readLine(s"  $BLUE${BOLD}Rename group:$RESET")
 
     // Print the commands to the screen for each group with an indent
     var i = 0;
@@ -274,16 +254,12 @@ def group(
 
   // Print the command summaries
   println(s"$GREEN${BOLD}========================================$RESET")
-  for (cmd <- commands)
-    println(s"${BOLD}$cmd$RESET")
+  for (cmd <- commands) println(s"${BOLD}$cmd$RESET")
 }
 
 @arg(doc = "Renames payslip files to a standard format")
 @main
-def payslip(
-    srcPath: Option[os.Path] = None,
-    dstPath: Option[os.Path] = None
-): Unit = {
+def payslip(srcPath: Option[os.Path] = None, dstPath: Option[os.Path] = None): Unit = {
 
   // Error if the directory doesn't exist.
   val src: os.Path = srcPath.getOrElse(os.pwd)
