@@ -18,6 +18,7 @@
   </modules>
 
   <properties>
+    <byexample.relBaseDir>..</byexample.relBaseDir>
     <!-- skip the deployment for aggregators, not necessary.  Needs to be flipped to false
      for project with artifacts. -->
     <maven.deploy.skip>true</maven.deploy.skip>

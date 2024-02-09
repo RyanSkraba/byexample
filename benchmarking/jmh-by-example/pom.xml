@@ -15,6 +15,7 @@
   <description>JMH example project, setup, howtos, etc.</description>
 
   <properties>
+    <byexample.relBaseDir>../..</byexample.relBaseDir>
     <maven.deploy.skip>false</maven.deploy.skip>
     <!-- Launcher class -->
     <exec.mainClass>org.openjdk.jmh.Main</exec.mainClass>

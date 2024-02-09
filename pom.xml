@@ -18,6 +18,9 @@
   </modules>
 
   <properties>
+    <!-- From this file to the root directory of the repo. -->
+    <byexample.relBaseDir>.</byexample.relBaseDir>
+
     <!-- specifies that the system uses Java 11 by default -->
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
@@ -330,6 +333,7 @@
                 <include>src/test/scala/**/*.scala</include>
               </includes>
               <scalafmt>
+                <file>${project.basedir}/${byexample.relBaseDir}/.scalafmt.conf</file>
                 <version>${scalafmt.version}</version>
               </scalafmt>
             </scala>

@@ -15,6 +15,7 @@
   <description>A Java web application example project, setup, howtos, etc.</description>
 
   <properties>
+    <byexample.relBaseDir>../..</byexample.relBaseDir>
     <maven.deploy.skip>false</maven.deploy.skip>
     <!-- other project dependency versions as properties -->
   </properties>
