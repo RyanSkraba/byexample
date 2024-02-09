@@ -11,19 +11,16 @@ import scala.collection.mutable
   *
   * Input: A map of garden plots, showing available space and rocks.
   *
-  * Part 1: Given that the gardener wants to step exactly 64 spaces from the
-  * starting point S. How many spaces are exactly this distance?
+  * Part 1: Given that the gardener wants to step exactly 64 spaces from the starting point S. How many spaces are
+  * exactly this distance?
   *
-  * Part 2: The map is actually infinitely repeating, and the gardener wants to
-  * step exactly 26501365 spaces. How many spaces are exactly this distance.
+  * Part 2: The map is actually infinitely repeating, and the gardener wants to step exactly 26501365 spaces. How many
+  * spaces are exactly this distance.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/21]]
   */
-class AdventOfCodeDay21Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay21Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 

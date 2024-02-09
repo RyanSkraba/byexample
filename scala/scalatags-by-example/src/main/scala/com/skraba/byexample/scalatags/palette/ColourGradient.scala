@@ -40,8 +40,7 @@ case class ColourGradient(
   /** @param size
     *   The size of the swatch to be applied.
     * @param scale
-    *   The circle will be scaled by this amount but remain centered in the
-    *   area.
+    *   The circle will be scaled by this amount but remain centered in the area.
     * @param textSize
     *   The font size of the title (unaffected by the scale).
     * @param textAdjust

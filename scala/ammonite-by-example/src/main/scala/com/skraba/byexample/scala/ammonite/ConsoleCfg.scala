@@ -4,18 +4,14 @@ import mainargs._
 
 import scala.io.AnsiColor
 
-/** A configurable, colourful mechanism for interacting with the user via the
-  * terminal.
+/** A configurable, colourful mechanism for interacting with the user via the terminal.
   *
   * @param verbose
-  *   True if the script should print extra verbose information. By default, be
-  *   concise.
+  *   True if the script should print extra verbose information. By default, be concise.
   * @param plain
-  *   True if the script should avoid ANSI colour codes. By default, be
-  *   colourful.
+  *   True if the script should avoid ANSI colour codes. By default, be colourful.
   * @param yes
-  *   True if the script should assume the user would reply yes to prompts. By
-  *   default, ask whether to proceed.
+  *   True if the script should assume the user would reply yes to prompts. By default, ask whether to proceed.
   */
 @main
 case class ConsoleCfg(
@@ -295,17 +291,14 @@ case class ConsoleCfg(
     * @param nFn
     *   A function to execute if the prompt is negative (n), by default, nothing
     * @param qFn
-    *   A function to execute if the prompt is to abort (q), by default this is
-    *   sys.exit(1)
+    *   A function to execute if the prompt is to abort (q), by default this is sys.exit(1)
     * @param otherFn
-    *   A function to execute on other lines. This returns [[None]] if the
-    *   prompt should be retried, {{Some(None)}} if [[None]] is the final
-    *   answer, and {{Some(Some(x))}} if {{x}} should be returned.
+    *   A function to execute on other lines. This returns [[None]] if the prompt should be retried, {{Some(None)}} if
+    *   [[None]] is the final answer, and {{Some(Some(x))}} if {{x}} should be returned.
     * @tparam T
     *   The return value of the function
     * @return
-    *   The value returned by the function that was executed, or None if no
-    *   function was called.
+    *   The value returned by the function that was executed, or None if no function was called.
     */
   def ask[T](prompt: String)(
       yFn: => T,

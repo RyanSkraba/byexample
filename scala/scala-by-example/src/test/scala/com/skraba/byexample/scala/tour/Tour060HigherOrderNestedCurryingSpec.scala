@@ -10,9 +10,7 @@ import scala.annotation.tailrec
   * @see
   *   [[https://docs.scala-lang.org/tour/tour-of-scala.html]]
   */
-class Tour060HigherOrderNestedCurryingSpec
-    extends AnyFunSpecLike
-    with Matchers {
+class Tour060HigherOrderNestedCurryingSpec extends AnyFunSpecLike with Matchers {
 
   describe("Higher order functions") {
 

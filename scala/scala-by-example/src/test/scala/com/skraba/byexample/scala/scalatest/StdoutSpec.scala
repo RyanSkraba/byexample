@@ -10,8 +10,7 @@ import scala.reflect.io.Streamable
 
 /** Matchers and assertions on stdout, stderr streams.
   *
-  * See the helper methods in the StdoutSpec object for the technique to do
-  * this.
+  * See the helper methods in the StdoutSpec object for the technique to do this.
   */
 class StdoutSpec extends AnyFunSpecLike with Matchers {
 
@@ -54,8 +53,7 @@ object StdoutSpec {
     }
   }
 
-  /** A helper method used to capture the console and apply it to a partial
-    * function.
+  /** A helper method used to capture the console and apply it to a partial function.
     * @param thunk
     *   code to execute that may use Console.out and Console.err print streams
     * @param pf
@@ -89,8 +87,7 @@ object StdoutSpec {
     }
   }
 
-  /** A helper method used to capture the console of a method execution and
-    * apply it to a partial function.
+  /** A helper method used to capture the console of a method execution and apply it to a partial function.
     * @param args
     *   String arguments to pass to the go method
     * @param pf
@@ -110,8 +107,7 @@ object StdoutSpec {
     }
   }
 
-  /** A helper method used to capture the console of a method execution and
-    * return the output.
+  /** A helper method used to capture the console of a method execution and return the output.
     * @param args
     *   String arguments to pass to the go method
     * @return

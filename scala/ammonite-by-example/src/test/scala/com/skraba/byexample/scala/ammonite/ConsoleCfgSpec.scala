@@ -11,10 +11,7 @@ import scala.io.AnsiColor._
 import scala.reflect.io.Streamable
 
 /** Test the [[ConsoleCfg]] helper. */
-class ConsoleCfgSpec
-    extends AnyFunSpecLike
-    with BeforeAndAfterAll
-    with Matchers {
+class ConsoleCfgSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 
   describe("Providing ANSI colours") {
 
@@ -248,10 +245,9 @@ class ConsoleCfgSpec
       new ByteArrayInputStream(s"$userResponse\n".getBytes)
     ) { in =>
       Console.withIn(in) {
-        withConsoleMatch(cfg.ask("Password?") { "Open sesame" }) {
-          case (result, out, err) =>
-            err shouldBe empty
-            (out, result)
+        withConsoleMatch(cfg.ask("Password?") { "Open sesame" }) { case (result, out, err) =>
+          err shouldBe empty
+          (out, result)
         }
       }
     }

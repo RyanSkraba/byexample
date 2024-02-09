@@ -10,20 +10,15 @@ import org.scalatest.tagobjects.Slow
   *
   * Input: A set of movements for the head of a rope.
   *
-  * Part 1: When dragging around a rope on a board, the next knot follows along
-  * so that it is always adjacent or diagonal to the head. Count the number of
-  * squares the next knot visits.
+  * Part 1: When dragging around a rope on a board, the next knot follows along so that it is always adjacent or
+  * diagonal to the head. Count the number of squares the next knot visits.
   *
-  * Part 2: When dragging around a rope on a board, count the number of squares
-  * the 10th knot visits.
+  * Part 2: When dragging around a rope on a board, count the number of squares the 10th knot visits.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/9]]
   */
-class AdventOfCodeDay9Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay9Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 

@@ -7,24 +7,18 @@ import org.scalatest.matchers.should.Matchers
 
 /** =Advent of Code 2022 Day 22 Solutions in scala=
   *
-  * Input: A map with obstacles and instructions for moving around the map. The
-  * map is not square, but an unfolded box (although we don't know that for part
-  * 1). Open spaces are periods, and blocked spaces are #. The last line is the
+  * Input: A map with obstacles and instructions for moving around the map. The map is not square, but an unfolded box
+  * (although we don't know that for part 1). Open spaces are periods, and blocked spaces are #. The last line is the
   * instructions to follow in the form of turns and number of spaces to advance.
   *
-  * Part 1: The final coordinates after following the instructions, where we
-  * wrap around rows and columns.
+  * Part 1: The final coordinates after following the instructions, where we wrap around rows and columns.
   *
-  * Part 2: The final coordinates after following the instructions, where we
-  * wrap the map around a box.
+  * Part 2: The final coordinates after following the instructions, where we wrap the map around a box.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/22]]
   */
-class AdventOfCodeDay22Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay22Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 
@@ -263,13 +257,12 @@ class AdventOfCodeDay22Spec
       f1.map(_.y).distinct shouldBe Seq(12)
       f1.map(_.facing).distinct shouldBe Seq(South)
 
-      init.plan.warp =
-        Seq(a1, a2, b1, b2, c1, c2, d1, d2, e1, e2, f1, f2, g1, g2)
-          .grouped(2)
-          .flatMap { case Seq(x1, x2) =>
-            x1.zip(x2.map(_.cw.cw)) ++ x2.zip(x1.map(_.cw.cw))
-          }
-          .toMap
+      init.plan.warp = Seq(a1, a2, b1, b2, c1, c2, d1, d2, e1, e2, f1, f2, g1, g2)
+        .grouped(2)
+        .flatMap { case Seq(x1, x2) =>
+          x1.zip(x2.map(_.cw.cw)) ++ x2.zip(x1.map(_.cw.cw))
+        }
+        .toMap
 
       init.copy(8, 11, South).warpOpt shouldBe Some(
         init.copy(3, 7, North)
@@ -376,13 +369,12 @@ class AdventOfCodeDay22Spec
       val e2 = init.plan.line(2, 2, 50, East).reverse
       val g1 = init.plan.line(3, 1, 50, East).reverse
 
-      init.plan.warp =
-        Seq(f2, f1, e1, e2, a2, a1, g2, g1, d1, d2, b1, b2, c1, c2)
-          .grouped(2)
-          .flatMap { case Seq(lineA, lineB) =>
-            lineA.zip(lineB.map(_.cw.cw)) ++ lineB.zip(lineA.map(_.cw.cw))
-          }
-          .toMap
+      init.plan.warp = Seq(f2, f1, e1, e2, a2, a1, g2, g1, d1, d2, b1, b2, c1, c2)
+        .grouped(2)
+        .flatMap { case Seq(lineA, lineB) =>
+          lineA.zip(lineB.map(_.cw.cw)) ++ lineB.zip(lineA.map(_.cw.cw))
+        }
+        .toMap
 
       solve(init, moves) shouldBe decryptLong("rzTcnCPzZLATZudCfIpMZg==")
     }

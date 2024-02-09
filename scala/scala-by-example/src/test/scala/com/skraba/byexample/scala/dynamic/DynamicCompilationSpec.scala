@@ -12,10 +12,7 @@ import scala.tools.reflect.ToolBox
   * @see
   *   [[https://stackoverflow.com/questions/39137175/dynamically-compiling-scala-class-files-at-runtime-in-scala-2-11]]
   */
-class DynamicCompilationSpec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class DynamicCompilationSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   /** The common interface that will be implemented by the scala code. */
   trait Greeter {
@@ -53,8 +50,8 @@ class DynamicCompilationSpec
 
 object DynamicCompilationSpec {
 
-  /** The string that we want to compile and reuse in calls. It implements a
-    * well-known trait and returns an instance of that trait that can be called.
+  /** The string that we want to compile and reuse in calls. It implements a well-known trait and returns an instance of
+    * that trait that can be called.
     */
   val myGreeterClass =
     """

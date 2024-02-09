@@ -12,20 +12,16 @@ import scala.util.matching.Regex
   *
   * Input: A console output listing files in the filesystem
   *
-  * Part 1: Get the size of every subdirectory and count the sum of all of them
-  * with size> 100000 (note that this counts some files more than once).
+  * Part 1: Get the size of every subdirectory and count the sum of all of them with size> 100000 (note that this counts
+  * some files more than once).
   *
-  * Part 2: If the total disk size is 7M bytes and we need 3M bytes available,
-  * what is the smallest subdirectory that can be deleted to free up enough
-  * space?
+  * Part 2: If the total disk size is 7M bytes and we need 3M bytes available, what is the smallest subdirectory that
+  * can be deleted to free up enough space?
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/7]]
   */
-class AdventOfCodeDay7Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay7Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 

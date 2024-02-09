@@ -8,9 +8,7 @@ import org.scalatest.matchers.should.Matchers
   * @see
   *   [[https://docs.scala-lang.org/tour/tour-of-scala.html]]
   */
-class Tour130InnerClassesAbstractTypesSpec
-    extends AnyFunSpecLike
-    with Matchers {
+class Tour130InnerClassesAbstractTypesSpec extends AnyFunSpecLike with Matchers {
 
   describe("Inner classes") {
     // In Java, inner classes are always bound to the outer class.  In scala, they are bound to the

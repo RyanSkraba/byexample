@@ -10,24 +10,18 @@ import scala.collection.mutable
 
 /** =Advent of Code 2023 Day 23 Solutions in scala=
   *
-  * Input: A 2D map with forests (`#`) and paths (`.`) as well as some
-  * contraints that where the path can only be taken in one direction (`^` `v` *
-  * `<` `>`).
+  * Input: A 2D map with forests (`#`) and paths (`.`) as well as some contraints that where the path can only be taken
+  * in one direction (`^` `v` * `<` `>`).
   *
-  * Part 1: Find the longest path that goes from the upper row to the bottom row
-  * that doesn't visit the same spot twice, obeying the directions for the
-  * one-way paths
+  * Part 1: Find the longest path that goes from the upper row to the bottom row that doesn't visit the same spot twice,
+  * obeying the directions for the one-way paths
   *
-  * Part 2: Find the longest path that goes from the upper row to the bottom row
-  * ignoring the one-way constraints.
+  * Part 2: Find the longest path that goes from the upper row to the bottom row ignoring the one-way constraints.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/23]]
   */
-class AdventOfCodeDay23Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay23Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 

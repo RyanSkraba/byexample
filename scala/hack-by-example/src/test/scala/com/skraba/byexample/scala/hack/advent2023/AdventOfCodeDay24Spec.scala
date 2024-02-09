@@ -7,24 +7,18 @@ import org.scalatest.matchers.should.Matchers
 
 /** =Advent of Code 2023 Day 24 Solutions in scala=
   *
-  * Input: Many hailstone trajectories with a position in 3D space and a
-  * velocity vector.
+  * Input: Many hailstone trajectories with a position in 3D space and a velocity vector.
   *
-  * Part 1: Ignoring the Z axis, find the number of hailstone trajectories that
-  * intersect in a given square. The intersection doesn't need to be at the same
-  * time, but it needs to happen after time 0.
+  * Part 1: Ignoring the Z axis, find the number of hailstone trajectories that intersect in a given square. The
+  * intersection doesn't need to be at the same time, but it needs to happen after time 0.
   *
-  * Part 2: Given all the trajectories, find one more trajectory that intersects
-  * every hailstone at some point. Add the coordinates of the starting point of
-  * that trajectory.
+  * Part 2: Given all the trajectories, find one more trajectory that intersects every hailstone at some point. Add the
+  * coordinates of the starting point of that trajectory.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/24]]
   */
-class AdventOfCodeDay24Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay24Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 

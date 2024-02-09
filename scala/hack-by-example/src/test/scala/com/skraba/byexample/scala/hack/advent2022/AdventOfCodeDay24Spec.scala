@@ -9,21 +9,16 @@ import scala.collection.mutable
 
 /** =Advent of Code 2022 Day 24 Solutions in scala=
   *
-  * Input: A map of the extraction point with all of the blizzards marked by the
-  * direction they are taking.
+  * Input: A map of the extraction point with all of the blizzards marked by the direction they are taking.
   *
-  * Part 1: The minimum number of minutes that it takes to get from 0,0 to the
-  * bottom right corner.
+  * Part 1: The minimum number of minutes that it takes to get from 0,0 to the bottom right corner.
   *
   * Part 2:
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/24]]
   */
-class AdventOfCodeDay24Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay24Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 

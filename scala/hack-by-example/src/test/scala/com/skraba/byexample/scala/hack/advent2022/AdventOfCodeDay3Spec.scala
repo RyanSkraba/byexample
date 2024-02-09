@@ -7,25 +7,19 @@ import org.scalatest.matchers.should.Matchers
 
 /** =Advent of Code 2022 Day 3 Solutions in scala=
   *
-  * Input: Lines of rucksack items, each case-sensitive letter corresponds to an
-  * item in the rucksack. The first half of the line is in the first compartment
-  * of the backpack, and the second half is in the second compartment.
+  * Input: Lines of rucksack items, each case-sensitive letter corresponds to an item in the rucksack. The first half of
+  * the line is in the first compartment of the backpack, and the second half is in the second compartment.
   *
   * The priority of an item is 'a'-'z' 1-26 and 'A'-'Z' 27-52
   *
-  * Part 1: Find the duplicate item in the first and second compartment for each
-  * backpack and sum the priorities.
+  * Part 1: Find the duplicate item in the first and second compartment for each backpack and sum the priorities.
   *
-  * Part 2: For each group of three elves, find the common item in their three
-  * backpacks and sum the priorities.
+  * Part 2: For each group of three elves, find the common item in their three backpacks and sum the priorities.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/3]]
   */
-class AdventOfCodeDay3Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay3Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
     def priority(c: Char): Long = if (c >= 'a') c - 'a' + 1 else c - 'A' + 27
@@ -39,9 +33,7 @@ class AdventOfCodeDay3Spec
 
     def badge(in: String*): Iterator[Char] = {
       in.grouped(3)
-        .map(elves =>
-          elves.tail.foldLeft(elves.head)((acc, elf) => acc.intersect(elf))
-        )
+        .map(elves => elves.tail.foldLeft(elves.head)((acc, elf) => acc.intersect(elf)))
         .flatMap(_.headOption)
     }
 

@@ -8,9 +8,7 @@ import org.scalatest.matchers.should.Matchers
   * @see
   *   [[https://docs.scala-lang.org/tour/tour-of-scala.html]]
   */
-class Tour150ImplicitParametersAndConversions
-    extends AnyFunSpecLike
-    with Matchers {
+class Tour150ImplicitParametersAndConversions extends AnyFunSpecLike with Matchers {
 
   describe("Implicit/contextual parameters") {
     describe("are automatically injected into method calls") {
@@ -33,8 +31,7 @@ class Tour150ImplicitParametersAndConversions
 
         /** The implicit comparator can be a member */
         implicit val sequenceComparator: Comparator[Seq[Int]] =
-          (x: Seq[Int], y: Seq[Int]) =>
-            IntComparator.compare(x.length, y.length)
+          (x: Seq[Int], y: Seq[Int]) => IntComparator.compare(x.length, y.length)
       }
 
       def max[A](x: A, y: A)(implicit comparator: Comparator[A]): A =

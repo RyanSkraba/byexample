@@ -22,10 +22,7 @@ import org.scalatest.matchers.should.Matchers
   * @see
   *   [[https://alvinalexander.com/scala/how-to-define-scala-trait-subclassed-certain-self-types]]
   */
-class TraitSelfTypeSpec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class TraitSelfTypeSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   /** A base trait */
   trait Base {

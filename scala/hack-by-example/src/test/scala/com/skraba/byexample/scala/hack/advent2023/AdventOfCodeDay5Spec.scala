@@ -7,30 +7,25 @@ import org.scalatest.matchers.should.Matchers
 
 /** =Advent of Code 2023 Day 5 Solutions in scala=
   *
-  * Input: Lists of numeric range mappings that transform (for example) seed ids
-  * to soil ids, then soil ids to fertilizer ids.
+  * Input: Lists of numeric range mappings that transform (for example) seed ids to soil ids, then soil ids to
+  * fertilizer ids.
   *
-  * Part 1: For a list of seeds, apply all of the functions until you arrive at
-  * a location id, then select the smallest.
+  * Part 1: For a list of seeds, apply all of the functions until you arrive at a location id, then select the smallest.
   *
-  * Part 1: For a list of large seed _ranges_, apply all of the functions until
-  * you arrive at location ids, then select the smallest.
+  * Part 1: For a list of large seed _ranges_, apply all of the functions until you arrive at location ids, then select
+  * the smallest.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/5]]
   */
-class AdventOfCodeDay5Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay5Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 
     /** Parse the input strings into three data structures:
       *
       *   - The list of numbers corresponding to seeds in the first line.
-      *   - A map of all the ranges found in the input, keyed on the source
-      *     type.
+      *   - A map of all the ranges found in the input, keyed on the source type.
       *   - A list of strings corresponding to the input types
       */
     def parse(
@@ -63,8 +58,7 @@ class AdventOfCodeDay5Spec
       (seeds, mapByName, mapNames)
     }
 
-    /** For part 1, given an input number and a map of ranges, find the output
-      * number
+    /** For part 1, given an input number and a map of ranges, find the output number
       */
     def part1FindInRange(in: Long, ranges: Array[Array[Long]]): Long = {
       for (range <- ranges if in >= range(1) && in < range(1) + range(2)) {
@@ -83,9 +77,8 @@ class AdventOfCodeDay5Spec
       locations.min
     }
 
-    /** Helper object to store an interval. If an integer is in this interval,
-      * this can be applied as a function to map it from the source interval to
-      * the destination interval.
+    /** Helper object to store an interval. If an integer is in this interval, this can be applied as a function to map
+      * it from the source interval to the destination interval.
       * @param src
       *   The start index in the interval
       * @param len

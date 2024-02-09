@@ -6,14 +6,12 @@ import scala.util.Properties
 
 object ThunderbirdMailbox {
 
-  /** A helper method to find the number of unread messages in a Thunderbird
-    * mailbox (.msf) file.
+  /** A helper method to find the number of unread messages in a Thunderbird mailbox (.msf) file.
     *
     * @param dir
     *   The root directory to search for mailbox files.
     * @param filename
-    *   A strictly matching filename to look for, probably with an .msf
-    *   extension.
+    *   A strictly matching filename to look for, probably with an .msf extension.
     * @param refiner
     *   To disambiguate between multiple mailbox files, matches the entire path.
     * @return
@@ -26,9 +24,7 @@ object ThunderbirdMailbox {
   ): Int = {
     // Find the requested mailbox file or fail immediately
     val f: File = (Directory(Properties.userHome) / dir)
-      .walkFilter(p =>
-        p.isDirectory || p.name == filename && p.path.contains(refiner)
-      )
+      .walkFilter(p => p.isDirectory || p.name == filename && p.path.contains(refiner))
       .filter(_.isFile) match {
       case fs if fs.hasNext =>
         val first = fs.next().toFile

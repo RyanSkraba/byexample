@@ -7,9 +7,8 @@ import org.scalatest.matchers.should.Matchers
 
 /** =Advent of Code 2023 Day 9 Solutions in scala=
   *
-  * Input: A list of number sequences, one line per sequence. The delta between
-  * each number is a constant *OR* the delta between each delta is a constant or
-  * the delta between _those_ deltas are constants or...
+  * Input: A list of number sequences, one line per sequence. The delta between each number is a constant *OR* the delta
+  * between each delta is a constant or the delta between _those_ deltas are constants or...
   *
   * Part 1: Find the next number in each sequence, and sum them together.
   *
@@ -18,10 +17,7 @@ import org.scalatest.matchers.should.Matchers
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/9]]
   */
-class AdventOfCodeDay9Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay9Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
     def part1extrapolate(in: Long*): Long = {

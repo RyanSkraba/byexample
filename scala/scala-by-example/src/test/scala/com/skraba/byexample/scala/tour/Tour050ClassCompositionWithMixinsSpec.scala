@@ -8,9 +8,7 @@ import org.scalatest.matchers.should.Matchers
   * @see
   *   [[https://docs.scala-lang.org/tour/tour-of-scala.html]]
   */
-class Tour050ClassCompositionWithMixinsSpec
-    extends AnyFunSpecLike
-    with Matchers {
+class Tour050ClassCompositionWithMixinsSpec extends AnyFunSpecLike with Matchers {
 
   describe("Class composition") {
 

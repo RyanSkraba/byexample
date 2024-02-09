@@ -11,19 +11,14 @@ import scala.util.matching.Regex
   *
   * Input: One string as a message with letters
   *
-  * Part 1: The number of letters that you have to read before finding 4
-  * consecutive different letters
+  * Part 1: The number of letters that you have to read before finding 4 consecutive different letters
   *
-  * Part 2: The number of letters that you have to read before finding 14
-  * consecutive different letters
+  * Part 2: The number of letters that you have to read before finding 14 consecutive different letters
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/6]]
   */
-class AdventOfCodeDay6Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay6Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
     def findStartOfPacket(in: String): Long =

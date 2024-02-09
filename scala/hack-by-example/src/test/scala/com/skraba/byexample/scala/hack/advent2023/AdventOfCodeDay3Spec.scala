@@ -9,20 +9,15 @@ import org.scalatest.matchers.should.Matchers
   *
   * Input: A parts map consisting of periods, numbers and symbols
   *
-  * Part 1: The sum of all the numbers in the map that border at least one
-  * symbol (including diagonals).
+  * Part 1: The sum of all the numbers in the map that border at least one symbol (including diagonals).
   *
-  * Part 2: For all "gears"" that are asterisks in the map that border exactly
-  * two numbers (including diagonal), the sum of the product of those two
-  * numbers.
+  * Part 2: For all "gears"" that are asterisks in the map that border exactly two numbers (including diagonal), the sum
+  * of the product of those two numbers.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/3]]
   */
-class AdventOfCodeDay3Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay3Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 

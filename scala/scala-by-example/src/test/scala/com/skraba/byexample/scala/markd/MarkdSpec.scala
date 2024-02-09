@@ -1499,8 +1499,7 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           case weekly @ Header(title, 1, _) if title.startsWith("Two") =>
             weekly.mapFirstIn() {
               // Matches the B1 table and updates it with our new table
-              case tb @ Table(_, Seq(TableRow(Seq(tableName: String, _*)), _*))
-                  if tableName == "B1" =>
+              case tb @ Table(_, Seq(TableRow(Seq(tableName: String, _*)), _*)) if tableName == "B1" =>
                 tb.updated(1, 1, "X")
             }
         }

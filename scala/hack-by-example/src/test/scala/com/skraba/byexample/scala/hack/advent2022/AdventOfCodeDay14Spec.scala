@@ -11,33 +11,24 @@ import scala.annotation.tailrec
   *
   * Input: A list of rock paths, and falling sand.
   *
-  * Part 1: Count the number of units of falling sand before all further sand
-  * falls into the abyss
+  * Part 1: Count the number of units of falling sand before all further sand falls into the abyss
   *
-  * Part 2: Count the number of units of falling sand including a floor, until
-  * the source of the sand is blocked.
+  * Part 2: Count the number of units of falling sand including a floor, until the source of the sand is blocked.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/14]]
   */
-class AdventOfCodeDay14Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay14Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 
-    /** A cave system behind the waterfall. This automatically adjusts the view
-      * so that the empty spaces are trimmed.
+    /** A cave system behind the waterfall. This automatically adjusts the view so that the empty spaces are trimmed.
       * @param view
-      *   Strings describing the cave where '.' is an empty space and all others
-      *   are blocked.
+      *   Strings describing the cave where '.' is an empty space and all others are blocked.
       * @param ox
-      *   The X offset of the view's top left corner from the actual
-      *   coordinates.
+      *   The X offset of the view's top left corner from the actual coordinates.
       * @param oy
-      *   The Y offset of the view's top left corner from the actual
-      *   coordinates.
+      *   The Y offset of the view's top left corner from the actual coordinates.
       */
     case class Cave(view: Seq[String], ox: Int, oy: Int) {
 
@@ -100,11 +91,9 @@ class AdventOfCodeDay14Spec
       /** @param in
         *   The rock plan describing the lines of rocks in the cavern.
         * @return
-        *   A tuple containing the lines of rocks described in the plan, but
-        *   also information to trim the view to only the visible parts,
-        *   including (in order) an x and y offset to the highest, leftmost
-        *   non-empty space and the width and height of the non-empty space. A
-        *   margin is included.
+        *   A tuple containing the lines of rocks described in the plan, but also information to trim the view to only
+        *   the visible parts, including (in order) an x and y offset to the highest, leftmost non-empty space and the
+        *   width and height of the non-empty space. A margin is included.
         */
       def parseRockCoordinates(
           in: String*
@@ -117,9 +106,8 @@ class AdventOfCodeDay14Spec
           .map(_.map { case Array(x, y) => (x, y) })
 
         val (minX, maxX, minY, maxY) =
-          coordinates.flatten.foldLeft((Int.MaxValue, 0, Int.MaxValue, 0)) {
-            case ((minX, maxX, minY, maxY), (x, y)) =>
-              (minX min x, maxX max x, minY min y, maxY max y)
+          coordinates.flatten.foldLeft((Int.MaxValue, 0, Int.MaxValue, 0)) { case ((minX, maxX, minY, maxY), (x, y)) =>
+            (minX min x, maxX max x, minY min y, maxY max y)
           }
 
         (

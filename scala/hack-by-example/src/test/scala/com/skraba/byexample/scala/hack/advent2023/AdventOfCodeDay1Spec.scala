@@ -7,22 +7,17 @@ import org.scalatest.matchers.should.Matchers
 
 /** =Advent of Code 2023 Day 1 Solutions in scala=
   *
-  * Input: List of alphanumeric strings that correspond to amended calibration
-  * notes.
+  * Input: List of alphanumeric strings that correspond to amended calibration notes.
   *
-  * Part 1: Every line has a two number that corresponds to the first digit in
-  * the line and the last digit in the line. Find the sum of these numbers.
+  * Part 1: Every line has a two number that corresponds to the first digit in the line and the last digit in the line.
+  * Find the sum of these numbers.
   *
-  * Part 2: Find the sum if the first and last digit can also be their text
-  * representation
+  * Part 2: Find the sum if the first and last digit can also be their text representation
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/1]]
   */
-class AdventOfCodeDay1Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay1Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 

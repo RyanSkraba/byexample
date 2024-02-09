@@ -7,27 +7,20 @@ import org.scalatest.matchers.should.Matchers
 
 /** =Advent of Code 2022 Day 2 Solutions in scala=
   *
-  * Input: "Strategy guide" where each line's first column is A, B, C and the
-  * second column is X, Y, Z, for playing Rock, Paper, Scissors. A, B, C
-  * corresponds to the opponent playing Rock, Paper or Scissors respectively
+  * Input: "Strategy guide" where each line's first column is A, B, C and the second column is X, Y, Z, for playing
+  * Rock, Paper, Scissors. A, B, C corresponds to the opponent playing Rock, Paper or Scissors respectively
   *
-  * For each match, playing Rock, Paper or Scissors gives you 1, 2 or 3 points
-  * (respectively) PLUS Winning gives you 6 points, and a draw is 3 points. No
-  * points for losing.
+  * For each match, playing Rock, Paper or Scissors gives you 1, 2 or 3 points (respectively) PLUS Winning gives you 6
+  * points, and a draw is 3 points. No points for losing.
   *
-  * Part 1: If X, Y, Z corresponds to me playing Rock, Paper or Scissors
-  * respectively, find the total number of points.
+  * Part 1: If X, Y, Z corresponds to me playing Rock, Paper or Scissors respectively, find the total number of points.
   *
-  * Part 2: If X, Y, Z corresponds to me losing, drawing or winning
-  * respectively, find the total number of points.
+  * Part 2: If X, Y, Z corresponds to me losing, drawing or winning respectively, find the total number of points.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/2]]
   */
-class AdventOfCodeDay2Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay2Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 

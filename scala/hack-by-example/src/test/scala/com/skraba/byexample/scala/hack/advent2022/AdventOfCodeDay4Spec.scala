@@ -7,23 +7,17 @@ import org.scalatest.matchers.should.Matchers
 
 /** =Advent of Code 2022 Day 4 Solutions in scala=
   *
-  * Input: A list of lines in the form 1-2,3-4 where the first range are the
-  * areas for the first elf to clean and the second is the areas for the second
-  * elf to clean.
+  * Input: A list of lines in the form 1-2,3-4 where the first range are the areas for the first elf to clean and the
+  * second is the areas for the second elf to clean.
   *
-  * Part 1: Count the number of elves where one of the elves entirely overlaps
-  * the other's cleaning areas.
+  * Part 1: Count the number of elves where one of the elves entirely overlaps the other's cleaning areas.
   *
-  * Part 1: Count the number of elves where one of the elves partially overlaps
-  * the other's cleaning areas.
+  * Part 1: Count the number of elves where one of the elves partially overlaps the other's cleaning areas.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/4]]
   */
-class AdventOfCodeDay4Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay4Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 

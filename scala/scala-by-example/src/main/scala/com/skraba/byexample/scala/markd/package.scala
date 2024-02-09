@@ -6,13 +6,11 @@ import play.api.libs.json.Json
 import scala.util.Try
 import scala.util.matching.Regex
 
-/** Markd is a model for simple markdown files. It can be used to parse, modify
-  * and write markdown text.
+/** Markd is a model for simple markdown files. It can be used to parse, modify and write markdown text.
   *
   * The model is simple and includes many (but not all) features of markdown.
   *
-  * You can clean a markdown file by parsing it into a model then writing it out
-  * again.
+  * You can clean a markdown file by parsing it into a model then writing it out again.
   *
   * {{{
   * files
@@ -75,8 +73,7 @@ package object markd {
       sb ++= content.trim() ++= "\n"
     }
 
-    /** Transforms this paragraph into another more specific [[Markd]] type if
-      * possible.
+    /** Transforms this paragraph into another more specific [[Markd]] type if possible.
       */
     def refine(): Markd =
       Table.parse(content).getOrElse(this)
@@ -230,8 +227,7 @@ package object markd {
       * @param sb
       *   The builder to write to.
       * @param prev
-      *   If known, the previous element written to the builder. This can be
-      *   used to adjust spacing.
+      *   If known, the previous element written to the builder. This can be used to adjust spacing.
       * @return
       *   The builder passed in.
       */
@@ -261,14 +257,12 @@ package object markd {
 
     /** Create a copy of the list of subelements, replacing some as necessary.
       *
-      * A partial function matches and replaces Markd subelements. If the
-      * partial function is defined for one of the subelements, it supplies the
-      * list of replacements. It matches on the element (or None to match the
-      * end of the list) and its index.
+      * A partial function matches and replaces Markd subelements. If the partial function is defined for one of the
+      * subelements, it supplies the list of replacements. It matches on the element (or None to match the end of the
+      * list) and its index.
       *
       * @param filter
-      *   True if non-matching subelements should be removed, false to leave
-      *   non-matching elements unchanged.
+      *   True if non-matching subelements should be removed, false to leave non-matching elements unchanged.
       * @param pf
       *   A partial function to replace markd elements.
       * @return
@@ -290,21 +284,17 @@ package object markd {
       )
     }
 
-    /** Copies this element, but flatMapping the first matching subelement to
-      * new values.
+    /** Copies this element, but flatMapping the first matching subelement to new values.
       *
-      * A partial function matches and replaces Markd subelements. If the
-      * partial function is defined for one of the subelements, it supplies the
-      * list of replacements.
+      * A partial function matches and replaces Markd subelements. If the partial function is defined for one of the
+      * subelements, it supplies the list of replacements.
       *
       * @param ifNotFound
-      *   If nothing is matched, add these elements to the end of the list and
-      *   try again. This permits insert-and-update replacements in the
-      *   children.
+      *   If nothing is matched, add these elements to the end of the list and try again. This permits insert-and-update
+      *   replacements in the children.
       * @param replace
-      *   If true, when falling back on ifNotFound, then replace all of the
-      *   children instead of appending the new elements when trying again. This
-      *   can be used to control the modification of the new elements, such as
+      *   If true, when falling back on ifNotFound, then replace all of the children instead of appending the new
+      *   elements when trying again. This can be used to control the modification of the new elements, such as
       *   prepending or filtering.
       * @param pf
       *   A partial function to replace markd elements.
@@ -334,21 +324,17 @@ package object markd {
       )
     }
 
-    /** Copies this element, but mapping the first matching subelement to a new
-      * value.
+    /** Copies this element, but mapping the first matching subelement to a new value.
       *
-      * A partial function matches and replaces Markd subelements. If the
-      * partial function is defined for one of the subelements, it supplies the
-      * replacements.
+      * A partial function matches and replaces Markd subelements. If the partial function is defined for one of the
+      * subelements, it supplies the replacements.
       *
       * @param ifNotFound
-      *   If nothing is matched, add these elements to the end of the list and
-      *   try again. This permits insert-and-update replacements in the
-      *   children.
+      *   If nothing is matched, add these elements to the end of the list and try again. This permits insert-and-update
+      *   replacements in the children.
       * @param replace
-      *   If true, when falling back on ifNotFound, then replace all of the
-      *   children instead of appending the new elements when trying again. This
-      *   can be used to control the modification of the new elements, such as
+      *   If true, when falling back on ifNotFound, then replace all of the children instead of appending the new
+      *   elements when trying again. This can be used to control the modification of the new elements, such as
       *   prepending or filtering.
       * @param pf
       *   A partial function to replace markd elements.
@@ -362,16 +348,14 @@ package object markd {
         pf.andThen(Seq(_))
       )
 
-    /** Copies this element, but mapping the first matching subelement to a new
-      * value.
+    /** Copies this element, but mapping the first matching subelement to a new value.
       *
-      * A partial function matches and replaces Markd subelements. If the
-      * partial function is defined for one of the subelements, it supplies the
-      * replacements.
+      * A partial function matches and replaces Markd subelements. If the partial function is defined for one of the
+      * subelements, it supplies the replacements.
       *
       * @param ifNotFound
-      *   If nothing is matched, add this element to the end of the list and try
-      *   again. This permits insert-and-update replacements in the children.
+      *   If nothing is matched, add this element to the end of the list and try again. This permits insert-and-update
+      *   replacements in the children.
       * @param pf
       *   A partial function to replace markd elements.
       * @return
@@ -380,15 +364,13 @@ package object markd {
     def mapFirstIn(ifNotFound: => T)(pf: PartialFunction[T, T]): Self =
       mapFirstIn(ifNotFound = Seq(ifNotFound))(pf)
 
-    /** Finds the first [[Markd]] element recursively in this element for which
-      * the given partial function is defined, and applies the partial function
-      * to it.
+    /** Finds the first [[Markd]] element recursively in this element for which the given partial function is defined,
+      * and applies the partial function to it.
       *
       * @param pf
       *   the partial function
       * @return
-      *   an option value containing pf applied to the first value for which it
-      *   is defined, or `None` if none exists.
+      *   an option value containing pf applied to the first value for which it is defined, or `None` if none exists.
       */
     def collectFirstRecursive[B](pf: PartialFunction[Markd, B]): Option[B] =
       if (pf.isDefinedAt(this)) Some(pf(this))
@@ -427,15 +409,13 @@ package object markd {
     * }}}
     *
     * @param level
-    *   The level (from 1 to 9). A level of 0 can be used to represent an entire
-    *   document.
+    *   The level (from 1 to 9). A level of 0 can be used to represent an entire document.
     * @param title
     *   The title of the section
     * @param mds
     *   The internal subsections and parsed [[Markd]] elements.
     */
-  case class Header(title: String, level: Int, mds: Seq[Markd])
-      extends MultiMarkd[Markd] {
+  case class Header(title: String, level: Int, mds: Seq[Markd]) extends MultiMarkd[Markd] {
 
     type Self = Header
 
@@ -457,8 +437,7 @@ package object markd {
 
   object Header {
 
-    /** Splits text into strings ready to be placed into [[Comment]], [[Code]],
-      * [[LinkRef]] and [[Paragraph]] instances.
+    /** Splits text into strings ready to be placed into [[Comment]], [[Code]], [[LinkRef]] and [[Paragraph]] instances.
       */
     private[this] val Pass1Regex: Regex =
       raw"""(?x)(?s)
@@ -513,8 +492,7 @@ package object markd {
             Option(Code(code_type, code))
           case Pass1Regex(_, comment, _*) if comment != null =>
             Option(Comment(comment))
-          case Pass1Regex(_, _, _, _, _, _, _, linkRef, _*)
-              if linkRef != null =>
+          case Pass1Regex(_, _, _, _, _, _, _, linkRef, _*) if linkRef != null =>
             LinkRef.parse(linkRef)
           case Pass1Regex(all, _*) if !all.isBlank => Option(Paragraph(all))
           case _                                   => None
@@ -608,19 +586,17 @@ package object markd {
     * @param aligns
     *   The alignment for each column.
     * @param mds
-    *   The table rows, including the column headers (as the first row) and cell
-    *   values (all subsequent rows).
+    *   The table rows, including the column headers (as the first row) and cell values (all subsequent rows).
     */
-  case class Table(aligns: Seq[Align], mds: Seq[TableRow])
-      extends MultiMarkd[TableRow] {
+  case class Table(aligns: Seq[Align], mds: Seq[TableRow]) extends MultiMarkd[TableRow] {
 
     type Self = Table
 
     /** A simple definition of the title cell is the top left cell value. */
     lazy val title: String = mds.headOption.map(_.head).getOrElse("")
 
-    /** The number of columns that this table has. A row can have more than this
-      * number of columns, but the extra cells will be appended, not aligned.
+    /** The number of columns that this table has. A row can have more than this number of columns, but the extra cells
+      * will be appended, not aligned.
       */
     lazy val colSize: Int = aligns.length
 
@@ -633,8 +609,7 @@ package object markd {
     }
 
     /** @param row
-      *   The index of the row to get from the table, noting that zero is the
-      *   header row.
+      *   The index of the row to get from the table, noting that zero is the header row.
       * @return
       *   The row, or an empty row if the index is out of bounds.
       */
@@ -642,8 +617,7 @@ package object markd {
       mds.applyOrElse(row, (_: Int) => TableRow.from())
 
     /** @param rowHead
-      *   The row to get from the table by matching the first cell, including
-      *   the header row.
+      *   The row to get from the table by matching the first cell, including the header row.
       * @return
       *   The row, or an empty row if a matching row can't be found.
       */
@@ -654,35 +628,28 @@ package object markd {
     /** @param column
       *   The index of the column to get from the table
       * @param row
-      *   The index of the row to get from the table, noting that zero is the
-      *   header row.
+      *   The index of the row to get from the table, noting that zero is the header row.
       * @return
-      *   The cell value, or an empty string if any of the indexes are out of
-      *   bounds.
+      *   The cell value, or an empty string if any of the indexes are out of bounds.
       */
     def apply(column: Int, row: Int): String = apply(row).apply(column)
 
     /** @param column
       *   The index of the column to get from the table
       * @param rowHead
-      *   The row to get from the table by matching the first cell, including
-      *   the header row.
+      *   The row to get from the table by matching the first cell, including the header row.
       * @return
-      *   The cell value, or an empty string if the column is out of bounds or
-      *   the row header can't be found
+      *   The cell value, or an empty string if the column is out of bounds or the row header can't be found
       */
     def apply(column: Int, rowHead: String): String =
       apply(rowHead).apply(column)
 
     /** @param columnHead
-      *   The row to get from the table by matching the first cell in the
-      *   header.
+      *   The row to get from the table by matching the first cell in the header.
       * @param rowHead
-      *   The row to get from the table by matching the first cell, including
-      *   the header row.
+      *   The row to get from the table by matching the first cell, including the header row.
       * @return
-      *   The cell value, or an empty string if the column is out of bounds or
-      *   the row header can't be found
+      *   The cell value, or an empty string if the column is out of bounds or the row header can't be found
       */
     def apply(columnHead: String, rowHead: String): String = {
       val colIndex = mds.head.cells.indexOf(columnHead)
@@ -716,8 +683,8 @@ package object markd {
 
     override def copyMds(newMds: Seq[TableRow]): Self = copy(mds = newMds)
 
-    /** Creates a new table from this one with the given cell value updated.
-      * Note that the zeroth row is the column headers.
+    /** Creates a new table from this one with the given cell value updated. Note that the zeroth row is the column
+      * headers.
       *
       * @param column
       *   The index of the column to update
@@ -754,14 +721,13 @@ package object markd {
       )
     }
 
-    /** Creates a new table from this one with the given cell value updated.
-      * Note that the row head will match the column headers as well.
+    /** Creates a new table from this one with the given cell value updated. Note that the row head will match the
+      * column headers as well.
       *
       * @param column
       *   The index of the column to update
       * @param rowHead
-      *   The head of the row to update. This matches the first row found, or
-      *   adds the row to the table.
+      *   The head of the row to update. This matches the first row found, or adds the row to the table.
       * @param cell
       *   The new value
       * @return
@@ -778,15 +744,13 @@ package object markd {
       else updated(column, rowIndex, cell)
     }
 
-    /** Creates a new table from this one with the given cell value updated.
-      * Note that the row head will match the column headers as well.
+    /** Creates a new table from this one with the given cell value updated. Note that the row head will match the
+      * column headers as well.
       *
       * @param columnHead
-      *   The text in the header column to update. This matches the first column
-      *   found, or adds the column to the table.
+      *   The text in the header column to update. This matches the first column found, or adds the column to the table.
       * @param rowHead
-      *   The head of the row to update. This matches the first row found, or
-      *   adds the row to the table.
+      *   The head of the row to update. This matches the first row found, or adds the row to the table.
       * @param cell
       *   The new value
       * @return
@@ -807,8 +771,7 @@ package object markd {
 
   object Table {
 
-    /** Split into cells by |, taking into account escaped pipes but not other
-      * constructions.
+    /** Split into cells by |, taking into account escaped pipes but not other constructions.
       */
     val CellRegex: Regex = raw"(?<!\\)\|".r
 
@@ -822,8 +785,7 @@ package object markd {
       * @param content
       *   The string contents to parse.
       * @return
-      *   An [[Option]] containing a [[Table]] if it is possible to construct,
-      *   or None if it isn't.
+      *   An [[Option]] containing a [[Table]] if it is possible to construct, or None if it isn't.
       */
     def parse(content: String): Option[Table] = {
       val prelines = content.split("\n").map(parseRow)
@@ -839,8 +801,7 @@ package object markd {
 
       // Check the second row for alignments.
       val aligns: Seq[Align] = lines(1).flatMap {
-        case AlignmentCellRegex(cell)
-            if cell.startsWith(":") && cell.endsWith(":") =>
+        case AlignmentCellRegex(cell) if cell.startsWith(":") && cell.endsWith(":") =>
           Some(Align.CENTER)
         case AlignmentCellRegex(cell) if cell.endsWith(":") =>
           Some(Align.RIGHT)
@@ -927,15 +888,12 @@ package object markd {
 
   /** Helps build the model when parsing contents.
     * @param sortLinkRefs
-    *   Whether to sort and deduplicate LinkRefs while parsing (true by
-    *   default).
+    *   Whether to sort and deduplicate LinkRefs while parsing (true by default).
     */
   class ParserCfg(sortLinkRefs: Boolean = true) {
 
-    /** If sorting, provides a key to use from the linkref, allowing custom
-      * grouping and deduplication of the links. The linkref will be sorted and
-      * deduplicated based on this key. By default, the [[LinkRef.ref]] is used
-      * directly.
+    /** If sorting, provides a key to use from the linkref, allowing custom grouping and deduplication of the links. The
+      * linkref will be sorted and deduplicated based on this key. By default, the [[LinkRef.ref]] is used directly.
       */
     def linkSorter(): PartialFunction[LinkRef, (String, LinkRef)] = { case lr =>
       lr.ref -> lr

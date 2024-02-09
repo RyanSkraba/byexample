@@ -7,21 +7,16 @@ import org.scalatest.matchers.should.Matchers
 
 /** =Advent of Code 2023 Day 7 Solutions in scala=
   *
-  * Input: A list of poker hands with bids. There are some special rules for
-  * ordering the poker hands.
+  * Input: A list of poker hands with bids. There are some special rules for ordering the poker hands.
   *
-  * Part 1: When ordering the poker hands from weakest to strongest, the sum of
-  * rank*bid.
+  * Part 1: When ordering the poker hands from weakest to strongest, the sum of rank*bid.
   *
   * Part 2: Same as Part 1 except that Jacks are counted as Jokers.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/7]]
   */
-class AdventOfCodeDay7Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay7Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 

@@ -3,8 +3,7 @@ package com.skraba.byexample.scalatags.duolingo.cn
 import com.skraba.byexample.scalatags.ScalatagsGo
 import com.skraba.byexample.scalatags.Svg.wrapSvg
 
-/** Command-line driver for generating a SVG Cheatsheet from Duolingo chinese
-  * lessons.
+/** Command-line driver for generating a SVG Cheatsheet from Duolingo chinese lessons.
   */
 object DuolingoCnCheatsheetTask {
 

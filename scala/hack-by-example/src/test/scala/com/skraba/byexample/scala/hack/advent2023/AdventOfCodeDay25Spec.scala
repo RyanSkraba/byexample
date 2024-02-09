@@ -11,32 +11,27 @@ import scala.util.Random
 
 /** =Advent of Code 2023 Day 25 Solutions in scala=
   *
-  * Input: A connected graph of nodes (undirected edges) that can be cut into
-  * two by removing three edges.
+  * Input: A connected graph of nodes (undirected edges) that can be cut into two by removing three edges.
   *
-  * Part 1: After cutting the graph in two, the product of the sizes of each
-  * disjoint component.
+  * Part 1: After cutting the graph in two, the product of the sizes of each disjoint component.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/25]]
   */
-class AdventOfCodeDay25Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay25Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 
     case class Graph[T](v: Set[T], e: Seq[(T, T)]) {
 
-      /** Karger's algorithm for a minimum cut. This is randomized and may need
-        * to be run several times to find the optimal minimum.
+      /** Karger's algorithm for a minimum cut. This is randomized and may need to be run several times to find the
+        * optimal minimum.
         *
         * @see
         *   http://en.wikipedia.org/wiki/Karger%27s_algorithm
         * @return
-        *   the vertices on the left then right of the graph, along with the
-        *   edges connecting them that makes a minimum cut.
+        *   the vertices on the left then right of the graph, along with the edges connecting them that makes a minimum
+        *   cut.
         */
       def karger(): (Set[T], Set[T], Seq[(T, T)]) = {
         val rnd = new Random()
@@ -58,9 +53,7 @@ class AdventOfCodeDay25Spec
           vSets.remove(vs2)
           vSets.add(vsCollapsed)
 
-          remaining = remaining.filterNot(e =>
-            vsCollapsed.contains(e._1) && vsCollapsed.contains(e._2)
-          )
+          remaining = remaining.filterNot(e => vsCollapsed.contains(e._1) && vsCollapsed.contains(e._2))
         }
 
         (vSets.head.toSet, vSets.last.toSet, remaining)

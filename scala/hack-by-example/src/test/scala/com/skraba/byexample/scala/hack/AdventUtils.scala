@@ -12,9 +12,8 @@ import scala.reflect.io.File
 
 /** Helpful utilities for https://adventofcode.com/
   *
-  * Specifically, we have been asked to not submit input to repos, so this
-  * provides a way to encrypt / decrypt inputs and answers using an environment
-  * variable containing a AES 256 key.
+  * Specifically, we have been asked to not submit input to repos, so this provides a way to encrypt / decrypt inputs
+  * and answers using an environment variable containing a AES 256 key.
   *
   * The solutions tests should be ignored if the key isn't present.
   */
@@ -53,8 +52,8 @@ class AdventUtils {
     )
   }
 
-  /** A helper method for testing and getting the encrypted answer. This can be
-    * used temporarily but shouldn't be committed to a repo.
+  /** A helper method for testing and getting the encrypted answer. This can be used temporarily but shouldn't be
+    * committed to a repo.
     */
   def decryptLongDoNotSubmit(in: Long): Long = {
     val cipher = Cipher.getInstance("AES")
@@ -65,8 +64,8 @@ class AdventUtils {
     in
   }
 
-  /** A helper method for testing and getting the encrypted answer. This can be
-    * used temporarily but shouldn't be committed to a repo.
+  /** A helper method for testing and getting the encrypted answer. This can be used temporarily but shouldn't be
+    * committed to a repo.
     */
   def decryptDoNotSubmit(in: String): String = {
     val cipher = Cipher.getInstance("AES")
@@ -93,11 +92,10 @@ class AdventUtils {
     )
   }
 
-  /** Get the puzzle input corresponding to the filename, in the right Advent of
-    * Code directory.
+  /** Get the puzzle input corresponding to the filename, in the right Advent of Code directory.
     *
-    * If the file isn't encrypted but the [[AdventOfCodeKey]] is set in the
-    * environment, overwrite it with an encrypted text.
+    * If the file isn't encrypted but the [[AdventOfCodeKey]] is set in the environment, overwrite it with an encrypted
+    * text.
     */
   def puzzleInput(name: String): Array[String] = {
     val in = Source

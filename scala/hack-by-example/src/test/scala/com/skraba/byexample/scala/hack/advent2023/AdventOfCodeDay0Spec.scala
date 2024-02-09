@@ -16,10 +16,7 @@ import org.scalatest.matchers.should.Matchers
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/0]]
   */
-class AdventOfCodeDay0Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay0Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 

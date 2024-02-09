@@ -9,9 +9,8 @@ import scala.collection.mutable
 
 /** =Advent of Code 2022 Day 12 Solutions in scala=
   *
-  * Input: A height map where each lower-case character corresponds to a height,
-  * and a start and end point marked with 'S' and 'E' at heights 'a' and 'z'
-  * respectively.
+  * Input: A height map where each lower-case character corresponds to a height, and a start and end point marked with
+  * 'S' and 'E' at heights 'a' and 'z' respectively.
   *
   * Part 1: Find the length of the shortest path from 'S' to 'E'
   *
@@ -20,10 +19,7 @@ import scala.collection.mutable
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/12]]
   */
-class AdventOfCodeDay12Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay12Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 
@@ -54,9 +50,7 @@ class AdventOfCodeDay12Spec
           // Get the next position to calculate and the position we're coming from
           val (pos, prev) = bfs.dequeue()
           // If it's out of bounds or not in the same row or column as the previous, just ignore it.
-          if (
-            pos >= 0 && pos < map.length && (prev % w == pos % w || prev / w == pos / w)
-          ) {
+          if (pos >= 0 && pos < map.length && (prev % w == pos % w || prev / w == pos / w)) {
             // If it's not accessible from the previous position, just ignore it.
             if (map(prev) - map(pos) <= 1) {
               // If the previous position was already calculated, then it can't be any closer to the end, since this is a breadth first search, so ignore it.

@@ -9,50 +9,41 @@ import scala.collection.mutable
 
 /** =Advent of Code 2023 Day 20 Solutions in scala=
   *
-  * Input: A list of modules that take input pulses and send output pulses. A
-  * pulse is either HIGH or LOW. Each module has a name and potentially a state.
-  * There is one stateless "broadcast" module that just emits the same input
-  * pulse to every downstream module.
+  * Input: A list of modules that take input pulses and send output pulses. A pulse is either HIGH or LOW. Each module
+  * has a name and potentially a state. There is one stateless "broadcast" module that just emits the same input pulse
+  * to every downstream module.
   *
-  * A FlipFlop ignores all HIGH pulses, but toggles its state (initially off)
-  * when it receives a LOW pulse, then sends a LOW or HIGH pulse if it is off or
-  * on (respectively). The pulse is sent to all downstream modules.
+  * A FlipFlop ignores all HIGH pulses, but toggles its state (initially off) when it receives a LOW pulse, then sends a
+  * LOW or HIGH pulse if it is off or on (respectively). The pulse is sent to all downstream modules.
   *
-  * A Conjunction knows all of its inputs, and on receiving a pulse, sends a LOW
-  * pulse if last pulse received from all of its inputs was HIGH (including the
-  * current input). Otherwise it emits a LOW pulse.
+  * A Conjunction knows all of its inputs, and on receiving a pulse, sends a LOW pulse if last pulse received from all
+  * of its inputs was HIGH (including the current input). Otherwise it emits a LOW pulse.
   *
   * A button sends a LOW pulse to the "broadcast" module.
   *
-  * Part 1: The button has been pushed 1000 times. Calculate the product of the
-  * total HIGH and LOW pulses sent through the system.
+  * Part 1: The button has been pushed 1000 times. Calculate the product of the total HIGH and LOW pulses sent through
+  * the system.
   *
-  * Part 2: How many times does the button need to be pushed in order for the rx
-  * module to receive a LOW pulse?
+  * Part 2: How many times does the button need to be pushed in order for the rx module to receive a LOW pulse?
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/20]]
   */
-class AdventOfCodeDay20Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay20Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 
     /** @param ff
       *   The names of the FlipFlops in an on state.
       * @param cnj
-      *   Keyed on a Conjunction module name, the names of the upstream modules
-      *   that have last sent a HIGH value.
+      *   Keyed on a Conjunction module name, the names of the upstream modules that have last sent a HIGH value.
       */
     case class States(
         ff: Set[String] = Set(),
         cnj: Map[String, Set[String]] = Map().withDefaultValue(Set())
     )
 
-    /** A signal in the system, with a source, destination and whether the pulse
-      * was HIGH
+    /** A signal in the system, with a source, destination and whether the pulse was HIGH
       */
     type Signal = (String, String, Boolean)
 
@@ -138,8 +129,8 @@ class AdventOfCodeDay20Spec
       * @param ss0
       *   The given state of the system
       * @return
-      *   The number of times the HIGH pulse was emitted, the number of times
-      *   the LOW pulse was emitted, and the last state of the system.
+      *   The number of times the HIGH pulse was emitted, the number of times the LOW pulse was emitted, and the last
+      *   state of the system.
       */
     def push1(ms: Map[String, Module], ss0: States): (Long, Long, States) = {
       val signals = mutable.Queue(("button", "broadcaster", false))
@@ -174,8 +165,7 @@ class AdventOfCodeDay20Spec
       * @param p
       *   A predicate to evaluate on any signal sent.
       * @return
-      *   Whether the predicate ever returned true during, and the last state of
-      *   the system after it has settled
+      *   Whether the predicate ever returned true during, and the last state of the system after it has settled
       */
     def push1(
         ms: Map[String, Module],

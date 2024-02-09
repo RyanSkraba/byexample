@@ -8,25 +8,20 @@ import org.scalatest.tagobjects.Slow
 
 /** =Advent of Code 2023 Day 16 Solutions in scala=
   *
-  * Input: A board containing diagonal light mirrors / and \ and splitters - and
-  * \|. Light passes through the board and every mirror changes its direction by
-  * 90 degrees, while every splitter (if hit on the flat side) changes it 90
-  * degrees in both directions. Light passes through each other and through
-  * splitters in the same direction.
+  * Input: A board containing diagonal light mirrors / and \ and splitters - and \|. Light passes through the board and
+  * every mirror changes its direction by 90 degrees, while every splitter (if hit on the flat side) changes it 90
+  * degrees in both directions. Light passes through each other and through splitters in the same direction.
   *
-  * Part 1: If a beam starts at the upper left corner going right, how many
-  * squares are visited by a beam of light (going in any direction).
+  * Part 1: If a beam starts at the upper left corner going right, how many squares are visited by a beam of light
+  * (going in any direction).
   *
-  * Part 2: If a beam starts at any edge square heading away from the edge, what
-  * is the maximum number of squares energized by the light beams?
+  * Part 2: If a beam starts at any edge square heading away from the edge, what is the maximum number of squares
+  * energized by the light beams?
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/16]]
   */
-class AdventOfCodeDay16Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay16Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 
@@ -89,8 +84,7 @@ class AdventOfCodeDay16Spec
         case _                            => Set(in.straight)
       }
 
-      /** Count the energized squares if the beam of light starts at the given
-        * position
+      /** Count the energized squares if the beam of light starts at the given position
         */
       def count(start: Cursor): Long = {
         // Iterate over the list of positions that have been visited and

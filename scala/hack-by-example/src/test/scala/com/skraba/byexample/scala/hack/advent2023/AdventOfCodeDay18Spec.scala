@@ -9,23 +9,18 @@ import scala.collection.mutable
 
 /** =Advent of Code 2023 Day 18 Solutions in scala=
   *
-  * Input: A list of directions that the trench cutter should take on a map, in
-  * the form R,L,U,D followed by the number of metres to go in that direction.
-  * This will end up as a closed shape.
+  * Input: A list of directions that the trench cutter should take on a map, in the form R,L,U,D followed by the number
+  * of metres to go in that direction. This will end up as a closed shape.
   *
   * Part 1: Calculate the surface covered by the shape when it is filled in.
   *
-  * Part 2: The same problem as part 1, but it turns out that the colour code
-  * alongside the directions are the *real* directions with much, much larger
-  * values.
+  * Part 2: The same problem as part 1, but it turns out that the colour code alongside the directions are the *real*
+  * directions with much, much larger values.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/18]]
   */
-class AdventOfCodeDay18Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay18Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
     case class Pos(x: Int, y: Int) {
@@ -107,9 +102,8 @@ class AdventOfCodeDay18Spec
         .map(x => (encodedDir(x._2), Integer.parseInt(x._1, 16)))
     }
 
-    /** Given a two list of longs that indicate the *inclusive* starting and
-      * ending indexes for ranges (in subsequent pairs), find the count of the
-      * elements in the union of the ranges.
+    /** Given a two list of longs that indicate the *inclusive* starting and ending indexes for ranges (in subsequent
+      * pairs), find the count of the elements in the union of the ranges.
       * @param x1
       *   A list of starting and ending points, in increasing order
       * @param x2

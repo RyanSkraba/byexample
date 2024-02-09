@@ -11,20 +11,16 @@ import scala.util.Random
   *
   * Input: A map of tree heights in characters
   *
-  * Part 1: Count the trees that have a clear view to the edge (all trees
-  * between them and the edge of the map are strictly shorter)
+  * Part 1: Count the trees that have a clear view to the edge (all trees between them and the edge of the map are
+  * strictly shorter)
   *
-  * Part 2: Calculate the maximum scenery score in the map. From any tree, the
-  * scenery score is the product of the number of trees between it and the
-  * closest bigger-or-same tree to the north/south/east/west.
+  * Part 2: Calculate the maximum scenery score in the map. From any tree, the scenery score is the product of the
+  * number of trees between it and the closest bigger-or-same tree to the north/south/east/west.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/8]]
   */
-class AdventOfCodeDay8Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay8Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 

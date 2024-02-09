@@ -6,8 +6,8 @@ import org.scalatest.matchers.should.Matchers
 
 import scala.reflect.io.{Directory, File, Path, Streamable}
 
-/** Matchers and assertions on files. ScalaTest doesn't help much, but it's
-  * pretty easy to use existing methods and tools.
+/** Matchers and assertions on files. ScalaTest doesn't help much, but it's pretty easy to use existing methods and
+  * tools.
   */
 class FilesSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 

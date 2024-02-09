@@ -34,8 +34,7 @@ object ScalaGo {
       val docopt: String = Doc
   ) extends RuntimeException(msg, ex)
 
-  /** Runs the tool. This does not handle any docopt exception automatically
-    * while parsing the command line.
+  /** Runs the tool. This does not handle any docopt exception automatically while parsing the command line.
     *
     * @param args
     *   command-line arguments as described in [[Doc]]

@@ -12,19 +12,15 @@ import scala.collection.mutable
   *
   * Input: A list of valves and tunnels.
   *
-  * Part 1: Moving to a different valve, or opening the valve you are at takes 1
-  * minutes. What is the most pressure you can release in 30 minutes?
+  * Part 1: Moving to a different valve, or opening the valve you are at takes 1 minutes. What is the most pressure you
+  * can release in 30 minutes?
   *
-  * Part 2: What is the most pressure you can release if you have an elephant
-  * helping you?
+  * Part 2: What is the most pressure you can release if you have an elephant helping you?
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/16]]
   */
-class AdventOfCodeDay16Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay16Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 
@@ -55,9 +51,8 @@ class AdventOfCodeDay16Spec
     val Scan =
       """Valve (..) has flow rate=(\d+); tunnels? leads? to valves? (.+)""".r
 
-    def parse(in: String*): Map[String, Valve] = in.map {
-      case Scan(name, rate, dst) =>
-        name -> Valve(rate.toLong, dst.split("[, ]+").sorted)
+    def parse(in: String*): Map[String, Valve] = in.map { case Scan(name, rate, dst) =>
+      name -> Valve(rate.toLong, dst.split("[, ]+").sorted)
     }.toMap
 
     def part1(

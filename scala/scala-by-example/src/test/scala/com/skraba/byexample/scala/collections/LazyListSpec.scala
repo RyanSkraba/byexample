@@ -5,9 +5,8 @@ import org.scalatest.matchers.should.Matchers
 
 import scala.collection.mutable
 
-/** The [[LazyList]] replaces the old Stream collect, and is useful for lists
-  * that are programmatically calculated, especially infinite. An element of a
-  * LazyList shouldn't be calculated until it is necessary.
+/** The [[LazyList]] replaces the old Stream collect, and is useful for lists that are programmatically calculated,
+  * especially infinite. An element of a LazyList shouldn't be calculated until it is necessary.
   *
   * @see
   *   [[https://www.scala-lang.org/api/2.13.4/scala/collection/immutable/LazyList.html]]

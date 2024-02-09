@@ -9,22 +9,16 @@ import scala.collection.mutable
 
 /** =Advent of Code 2022 Day 18 Solutions in scala=
   *
-  * Input: A sequence of coordinates that describe a lava droplet in the air (as
-  * a series of unit sized blocks)
+  * Input: A sequence of coordinates that describe a lava droplet in the air (as a series of unit sized blocks)
   *
-  * Part 1: The total number of square surfaces that the lava drop has exposed
-  * to air (including internal pockets).
+  * Part 1: The total number of square surfaces that the lava drop has exposed to air (including internal pockets).
   *
-  * Part 2: The total number of square surfaces that the lava drop has exposed
-  * to air (excluding internal pockets).
+  * Part 2: The total number of square surfaces that the lava drop has exposed to air (excluding internal pockets).
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/18]]
   */
-class AdventOfCodeDay18Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay18Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 

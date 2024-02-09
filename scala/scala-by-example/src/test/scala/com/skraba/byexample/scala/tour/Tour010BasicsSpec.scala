@@ -139,8 +139,7 @@ class Tour010BasicsSpec extends AnyFunSpecLike with Matchers {
 
       class DefaultGreeter extends Greeter2
 
-      class CustomizableGreeter(prefix: String, postfix: String)
-          extends Greeter {
+      class CustomizableGreeter(prefix: String, postfix: String) extends Greeter {
         override def greet(name: String): String = {
           prefix + name + postfix
         }

@@ -7,9 +7,8 @@ import org.scalatest.matchers.should.Matchers
 
 /** =Advent of Code 2022 Day 1 Solutions in scala=
   *
-  * Input: List of numbers that correspond to the calories of the snacks that
-  * elves are carrying. Consecutive lines belong to the same elf, a blank line
-  * is the next elf.
+  * Input: List of numbers that correspond to the calories of the snacks that elves are carrying. Consecutive lines
+  * belong to the same elf, a blank line is the next elf.
   *
   * Part 1: Find the maximum total number of calories carried by an elf.
   *
@@ -18,10 +17,7 @@ import org.scalatest.matchers.should.Matchers
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/1]]
   */
-class AdventOfCodeDay1Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay1Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 

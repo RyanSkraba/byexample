@@ -11,19 +11,14 @@ import scala.collection.mutable
   *
   * Input: A map of elves in a rectangular grid.
   *
-  * Part 1: After 10 moves, the number of empty spaces in the smallest bounding
-  * rectangle.
+  * Part 1: After 10 moves, the number of empty spaces in the smallest bounding rectangle.
   *
-  * Part 2: The number of moves necessary for the elves to stabilize their
-  * positions.
+  * Part 2: The number of moves necessary for the elves to stabilize their positions.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/23]]
   */
-class AdventOfCodeDay23Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay23Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 

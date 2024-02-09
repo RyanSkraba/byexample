@@ -35,11 +35,10 @@ class AsfValidatorSpec extends AmmoniteScriptSpecBase {
 
     /** Helper to extract the environment from the given help text.
       * @param args
-      *   The arguments to use in the script, in addition to "help" and
-      *   "--plain" (to avoid ANSI colouring).
+      *   The arguments to use in the script, in addition to "help" and "--plain" (to avoid ANSI colouring).
       * @return
-      *   A map containing the environment for the script as received from the
-      *   arguments, potentially a config file, and the defaults.
+      *   A map containing the environment for the script as received from the arguments, potentially a config file, and
+      *   the defaults.
       */
     def extractEnvFromHelp(args: String*): mutable.Map[String, String] = {
       val txtHelp =

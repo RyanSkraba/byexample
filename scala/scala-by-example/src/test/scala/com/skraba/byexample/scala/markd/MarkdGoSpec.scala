@@ -8,11 +8,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 
 /** Unit tests for [[MarkdGo]] */
-class MarkdGoSpec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach
-    with BeforeAndAfterAll {
+class MarkdGoSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach with BeforeAndAfterAll {
 
   describe("MarkdGo docopt check") {
     it("should have less than 80 characters per string for readability") {
@@ -337,8 +333,7 @@ object MarkdGoSpec {
 
   import com.skraba.byexample.scala.scalatest.StdoutSpec.withConsoleMatch
 
-  /** A helper method used to capture the console of a ScalaGo execution and
-    * apply it to a partial function.
+  /** A helper method used to capture the console of a ScalaGo execution and apply it to a partial function.
     * @param args
     *   String arguments to pass to the ScalaGo.go method
     * @param pf
@@ -358,8 +353,7 @@ object MarkdGoSpec {
     }
   }
 
-  /** A helper method used to capture the console of a ScalaGo execution and
-    * return the output.
+  /** A helper method used to capture the console of a ScalaGo execution and return the output.
     * @param args
     *   String arguments to pass to the ScalaGo.go method
     * @return

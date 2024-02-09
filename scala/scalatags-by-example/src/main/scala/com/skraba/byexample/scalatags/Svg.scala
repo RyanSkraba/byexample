@@ -13,15 +13,13 @@ import scala.reflect.io.File
 
 object Svg {
 
-  /** Useful pointer to qualify attribute names, since they can conflict with
-    * common variables.
+  /** Useful pointer to qualify attribute names, since they can conflict with common variables.
     */
   val Attrs: scalatags.Text.svgAttrs.type = scalatags.Text.svgAttrs
 
   val XmlNs = attr("xmlns") := "http://www.w3.org/2000/svg"
 
-  /** The Apache2 license header
-    * [[https://www.apache.org/licenses/LICENSE-2.0#apply]]
+  /** The Apache2 license header [[https://www.apache.org/licenses/LICENSE-2.0#apply]]
     */
   val Apache2: String =
     s"""  Licensed to the Apache Software Foundation (ASF) under one or more
@@ -40,8 +38,7 @@ object Svg {
        |  limitations under the License.
        |""".stripMargin
 
-  /** Wraps the contents in an SVG tag. If the content is already an svg tag, it
-    * isn't wrapped.
+  /** Wraps the contents in an SVG tag. If the content is already an svg tag, it isn't wrapped.
     *
     * @param svgContents
     *   The tag or fragment to write to the file.
@@ -68,8 +65,8 @@ object Svg {
     }
   }
 
-  /** Wraps the contents in an SVG tag and writes them to a file. If the content
-    * is already an svg tag, it isn't wrapped.
+  /** Wraps the contents in an SVG tag and writes them to a file. If the content is already an svg tag, it isn't
+    * wrapped.
     *
     * @param f
     *   The file to write or overwrite.
@@ -94,12 +91,10 @@ object Svg {
     pw.close()
   }
 
-  /** Returns a group tag that can be used as an inkscape layer if at the top of
-    * the document.
+  /** Returns a group tag that can be used as an inkscape layer if at the top of the document.
     *
     * @param n
-    *   The unique number to use for the layer. This should (probably) be
-    *   sequential.
+    *   The unique number to use for the layer. This should (probably) be sequential.
     * @param label
     *   The visible name to use for the layer.
     * @return

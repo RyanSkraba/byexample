@@ -7,25 +7,20 @@ import org.scalatest.matchers.should.Matchers
 
 /** =Advent of Code 2023 Day 6 Solutions in scala=
   *
-  * Input: For a series of races, the maximum time allocated to each race, as
-  * well as the record distance to beat for each race
+  * Input: For a series of races, the maximum time allocated to each race, as well as the record distance to beat for
+  * each race
   *
-  * Part 1: For each toy boat, we can increase the speed by 1ms/mm by pushing
-  * the button for 1ms. We have less time to race, but the boat goes faster. For
-  * each race, find all of the possible button press times that would beat the
+  * Part 1: For each toy boat, we can increase the speed by 1ms/mm by pushing the button for 1ms. We have less time to
+  * race, but the boat goes faster. For each race, find all of the possible button press times that would beat the
   * existing record, and multiply these together.
   *
-  * Part 2: Consider only one race by removing the spaces between the given race
-  * times and distances to make big, big numbers, and find the possible button
-  * press times that would beat the record.
+  * Part 2: Consider only one race by removing the spaces between the given race times and distances to make big, big
+  * numbers, and find the possible button press times that would beat the record.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/6]]
   */
-class AdventOfCodeDay6Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay6Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 

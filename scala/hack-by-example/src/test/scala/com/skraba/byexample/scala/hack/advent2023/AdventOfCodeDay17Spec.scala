@@ -9,23 +9,17 @@ import scala.collection.mutable
 
 /** =Advent of Code 2023 Day 17 Solutions in scala=
   *
-  * Input: A map of costs, where each square is the cost of *entering* that
-  * square.
+  * Input: A map of costs, where each square is the cost of *entering* that square.
   *
-  * Part 1: Given that you can't move three squares in the same direction
-  * consecutively, what is the minimum cost of getting from the upper right to
-  * the lower left
+  * Part 1: Given that you can't move three squares in the same direction consecutively, what is the minimum cost of
+  * getting from the upper right to the lower left
   *
-  * Part 2: As above, but you must move at least 4 and at most 10 times in the
-  * same direction.
+  * Part 2: As above, but you must move at least 4 and at most 10 times in the same direction.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/17]]
   */
-class AdventOfCodeDay17Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay17Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 

@@ -7,29 +7,23 @@ import org.scalatest.matchers.should.Matchers
 
 /** =Advent of Code 2023 Day 13 Solutions in scala=
   *
-  * Input: A series of rectangular plans of rocks and ashes, using the
-  * characters . and #
+  * Input: A series of rectangular plans of rocks and ashes, using the characters . and #
   *
-  * Part 1: For each plan, find a row or column in the pattern that is perfectly
-  * reflected in the plan all the way to the edge. If it is a row, return 100 *
-  * the count of rows above and including that row. If it is a column, return
-  * the count of columns to its left. The answer is the sum.
+  * Part 1: For each plan, find a row or column in the pattern that is perfectly reflected in the plan all the way to
+  * the edge. If it is a row, return 100 * the count of rows above and including that row. If it is a column, return the
+  * count of columns to its left. The answer is the sum.
   *
-  * Part 2: Change exactly one square from . to # or vice versa to change the
-  * point of reflection and return those values.
+  * Part 2: Change exactly one square from . to # or vice versa to change the point of reflection and return those
+  * values.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/13]]
   */
-class AdventOfCodeDay13Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay13Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 
-    /** Given a position and an array size, generates ranges that reflect around
-      * the position.
+    /** Given a position and an array size, generates ranges that reflect around the position.
       */
     def reflects(in: Int, size: Int): Iterable[(Int, Int)] = {
       if (in < size / 2)
@@ -38,17 +32,14 @@ class AdventOfCodeDay13Spec
         (in + 1 until size).zip(in to 0 by -1)
     }
 
-    /** Find the count for a single plan, corresponding to the row or column
-      * where a reflection could occur.
+    /** Find the count for a single plan, corresponding to the row or column where a reflection could occur.
       *
       * @param wasTransposed
-      *   The implementation always searches for the row first, then the column.
-      *   This is used to determine whether we are in the column search part
-      *   (performed by transposing the arrays and calling again).
+      *   The implementation always searches for the row first, then the column. This is used to determine whether we
+      *   are in the column search part (performed by transposing the arrays and calling again).
       * @param omit
-      *   Part 2 introduces a smudge that must change the reflection. This might
-      *   cause more than one symmetry, and this value is the count for the
-      *   symmetry we do NOT want to return.
+      *   Part 2 introduces a smudge that must change the reflection. This might cause more than one symmetry, and this
+      *   value is the count for the symmetry we do NOT want to return.
       * @return
       *   the count for the plan
       */

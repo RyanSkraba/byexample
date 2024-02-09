@@ -12,16 +12,12 @@ import org.scalatest.tagobjects.Slow
   *
   * Part 1: The quality index for the blueprints combined.
   *
-  * Part 2: Given more time but fewer blueprints, find the product of the first
-  * three blueprints.
+  * Part 2: Given more time but fewer blueprints, find the product of the first three blueprints.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/19]]
   */
-class AdventOfCodeDay19Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay19Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 
@@ -31,8 +27,8 @@ class AdventOfCodeDay19Spec
           Blueprint(id, Count(ore, clay, obsidian1, geode1), obsidian2, geode2)
       }
 
-    /** Helper class to keep track of resource and robot counts. Some arithmetic
-      * functions are defined, but only on non-geode counts.
+    /** Helper class to keep track of resource and robot counts. Some arithmetic functions are defined, but only on
+      * non-geode counts.
       */
     case class Count(
         ore: Int = 0,
@@ -88,9 +84,8 @@ class AdventOfCodeDay19Spec
       override def isValid: Boolean = time > 0 && avail.isNonNegative
 
       /** @return
-        *   the state we'd be in if we built a ore robot next, regardless of
-        *   whether it's valid (we might go into debt with resources or go past
-        *   the time limit).
+        *   the state we'd be in if we built a ore robot next, regardless of whether it's valid (we might go into debt
+        *   with resources or go past the time limit).
         */
       def buildOreRobot(): BuildState = {
         val minutes =
@@ -198,9 +193,8 @@ class AdventOfCodeDay19Spec
         // a geode robot every minute
         if (avail.geode + time * (time - 1) / 2 < maxToBeat)
           return maxToBeat
-        nextStates.foldLeft(avail.geode max maxToBeat) {
-          case (maxGeodes, state) =>
-            state.maxGeodes(maxGeodes) max maxGeodes
+        nextStates.foldLeft(avail.geode max maxToBeat) { case (maxGeodes, state) =>
+          state.maxGeodes(maxGeodes) max maxGeodes
         }
       }
     }

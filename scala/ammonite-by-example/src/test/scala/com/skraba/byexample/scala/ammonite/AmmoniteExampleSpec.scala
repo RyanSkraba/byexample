@@ -13,10 +13,7 @@ import scala.util.Properties
 
 /** Testing ammonite scripts can be a bit tricky!
   */
-class AmmoniteExampleSpec
-    extends AnyFunSpecLike
-    with BeforeAndAfterAll
-    with Matchers {
+class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 
   /** The path containing ammonite scripts. */
   val ScriptPath: Path = find("/ammonite_example.sc")
@@ -24,8 +21,7 @@ class AmmoniteExampleSpec
   /** A temporary directory for playing with files. */
   val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
 
-  /** Either create a new home directory reused across this suite, or use the
-    * common one.
+  /** Either create a new home directory reused across this suite, or use the common one.
     */
   val HomeFolder: Path =
     if (ReuseAmmoniteHome) ReusableAmmoniteHome
@@ -42,14 +38,12 @@ class AmmoniteExampleSpec
         ex.printStackTrace()
     }
 
-  /** A standalone helper method for running one specific script (in this case
-    * ammonite_example.sc).
+  /** A standalone helper method for running one specific script (in this case ammonite_example.sc).
     *
     * @param args
     *   The arguments to apply to the ammonite example script
     * @param pf
-    *   A partial function taking the result, the stdout and stderr strings from
-    *   the ammonite call
+    *   A partial function taking the result, the stdout and stderr strings from the ammonite call
     * @tparam U
     *   If any, the type of output of the partial function
     * @return
@@ -103,8 +97,7 @@ class AmmoniteExampleSpec
 
     it("building on AmmoniteSpec.withAmmoniteMain0AndNoStdIn") {
 
-      /** Helper to run ammonite_example.sc help successfully with some initial
-        * checks
+      /** Helper to run ammonite_example.sc help successfully with some initial checks
         *
         * @param args
         *   Additional arguments to the script
@@ -168,8 +161,7 @@ class AmmoniteExampleSpec
                               |
                               |""".stripMargin
 
-    /** Helper to run ammonite_example.sc argTest successfully with some initial
-      * checks
+    /** Helper to run ammonite_example.sc argTest successfully with some initial checks
       *
       * @param args
       *   Additional arguments to the script
@@ -226,11 +218,10 @@ class AmmoniteExampleSpec
 
     it("should fail with an unknown flag (--help)") {
       // We can't use the helper for an error condition
-      withAmmoniteExample("argTest", "--help") {
-        case (result, stdout, stderr) =>
-          result shouldBe false
-          stderr shouldBe s"""Unknown argument: "--help"\n$ExpectedSignature"""
-          stdout shouldBe empty
+      withAmmoniteExample("argTest", "--help") { case (result, stdout, stderr) =>
+        result shouldBe false
+        stderr shouldBe s"""Unknown argument: "--help"\n$ExpectedSignature"""
+        stdout shouldBe empty
       }
     }
 

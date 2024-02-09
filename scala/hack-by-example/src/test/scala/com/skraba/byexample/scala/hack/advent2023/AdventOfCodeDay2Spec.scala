@@ -7,23 +7,19 @@ import org.scalatest.matchers.should.Matchers
 
 /** =Advent of Code 2023 Day 2 Solutions in scala=
   *
-  * Input: A list of strings, where each line corresponds to a game being played
-  * taking coloured cubes out of out of a bag. Each game has an ID.
+  * Input: A list of strings, where each line corresponds to a game being played taking coloured cubes out of out of a
+  * bag. Each game has an ID.
   *
-  * Part 1: Given a certain maximum number of coloured cubes, find the sum of
-  * the game IDs in the list that are possible.
+  * Part 1: Given a certain maximum number of coloured cubes, find the sum of the game IDs in the list that are
+  * possible.
   *
-  * Part 2: For each game, find the product of the minimum number of each
-  * coloured cube required to play that game, and sum this power over the entire
-  * list.
+  * Part 2: For each game, find the product of the minimum number of each coloured cube required to play that game, and
+  * sum this power over the entire list.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/2]]
   */
-class AdventOfCodeDay2Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay2Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 

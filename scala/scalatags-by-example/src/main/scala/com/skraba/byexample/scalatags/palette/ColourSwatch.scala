@@ -5,11 +5,9 @@ import scalatags.Text.implicits._
 import scalatags.Text.svgAttrs._
 import scalatags.Text.svgTags._
 
-/** Provides a swatch for a colour in the palette, including lighter shades in a
-  * series of steps.
+/** Provides a swatch for a colour in the palette, including lighter shades in a series of steps.
   *
-  * The swatch is organised vertically with the title and RGB (in hex) at the
-  * top, and the shades at the bottom.
+  * The swatch is organised vertically with the title and RGB (in hex) at the top, and the shades at the bottom.
   *
   * @param name
   *   The name of the colour

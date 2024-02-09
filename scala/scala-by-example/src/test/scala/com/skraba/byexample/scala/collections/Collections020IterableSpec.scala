@@ -11,8 +11,7 @@ import scala.collection.mutable
   *
   * It has three major subclasses:
   *
-  *   - Seq (PartialFunction, apply returns the element at that index,
-  *     isDefinedAt)
+  *   - Seq (PartialFunction, apply returns the element at that index, isDefinedAt)
   *   - Map (PartialFunction, apply returns the value for that key, isDefinedAt)
   *   - Set (apply returns whether or not the element exists.)
   *
@@ -131,8 +130,7 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
 
     it("supports map operations") {
       xs.map(_ + 1) shouldBe Iterable(2, 3, 4)
-      xs.flatMap(n => List.fill(n)(10 + n)) shouldBe Iterable(11, 12, 12, 13,
-        13, 13)
+      xs.flatMap(n => List.fill(n)(10 + n)) shouldBe Iterable(11, 12, 12, 13, 13, 13)
       xs.collect { case x if x % 2 == 0 => -x } shouldBe Iterable(-2)
     }
 

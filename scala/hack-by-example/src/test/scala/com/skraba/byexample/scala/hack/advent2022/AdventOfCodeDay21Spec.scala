@@ -14,16 +14,13 @@ import scala.util.matching.Regex
   *
   * Part 1: Find the value of the root monkey.
   *
-  * Part 2: If the root monkey wants to make sure their two friends have the
-  * same value, what should the "humn" monkey yell?
+  * Part 2: If the root monkey wants to make sure their two friends have the same value, what should the "humn" monkey
+  * yell?
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/21]]
   */
-class AdventOfCodeDay21Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay21Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 
@@ -37,16 +34,14 @@ class AdventOfCodeDay21Spec
       override def value(monkeys: Map[String, Monkey]): Long = value
     }
 
-    /** Just throws an exception when it tries to calculate, used to determine
-      * where the human is located.
+    /** Just throws an exception when it tries to calculate, used to determine where the human is located.
       */
     case class BrokenMonkey(id: String) extends Monkey {
       override def value(monkeys: Map[String, Monkey]): Long =
         throw new IllegalArgumentException()
     }
 
-    case class JobMnk(id: String, lId: String, rId: String, op: Char)
-        extends Monkey {
+    case class JobMnk(id: String, lId: String, rId: String, op: Char) extends Monkey {
 
       override def value(monkeys: Map[String, Monkey]): Long =
         if (op == '+') monkeys(lId).value(monkeys) + monkeys(rId).value(monkeys)

@@ -9,23 +9,18 @@ import scala.collection.mutable
 
 /** =Advent of Code 2023 Day 12 Solutions in scala=
   *
-  * Input: Given a list of springs where . is working, # is damaged and ? is
-  * unknown, plus a checklist of contiguous damaged springs separated by working
-  * springs.
+  * Input: Given a list of springs where . is working, # is damaged and ? is unknown, plus a checklist of contiguous
+  * damaged springs separated by working springs.
   *
-  * Part 1: For each line, find how many ways ? can be interpreted to match the
-  * checklist. The answer is the sum of these.
+  * Part 1: For each line, find how many ways ? can be interpreted to match the checklist. The answer is the sum of
+  * these.
   *
-  * Part 2: The same problem, but with each line repeated 5 times and the
-  * checklist repeated 5 times.
+  * Part 2: The same problem, but with each line repeated 5 times and the checklist repeated 5 times.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/12]]
   */
-class AdventOfCodeDay12Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay12Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 
@@ -62,8 +57,7 @@ class AdventOfCodeDay12Spec
       * @param repeat
       *   The number of times to repeat the
       * @param line
-      *   a line of input, with the damaged and safe springs along with the
-      *   check
+      *   a line of input, with the damaged and safe springs along with the check
       * @return
       */
     def parse(repeat: Int)(line: String): Springs = {

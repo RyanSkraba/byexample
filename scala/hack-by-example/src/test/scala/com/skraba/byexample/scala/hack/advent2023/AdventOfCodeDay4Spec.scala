@@ -7,25 +7,19 @@ import org.scalatest.matchers.should.Matchers
 
 /** =Advent of Code 2023 Day 4 Solutions in scala=
   *
-  * Input: A list of scratch tickets, each line showing a set of drawn numbers
-  * and the actual numbers. A match occurs when the same number appears on both
-  * sides of the bar.
+  * Input: A list of scratch tickets, each line showing a set of drawn numbers and the actual numbers. A match occurs
+  * when the same number appears on both sides of the bar.
   *
-  * Part 1: A ticket is a winner if there is at least one match, which is worth
-  * 1 point, and every subsequent match on the same line doubles the points
-  * (four matches gives 8 points). Find the sum of all the winning tickets.
+  * Part 1: A ticket is a winner if there is at least one match, which is worth 1 point, and every subsequent match on
+  * the same line doubles the points (four matches gives 8 points). Find the sum of all the winning tickets.
   *
-  * Part 2: A winning ticket doesn't' give you points, but actually more
-  * tickets: 4 matches on ticket gives you a copy of N+1, N+2, and N+3. Find how
-  * many tickets you have once you
+  * Part 2: A winning ticket doesn't' give you points, but actually more tickets: 4 matches on ticket gives you a copy
+  * of N+1, N+2, and N+3. Find how many tickets you have once you
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/4]]
   */
-class AdventOfCodeDay4Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay4Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 
@@ -55,18 +49,17 @@ class AdventOfCodeDay4Spec
         // iterate over the list to accumulate the  total number of tickets won so far
         // the first value is the total
         // the second value is a list of past winners that contribute a free copy of the current ticket
-        .foldLeft[(Long, Seq[Int])]((0L, Nil)) {
-          case ((total, bonus), matches) =>
-            // OK, not gonna lie, I got this to to work first and now I can't figure out why it works.
-            val nextBonus = bonus.map(_ - 1).filter(_ > 0)
-            if (matches > 0) {
-              (
-                total + 1 + (1 + bonus.size) * matches,
-                nextBonus ++ Seq.fill(1 + bonus.size)(matches)
-              )
-            } else {
-              (total + 1, nextBonus)
-            }
+        .foldLeft[(Long, Seq[Int])]((0L, Nil)) { case ((total, bonus), matches) =>
+          // OK, not gonna lie, I got this to to work first and now I can't figure out why it works.
+          val nextBonus = bonus.map(_ - 1).filter(_ > 0)
+          if (matches > 0) {
+            (
+              total + 1 + (1 + bonus.size) * matches,
+              nextBonus ++ Seq.fill(1 + bonus.size)(matches)
+            )
+          } else {
+            (total + 1, nextBonus)
+          }
         }
         ._1
     }
@@ -77,18 +70,17 @@ class AdventOfCodeDay4Spec
         // iterate over the list to accumulate the  total number of tickets won so far:
         // The accumulator is (1) the total number of tickets so far and (2) a list of the next free tickets
         // that have been won.
-        .foldLeft[(Long, Seq[Int])]((0L, Nil)) {
-          case ((total, winnings), matches) =>
-            // The total copies of this ticket that we possess: the original plus all of the ones we have won.
-            val copies = 1 + winnings.headOption.getOrElse(0)
-            // Calculate the bonus for the subsequent tickets: if this is a winner, add a free ticket for
-            // every ticket we have to the next N tickets.'
-            val nextBonus = winnings
-              .drop(1)
-              .padTo(matches, 0)
-              .take(matches)
-              .map(_ + copies) ++ winnings.drop(1 + matches)
-            (total + copies, nextBonus)
+        .foldLeft[(Long, Seq[Int])]((0L, Nil)) { case ((total, winnings), matches) =>
+          // The total copies of this ticket that we possess: the original plus all of the ones we have won.
+          val copies = 1 + winnings.headOption.getOrElse(0)
+          // Calculate the bonus for the subsequent tickets: if this is a winner, add a free ticket for
+          // every ticket we have to the next N tickets.'
+          val nextBonus = winnings
+            .drop(1)
+            .padTo(matches, 0)
+            .take(matches)
+            .map(_ + copies) ++ winnings.drop(1 + matches)
+          (total + copies, nextBonus)
         }
         ._1
     }

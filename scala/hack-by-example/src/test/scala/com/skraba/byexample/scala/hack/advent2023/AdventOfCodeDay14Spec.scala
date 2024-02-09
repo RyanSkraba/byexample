@@ -9,25 +9,19 @@ import scala.collection.mutable
 
 /** =Advent of Code 2023 Day 14 Solutions in scala=
   *
-  * Input: A map of a platform of boulders, where # are unmovable boulders and O
-  * are moveable boulders.
+  * Input: A map of a platform of boulders, where # are unmovable boulders and O are moveable boulders.
   *
-  * Part 1: Roll each of the moveable boulders as north as possible, until it's
-  * blocked by an unmoveable border, the map edge or another blocked boulder.
-  * Then calculate the "load" compared to the north: every moveable boulder
-  * counts its distance from the south edge (where the southernmost boulders
-  * count 1).
+  * Part 1: Roll each of the moveable boulders as north as possible, until it's blocked by an unmoveable border, the map
+  * edge or another blocked boulder. Then calculate the "load" compared to the north: every moveable boulder counts its
+  * distance from the south edge (where the southernmost boulders count 1).
   *
-  * Part 2: A cycle shifts all boulders North, then West, then South, then East.
-  * Calculate the load after 1 billion cycles.
+  * Part 2: A cycle shifts all boulders North, then West, then South, then East. Calculate the load after 1 billion
+  * cycles.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/14]]
   */
-class AdventOfCodeDay14Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay14Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 

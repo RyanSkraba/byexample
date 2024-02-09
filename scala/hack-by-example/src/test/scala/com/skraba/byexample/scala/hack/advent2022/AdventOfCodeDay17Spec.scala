@@ -17,10 +17,7 @@ import org.scalatest.tagobjects.Slow
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/17]]
   */
-class AdventOfCodeDay17Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay17Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 
@@ -63,21 +60,20 @@ class AdventOfCodeDay17Spec
       val tower0 = Seq.fill(rock0.height + 3)(EmptyRow) ++ tower
 
       val Some((towerNext, _, jetNext)) = Stream
-        .iterate((Option.empty[Seq[String]], rock0, jet0)) {
-          case (None, rock, jetN) =>
-            val rockDx =
-              rock
-                .copy(ox = rock.ox + (if (jets(jetN) == '<') -1 else 1))
-                .ifNoOverlap(tower0)
-                .getOrElse(rock)
-            val rockDy = rockDx
-              .copy(oy = rock.oy + 1)
+        .iterate((Option.empty[Seq[String]], rock0, jet0)) { case (None, rock, jetN) =>
+          val rockDx =
+            rock
+              .copy(ox = rock.ox + (if (jets(jetN) == '<') -1 else 1))
               .ifNoOverlap(tower0)
-            (
-              if (rockDy.isEmpty) Some(rockDx.drawOnTower(tower0)) else None,
-              rockDy.getOrElse(rockDx),
-              (jetN + 1) % jets.length
-            )
+              .getOrElse(rock)
+          val rockDy = rockDx
+            .copy(oy = rock.oy + 1)
+            .ifNoOverlap(tower0)
+          (
+            if (rockDy.isEmpty) Some(rockDx.drawOnTower(tower0)) else None,
+            rockDy.getOrElse(rockDx),
+            (jetN + 1) % jets.length
+          )
         }
         .find(_._1.nonEmpty)
 

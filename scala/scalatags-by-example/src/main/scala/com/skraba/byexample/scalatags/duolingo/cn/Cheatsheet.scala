@@ -47,8 +47,8 @@ object Vocab {
   * @param title
   *   A title for these words (or None to omit)
   * @param offset
-  *   A helpful offset for laying out the words in relation to the upper-left
-  *   document corner, or the upper-left of the last laid out group of words.
+  *   A helpful offset for laying out the words in relation to the upper-left document corner, or the upper-left of the
+  *   last laid out group of words.
   * @param cfg
   *   Configuration for drawing the sheet.
   */
@@ -59,13 +59,12 @@ case class VocabGroup(
     cfg: Config = Config()
 ) {
 
-  /** Draws the vocab group, with the title on top moving down one line for each
-    * vocab.
+  /** Draws the vocab group, with the title on top moving down one line for each vocab.
     */
   def toSvg: Tag = {
     g(
-      (title.map(cfg.title).toSeq ++ words.map(cfg.vocab)).zipWithIndex.map {
-        case (tag, y) => tag(Svg.attrTranslate(0, y * cfg.lineHeight))
+      (title.map(cfg.title).toSeq ++ words.map(cfg.vocab)).zipWithIndex.map { case (tag, y) =>
+        tag(Svg.attrTranslate(0, y * cfg.lineHeight))
       }
     )
   }
@@ -81,14 +80,13 @@ case class VocabGroup(
   */
 case class Cheatsheet(vocab: Seq[Vocab], cfg: Config = Config()) {
 
-  /** Draws the cheatsheet. The first column of words is centered at 0, 0, and
-    * the entire page will likely need to be translated.
+  /** Draws the cheatsheet. The first column of words is centered at 0, 0, and the entire page will likely need to be
+    * translated.
     */
   def toSvg: Tag = {
     // Group the words according to their lesson
     val byLesson: List[List[Vocab]] = vocab.foldRight[List[List[Vocab]]](Nil) {
-      case (v, head :: tail)
-          if head.headOption.map(_.lesson).contains(v.lesson) =>
+      case (v, head :: tail) if head.headOption.map(_.lesson).contains(v.lesson) =>
         (v :: head) :: tail
       case (v, xs) => (v :: Nil) :: xs
     }
@@ -110,8 +108,7 @@ case class Cheatsheet(vocab: Seq[Vocab], cfg: Config = Config()) {
 
 object Cheatsheet {
 
-  /** Memo of vowels to tone markings. The first is the bare vowel, followed by
-    * the four tones.
+  /** Memo of vowels to tone markings. The first is the bare vowel, followed by the four tones.
     */
   private[this] val ToneVowels: Seq[String] =
     Seq("aāáǎà", "eēéěè", "iīíǐì", "oōóǒò", "uūúǔù", "ü..ǚǜ")
@@ -125,14 +122,13 @@ object Cheatsheet {
       yield (c, (s(0), i))
   }.toMap
 
-  /** A cheatsheet autoloaded with all the words and the default config. This
-    * may make a call out to a remote resource.
+  /** A cheatsheet autoloaded with all the words and the default config. This may make a call out to a remote resource.
     */
   lazy val All: Cheatsheet = all()
 
   /** @param toneHex
-    *   An array of hex codes to colour tones for syllables and characters. This
-    *   should be a five element array and the first value is used for no tone.
+    *   An array of hex codes to colour tones for syllables and characters. This should be a five element array and the
+    *   first value is used for no tone.
     * @param text
     *   The text tag to use for writing.
     * @param cnDx
@@ -145,8 +141,7 @@ object Cheatsheet {
     *   If more than one column, then the distance between the columns.
     */
   case class Config(
-      toneHex: Seq[String] =
-        Seq("000000", "6a245c", "498c13", "3543a6", "c8361e"),
+      toneHex: Seq[String] = Seq("000000", "6a245c", "498c13", "3543a6", "c8361e"),
       text: Svg.Text = Svg.Text(family = "Noto Sans SC"),
       cnDx: Double = 40,
       lineHeight: Double = 10,
@@ -203,9 +198,7 @@ object Cheatsheet {
     val en = allWords.head.indexOf("Simple English Definition")
 
     Cheatsheet(
-      allWords.tail.map(info =>
-        Vocab(info(cn).trim, info(pinyin).trim, info(en).trim, info)
-      )
+      allWords.tail.map(info => Vocab(info(cn).trim, info(pinyin).trim, info(en).trim, info))
     )
   }
 
@@ -218,14 +211,12 @@ object Cheatsheet {
   }
 
   /** @return
-    *   convert all pinyin text with numbered vowels converted into unicode
-    *   accented characters
+    *   convert all pinyin text with numbered vowels converted into unicode accented characters
     */
   def toneNumbered(pinyin: String): String = {
     // Move exponents to plain numbers
-    val unexponented: String = "⁰¹²³⁴".zipWithIndex.foldLeft(pinyin) {
-      case (acc: String, (c: Char, i: Int)) =>
-        acc.replace(c.toString, i.toString)
+    val unexponented: String = "⁰¹²³⁴".zipWithIndex.foldLeft(pinyin) { case (acc: String, (c: Char, i: Int)) =>
+      acc.replace(c.toString, i.toString)
     }
     Tones.foldLeft(unexponented) { case (acc, (accented, (bare, tone))) =>
       acc.replace(s"$bare$tone", accented.toString)

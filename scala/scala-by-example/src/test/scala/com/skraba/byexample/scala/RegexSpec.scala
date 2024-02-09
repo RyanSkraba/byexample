@@ -87,9 +87,7 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
       )
 
       // Over all the examples, excluding the non matches
-      IssueExamples.flatMap(x =>
-        IssueRegex.findFirstIn(x).map(x -> _)
-      ) shouldBe Seq(
+      IssueExamples.flatMap(x => IssueRegex.findFirstIn(x).map(x -> _)) shouldBe Seq(
         "BYEX-123" -> "BYEX-123",
         "pre BYEX-123" -> "BYEX-123",
         "BYEX-123 post" -> "BYEX-123",
@@ -158,9 +156,7 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
       IssueRegex.findPrefixOf("BYEX-1234 matches") shouldBe Some("BYEX-1234")
 
       // Over all the examples, excluding the non matches
-      IssueExamples.flatMap(x =>
-        IssueRegex.findPrefixOf(x).map(x -> _)
-      ) shouldBe Seq(
+      IssueExamples.flatMap(x => IssueRegex.findPrefixOf(x).map(x -> _)) shouldBe Seq(
         "BYEX-123" -> "BYEX-123",
         "BYEX-123 post" -> "BYEX-123"
       )

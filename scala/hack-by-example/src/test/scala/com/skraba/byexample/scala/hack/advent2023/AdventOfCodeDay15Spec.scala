@@ -9,26 +9,21 @@ import scala.collection.mutable
 
 /** =Advent of Code 2023 Day 15 Solutions in scala=
   *
-  * Input: A long string of inputs separated by commas, indicating which lens of
-  * focal length 1 to 9 should be put or removed in boxes to direct the light
-  * through.
+  * Input: A long string of inputs separated by commas, indicating which lens of focal length 1 to 9 should be put or
+  * removed in boxes to direct the light through.
   *
-  * Part 1: For each command, calculate the hash code with the specific numbers
-  * we've been supplied, and sum them together.
+  * Part 1: For each command, calculate the hash code with the specific numbers we've been supplied, and sum them
+  * together.
   *
-  * Part 2: Each command either puts a lens in a box, replaces a lens or removes
-  * it. The box is indicated by the hashcode of the label, where the character -
-  * removes that labeled lens, and =NN adds or replaces the lens with that label
-  * with a new one with the specified focal length. Calculate the focusing power
-  * after all the commands are applied.
+  * Part 2: Each command either puts a lens in a box, replaces a lens or removes it. The box is indicated by the
+  * hashcode of the label, where the character - removes that labeled lens, and =NN adds or replaces the lens with that
+  * label with a new one with the specified focal length. Calculate the focusing power after all the commands are
+  * applied.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/15]]
   */
-class AdventOfCodeDay15Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay15Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 
@@ -37,9 +32,8 @@ class AdventOfCodeDay15Spec
 
     def part1(in: String*): Long = in.head.split(",").map(hash).sum
 
-    /** The focusing power of a lense is the index of the box (from 1) times the
-      * slow (from 1) times the focal length. This calculates the sum over all
-      * boxes.
+    /** The focusing power of a lense is the index of the box (from 1) times the slow (from 1) times the focal length.
+      * This calculates the sum over all boxes.
       */
     def focusingPower(boxes: Seq[Seq[(String, Int)]]): Long = {
       boxes.zipWithIndex.flatMap { case (b, i1) =>
@@ -49,31 +43,29 @@ class AdventOfCodeDay15Spec
       }.sum
     }
 
-    /** This implementation applies the rules sequentially to the boxes as an
-      * accumulator.
+    /** This implementation applies the rules sequentially to the boxes as an accumulator.
       */
     def part2a(in: String*): Long = {
       focusingPower(
-        in.head.split(",").foldLeft(Seq.fill(256)(Seq[(String, Int)]())) {
-          (boxes, cmdStr) =>
-            val (label, cmd) = cmdStr.span(c => c != '=' && c != '-')
-            val boxId = hash(label)
-            val box = boxes(boxId)
-            val slotId = box.indexWhere(_._1 == label)
-            if (cmd == "-" && slotId != -1) {
-              // Remove the box if it exists.
-              boxes.updated(boxId, box.patch(slotId, Seq.empty, 1))
-            } else if (cmd.startsWith("=")) {
-              val lens = label -> cmd.drop(1).toInt
-              if (slotId != -1) {
-                // Add the box at the existing slot
-                boxes.updated(boxId, box.updated(slotId, lens))
-              } else {
-                // Add the box to the end
-                boxes.updated(boxId, box.appended(lens))
-              }
-            } else
-              boxes
+        in.head.split(",").foldLeft(Seq.fill(256)(Seq[(String, Int)]())) { (boxes, cmdStr) =>
+          val (label, cmd) = cmdStr.span(c => c != '=' && c != '-')
+          val boxId = hash(label)
+          val box = boxes(boxId)
+          val slotId = box.indexWhere(_._1 == label)
+          if (cmd == "-" && slotId != -1) {
+            // Remove the box if it exists.
+            boxes.updated(boxId, box.patch(slotId, Seq.empty, 1))
+          } else if (cmd.startsWith("=")) {
+            val lens = label -> cmd.drop(1).toInt
+            if (slotId != -1) {
+              // Add the box at the existing slot
+              boxes.updated(boxId, box.updated(slotId, lens))
+            } else {
+              // Add the box to the end
+              boxes.updated(boxId, box.appended(lens))
+            }
+          } else
+            boxes
         }
       )
     }

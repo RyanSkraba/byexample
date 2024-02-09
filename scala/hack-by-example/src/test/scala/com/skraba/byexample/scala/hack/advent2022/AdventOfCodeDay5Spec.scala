@@ -9,23 +9,18 @@ import scala.util.matching.Regex
 
 /** =Advent of Code 2022 Day 5 Solutions in scala=
   *
-  * Input: A text file where the first lines describe how crates are stacked in
-  * the original configuration and the following lines are a plan to move them
-  * (N crates from SRC stack to DST stack). Each crate is a letter.
+  * Input: A text file where the first lines describe how crates are stacked in the original configuration and the
+  * following lines are a plan to move them (N crates from SRC stack to DST stack). Each crate is a letter.
   *
-  * Part 1: A string containing the top crate letter from each stack, if moving
-  * N crates moves them one at a time.
+  * Part 1: A string containing the top crate letter from each stack, if moving N crates moves them one at a time.
   *
-  * Part 2: A string containing the top crate letter from each stack, if moving
-  * N crates moves them all at once (keeping the top at the top).
+  * Part 2: A string containing the top crate letter from each stack, if moving N crates moves them all at once (keeping
+  * the top at the top).
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/5]]
   */
-class AdventOfCodeDay5Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay5Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 

@@ -98,8 +98,7 @@ class ScalatagsGoSpec extends AnyFunSpecLike with Matchers {
 
 object ScalatagsGoSpec {
 
-  /** A helper method used to capture the console and apply it to a partial
-    * function.
+  /** A helper method used to capture the console and apply it to a partial function.
     * @param thunk
     *   code to execute that may use Console.out and Console.err print streams
     * @param pf
@@ -133,8 +132,7 @@ object ScalatagsGoSpec {
     }
   }
 
-  /** A helper method used to capture the console of a ScalaGo execution and
-    * apply it to a partial function.
+  /** A helper method used to capture the console of a ScalaGo execution and apply it to a partial function.
     * @param args
     *   String arguments to pass to the ScalaGo.go method
     * @param pf
@@ -154,8 +152,7 @@ object ScalatagsGoSpec {
     }
   }
 
-  /** A helper method used to capture the console of a ScalaGo execution and
-    * return the output.
+  /** A helper method used to capture the console of a ScalaGo execution and return the output.
     * @param args
     *   String arguments to pass to the ScalaGo.go method
     * @return

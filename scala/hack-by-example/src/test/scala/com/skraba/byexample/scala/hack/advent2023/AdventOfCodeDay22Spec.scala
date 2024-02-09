@@ -11,20 +11,16 @@ import scala.annotation.tailrec
   *
   * Input: A list of bricks of sand hanging in the air.
   *
-  * Part 1: Drop the bricks like tetris blocks so they are stacked on each
-  * other. Count how many bricks can be removed while leaving every single other
-  * brick in place.
+  * Part 1: Drop the bricks like tetris blocks so they are stacked on each other. Count how many bricks can be removed
+  * while leaving every single other brick in place.
   *
-  * Part 1: For every brick that would cause other bricks to fall if it were
-  * removed, count the number of falling bricks. Add these all together.
+  * Part 1: For every brick that would cause other bricks to fall if it were removed, count the number of falling
+  * bricks. Add these all together.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/22]]
   */
-class AdventOfCodeDay22Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay22Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 
@@ -116,9 +112,8 @@ class AdventOfCodeDay22Spec
     def part2(in: String*): Long = {
       val plan = Plan.from(in: _*)
 
-      /** If you consider the graph of supported and supporting bricks, brick1
-        * "dominates" another brick2 if any path to brick2 from the bottom brick
-        * must pass through brick one.
+      /** If you consider the graph of supported and supporting bricks, brick1 "dominates" another brick2 if any path to
+        * brick2 from the bottom brick must pass through brick one.
         */
       @tailrec
       def dominates(

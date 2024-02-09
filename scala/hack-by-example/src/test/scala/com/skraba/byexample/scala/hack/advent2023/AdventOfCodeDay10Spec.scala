@@ -7,22 +7,18 @@ import org.scalatest.matchers.should.Matchers
 
 /** =Advent of Code 2023 Day 10 Solutions in scala=
   *
-  * Input: A map containing a maze of pipes, with 90 degree bends where - and |
-  * are horizontal and vertical characters, while F 7 L and J are bends. There
-  * is one big loop starting at a position marked S.
+  * Input: A map containing a maze of pipes, with 90 degree bends where - and | are horizontal and vertical characters,
+  * while F 7 L and J are bends. There is one big loop starting at a position marked S.
   *
-  * Part 1: Starting at S and moving in both directions in the loop, find the
-  * steps to the farthest point in the loop (counting distance along the loop).
+  * Part 1: Starting at S and moving in both directions in the loop, find the steps to the farthest point in the loop
+  * (counting distance along the loop).
   *
   * Part 2: Find all of the points inside the loop.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/10]]
   */
-class AdventOfCodeDay10Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay10Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 
@@ -49,8 +45,7 @@ class AdventOfCodeDay10Spec
       paths.dropWhile { xs => xs.head.head != xs(1).head }.head
     }
 
-    /** Given the starting position in the maze, find the next two possible
-      * positions.
+    /** Given the starting position in the maze, find the next two possible positions.
       * @param in
       *   The position we are currently at.
       * @param dx

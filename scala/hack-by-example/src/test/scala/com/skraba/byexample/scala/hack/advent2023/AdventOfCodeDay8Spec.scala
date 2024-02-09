@@ -7,32 +7,25 @@ import org.scalatest.matchers.should.Matchers
 
 /** =Advent of Code 2023 Day 8 Solutions in scala=
   *
-  * Input: A string containing directions (in the form of Ls and Rs), followed
-  * by a map of nodes (three letters) that each have a right path and a left
-  * path that they go to.
+  * Input: A string containing directions (in the form of Ls and Rs), followed by a map of nodes (three letters) that
+  * each have a right path and a left path that they go to.
   *
-  * Part 1: Starting at AAA follow the directions until you reach ZZZ. Count the
-  * number of steps required to get there.
+  * Part 1: Starting at AAA follow the directions until you reach ZZZ. Count the number of steps required to get there.
   *
-  * Part 2: Putting a ghost at every node that ends with an A, each of them
-  * follow the directions until they all are simultaneously at a node that ends
-  * with Z. Count the number of steps until this is true.
+  * Part 2: Putting a ghost at every node that ends with an A, each of them follow the directions until they all are
+  * simultaneously at a node that ends with Z. Count the number of steps until this is true.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/8]]
   */
-class AdventOfCodeDay8Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay8Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 
     /** Parses the input
       * @return
-      *   Two structures: the string containing the directions (exclusively L
-      *   and R) and a map keyed on string position names, returning a map keyed
-      *   on direction character and the next position that direction takes you.
+      *   Two structures: the string containing the directions (exclusively L and R) and a map keyed on string position
+      *   names, returning a map keyed on direction character and the next position that direction takes you.
       */
     def parse(in: String*): (String, Map[String, Map[Char, String]]) = {
       (
@@ -73,9 +66,8 @@ class AdventOfCodeDay8Spec
 
       // Get all of the paths for the ghosts as in part1, but don't evaluate them yet
       val starting = map.keys.filter(_.endsWith("A")).toSeq.sorted
-      val paths = for (start <- starting) yield LazyList.iterate((start, 0L)) {
-        case (pos, total) =>
-          (map(pos)(dir((total % dir.length).toInt)), total + 1)
+      val paths = for (start <- starting) yield LazyList.iterate((start, 0L)) { case (pos, total) =>
+        (map(pos)(dir((total % dir.length).toInt)), total + 1)
       }
 
       // Path lengths
@@ -92,9 +84,8 @@ class AdventOfCodeDay8Spec
       }
 
       // What if you only take right turns?
-      val rpaths = for (start <- starting) yield LazyList.iterate((start, 0L)) {
-        case (pos, total) =>
-          (map(pos)('R'), total + 1)
+      val rpaths = for (start <- starting) yield LazyList.iterate((start, 0L)) { case (pos, total) =>
+        (map(pos)('R'), total + 1)
       }
       val rpathLengths = rpaths.map(_.dropWhile(!_._1.endsWith("Z")).head._2)
 
@@ -125,9 +116,8 @@ class AdventOfCodeDay8Spec
       val (dir, map) = parse(in: _*)
       // Get all of the paths for the ghosts as in part1 individually
       val starting = map.keys.filter(_.endsWith("A")).toSeq.sorted
-      val paths = for (start <- starting) yield LazyList.iterate((start, 0L)) {
-        case (pos, total) =>
-          (map(pos)(dir((total % dir.length).toInt)), total + 1)
+      val paths = for (start <- starting) yield LazyList.iterate((start, 0L)) { case (pos, total) =>
+        (map(pos)(dir((total % dir.length).toInt)), total + 1)
       }
       // The individual path lengths FOR THIS CASE are all multiples of the direction length, and prime.
       val lengths =

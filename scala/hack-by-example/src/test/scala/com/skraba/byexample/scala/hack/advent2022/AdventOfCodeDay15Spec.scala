@@ -12,18 +12,14 @@ import scala.util.matching.Regex
   *
   * Input: Sensor readings from within the cavern finding the closest beacon
   *
-  * Part 1: The number of places in a given row that we can guarantee do not
-  * have a beacon
+  * Part 1: The number of places in a given row that we can guarantee do not have a beacon
   *
   * Part 2: Given some bounds, the first empty place found
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/15]]
   */
-class AdventOfCodeDay15Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay15Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 

@@ -27,8 +27,7 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase {
 
   describe("Running the getting_things_done.sc help") {
 
-    /** Helper to run getting_things_done.sc help successfully with some initial
-      * checks
+    /** Helper to run getting_things_done.sc help successfully with some initial checks
       *
       * @param args
       *   Additional arguments to the script
@@ -58,8 +57,7 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase {
 
   describe("Running the getting_things_done.sc clean") {
 
-    /** Helper to run getting_things_done.sc help successfully with some initial
-      * checks
+    /** Helper to run getting_things_done.sc help successfully with some initial checks
       *
       * @param args
       *   Additional arguments to the script

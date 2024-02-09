@@ -9,24 +9,20 @@ import scala.util.matching.Regex
 
 /** =Advent of Code 2023 Day 19 Solutions in scala=
   *
-  * Input: A list of workflow functions, each with a name, that take a part and
-  * check its ratings to decide whether it is accepted ("A"), rejected ("R") or
-  * applied to another workflow function, followed by a list of parts and their
+  * Input: A list of workflow functions, each with a name, that take a part and check its ratings to decide whether it
+  * is accepted ("A"), rejected ("R") or applied to another workflow function, followed by a list of parts and their
   * ratings.
   *
-  * Part 1: Apply the functions to each of the parts to see if it's accepted or
-  * rejected. Return the sum of all the ratings of all the accepted parts.
+  * Part 1: Apply the functions to each of the parts to see if it's accepted or rejected. Return the sum of all the
+  * ratings of all the accepted parts.
   *
-  * Part 2: Ignoring the list of parts, find how many different combinations of
-  * ratings could possibly be accepted (where the ratings are from 1 to 4000).
+  * Part 2: Ignoring the list of parts, find how many different combinations of ratings could possibly be accepted
+  * (where the ratings are from 1 to 4000).
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/19]]
   */
-class AdventOfCodeDay19Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay19Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 
@@ -81,11 +77,9 @@ class AdventOfCodeDay19Spec
               x._2
                 .map {
                   case Seq(attr, "<", value, next) =>
-                    p: Part =>
-                      if (p(attr.head) < value.toLong) Some(next) else None
+                    p: Part => if (p(attr.head) < value.toLong) Some(next) else None
                   case Seq(attr, ">", value, next) =>
-                    p: Part =>
-                      if (p(attr.head) > value.toLong) Some(next) else None
+                    p: Part => if (p(attr.head) > value.toLong) Some(next) else None
                   case Seq(next) => _: Part => Some(next)
                 }
             )
@@ -104,19 +98,16 @@ class AdventOfCodeDay19Spec
     def part2(in: String*): Long = {
       val (fn, _) = parse(in: _*)
 
-      /** The workflows are basically a tree where each edge is a constraint.
-        * Work down the tree to find the most restrictive rating constraints
-        * when you arrive at A
+      /** The workflows are basically a tree where each edge is a constraint. Work down the tree to find the most
+        * restrictive rating constraints when you arrive at A
         * @param name
-        *   The name of the current node to find the total possibilities of
-        *   arriving at A below.
+        *   The name of the current node to find the total possibilities of arriving at A below.
         * @param min
         *   The minimum value for each rating at the current node.
         * @param max
         *   The maximum value for each rating at the current node.
         * @return
-        *   The maximum number of possible rating values that could arrive at an
-        *   A below this node.
+        *   The maximum number of possible rating values that could arrive at an A below this node.
         */
       def dfs(
           name: String,

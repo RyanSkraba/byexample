@@ -18,10 +18,7 @@ import scala.collection.mutable
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/11]]
   */
-class AdventOfCodeDay11Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay11Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 

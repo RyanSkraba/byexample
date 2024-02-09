@@ -66,8 +66,8 @@ object MarkdGo {
 
   /** A helper method to process a list of files supplied on the command line.
     * @param files
-    *   Files and directories relative to the current directory as string
-    *   arguments. Markdown files are discovered recursively in the directory.
+    *   Files and directories relative to the current directory as string arguments. Markdown files are discovered
+    *   recursively in the directory.
     * @param fn
     *   A method to call on each discovered file.
     */
@@ -76,9 +76,7 @@ object MarkdGo {
     .flatMap {
       case f: File if f.exists => Some(f)
       case d: Directory if d.exists =>
-        d.walkFilter(p =>
-          p.isDirectory || """.*\.md$""".r.findFirstIn(p.name).isDefined
-        ).map(_.toFile)
+        d.walkFilter(p => p.isDirectory || """.*\.md$""".r.findFirstIn(p.name).isDefined).map(_.toFile)
       case p =>
         throw new InternalDocoptException(
           s"The file ${p.name} doesn't exist."
@@ -86,8 +84,7 @@ object MarkdGo {
     }
     .foreach(fn)
 
-  /** Runs the tool. This does not handle any docopt exception automatically
-    * while parsing the command line.
+  /** Runs the tool. This does not handle any docopt exception automatically while parsing the command line.
     *
     * @param args
     *   command-line arguments as described in [[Doc]]

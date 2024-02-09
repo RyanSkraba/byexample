@@ -1,12 +1,6 @@
 package com.skraba.byexample.scala.ammonite.git
 
-import com.skraba.byexample.scala.markd.{
-  Align,
-  Header,
-  LinkRef,
-  Table,
-  TableRow
-}
+import com.skraba.byexample.scala.markd.{Align, Header, LinkRef, Table, TableRow}
 import os.CommandResult
 
 import scala.util.{Success, Try}
@@ -40,8 +34,7 @@ case class CherryPickerReport(
   def update(current: CherryPickerReport): CherryPickerReport =
     copy(left = current.left, right = current.right)
 
-  /** If the commit describes a dependabot bump, then update the notes in the
-    * table row with the word Bump.
+  /** If the commit describes a dependabot bump, then update the notes in the table row with the word Bump.
     */
   private[this] def rowUpdateBump(cmt: Commit)(row: TableRow): TableRow =
     if (cmt.isBump && !row(2).toLowerCase.contains("bump"))
@@ -70,8 +63,7 @@ case class CherryPickerReport(
         if (row(1).length < 100) row(1) else row(1).take(97) + "..."
       )
 
-  /** Generate a commit table for the given header, integrating the given list
-    * of commits with any existing notes.
+  /** Generate a commit table for the given header, integrating the given list of commits with any existing notes.
     */
   private[this] def addTableOfCommits(
       h1: Header,
@@ -222,9 +214,9 @@ case class CherryPickerReport(
           case h1: Header if h1.level == 1 && h1.title == "References" =>
             allIssueNum.foldLeft(originalReferences) { (acc, num) =>
               val tagToCheck = s"$tag-$num"
-              acc.mapFirstIn(ifNotFound =
-                LinkRef(tagToCheck, s"${issuesUrl.get}-$num")
-              ) { case lr @ LinkRef(tagToCheck, _, _) => lr }
+              acc.mapFirstIn(ifNotFound = LinkRef(tagToCheck, s"${issuesUrl.get}-$num")) {
+                case lr @ LinkRef(tagToCheck, _, _) => lr
+              }
             }
         }
       }
@@ -306,8 +298,7 @@ object CherryPickerReport {
     false
   }
 
-  /** Given a git repo and two branchs (left and right), produces a report of
-    * how the branches have diverged.
+  /** Given a git repo and two branchs (left and right), produces a report of how the branches have diverged.
     *
     * @param repo
     *   The root directory of the git repo on the local disk.
@@ -316,8 +307,7 @@ object CherryPickerReport {
     * @param rTag
     *   The name of the right branch (usually branch-1.x)
     * @return
-    *   The [[CherryPickerReport]] if successful, or the git command output if
-    *   it failed.
+    *   The [[CherryPickerReport]] if successful, or the git command output if it failed.
     */
   def fromGit(
       repo: String,

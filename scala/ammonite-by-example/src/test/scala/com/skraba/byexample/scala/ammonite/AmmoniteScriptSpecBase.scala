@@ -15,10 +15,7 @@ import scala.util.Properties
   *
   * This class provides a useful base for setting up a scripting environment.
   */
-abstract class AmmoniteScriptSpecBase
-    extends AnyFunSpecLike
-    with BeforeAndAfterAll
-    with Matchers {
+abstract class AmmoniteScriptSpecBase extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 
   /** The path containing ammonite scripts. */
   val ScriptPath: File
@@ -26,8 +23,7 @@ abstract class AmmoniteScriptSpecBase
   /** A temporary directory for playing with files. */
   val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
 
-  /** Either create a new home directory reused across this suite, or use the
-    * common one.
+  /** Either create a new home directory reused across this suite, or use the common one.
     */
   val HomeFolder: Path =
     if (ReuseAmmoniteHome) ReusableAmmoniteHome
@@ -49,8 +45,7 @@ abstract class AmmoniteScriptSpecBase
     * @param args
     *   The arguments to apply to the ammonite script
     * @param pf
-    *   A partial function taking the result, the stdout and stderr strings from
-    *   the ammonite call
+    *   A partial function taking the result, the stdout and stderr strings from the ammonite call
     * @tparam U
     *   If any, the type of output of the partial function
     * @return
@@ -76,16 +71,14 @@ abstract class AmmoniteScriptSpecBase
     }
   }
 
-  /** A standalone helper method for running one specific script, with two
-    * groups of arguments.
+  /** A standalone helper method for running one specific script, with two groups of arguments.
     *
     * @param args1
     *   First set of arguments to apply to the ammonite script
     * @param args2
     *   Second set of arguments to apply to the ammonite script
     * @param pf
-    *   A partial function taking the result, the stdout and stderr strings from
-    *   the ammonite call
+    *   A partial function taking the result, the stdout and stderr strings from the ammonite call
     * @tparam U
     *   If any, the type of output of the partial function
     * @return
@@ -116,8 +109,7 @@ object AmmoniteScriptSpecBase {
     Paths.get(getClass.getResource(script).toURI).toFile
   )
 
-  /** A helper method used to capture the console and apply it to a partial
-    * function.
+  /** A helper method used to capture the console and apply it to a partial function.
     *
     * @param thunk
     *   code to execute that may use Console.out and Console.err print streams
@@ -155,11 +147,9 @@ object AmmoniteScriptSpecBase {
   /** A helper method for running an ammonite script.
     *
     * @param args
-    *   The arguments to apply to the ammonite executable, starting with the
-    *   script name.
+    *   The arguments to apply to the ammonite executable, starting with the script name.
     * @param pf
-    *   A partial function taking the result, the stdout and stderr strings from
-    *   the ammonite call
+    *   A partial function taking the result, the stdout and stderr strings from the ammonite call
     * @tparam U
     *   If any, the type of output of the partial function
     * @return

@@ -7,21 +7,17 @@ import org.scalatest.matchers.should.Matchers
 
 /** =Advent of Code 2022 Day 10 Solutions in scala=
   *
-  * Input: The assembly text being sent to the radio, which is a 1-cycle NOOP or
-  * a 2-cycle ADDX that adds to the single X register in the radio CPU.
+  * Input: The assembly text being sent to the radio, which is a 1-cycle NOOP or a 2-cycle ADDX that adds to the single
+  * X register in the radio CPU.
   *
-  * Part 1: A signal strength which is the value of the X register times the
-  * cycle number at certain points.
+  * Part 1: A signal strength which is the value of the X register times the cycle number at certain points.
   *
   * Part 2: An image to be displayed on the CPU.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/10]]
   */
-class AdventOfCodeDay10Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay10Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 

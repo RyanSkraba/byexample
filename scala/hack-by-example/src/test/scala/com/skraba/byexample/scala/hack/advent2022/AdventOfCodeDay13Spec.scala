@@ -11,16 +11,12 @@ import org.scalatest.matchers.should.Matchers
   *
   * Part 1: The multiplication of the two most active monkeys
   *
-  * Part 2: The multiplication of the two most active monkeys, with a slight
-  * modification to the rules
+  * Part 2: The multiplication of the two most active monkeys, with a slight modification to the rules
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/13]]
   */
-class AdventOfCodeDay13Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay13Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 

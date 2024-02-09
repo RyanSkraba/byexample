@@ -9,21 +9,16 @@ import org.scalatest.matchers.should.Matchers
   *
   * Input: A map of galaxies in the sky.
   *
-  * Part 1: Given a rate of expansion where all of the empty rows and columns
-  * have doubled in size, find the sum of the taxi distances between each galaxy
-  * pair.
+  * Part 1: Given a rate of expansion where all of the empty rows and columns have doubled in size, find the sum of the
+  * taxi distances between each galaxy pair.
   *
-  * Part 2: Given a rate of expansion where all of the empty rows and columns
-  * are a million times in size, find the sum of the taxi distances between each
-  * galaxy pair.
+  * Part 2: Given a rate of expansion where all of the empty rows and columns are a million times in size, find the sum
+  * of the taxi distances between each galaxy pair.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2023/day/11]]
   */
-class AdventOfCodeDay11Spec
-    extends AnyFunSpecLike
-    with Matchers
-    with BeforeAndAfterEach {
+class AdventOfCodeDay11Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
 
