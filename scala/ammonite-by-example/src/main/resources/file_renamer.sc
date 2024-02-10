@@ -55,9 +55,12 @@ def help(cfg: ConsoleCfg): Unit = {
   * @return
   *   Find the directory that corresponds to a connected USB phone, or null for None
   */
-private[this] def findPhoneStorage(
+@arg(doc = "Finds the phone directory, if any connected")
+@main
+def phoneDir(
+    @arg(doc = "A substring to search for when finding where the phone might be mounted")
     phoneTag: Option[String] = None
-): Option[os.Path] = {
+): Path = {
   Some(os.root / "run" / "user")
     .find(os.exists)
     .flatMap(os.list(_).headOption)
@@ -65,6 +68,7 @@ private[this] def findPhoneStorage(
     .map(os.list(_).filter(_.toString.contains(phoneTag.getOrElse(""))))
     .flatMap(_.headOption)
     .flatMap(os.list(_).headOption)
+    .getOrElse(throw new RuntimeException("Unable to find pics storage."))
 }
 
 @arg(doc = "Backs up pictures and media from the connected phone")
@@ -89,8 +93,7 @@ def cameraphone(
   val cfg = cfgGroup.withVerbose(!noVerbose.value)
 
   // Use the given src for the device, or try to detect it
-  val srcDir =
-    src.orElse(findPhoneStorage(phoneTag)).getOrElse(throw new RuntimeException("Unable to find pics storage."))
+  val srcDir = src.getOrElse(phoneDir(phoneTag))
   cfg.vPrintln(srcDir)
 
   // This is one directory that might contain media in the device
