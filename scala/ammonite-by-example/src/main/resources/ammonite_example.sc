@@ -41,9 +41,7 @@ val MonthDay = DateTimeFormatter.ofPattern("MMM d")
 
 @arg(doc = "Print help to the console.")
 @main
-def help(
-    cfg: ConsoleCfg
-): Unit = {
+def help(cfg: ConsoleCfg): Unit = {
   // The help header includes all of the subcommands
   val cli = "ammonite_example.sc"
   println(
@@ -59,22 +57,12 @@ def help(
   )
 
   // Usage examples
-  println(
-    cfg.helpUse(
-      cli,
-      "argTest",
-      "[USER]",
-      "[GREETING]",
-      "[--verbose]",
-      "[--plain]"
-    )
-  )
+  println(cfg.helpUse(cli, "argTest", "[USER]", "[GREETING]", "[--verbose]", "[--plain]"))
   println(cfg.helpUse(cli, "githubJson", "[DSTFILE] [--verbose]"))
   println(cfg.helpUse(cli, "sysExec", "[DIR] [--verbose]"))
   println(cfg.helpUse(cli, "idfbm", "help"))
   println()
-  if (cfg.verbose.value)
-    println(s"The --verbose flag was set!")
+  if (cfg.verbose.value) println(s"The --verbose flag was set!")
 }
 
 /** @see
@@ -133,23 +121,17 @@ def sar(
   }
 
   // Adapt the exclude and include rules to regular expressions
-  val includeRe =
-    if (include.isEmpty) Seq(".*".r) else include.map(new Regex(_).unanchored)
+  val includeRe = if (include.isEmpty) Seq(".*".r) else include.map(new Regex(_).unanchored)
   val excludeRe =
-    if (exclude.isEmpty) Seq("^\\.git".r, "\\btarget\\b".r.unanchored)
-    else exclude.map(new Regex(_).unanchored)
+    if (exclude.isEmpty) Seq("^\\.git".r, "\\btarget\\b".r.unanchored) else exclude.map(new Regex(_).unanchored)
 
   // Find all of the files in the directory that aren't excluded
   val files: Seq[os.FilePath] = os
-    .walk(
-      src,
-      skip = p => excludeRe.exists(_.matches(p.relativeTo(src).toString))
-    )
+    .walk(src, skip = p => excludeRe.exists(_.matches(p.relativeTo(src).toString)))
     .filter(os.isFile)
     .map(_.relativeTo(src))
 
-  val included: Set[os.FilePath] =
-    files.filter(p => includeRe.exists(_.matches(p.toString))).toSet
+  val included: Set[os.FilePath] = files.filter(p => includeRe.exists(_.matches(p.toString))).toSet
 
   if (cfg.verbose.value) {
     println(s"$GREEN${BOLD}Matching files:$RESET")
@@ -161,9 +143,8 @@ def sar(
     if (included(f)) {
       val original = os.read(f.resolveFrom(src))
       val contents = re.grouped(2).foldLeft(original) {
-        case (acc, Seq(search, replace)) =>
-          new Regex(search).replaceAllIn(acc, replace)
-        case (acc, _) => acc // Ignore any leftover
+        case (acc, Seq(search, replace)) => new Regex(search).replaceAllIn(acc, replace)
+        case (acc, _)                    => acc // Ignore any leftover
       }
       val modified = contents != original
       if (cfg.verbose.value) print(if (modified) s"${RED}x" else s"${GREEN}x")
@@ -226,13 +207,11 @@ def githubJson(
   println(calendarize(githubContribsByDate).build())
 }
 
-/** Parse the JSON from the GitHub GraphQL API return the days and the number of
-  * contributions for that day.
+/** Parse the JSON from the GitHub GraphQL API return the days and the number of contributions for that day.
   * @param contribs
   *   The API results.
   * @return
-  *   A SortedMap containing all of the days mapped to their number of
-  *   contributions.
+  *   A SortedMap containing all of the days mapped to their number of contributions.
   */
 private def githubJsonParse(contribs: Obj): SortedMap[Long, Int] = {
   val weeks = contribs("data")("user")("contributionsCollection")(
@@ -240,10 +219,7 @@ private def githubJsonParse(contribs: Obj): SortedMap[Long, Int] = {
   )("weeks").arr
   val byDate =
     for (x <- weeks; y <- x("contributionDays").arr)
-      yield (
-        LocalDate.parse(y("date").str, YyyyMmDd).toEpochDay,
-        y("contributionCount").num.toInt
-      )
+      yield (LocalDate.parse(y("date").str, YyyyMmDd).toEpochDay, y("contributionCount").num.toInt)
   SortedMap.empty[Long, Int] ++ byDate.toMap
 }
 
@@ -253,22 +229,20 @@ private def githubJsonParse(contribs: Obj): SortedMap[Long, Int] = {
   * @param default
   *   The default value to use if there isn't any value for the date in the map.
   * @return
-  *   The Markd [[Table]] element containing a weekly wrapped calendar of the
-  *   string values from the map, from the minimum date to the maximum date.
+  *   The Markd [[Table]] element containing a weekly wrapped calendar of the string values from the map, from the
+  *   minimum date to the maximum date.
   */
 private def calendarize(
     in: SortedMap[Long, Any],
     default: String = ""
 ): Table = {
-  val start = GettingThingsDone.nextWeekStartByEpoch(
-    Some(in.keySet.min),
-    DayOfWeek.SUNDAY
-  ) - 7
+  val start = GettingThingsDone.nextWeekStartByEpoch(Some(in.keySet.min), DayOfWeek.SUNDAY) - 7
   val rows = (start to in.keySet.max by 7)
     .map(sunday => (sunday, in.range(sunday, sunday + 7)))
     .map { case (sunday, week) =>
-      LocalDate.ofEpochDay(sunday).format(MonthDay) +: (sunday until sunday + 7)
-        .map(week.get(_).map(_.toString).getOrElse(default))
+      LocalDate.ofEpochDay(sunday).format(MonthDay) +: (sunday until sunday + 7).map(
+        week.get(_).map(_.toString).getOrElse(default)
+      )
     }
     .map(TableRow.from)
   Table.from(
@@ -286,8 +260,7 @@ private def calendarize(
   )
 }
 
-/** An experiment to decorate a git contribution calendar with private
-  * information.
+/** An experiment to decorate a git contribution calendar with private information.
   */
 @main
 def gitJsonDecorated(
@@ -301,13 +274,8 @@ def gitJsonDecorated(
     .mapValues(_.toString)
 
   def git(prj: String): Seq[String] = {
-    os.proc(
-      "git",
-      "--no-pager",
-      "log",
-      "--pretty=format:\"%ad\"",
-      "--date=short"
-    ).call(os.Path(prj))
+    os.proc("git", "--no-pager", "log", "--pretty=format:\"%ad\"", "--date=short")
+      .call(os.Path(prj))
       .out
       .lines
       .map(_.replace("\"", ""))
@@ -321,9 +289,7 @@ def gitJsonDecorated(
     git(repo)
       .map(LocalDate.parse(_, YyyyMmDd).toEpochDay)
       .filter(_ > minDate)
-      .foreach(day =>
-        byDate += (day -> byDate.get(day).map(_ + s" $tag").getOrElse(tag))
-      )
+      .foreach(day => byDate += (day -> byDate.get(day).map(_ + s" $tag").getOrElse(tag)))
 
   spec.map(_.split(":")).foreach { case Array(tag, repo) => augment(tag, repo) }
   println(calendarize(byDate, "**0**").build())
@@ -337,12 +303,7 @@ def gitJsonDecorated(
   *   A three letter code for the train destination
   */
 @main
-def idfbm(
-    src: String = "vda",
-    dst: String = "vda",
-    cfg: ConsoleCfg,
-    open: Flag
-): Unit = {
+def idfbm(src: String = "vda", dst: String = "vda", cfg: ConsoleCfg, open: Flag): Unit = {
 
   val tags = Map(
     "lad" -> ("La Défense", "stop_area%3AIDFM%3A71517", "La Déf"),
@@ -350,19 +311,14 @@ def idfbm(
     "mnt" -> ("Paris Montparnasse", "stop_area%3AIDFM%3A71139", "Montparnasse"),
     "vch" -> ("Versailles Chantiers", "stop_area%3AIDFM%3A63880", "Vers Ch"),
     "vda" -> ("Sèvres - Ville-d'Avray", "stop_area%3AIDFM%3A70686", "V d'A"),
-    "vdr" -> ("Versailles Rive Droite", "stop_area%3AIDFM%3A64021", "Vers RD"),
+    "vdr" -> ("Versailles Rive Droite", "stop_area%3AIDFM%3A64021", "Vers RD")
   )
 
   if (src == "help") {
-    tags.foreach { case (tag, (name, _, _)) =>
-      println(s"${cfg.bold(tag)} -> $name")
-    }
+    tags.foreach { case (tag, (name, _, _)) => println(s"${cfg.bold(tag)} -> $name") }
   } else {
 
-    def idfBm(
-        src: (String, String, String),
-        dst: (String, String, String)
-    ): (String, String) =
+    def idfBm(src: (String, String, String), dst: (String, String, String)): (String, String) =
       (
         s"${src._3} -> ${dst._3}",
         s"https://www.transilien.com/fr/les-fiches-horaires/resultats/?completeDayResearch=true&departure=${src._1}&idUic7Departure=${src._2}&destination=${dst._1}&idStopPointDestination=${dst._2}"
@@ -375,7 +331,7 @@ def idfbm(
     println()
 
     if (open.value) {
-      os.proc("xdg-open",there._2).call(os.pwd)
+      os.proc("xdg-open", there._2).call(os.pwd)
     }
   }
 }

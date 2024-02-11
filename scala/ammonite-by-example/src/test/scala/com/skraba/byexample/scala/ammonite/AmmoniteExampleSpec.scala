@@ -55,12 +55,7 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
     Console.withIn(in) {
       withConsoleMatch(
         ammonite.AmmoniteMain.main0(
-          List(
-            "--silent",
-            "--home",
-            HomeFolder.toString,
-            ScriptPath.toString
-          ) ++ args,
+          List("--silent", "--home", HomeFolder.toString, ScriptPath.toString) ++ args,
           in,
           Console.out,
           Console.err
@@ -84,11 +79,7 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
 
     it("using AmmoniteSpec.withAmmoniteMain0AndNoStdIn") {
       // This form allows specifying the home folder and which script to run
-      withAmmoniteMain0AndNoStdIn(
-        HomeFolder,
-        ScriptPath.toString,
-        "help"
-      ) { case (result, stdout, stderr) =>
+      withAmmoniteMain0AndNoStdIn(HomeFolder, ScriptPath.toString, "help") { case (result, stdout, stderr) =>
         stderr shouldBe empty
         result shouldBe true
         stdout should startWith(first)
@@ -106,10 +97,7 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
         */
       def ammoniteHelp(args: String*): String = {
         val arguments: Seq[String] = Seq(ScriptPath.toString, "help") ++ args
-        withAmmoniteMain0AndNoStdIn(
-          HomeFolder,
-          arguments: _*
-        ) { case (result, stdout, stderr) =>
+        withAmmoniteMain0AndNoStdIn(HomeFolder, arguments: _*) { case (result, stdout, stderr) =>
           stderr shouldBe empty
           result shouldBe true
           stdout
@@ -128,13 +116,7 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
         Console.withIn(in) {
           withConsoleMatch(
             ammonite.AmmoniteMain.main0(
-              List(
-                "--silent",
-                "--home",
-                HomeFolder.toString,
-                ScriptPath.toString,
-                "help"
-              ),
+              List("--silent", "--home", HomeFolder.toString, ScriptPath.toString, "help"),
               in,
               Console.out,
               Console.err
@@ -170,10 +152,7 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
       */
     def argTest(args: String*): String = {
       val arguments: Seq[String] = Seq(ScriptPath.toString, "argTest") ++ args
-      withAmmoniteMain0AndNoStdIn(
-        HomeFolder,
-        arguments: _*
-      ) { case (result, stdout, stderr) =>
+      withAmmoniteMain0AndNoStdIn(HomeFolder, arguments: _*) { case (result, stdout, stderr) =>
         stderr shouldBe empty
         result shouldBe true
         stdout
@@ -225,21 +204,12 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
       }
     }
 
-    it(
-      "should fail with too many arguments (Me 'Hello there' VerboseFlag X Invalid)"
-    ) {
-      withAmmoniteExample(
-        "argTest",
-        "You",
-        "Hello there",
-        "VerboseFlag",
-        "X",
-        "X",
-        "Invalid"
-      ) { case (result, stdout, stderr) =>
-        result shouldBe false
-        stderr shouldBe s"""Unknown argument: "Invalid"\n$ExpectedSignature"""
-        stdout shouldBe empty
+    it("should fail with too many arguments (Me 'Hello there' VerboseFlag X Invalid)") {
+      withAmmoniteExample("argTest", "You", "Hello there", "VerboseFlag", "X", "X", "Invalid") {
+        case (result, stdout, stderr) =>
+          result shouldBe false
+          stderr shouldBe s"""Unknown argument: "Invalid"\n$ExpectedSignature"""
+          stdout shouldBe empty
       }
     }
   }
@@ -252,14 +222,7 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
 
     it("should do a basic replace") {
 
-      withAmmoniteExample(
-        "sar",
-        Basic.toString(),
-        "--re",
-        "Hello",
-        "--re",
-        "Hi"
-      ) { case (result, stdout, stderr) =>
+      withAmmoniteExample("sar", Basic.toString(), "--re", "Hello", "--re", "Hi") { case (result, stdout, stderr) =>
         stderr shouldBe empty
         result shouldBe true
         stdout shouldBe empty
