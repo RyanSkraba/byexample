@@ -104,7 +104,7 @@ def argTest(
 def sar(
     @arg(doc = "The directory to recursively search")
     dir: Option[os.Path] = None,
-    @arg(doc = "Files to exclude from the search")
+    @arg(doc = "Files to exclude from the search (with priority over includes)")
     exclude: Seq[String] = Seq(),
     @arg(doc = "Files to include in the search")
     include: Seq[String] = Seq(".*"),

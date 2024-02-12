@@ -217,18 +217,45 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
   describe("Running the ammonite_example search and replace") {
 
     // Hello world scenario
-    val Basic = (Tmp / "basic").createDirectory()
-    File(Basic / "greet").writeAll("Hello world!")
+    def scenario(tag: String): Directory = {
+      val scenario = (Tmp / tag).createDirectory()
+      File(scenario / "a1").writeAll("Hello world!")
+      File(scenario / "a2").writeAll("Hello world!\nHello you!")
+      File(scenario / "a3").writeAll("Hello you!")
+      File(scenario / "a4").writeAll("Greetings world!")
+      File(scenario / "b1").writeAll("Goodbye world!")
+      scenario
+    }
 
     it("should do a basic replace") {
-
-      withAmmoniteExample("sar", Basic.toString(), "--re", "Hello", "--re", "Hi") { case (result, stdout, stderr) =>
+      val src = scenario("basic")
+      withAmmoniteExample("sar", src.toString, "--re", "Hello", "--re", "Hi") { case (result, stdout, stderr) =>
         stderr shouldBe empty
         result shouldBe true
         stdout shouldBe empty
-
-        File(Basic / "greet").slurp() shouldBe "Hi world!"
+        File(src / "a1").slurp() shouldBe "Hi world!"
+        File(src / "a2").slurp() shouldBe "Hi world!\nHi you!"
+        File(src / "a3").slurp() shouldBe "Hi you!"
+        File(src / "a4").slurp() shouldBe "Greetings world!"
+        File(src / "b1").slurp() shouldBe "Goodbye world!"
       }
     }
+
+    it("should do a basic replace of only included files") {
+      val src = scenario("basic_included")
+      // Excludes are always processed before includes
+      withAmmoniteExample("sar", src.toString, "--include", "a", "--exclude", "a2", "--re", "world", "--re", "all") {
+        case (result, stdout, stderr) =>
+          stderr shouldBe empty
+          result shouldBe true
+          stdout shouldBe empty
+          File(src / "a1").slurp() shouldBe "Hello all!"
+          File(src / "a2").slurp() shouldBe "Hello world!\nHello you!"
+          File(src / "a3").slurp() shouldBe "Hello you!"
+          File(src / "a4").slurp() shouldBe "Greetings all!"
+          File(src / "b1").slurp() shouldBe "Goodbye world!"
+      }
+    }
+
   }
 }
