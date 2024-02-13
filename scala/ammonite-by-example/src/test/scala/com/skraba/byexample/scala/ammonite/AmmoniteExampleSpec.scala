@@ -241,6 +241,33 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
       }
     }
 
+    it("should do a basic replace while logging plain output") {
+      val src = scenario("basic_output")
+      withAmmoniteExample("sar", src.toString, "--re", "Hello", "--re", "Hi", "--verbose", "--plain") {
+        case (result, stdout, stderr) =>
+          stderr shouldBe empty
+          result shouldBe true
+          stdout shouldBe
+            """Matching files:
+              |  a1
+              |  a2
+              |  a3
+              |  a4
+              |  b1
+              |Exclude patterns (leaving 5 file to scan):
+              |  \btarget\b
+              |  ^\.git
+              |Include patterns 5:
+              |  \btarget\b
+              |  ^\.git
+              |
+              |Processing: XXXxx
+              |
+              |Modified 3 files.
+              |""".stripMargin
+      }
+    }
+
     it("should do a basic replace of only included files") {
       val src = scenario("basic_included")
       // Excludes are always processed before includes

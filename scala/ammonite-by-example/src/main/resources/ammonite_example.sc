@@ -130,15 +130,18 @@ def sar(
     .walk(src, skip = p => excludeRe.exists(_.matches(p.relativeTo(src).toString)))
     .filter(os.isFile)
     .map(_.relativeTo(src))
+    .sortBy(_.toString)
 
   val included: Set[os.FilePath] = files.filter(p => includeRe.exists(_.matches(p.toString))).toSet
 
-  if (cfg.verbose.value) {
-    println(s"$GREEN${BOLD}Matching files:$RESET")
-    for (f <- files.sortBy(_.toString) if included(f))
-      println(s"  $f")
-  }
+  cfg.vPrintln(cfg.green(cfg.bold("Matching files:")))
+  cfg.vPrintln(included.toSeq.map("  " + _).sorted.mkString("\n"))
+  cfg.vPrintln(cfg.red(s"Exclude patterns (leaving ${files.size} file to scan):", bold = true))
+  cfg.vPrintln(excludeRe.map("  " + _).sorted.mkString("\n"))
+  cfg.vPrintln(cfg.green(s"Include patterns ${included.size}:", bold = true))
+  cfg.vPrintln(excludeRe.map("  " + _).sorted.mkString("\n"))
 
+  cfg.vPrint("\nProcessing: ")
   val modified = for (f <- files) yield {
     if (included(f)) {
       val original = os.read(f.resolveFrom(src))
@@ -147,34 +150,19 @@ def sar(
         case (acc, _)                    => acc // Ignore any leftover
       }
       val modified = contents != original
-      if (cfg.verbose.value) print(if (modified) s"${RED}x" else s"${GREEN}x")
+      cfg.vPrint(if (modified) cfg.red("X") else cfg.green("x"))
       if (modified) {
         os.write.over(f.resolveFrom(src), contents)
         Seq(f)
       } else Seq.empty
     } else {
-      if (cfg.verbose.value) print(s"$RESET.")
+      cfg.vPrint(".")
       Seq.empty
     }
   }
 
-  if (cfg.verbose.value) {
-    println(
-      excludeRe.mkString(
-        s"\n$RED${BOLD}Exclude patterns (leaving ${files.size} file to scan):$RESET$RED\n  ",
-        "\n  ",
-        if (excludeRe.isEmpty) RESET else s"\n$RESET"
-      )
-    )
-    println(
-      includeRe.mkString(
-        s"$GREEN${BOLD}Include patterns (${included.size}) :$RESET$GREEN\n  ",
-        "\n  ",
-        if (includeRe.isEmpty) RESET else s"\n$RESET"
-      )
-    )
-    println(s"$RESET${BOLD}Modified ${modified.flatten.size} files.")
-  }
+  cfg.vPrint("\n\n")
+  cfg.vPrintln(cfg.bold(s"Modified ${modified.flatten.size} files."))
 }
 
 @arg(doc = "Make a system call")
