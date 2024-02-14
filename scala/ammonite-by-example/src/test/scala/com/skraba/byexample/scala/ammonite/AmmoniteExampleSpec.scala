@@ -241,6 +241,37 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
       }
     }
 
+    it("should do a basic replace while logging ansi output") {
+      val src = scenario("basic_output")
+      // For colour codes
+      val cfg = ConsoleCfg()
+      val X = s"${cfg.Red}X${cfg.Reset}"
+      val x = s"${cfg.Green}x${cfg.Reset}"
+      withAmmoniteExample("sar", src.toString, "--re", "Hello", "--re", "Hi", "--verbose") {
+        case (result, stdout, stderr) =>
+          stderr shouldBe empty
+          result shouldBe true
+          stdout shouldBe
+            s"""${cfg.Bold}${cfg.Green}Matching files:${cfg.Reset}
+               |  a1
+               |  a2
+               |  a3
+               |  a4
+               |  b1
+               |${cfg.Bold}${cfg.Red}Exclude patterns (leaving 5 file to scan):${cfg.Reset}
+               |  \\btarget\\b
+               |  ^\\.git
+               |${cfg.Bold}${cfg.Green}Include patterns 5:${cfg.Reset}
+               |  \\btarget\\b
+               |  ^\\.git
+               |
+               |Processing: $X$X$X$x$x
+               |
+               |${cfg.Bold}Modified 3 files.${cfg.Reset}
+               |""".stripMargin
+      }
+    }
+
     it("should do a basic replace while logging plain output") {
       val src = scenario("basic_output")
       withAmmoniteExample("sar", src.toString, "--re", "Hello", "--re", "Hi", "--verbose", "--plain") {

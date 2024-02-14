@@ -134,7 +134,7 @@ def sar(
 
   val included: Set[os.FilePath] = files.filter(p => includeRe.exists(_.matches(p.toString))).toSet
 
-  cfg.vPrintln(cfg.green(cfg.bold("Matching files:")))
+  cfg.vPrintln(cfg.green("Matching files:", bold = true))
   cfg.vPrintln(included.toSeq.map("  " + _).sorted.mkString("\n"))
   cfg.vPrintln(cfg.red(s"Exclude patterns (leaving ${files.size} file to scan):", bold = true))
   cfg.vPrintln(excludeRe.map("  " + _).sorted.mkString("\n"))
