@@ -179,7 +179,7 @@ def help(cfg: ConsoleCfg): Unit = {
       "Let's get things done!",
       "clean" -> "Beautify the status document",
       "edit" -> "Open the status document in a editor (Visual Code)",
-      "newWeek" -> "Add a new week to the status document",
+      "addWeek" -> "Add a new week to the status document",
       "pr" -> "Add a PR review to this week",
       "stat" -> "Add or update a weekly statistic",
       "statsDaily" -> "Update a list of configured statistics (if any)",
@@ -191,7 +191,7 @@ def help(cfg: ConsoleCfg): Unit = {
 
   // Usage examples
   println(cfg.helpUse(cli, "clean"))
-  println(cfg.helpUse(cli, "newWeek"))
+  println(cfg.helpUse(cli, "addWeek"))
   println(
     cfg.helpUse(
       cli,
@@ -239,24 +239,24 @@ def edit(): Unit = {
 }
 
 // ==========================================================================
-// newWeek
+// addWeek
 
-@arg(doc = "Add a new week")
+@arg(doc = "Adds new weeks to the status document, up to the current date.")
 @main
-def newWeek(
+def addWeek(
     cfg: ConsoleCfg,
-    @arg(doc = "Continue to add new weeks until we reach the current date")
-    now: Flag
+    @arg(doc = "If set, just add one single new week instead of to the current date")
+    single: Flag
 ): Unit = {
   // Read the existing document.
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
-  val gtdUpdated = if (now.value) {
+  val gtdUpdated = if (!single.value) {
     val token = GettingThingsDone.Pattern.format(Instant.now())
     cfg.vPrintln(s"Updating the top week up to $token")
-    gtd.newWeek(Some(token))
+    gtd.addWeek(Some(token))
   } else {
     // Simply add one week to the document.
-    gtd.newWeek(None)
+    gtd.addWeek(None)
   }
   if (gtd == gtdUpdated)
     println(

@@ -238,7 +238,7 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
     * @return
     *   A document with the new week present.
     */
-  def newWeek(upTo: Option[String]): GettingThingsDone = {
+  def addWeek(upTo: Option[String]): GettingThingsDone = {
 
     /** Create the new head week from the last week, if any is present. */
     def createHead(oldWeek: Option[Header]): Header = {
@@ -287,7 +287,7 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
 
     if (upTo.nonEmpty) {
       LazyList
-        .iterate(this)(_.newWeek(None))
+        .iterate(this)(_.addWeek(None))
         .takeWhile(_.topWeek.map(_.title).getOrElse("") <= upTo.get)
         .lastOption
         .getOrElse(this)

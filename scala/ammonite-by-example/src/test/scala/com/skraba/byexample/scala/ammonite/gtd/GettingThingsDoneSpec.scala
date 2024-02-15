@@ -570,7 +570,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
 
     it("should create a new week in an empty document") {
       val empty = GettingThingsDone("")
-      val updated = empty.newWeek(None)
+      val updated = empty.addWeek(None)
       updated.h0.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
@@ -592,7 +592,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            !| read   |     | 12  | 13  |     | 20  |     | 30  |
            !| unread | 1   | 2   |     | 13  | 2   |     | 3   |
            !""".stripMargin('!'))
-      val updated = gtd.newWeek(None)
+      val updated = gtd.addWeek(None)
       updated.h0.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
@@ -633,7 +633,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            !| G | 7 |
            !""".stripMargin('!'))
 
-      val updated = gtd.newWeek(None)
+      val updated = gtd.addWeek(None)
       updated.h0.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
@@ -675,7 +675,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            ![20220214-1]: http://example.com/
            !""".stripMargin('!'))
 
-      val updated = gtd.newWeek(None)
+      val updated = gtd.addWeek(None)
       updated.h0.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
@@ -707,15 +707,15 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            !""".stripMargin('!'))
 
       // These should not change the document at all
-      gtd.newWeek(Some("000")) shouldBe gtd
-      gtd.newWeek(Some("2022/02/12")) shouldBe gtd
-      gtd.newWeek(Some("2022/02/12 Extra")) shouldBe gtd
-      gtd.newWeek(Some("2022/02/14")) shouldBe gtd
-      gtd.newWeek(Some("2022/02/14 More")) shouldBe gtd
-      gtd.newWeek(Some("2022/02/15")) shouldBe gtd
-      gtd.newWeek(Some("2022/02/20")) shouldBe gtd
+      gtd.addWeek(Some("000")) shouldBe gtd
+      gtd.addWeek(Some("2022/02/12")) shouldBe gtd
+      gtd.addWeek(Some("2022/02/12 Extra")) shouldBe gtd
+      gtd.addWeek(Some("2022/02/14")) shouldBe gtd
+      gtd.addWeek(Some("2022/02/14 More")) shouldBe gtd
+      gtd.addWeek(Some("2022/02/15")) shouldBe gtd
+      gtd.addWeek(Some("2022/02/20")) shouldBe gtd
 
-      val updated = gtd.newWeek(Some("2022/02/21"))
+      val updated = gtd.addWeek(Some("2022/02/21"))
       updated.h0.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
@@ -731,12 +731,12 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            !* My status
            !""".stripMargin('!')
 
-      gtd.newWeek(Some("2022/02/21")) shouldBe updated
-      gtd.newWeek(Some("2022/02/21 Stuff")) shouldBe updated
-      gtd.newWeek(Some("2022/02/22")) shouldBe updated
-      gtd.newWeek(Some("2022/02/27 Stuff")) shouldBe updated
+      gtd.addWeek(Some("2022/02/21")) shouldBe updated
+      gtd.addWeek(Some("2022/02/21 Stuff")) shouldBe updated
+      gtd.addWeek(Some("2022/02/22")) shouldBe updated
+      gtd.addWeek(Some("2022/02/27 Stuff")) shouldBe updated
 
-      val updated2 = gtd.newWeek(Some("2022/04"))
+      val updated2 = gtd.addWeek(Some("2022/04"))
       updated2.h0.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
