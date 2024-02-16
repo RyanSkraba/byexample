@@ -384,7 +384,11 @@ def statsToday(
 
 @arg(doc = "Update the daily statistics.")
 @main
-def statsDaily(): Unit = {
+def statsDaily(cfg: ConsoleCfg): Unit = {
+
+  // Ensure we are on the current week to add today's stats.
+  addWeek(cfg, Flag(false))
+
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
 
   // Get the daily stats configuration
