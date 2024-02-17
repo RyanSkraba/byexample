@@ -17,7 +17,7 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase {
   val Basic: File = (Tmp / "basic_gtd.md").createFile()
   Basic.writeAll(
     """# Weekly Status
-      !## 2023/01/02
+      !## 2023-01-02
       !
       !|To Do|Notes|
       !|-----|-----|
@@ -81,7 +81,7 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase {
         """Weekly Status
           !==============================================================================
           !
-          !2023/01/02
+          !2023-01-02
           !------------------------------------------------------------------------------
           !
           !| To Do | Notes |

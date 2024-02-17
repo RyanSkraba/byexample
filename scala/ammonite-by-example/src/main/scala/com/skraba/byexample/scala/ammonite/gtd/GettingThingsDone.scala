@@ -25,7 +25,7 @@ import scala.util.matching.Regex
   * Weekly Status
   * ==============================================================================
   *
-  * 2021/09/13
+  * 2021-09-13
   * ------------------------------------------------------------------------------
   *
   * <... This weeks status reported here.  This can contain statistics tables,
@@ -43,7 +43,7 @@ import scala.util.matching.Regex
   * row or update a value for today.
   *
   * {{{
-  * 2021/09/13
+  * 2021-09-13
   * ------------------------------------------------------------------------------
   *
   * | Stats  | Mon | Tue | Wed | Thu | Fri | Sat | Sun |
@@ -55,7 +55,7 @@ import scala.util.matching.Regex
   * In a weekly status, you can list tasks in a table, along with a status.
   *
   * {{{
-  * 2021/09/13
+  * 2021-09-13
   * ------------------------------------------------------------------------------
   *
   * | To Do      | Notes 🟢🔶🟥⤴️🕒                                             |
@@ -447,7 +447,7 @@ object GettingThingsDone {
 
   /** A date pattern */
   val Pattern: DateTimeFormatter = DateTimeFormatter
-    .ofPattern("yyyy/MM/dd")
+    .ofPattern("yyyy-MM-dd")
     .withZone(ZoneId.from(ZoneOffset.UTC))
 
   /** The name of the statistics table, the value found in the upper left column.

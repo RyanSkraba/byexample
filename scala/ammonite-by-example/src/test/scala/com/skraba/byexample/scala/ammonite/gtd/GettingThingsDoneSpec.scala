@@ -584,7 +584,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
       val gtd = GettingThingsDone(s"""Weekly Status
            !==============================================================================
            !
-           !2022/02/14
+           !2022-02-14
            !------------------------------------------------------------------------------
            !
            !| Stats  | Mon | Tue | Wed | Thu | Fri | Sat | Sun |
@@ -597,7 +597,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         s"""Weekly Status
            !==============================================================================
            !
-           !2022/02/21
+           !2022-02-21
            !------------------------------------------------------------------------------
            !
            !| Stats  | Mon | Tue | Wed | Thu | Fri | Sat | Sun |
@@ -605,7 +605,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            !| read   |     |     |     |     |     |     |     |
            !| unread |     |     |     |     |     |     |     |
            !
-           !2022/02/14
+           !2022-02-14
            !------------------------------------------------------------------------------
            !
            !| Stats  | Mon | Tue | Wed | Thu | Fri | Sat | Sun |
@@ -619,7 +619,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
       val gtd = GettingThingsDone(s"""Weekly Status
            !==============================================================================
            !
-           !2022/02/14
+           !2022-02-14
            !------------------------------------------------------------------------------
            !
            !| To Do  | Notes |
@@ -638,7 +638,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         s"""Weekly Status
            !==============================================================================
            !
-           !2022/02/21
+           !2022-02-21
            !------------------------------------------------------------------------------
            !
            !| To Do | Notes |
@@ -648,7 +648,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            !| 🕒F   | 6     |
            !| G     | 7     |
            !
-           !2022/02/14
+           !2022-02-14
            !------------------------------------------------------------------------------
            !
            !| To Do | Notes |
@@ -667,7 +667,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
       val gtd = GettingThingsDone(s"""Weekly Status
            !==============================================================================
            !
-           !2022/02/14
+           !2022-02-14
            !------------------------------------------------------------------------------
            !
            !* See this [example][20220214-1].
@@ -680,14 +680,14 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         s"""Weekly Status
            !==============================================================================
            !
-           !2022/02/21
+           !2022-02-21
            !------------------------------------------------------------------------------
            !
            !* See this [example][20220214-1].
            !
            ![20220214-1]: http://example.com/
            !
-           !2022/02/14
+           !2022-02-14
            !------------------------------------------------------------------------------
            !
            !* See this [example][20220214-1].
@@ -700,7 +700,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
       val gtd = GettingThingsDone(s"""Weekly Status
            !==============================================================================
            !
-           !2022/02/14
+           !2022-02-14
            !------------------------------------------------------------------------------
            !
            !* My status
@@ -708,70 +708,70 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
 
       // These should not change the document at all
       gtd.addWeek(Some("000")) shouldBe gtd
-      gtd.addWeek(Some("2022/02/12")) shouldBe gtd
-      gtd.addWeek(Some("2022/02/12 Extra")) shouldBe gtd
-      gtd.addWeek(Some("2022/02/14")) shouldBe gtd
-      gtd.addWeek(Some("2022/02/14 More")) shouldBe gtd
-      gtd.addWeek(Some("2022/02/15")) shouldBe gtd
-      gtd.addWeek(Some("2022/02/20")) shouldBe gtd
+      gtd.addWeek(Some("2022-02-12")) shouldBe gtd
+      gtd.addWeek(Some("2022-02-12 Extra")) shouldBe gtd
+      gtd.addWeek(Some("2022-02-14")) shouldBe gtd
+      gtd.addWeek(Some("2022-02-14 More")) shouldBe gtd
+      gtd.addWeek(Some("2022-02-15")) shouldBe gtd
+      gtd.addWeek(Some("2022-02-20")) shouldBe gtd
 
-      val updated = gtd.addWeek(Some("2022/02/21"))
+      val updated = gtd.addWeek(Some("2022-02-21"))
       updated.h0.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
            !
-           !2022/02/21
+           !2022-02-21
            !------------------------------------------------------------------------------
            !
            !* My status
            !
-           !2022/02/14
+           !2022-02-14
            !------------------------------------------------------------------------------
            !
            !* My status
            !""".stripMargin('!')
 
-      gtd.addWeek(Some("2022/02/21")) shouldBe updated
-      gtd.addWeek(Some("2022/02/21 Stuff")) shouldBe updated
-      gtd.addWeek(Some("2022/02/22")) shouldBe updated
-      gtd.addWeek(Some("2022/02/27 Stuff")) shouldBe updated
+      gtd.addWeek(Some("2022-02-21")) shouldBe updated
+      gtd.addWeek(Some("2022-02-21 Stuff")) shouldBe updated
+      gtd.addWeek(Some("2022-02-22")) shouldBe updated
+      gtd.addWeek(Some("2022-02-27 Stuff")) shouldBe updated
 
-      val updated2 = gtd.addWeek(Some("2022/04"))
+      val updated2 = gtd.addWeek(Some("2022-04"))
       updated2.h0.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
            !
-           !2022/03/28
+           !2022-03-28
            !------------------------------------------------------------------------------
            !
            !* My status
            !
-           !2022/03/21
+           !2022-03-21
            !------------------------------------------------------------------------------
            !
            !* My status
            !
-           !2022/03/14
+           !2022-03-14
            !------------------------------------------------------------------------------
            !
            !* My status
            !
-           !2022/03/07
+           !2022-03-07
            !------------------------------------------------------------------------------
            !
            !* My status
            !
-           !2022/02/28
+           !2022-02-28
            !------------------------------------------------------------------------------
            !
            !* My status
            !
-           !2022/02/21
+           !2022-02-21
            !------------------------------------------------------------------------------
            !
            !* My status
            !
-           !2022/02/14
+           !2022-02-14
            !------------------------------------------------------------------------------
            !
            !* My status
@@ -789,7 +789,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     val withWeeklyStats = GettingThingsDone(s"""Weekly Status
          !==============================================================================
          !
-         !2022/02/28
+         !2022-02-28
          !------------------------------------------------------------------------------
          !
          !| Stats  | Mon | Tue | Wed | Thu | Fri | Sat | Sun |
@@ -797,14 +797,14 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
          !| read   | 30  | 12  | 13  |     | 20  |     | 30  |
          !| unread | 52  | 51  | 50  | 58  | 46  | 57  | 38  |
          !
-         !2022/02/21
+         !2022-02-21
          !------------------------------------------------------------------------------
          !
          !| Stats  | Mon | Tue | Wed | Thu | Fri | Sat | Sun |
          !|--------|-----|-----|-----|-----|-----|-----|-----|
          !| unread | 14  | 24  | 31  |     | 59  | 60  | 72  |
          !
-         !2022/02/14
+         !2022-02-14
          !------------------------------------------------------------------------------
          !
          !| Stats  | Mon | Tue | Wed | Thu | Fri | Sat | Sun |
@@ -819,64 +819,64 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
 
     it("should find all the read and unread statistics") {
       stringify(withWeeklyStats.extractStats()) shouldBe Seq(
-        ("2022/02/14", "unread", "1"),
-        ("2022/02/15", "read", "12"),
-        ("2022/02/15", "unread", "2"),
-        ("2022/02/16", "read", "13"),
-        ("2022/02/17", "unread", "13"),
-        ("2022/02/18", "read", "20"),
-        ("2022/02/18", "unread", "2"),
-        ("2022/02/20", "read", "30"),
-        ("2022/02/20", "unread", "3"),
-        ("2022/02/21", "unread", "14"),
-        ("2022/02/22", "unread", "24"),
-        ("2022/02/23", "unread", "31"),
-        ("2022/02/25", "unread", "59"),
-        ("2022/02/26", "unread", "60"),
-        ("2022/02/27", "unread", "72"),
-        ("2022/02/28", "read", "30"),
-        ("2022/02/28", "unread", "52"),
-        ("2022/03/01", "read", "12"),
-        ("2022/03/01", "unread", "51"),
-        ("2022/03/02", "read", "13"),
-        ("2022/03/02", "unread", "50"),
-        ("2022/03/03", "unread", "58"),
-        ("2022/03/04", "read", "20"),
-        ("2022/03/04", "unread", "46"),
-        ("2022/03/05", "unread", "57"),
-        ("2022/03/06", "read", "30"),
-        ("2022/03/06", "unread", "38")
+        ("2022-02-14", "unread", "1"),
+        ("2022-02-15", "read", "12"),
+        ("2022-02-15", "unread", "2"),
+        ("2022-02-16", "read", "13"),
+        ("2022-02-17", "unread", "13"),
+        ("2022-02-18", "read", "20"),
+        ("2022-02-18", "unread", "2"),
+        ("2022-02-20", "read", "30"),
+        ("2022-02-20", "unread", "3"),
+        ("2022-02-21", "unread", "14"),
+        ("2022-02-22", "unread", "24"),
+        ("2022-02-23", "unread", "31"),
+        ("2022-02-25", "unread", "59"),
+        ("2022-02-26", "unread", "60"),
+        ("2022-02-27", "unread", "72"),
+        ("2022-02-28", "read", "30"),
+        ("2022-02-28", "unread", "52"),
+        ("2022-03-01", "read", "12"),
+        ("2022-03-01", "unread", "51"),
+        ("2022-03-02", "read", "13"),
+        ("2022-03-02", "unread", "50"),
+        ("2022-03-03", "unread", "58"),
+        ("2022-03-04", "read", "20"),
+        ("2022-03-04", "unread", "46"),
+        ("2022-03-05", "unread", "57"),
+        ("2022-03-06", "read", "30"),
+        ("2022-03-06", "unread", "38")
       )
       stringify(withWeeklyStats.extractStats("unread")) shouldBe Seq(
-        ("2022/02/14", "unread", "1"),
-        ("2022/02/15", "unread", "2"),
-        ("2022/02/17", "unread", "13"),
-        ("2022/02/18", "unread", "2"),
-        ("2022/02/20", "unread", "3"),
-        ("2022/02/21", "unread", "14"),
-        ("2022/02/22", "unread", "24"),
-        ("2022/02/23", "unread", "31"),
-        ("2022/02/25", "unread", "59"),
-        ("2022/02/26", "unread", "60"),
-        ("2022/02/27", "unread", "72"),
-        ("2022/02/28", "unread", "52"),
-        ("2022/03/01", "unread", "51"),
-        ("2022/03/02", "unread", "50"),
-        ("2022/03/03", "unread", "58"),
-        ("2022/03/04", "unread", "46"),
-        ("2022/03/05", "unread", "57"),
-        ("2022/03/06", "unread", "38")
+        ("2022-02-14", "unread", "1"),
+        ("2022-02-15", "unread", "2"),
+        ("2022-02-17", "unread", "13"),
+        ("2022-02-18", "unread", "2"),
+        ("2022-02-20", "unread", "3"),
+        ("2022-02-21", "unread", "14"),
+        ("2022-02-22", "unread", "24"),
+        ("2022-02-23", "unread", "31"),
+        ("2022-02-25", "unread", "59"),
+        ("2022-02-26", "unread", "60"),
+        ("2022-02-27", "unread", "72"),
+        ("2022-02-28", "unread", "52"),
+        ("2022-03-01", "unread", "51"),
+        ("2022-03-02", "unread", "50"),
+        ("2022-03-03", "unread", "58"),
+        ("2022-03-04", "unread", "46"),
+        ("2022-03-05", "unread", "57"),
+        ("2022-03-06", "unread", "38")
       )
       stringify(withWeeklyStats.extractStats("read")) shouldBe Seq(
-        ("2022/02/15", "read", "12"),
-        ("2022/02/16", "read", "13"),
-        ("2022/02/18", "read", "20"),
-        ("2022/02/20", "read", "30"),
-        ("2022/02/28", "read", "30"),
-        ("2022/03/01", "read", "12"),
-        ("2022/03/02", "read", "13"),
-        ("2022/03/04", "read", "20"),
-        ("2022/03/06", "read", "30")
+        ("2022-02-15", "read", "12"),
+        ("2022-02-16", "read", "13"),
+        ("2022-02-18", "read", "20"),
+        ("2022-02-20", "read", "30"),
+        ("2022-02-28", "read", "30"),
+        ("2022-03-01", "read", "12"),
+        ("2022-03-02", "read", "13"),
+        ("2022-03-04", "read", "20"),
+        ("2022-03-06", "read", "30")
       )
     }
 
@@ -887,16 +887,16 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
           withWeeklyStats
             .extractStats(
               "read",
-              from = Some(LocalDate.parse("2022/02/18", Pattern))
+              from = Some(LocalDate.parse("2022-02-18", Pattern))
             )
         ) shouldBe Seq(
-          ("2022/02/18", "read", "20"),
-          ("2022/02/20", "read", "30"),
-          ("2022/02/28", "read", "30"),
-          ("2022/03/01", "read", "12"),
-          ("2022/03/02", "read", "13"),
-          ("2022/03/04", "read", "20"),
-          ("2022/03/06", "read", "30")
+          ("2022-02-18", "read", "20"),
+          ("2022-02-20", "read", "30"),
+          ("2022-02-28", "read", "30"),
+          ("2022-03-01", "read", "12"),
+          ("2022-03-02", "read", "13"),
+          ("2022-03-04", "read", "20"),
+          ("2022-03-06", "read", "30")
         )
       }
 
@@ -905,16 +905,16 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
           withWeeklyStats
             .extractStats(
               "read",
-              to = Some(LocalDate.parse("2022/03/02", Pattern))
+              to = Some(LocalDate.parse("2022-03-02", Pattern))
             )
         ) shouldBe Seq(
-          ("2022/02/15", "read", "12"),
-          ("2022/02/16", "read", "13"),
-          ("2022/02/18", "read", "20"),
-          ("2022/02/20", "read", "30"),
-          ("2022/02/28", "read", "30"),
-          ("2022/03/01", "read", "12"),
-          ("2022/03/02", "read", "13")
+          ("2022-02-15", "read", "12"),
+          ("2022-02-16", "read", "13"),
+          ("2022-02-18", "read", "20"),
+          ("2022-02-20", "read", "30"),
+          ("2022-02-28", "read", "30"),
+          ("2022-03-01", "read", "12"),
+          ("2022-03-02", "read", "13")
         )
       }
 
@@ -923,15 +923,15 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
           withWeeklyStats
             .extractStats(
               "read",
-              from = Some(LocalDate.parse("2022/02/18", Pattern)),
-              to = Some(LocalDate.parse("2022/03/02", Pattern))
+              from = Some(LocalDate.parse("2022-02-18", Pattern)),
+              to = Some(LocalDate.parse("2022-03-02", Pattern))
             )
         ) shouldBe Seq(
-          ("2022/02/18", "read", "20"),
-          ("2022/02/20", "read", "30"),
-          ("2022/02/28", "read", "30"),
-          ("2022/03/01", "read", "12"),
-          ("2022/03/02", "read", "13")
+          ("2022-02-18", "read", "20"),
+          ("2022-02-20", "read", "30"),
+          ("2022-02-28", "read", "30"),
+          ("2022-03-01", "read", "12"),
+          ("2022-03-02", "read", "13")
         )
       }
 
@@ -940,19 +940,19 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
           withWeeklyStats
             .extractStats(
               "read",
-              from = Some(LocalDate.parse("1022/02/18", Pattern)),
-              to = Some(LocalDate.parse("3022/03/02", Pattern))
+              from = Some(LocalDate.parse("1022-02-18", Pattern)),
+              to = Some(LocalDate.parse("3022-03-02", Pattern))
             )
         ) shouldBe Seq(
-          ("2022/02/15", "read", "12"),
-          ("2022/02/16", "read", "13"),
-          ("2022/02/18", "read", "20"),
-          ("2022/02/20", "read", "30"),
-          ("2022/02/28", "read", "30"),
-          ("2022/03/01", "read", "12"),
-          ("2022/03/02", "read", "13"),
-          ("2022/03/04", "read", "20"),
-          ("2022/03/06", "read", "30")
+          ("2022-02-15", "read", "12"),
+          ("2022-02-16", "read", "13"),
+          ("2022-02-18", "read", "20"),
+          ("2022-02-20", "read", "30"),
+          ("2022-02-28", "read", "30"),
+          ("2022-03-01", "read", "12"),
+          ("2022-03-02", "read", "13"),
+          ("2022-03-04", "read", "20"),
+          ("2022-03-06", "read", "30")
         )
       }
     }
@@ -963,31 +963,31 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         stringify(
           withWeeklyStats
             .extractStats(
-              from = Some(LocalDate.parse("2022/02/18", Pattern))
+              from = Some(LocalDate.parse("2022-02-18", Pattern))
             )
         ) shouldBe Seq(
-          ("2022/02/18", "read", "20"),
-          ("2022/02/18", "unread", "2"),
-          ("2022/02/20", "read", "30"),
-          ("2022/02/20", "unread", "3"),
-          ("2022/02/21", "unread", "14"),
-          ("2022/02/22", "unread", "24"),
-          ("2022/02/23", "unread", "31"),
-          ("2022/02/25", "unread", "59"),
-          ("2022/02/26", "unread", "60"),
-          ("2022/02/27", "unread", "72"),
-          ("2022/02/28", "read", "30"),
-          ("2022/02/28", "unread", "52"),
-          ("2022/03/01", "read", "12"),
-          ("2022/03/01", "unread", "51"),
-          ("2022/03/02", "read", "13"),
-          ("2022/03/02", "unread", "50"),
-          ("2022/03/03", "unread", "58"),
-          ("2022/03/04", "read", "20"),
-          ("2022/03/04", "unread", "46"),
-          ("2022/03/05", "unread", "57"),
-          ("2022/03/06", "read", "30"),
-          ("2022/03/06", "unread", "38")
+          ("2022-02-18", "read", "20"),
+          ("2022-02-18", "unread", "2"),
+          ("2022-02-20", "read", "30"),
+          ("2022-02-20", "unread", "3"),
+          ("2022-02-21", "unread", "14"),
+          ("2022-02-22", "unread", "24"),
+          ("2022-02-23", "unread", "31"),
+          ("2022-02-25", "unread", "59"),
+          ("2022-02-26", "unread", "60"),
+          ("2022-02-27", "unread", "72"),
+          ("2022-02-28", "read", "30"),
+          ("2022-02-28", "unread", "52"),
+          ("2022-03-01", "read", "12"),
+          ("2022-03-01", "unread", "51"),
+          ("2022-03-02", "read", "13"),
+          ("2022-03-02", "unread", "50"),
+          ("2022-03-03", "unread", "58"),
+          ("2022-03-04", "read", "20"),
+          ("2022-03-04", "unread", "46"),
+          ("2022-03-05", "unread", "57"),
+          ("2022-03-06", "read", "30"),
+          ("2022-03-06", "unread", "38")
         )
       }
 
@@ -995,30 +995,30 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         stringify(
           withWeeklyStats
             .extractStats(
-              to = Some(LocalDate.parse("2022/03/02", Pattern))
+              to = Some(LocalDate.parse("2022-03-02", Pattern))
             )
         ) shouldBe Seq(
-          ("2022/02/14", "unread", "1"),
-          ("2022/02/15", "read", "12"),
-          ("2022/02/15", "unread", "2"),
-          ("2022/02/16", "read", "13"),
-          ("2022/02/17", "unread", "13"),
-          ("2022/02/18", "read", "20"),
-          ("2022/02/18", "unread", "2"),
-          ("2022/02/20", "read", "30"),
-          ("2022/02/20", "unread", "3"),
-          ("2022/02/21", "unread", "14"),
-          ("2022/02/22", "unread", "24"),
-          ("2022/02/23", "unread", "31"),
-          ("2022/02/25", "unread", "59"),
-          ("2022/02/26", "unread", "60"),
-          ("2022/02/27", "unread", "72"),
-          ("2022/02/28", "read", "30"),
-          ("2022/02/28", "unread", "52"),
-          ("2022/03/01", "read", "12"),
-          ("2022/03/01", "unread", "51"),
-          ("2022/03/02", "read", "13"),
-          ("2022/03/02", "unread", "50")
+          ("2022-02-14", "unread", "1"),
+          ("2022-02-15", "read", "12"),
+          ("2022-02-15", "unread", "2"),
+          ("2022-02-16", "read", "13"),
+          ("2022-02-17", "unread", "13"),
+          ("2022-02-18", "read", "20"),
+          ("2022-02-18", "unread", "2"),
+          ("2022-02-20", "read", "30"),
+          ("2022-02-20", "unread", "3"),
+          ("2022-02-21", "unread", "14"),
+          ("2022-02-22", "unread", "24"),
+          ("2022-02-23", "unread", "31"),
+          ("2022-02-25", "unread", "59"),
+          ("2022-02-26", "unread", "60"),
+          ("2022-02-27", "unread", "72"),
+          ("2022-02-28", "read", "30"),
+          ("2022-02-28", "unread", "52"),
+          ("2022-03-01", "read", "12"),
+          ("2022-03-01", "unread", "51"),
+          ("2022-03-02", "read", "13"),
+          ("2022-03-02", "unread", "50")
         )
       }
 
@@ -1026,26 +1026,26 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         stringify(
           withWeeklyStats
             .extractStats(
-              from = Some(LocalDate.parse("2022/02/18", Pattern)),
-              to = Some(LocalDate.parse("2022/03/02", Pattern))
+              from = Some(LocalDate.parse("2022-02-18", Pattern)),
+              to = Some(LocalDate.parse("2022-03-02", Pattern))
             )
         ) shouldBe Seq(
-          ("2022/02/18", "read", "20"),
-          ("2022/02/18", "unread", "2"),
-          ("2022/02/20", "read", "30"),
-          ("2022/02/20", "unread", "3"),
-          ("2022/02/21", "unread", "14"),
-          ("2022/02/22", "unread", "24"),
-          ("2022/02/23", "unread", "31"),
-          ("2022/02/25", "unread", "59"),
-          ("2022/02/26", "unread", "60"),
-          ("2022/02/27", "unread", "72"),
-          ("2022/02/28", "read", "30"),
-          ("2022/02/28", "unread", "52"),
-          ("2022/03/01", "read", "12"),
-          ("2022/03/01", "unread", "51"),
-          ("2022/03/02", "read", "13"),
-          ("2022/03/02", "unread", "50")
+          ("2022-02-18", "read", "20"),
+          ("2022-02-18", "unread", "2"),
+          ("2022-02-20", "read", "30"),
+          ("2022-02-20", "unread", "3"),
+          ("2022-02-21", "unread", "14"),
+          ("2022-02-22", "unread", "24"),
+          ("2022-02-23", "unread", "31"),
+          ("2022-02-25", "unread", "59"),
+          ("2022-02-26", "unread", "60"),
+          ("2022-02-27", "unread", "72"),
+          ("2022-02-28", "read", "30"),
+          ("2022-02-28", "unread", "52"),
+          ("2022-03-01", "read", "12"),
+          ("2022-03-01", "unread", "51"),
+          ("2022-03-02", "read", "13"),
+          ("2022-03-02", "unread", "50")
         )
       }
 
@@ -1053,37 +1053,37 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         stringify(
           withWeeklyStats
             .extractStats(
-              from = Some(LocalDate.parse("1022/02/18", Pattern)),
-              to = Some(LocalDate.parse("3022/03/02", Pattern))
+              from = Some(LocalDate.parse("1022-02-18", Pattern)),
+              to = Some(LocalDate.parse("3022-03-02", Pattern))
             )
         ) shouldBe Seq(
-          ("2022/02/14", "unread", "1"),
-          ("2022/02/15", "read", "12"),
-          ("2022/02/15", "unread", "2"),
-          ("2022/02/16", "read", "13"),
-          ("2022/02/17", "unread", "13"),
-          ("2022/02/18", "read", "20"),
-          ("2022/02/18", "unread", "2"),
-          ("2022/02/20", "read", "30"),
-          ("2022/02/20", "unread", "3"),
-          ("2022/02/21", "unread", "14"),
-          ("2022/02/22", "unread", "24"),
-          ("2022/02/23", "unread", "31"),
-          ("2022/02/25", "unread", "59"),
-          ("2022/02/26", "unread", "60"),
-          ("2022/02/27", "unread", "72"),
-          ("2022/02/28", "read", "30"),
-          ("2022/02/28", "unread", "52"),
-          ("2022/03/01", "read", "12"),
-          ("2022/03/01", "unread", "51"),
-          ("2022/03/02", "read", "13"),
-          ("2022/03/02", "unread", "50"),
-          ("2022/03/03", "unread", "58"),
-          ("2022/03/04", "read", "20"),
-          ("2022/03/04", "unread", "46"),
-          ("2022/03/05", "unread", "57"),
-          ("2022/03/06", "read", "30"),
-          ("2022/03/06", "unread", "38")
+          ("2022-02-14", "unread", "1"),
+          ("2022-02-15", "read", "12"),
+          ("2022-02-15", "unread", "2"),
+          ("2022-02-16", "read", "13"),
+          ("2022-02-17", "unread", "13"),
+          ("2022-02-18", "read", "20"),
+          ("2022-02-18", "unread", "2"),
+          ("2022-02-20", "read", "30"),
+          ("2022-02-20", "unread", "3"),
+          ("2022-02-21", "unread", "14"),
+          ("2022-02-22", "unread", "24"),
+          ("2022-02-23", "unread", "31"),
+          ("2022-02-25", "unread", "59"),
+          ("2022-02-26", "unread", "60"),
+          ("2022-02-27", "unread", "72"),
+          ("2022-02-28", "read", "30"),
+          ("2022-02-28", "unread", "52"),
+          ("2022-03-01", "read", "12"),
+          ("2022-03-01", "unread", "51"),
+          ("2022-03-02", "read", "13"),
+          ("2022-03-02", "unread", "50"),
+          ("2022-03-03", "unread", "58"),
+          ("2022-03-04", "read", "20"),
+          ("2022-03-04", "unread", "46"),
+          ("2022-03-05", "unread", "57"),
+          ("2022-03-06", "read", "30"),
+          ("2022-03-06", "unread", "38")
         )
       }
     }
@@ -1103,7 +1103,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
          !
          ! <!-- 🟢🔵🔶🟥⤴️🕒 -->
          !
-         !2022/02/28
+         !2022-02-28
          !------------------------------------------------------------------------------
          !
          !| To Do   | Notes |
@@ -1111,7 +1111,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
          !| 🟥A     | 1.2   |
          !| 🟢B Fri | 2.2   |
          !
-         !2022/02/21
+         !2022-02-21
          !------------------------------------------------------------------------------
          !
          !| To Do | Notes |
@@ -1119,7 +1119,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
          !| 🟢A   | 1.1   |
          !| 🟥B   | 2.1   |
          !
-         !2022/02/14
+         !2022-02-14
          !------------------------------------------------------------------------------
          !
          !| To Do   | Notes |
@@ -1141,7 +1141,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
       stringify(GettingThingsDone(s"""Weekly Status
          !==============================================================================
          !
-         !2022/02/14
+         !2022-02-14
          !------------------------------------------------------------------------------
          !
          !| To Do   | Notes |
@@ -1154,25 +1154,25 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
          !|         | D     |
          !|         |       |
          !""".stripMargin('!')).extractToDo()) shouldBe Seq(
-        ("2022/02/14", NoToDoState, "A", "B"),
-        ("2022/02/14", NoToDoState, "C", ""),
-        ("2022/02/14", NoToDoState, "", "D")
+        ("2022-02-14", NoToDoState, "A", "B"),
+        ("2022-02-14", NoToDoState, "C", ""),
+        ("2022-02-14", NoToDoState, "", "D")
       )
     }
 
     it("should find all the tasks") {
       stringify(withWeeklyToDo.extractToDo()) shouldBe Seq(
-        ("2022/02/14", DoneToDo, "A", "1"),
-        ("2022/02/15", DoneSimpleToDo, "B", "2"),
-        ("2022/02/16", LaterToDo, "C", "3"),
-        ("2022/02/17", StoppedToDo, "D", "4"),
-        ("2022/02/18", LaterToDo, "E", "5"),
-        ("2022/02/19", WaitingToDo, "F", "6"),
-        ("2022/02/20", NoToDoState, "G", "7"),
-        ("2022/02/21", DoneToDo, "A", "1.1"),
-        ("2022/02/21", StoppedToDo, "B", "2.1"),
-        ("2022/02/28", StoppedToDo, "A", "1.2"),
-        ("2022/03/04", DoneToDo, "B", "2.2")
+        ("2022-02-14", DoneToDo, "A", "1"),
+        ("2022-02-15", DoneSimpleToDo, "B", "2"),
+        ("2022-02-16", LaterToDo, "C", "3"),
+        ("2022-02-17", StoppedToDo, "D", "4"),
+        ("2022-02-18", LaterToDo, "E", "5"),
+        ("2022-02-19", WaitingToDo, "F", "6"),
+        ("2022-02-20", NoToDoState, "G", "7"),
+        ("2022-02-21", DoneToDo, "A", "1.1"),
+        ("2022-02-21", StoppedToDo, "B", "2.1"),
+        ("2022-02-28", StoppedToDo, "A", "1.2"),
+        ("2022-03-04", DoneToDo, "B", "2.2")
       )
     }
 
@@ -1180,13 +1180,13 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
       stringify(
         withWeeklyToDo.extractToDo(completed = Some(true))
       ) shouldBe Seq(
-        ("2022/02/14", DoneToDo, "A", "1"),
-        ("2022/02/15", DoneSimpleToDo, "B", "2"),
-        ("2022/02/17", StoppedToDo, "D", "4"),
-        ("2022/02/21", DoneToDo, "A", "1.1"),
-        ("2022/02/21", StoppedToDo, "B", "2.1"),
-        ("2022/02/28", StoppedToDo, "A", "1.2"),
-        ("2022/03/04", DoneToDo, "B", "2.2")
+        ("2022-02-14", DoneToDo, "A", "1"),
+        ("2022-02-15", DoneSimpleToDo, "B", "2"),
+        ("2022-02-17", StoppedToDo, "D", "4"),
+        ("2022-02-21", DoneToDo, "A", "1.1"),
+        ("2022-02-21", StoppedToDo, "B", "2.1"),
+        ("2022-02-28", StoppedToDo, "A", "1.2"),
+        ("2022-03-04", DoneToDo, "B", "2.2")
       )
     }
 
@@ -1196,16 +1196,16 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         stringify(
           withWeeklyToDo
             .extractToDo(
-              from = Some(LocalDate.parse("2022/02/18", Pattern))
+              from = Some(LocalDate.parse("2022-02-18", Pattern))
             )
         ) shouldBe Seq(
-          ("2022/02/18", LaterToDo, "E", "5"),
-          ("2022/02/19", WaitingToDo, "F", "6"),
-          ("2022/02/20", NoToDoState, "G", "7"),
-          ("2022/02/21", DoneToDo, "A", "1.1"),
-          ("2022/02/21", StoppedToDo, "B", "2.1"),
-          ("2022/02/28", StoppedToDo, "A", "1.2"),
-          ("2022/03/04", DoneToDo, "B", "2.2")
+          ("2022-02-18", LaterToDo, "E", "5"),
+          ("2022-02-19", WaitingToDo, "F", "6"),
+          ("2022-02-20", NoToDoState, "G", "7"),
+          ("2022-02-21", DoneToDo, "A", "1.1"),
+          ("2022-02-21", StoppedToDo, "B", "2.1"),
+          ("2022-02-28", StoppedToDo, "A", "1.2"),
+          ("2022-03-04", DoneToDo, "B", "2.2")
         )
       }
 
@@ -1213,19 +1213,19 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         stringify(
           withWeeklyToDo
             .extractToDo(
-              to = Some(LocalDate.parse("2022/03/02", Pattern))
+              to = Some(LocalDate.parse("2022-03-02", Pattern))
             )
         ) shouldBe Seq(
-          ("2022/02/14", DoneToDo, "A", "1"),
-          ("2022/02/15", DoneSimpleToDo, "B", "2"),
-          ("2022/02/16", LaterToDo, "C", "3"),
-          ("2022/02/17", StoppedToDo, "D", "4"),
-          ("2022/02/18", LaterToDo, "E", "5"),
-          ("2022/02/19", WaitingToDo, "F", "6"),
-          ("2022/02/20", NoToDoState, "G", "7"),
-          ("2022/02/21", DoneToDo, "A", "1.1"),
-          ("2022/02/21", StoppedToDo, "B", "2.1"),
-          ("2022/02/28", StoppedToDo, "A", "1.2")
+          ("2022-02-14", DoneToDo, "A", "1"),
+          ("2022-02-15", DoneSimpleToDo, "B", "2"),
+          ("2022-02-16", LaterToDo, "C", "3"),
+          ("2022-02-17", StoppedToDo, "D", "4"),
+          ("2022-02-18", LaterToDo, "E", "5"),
+          ("2022-02-19", WaitingToDo, "F", "6"),
+          ("2022-02-20", NoToDoState, "G", "7"),
+          ("2022-02-21", DoneToDo, "A", "1.1"),
+          ("2022-02-21", StoppedToDo, "B", "2.1"),
+          ("2022-02-28", StoppedToDo, "A", "1.2")
         )
       }
 
@@ -1233,16 +1233,16 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         stringify(
           withWeeklyToDo
             .extractToDo(
-              from = Some(LocalDate.parse("2022/02/18", Pattern)),
-              to = Some(LocalDate.parse("2022/03/02", Pattern))
+              from = Some(LocalDate.parse("2022-02-18", Pattern)),
+              to = Some(LocalDate.parse("2022-03-02", Pattern))
             )
         ) shouldBe Seq(
-          ("2022/02/18", LaterToDo, "E", "5"),
-          ("2022/02/19", WaitingToDo, "F", "6"),
-          ("2022/02/20", NoToDoState, "G", "7"),
-          ("2022/02/21", DoneToDo, "A", "1.1"),
-          ("2022/02/21", StoppedToDo, "B", "2.1"),
-          ("2022/02/28", StoppedToDo, "A", "1.2")
+          ("2022-02-18", LaterToDo, "E", "5"),
+          ("2022-02-19", WaitingToDo, "F", "6"),
+          ("2022-02-20", NoToDoState, "G", "7"),
+          ("2022-02-21", DoneToDo, "A", "1.1"),
+          ("2022-02-21", StoppedToDo, "B", "2.1"),
+          ("2022-02-28", StoppedToDo, "A", "1.2")
         )
       }
 
@@ -1250,21 +1250,21 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         stringify(
           withWeeklyToDo
             .extractToDo(
-              from = Some(LocalDate.parse("1022/02/18", Pattern)),
-              to = Some(LocalDate.parse("3022/03/02", Pattern))
+              from = Some(LocalDate.parse("1022-02-18", Pattern)),
+              to = Some(LocalDate.parse("3022-03-02", Pattern))
             )
         ) shouldBe Seq(
-          ("2022/02/14", DoneToDo, "A", "1"),
-          ("2022/02/15", DoneSimpleToDo, "B", "2"),
-          ("2022/02/16", LaterToDo, "C", "3"),
-          ("2022/02/17", StoppedToDo, "D", "4"),
-          ("2022/02/18", LaterToDo, "E", "5"),
-          ("2022/02/19", WaitingToDo, "F", "6"),
-          ("2022/02/20", NoToDoState, "G", "7"),
-          ("2022/02/21", DoneToDo, "A", "1.1"),
-          ("2022/02/21", StoppedToDo, "B", "2.1"),
-          ("2022/02/28", StoppedToDo, "A", "1.2"),
-          ("2022/03/04", DoneToDo, "B", "2.2")
+          ("2022-02-14", DoneToDo, "A", "1"),
+          ("2022-02-15", DoneSimpleToDo, "B", "2"),
+          ("2022-02-16", LaterToDo, "C", "3"),
+          ("2022-02-17", StoppedToDo, "D", "4"),
+          ("2022-02-18", LaterToDo, "E", "5"),
+          ("2022-02-19", WaitingToDo, "F", "6"),
+          ("2022-02-20", NoToDoState, "G", "7"),
+          ("2022-02-21", DoneToDo, "A", "1.1"),
+          ("2022-02-21", StoppedToDo, "B", "2.1"),
+          ("2022-02-28", StoppedToDo, "A", "1.2"),
+          ("2022-03-04", DoneToDo, "B", "2.2")
         )
       }
     }
@@ -1274,45 +1274,45 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
 
     it("should ignore suffixes") {
       nextWeekStart(
-        Some("2021/09/05 Extra")
-      ) shouldBe "2021/09/06"
+        Some("2021-09-05 Extra")
+      ) shouldBe "2021-09-06"
     }
 
     it(s"should calculate from today if None") {
       val today =
-        Some(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd")))
+        Some(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
       nextWeekStart(None) shouldBe nextWeekStart(today)
     }
 
     it(s"should allow the week start to be selectable") {
       nextWeekStart(
-        Some("2021/09/01"),
+        Some("2021-09-01"),
         dow = DayOfWeek.SUNDAY
-      ) shouldBe "2021/09/05"
+      ) shouldBe "2021-09-05"
       nextWeekStart(
-        Some("2021/09/01"),
+        Some("2021-09-01"),
         dow = DayOfWeek.MONDAY
-      ) shouldBe "2021/09/06"
+      ) shouldBe "2021-09-06"
       nextWeekStart(
-        Some("2021/09/01"),
+        Some("2021-09-01"),
         dow = DayOfWeek.TUESDAY
-      ) shouldBe "2021/09/07"
+      ) shouldBe "2021-09-07"
       nextWeekStart(
-        Some("2021/09/01"),
+        Some("2021-09-01"),
         dow = DayOfWeek.WEDNESDAY
-      ) shouldBe "2021/09/08"
+      ) shouldBe "2021-09-08"
       nextWeekStart(
-        Some("2021/09/01"),
+        Some("2021-09-01"),
         dow = DayOfWeek.THURSDAY
-      ) shouldBe "2021/09/02"
+      ) shouldBe "2021-09-02"
       nextWeekStart(
-        Some("2021/09/01"),
+        Some("2021-09-01"),
         dow = DayOfWeek.FRIDAY
-      ) shouldBe "2021/09/03"
+      ) shouldBe "2021-09-03"
       nextWeekStart(
-        Some("2021/09/01"),
+        Some("2021-09-01"),
         dow = DayOfWeek.SATURDAY
-      ) shouldBe "2021/09/04"
+      ) shouldBe "2021-09-04"
     }
 
     it(s"should work with epoch days as well") {
@@ -1348,17 +1348,17 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
 
     for (
       date <- Seq(
-        "2021/08/30",
-        "2021/08/31",
-        "2021/09/01",
-        "2021/09/02",
-        "2021/09/03",
-        "2021/09/04",
-        "2021/09/05"
+        "2021-08-30",
+        "2021-08-31",
+        "2021-09-01",
+        "2021-09-02",
+        "2021-09-03",
+        "2021-09-04",
+        "2021-09-05"
       )
     ) {
-      it(s"should return next 2021/09/07 from a $date") {
-        nextWeekStart(Some(date)) shouldBe "2021/09/06"
+      it(s"should return next 2021-09-07 from a $date") {
+        nextWeekStart(Some(date)) shouldBe "2021-09-06"
       }
     }
   }

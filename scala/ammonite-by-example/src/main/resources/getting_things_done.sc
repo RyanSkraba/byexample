@@ -204,7 +204,7 @@ def help(cfg: ConsoleCfg): Unit = {
     )
   )
   println(cfg.helpUse(cli, "stat", "unread", "448", "[Wed]"))
-  println(cfg.helpUse(cli, "week", "[2021/03/08]"))
+  println(cfg.helpUse(cli, "week", "[2021-03-08]"))
   println()
 }
 
@@ -345,7 +345,7 @@ def stat(
 ): Unit = {
   // Read the existing document.
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
-  // TODO: If date is in a YYYY/MM/DD format, then to the correct date
+  // TODO: If date is in a YYYY-MM-DD format, then to the correct date
   val gtdUpdated = gtd.updateTopWeekStats(rowStat, cell, date)
   writeGtd(gtdUpdated, Some(s"feat(status): Update $rowStat"))
 }
