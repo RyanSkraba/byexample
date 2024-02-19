@@ -139,7 +139,7 @@ def sar(
   cfg.vPrintln(cfg.red(s"Exclude patterns (leaving ${files.size} file to scan):", bold = true))
   cfg.vPrintln(excludeRe.map("  " + _).sorted.mkString("\n"))
   cfg.vPrintln(cfg.green(s"Include patterns ${included.size}:", bold = true))
-  cfg.vPrintln(excludeRe.map("  " + _).sorted.mkString("\n"))
+  cfg.vPrintln(includeRe.map("  " + _).sorted.mkString("\n"))
 
   cfg.vPrint("\nProcessing: ")
   val modified = for (f <- files) yield {

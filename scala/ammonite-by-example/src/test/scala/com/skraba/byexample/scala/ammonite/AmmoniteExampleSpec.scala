@@ -258,12 +258,11 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
                |  a3
                |  a4
                |  b1
-               |${cfg.Bold}${cfg.Red}Exclude patterns (leaving 5 file to scan):${cfg.Reset}
-               |  \\btarget\\b
-               |  ^\\.git
-               |${cfg.Bold}${cfg.Green}Include patterns 5:${cfg.Reset}
-               |  \\btarget\\b
-               |  ^\\.git
+               |Exclude patterns (leaving 5 file to scan):
+               |  \btarget\b
+               |  ^.git
+               |Include patterns:
+               |  .*
                |
                |Processing: $X$X$X$x$x
                |
@@ -288,9 +287,8 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
               |Exclude patterns (leaving 5 file to scan):
               |  \btarget\b
               |  ^\.git
-              |Include patterns 5:
-              |  \btarget\b
-              |  ^\.git
+              |Include patterns:
+              |  .*
               |
               |Processing: XXXxx
               |
