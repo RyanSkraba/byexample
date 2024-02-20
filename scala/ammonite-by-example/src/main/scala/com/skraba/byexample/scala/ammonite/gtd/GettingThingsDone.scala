@@ -31,7 +31,7 @@ import scala.util.matching.Regex
   * <... This weeks status reported here.  This can contain statistics tables,
   * to do lists, notes, links, etc. ...>
   *
-  * 2021/09/6
+  * 2021-09-06
   * ------------------------------------------------------------------------------
   *
   * <... This weeks status reported here. ...>
