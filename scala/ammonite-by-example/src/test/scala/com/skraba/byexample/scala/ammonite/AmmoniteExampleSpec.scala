@@ -214,6 +214,76 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
     }
   }
 
+  describe("Running the ammonite_example argTestRepeated") {
+
+    val ExpectedSignature = """Expected Signature: argTestRepeated
+                              |  --first <str>     A first string argument
+                              |  --repeated <str>  Subsequent arguments are only printed in verbose mode
+                              |  --verbose         Verbose for extra output
+                              |  --plain           Don't use ansi colour codes
+                              |  --yes             Don't prompt for user confirmation, assume yes
+                              |
+                              |
+                              |""".stripMargin
+
+    /** Helper to run ammonite_example.sc argTest successfully with some initial checks
+      *
+      * @param args
+      *   Additional arguments to the script
+      * @return
+      *   stdout
+      */
+    def argTestRepeated(args: String*): String = {
+      val arguments: Seq[String] = Seq(ScriptPath.toString, "argTestRepeated") ++ args
+      withAmmoniteMain0AndNoStdIn(HomeFolder, arguments: _*) { case (result, stdout, stderr) =>
+        stderr shouldBe empty
+        result shouldBe true
+        stdout
+      }
+    }
+
+    it("should fail with no arguments") {
+      withAmmoniteExample("argTestRepeated") { case (result, stdout, stderr) =>
+        result shouldBe false
+        stderr shouldBe s"""Missing argument: --first <str>\n$ExpectedSignature"""
+        stdout shouldBe empty
+      }
+    }
+
+    describe("with one argument") {
+      it("(one)") {
+        val stdout = argTestRepeated("one")
+        stdout shouldBe s"$BOLD${BLUE}one$RESET$BLUE (0)$RESET\n"
+      }
+
+      it("and the --verbose flag after") {
+        val stdout = argTestRepeated("one", "--verbose")
+        stdout shouldBe s"$BOLD${BLUE}one$RESET$BLUE (0)$RESET\n"
+      }
+
+      it("and the --verbose flag before") {
+        val stdout = argTestRepeated("--verbose", "one")
+        stdout shouldBe s"$BOLD${BLUE}one$RESET$BLUE (0)$RESET\n"
+      }
+    }
+
+    describe("with two arguments") {
+      it("(one two)") {
+        val stdout = argTestRepeated("one", "two")
+        stdout shouldBe s"$BOLD${BLUE}one$RESET$BLUE (1)$RESET\n"
+      }
+
+      for (
+        args <- Seq(Seq("--verbose", "one", "two"), Seq("one", "--verbose", "two"), Seq("one", "two", "--verbose"))
+      ) {
+        it(args.mkString("(", " ", ")")) {
+          val stdout = argTestRepeated(args: _*)
+          stdout shouldBe s"$BOLD${BLUE}one$RESET$BLUE (1)$RESET\ntwo\n"
+        }
+      }
+    }
+  }
+
   describe("Running the ammonite_example search and replace") {
 
     // Hello world scenario

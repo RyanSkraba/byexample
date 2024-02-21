@@ -99,6 +99,19 @@ def argTest(
   }
 }
 
+@arg(doc = "Test arguments and defaults")
+@main
+def argTestRepeated(
+    @arg(doc = "A first string argument")
+    first: String,
+    @arg(doc = "Subsequent arguments are only printed in verbose mode")
+    repeated: Seq[String],
+    cfg: ConsoleCfg
+): Unit = {
+  println(cfg.blue(first, s"(${repeated.size})"))
+  repeated.foreach(cfg.vPrintln(_))
+}
+
 @arg(doc = "Search and replace text patterns recursively in this directory.")
 @main
 def sar(
