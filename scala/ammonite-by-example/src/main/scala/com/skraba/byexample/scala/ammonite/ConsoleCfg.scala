@@ -15,11 +15,11 @@ import scala.io.AnsiColor
   */
 @main
 case class ConsoleCfg(
-    @arg(doc = "Verbose for extra output")
+    @arg(short = 'v', doc = "Verbose for extra output")
     verbose: Flag = Flag(false),
-    @arg(doc = "Don't use ansi colour codes")
+    @arg(short = 'p', doc = "Don't use ansi colour codes")
     plain: Flag = Flag(false),
-    @arg(doc = "Don't prompt for user confirmation, assume yes")
+    @arg(short = 'y', doc = "Don't prompt for user confirmation, assume yes")
     yes: Flag = Flag(false)
 ) {
 

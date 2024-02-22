@@ -102,9 +102,9 @@ def argTest(
 @arg(doc = "Test arguments and defaults")
 @main
 def argTestRepeated(
-    @arg(doc = "A first string argument")
+    @arg(short = 'f', doc = "A first string argument")
     first: String,
-    @arg(doc = "Subsequent arguments are only printed in verbose mode")
+    @arg(short = 'r', doc = "Subsequent arguments are only printed in verbose mode")
     repeated: Seq[String],
     cfg: ConsoleCfg
 ): Unit = {

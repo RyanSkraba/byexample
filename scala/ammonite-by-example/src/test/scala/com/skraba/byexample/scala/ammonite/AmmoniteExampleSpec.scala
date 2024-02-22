@@ -136,9 +136,9 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
     val ExpectedSignature = """Expected Signature: argTest
                               |  --user <str>      The user running the script, or current user if not present
                               |  --greeting <str>  A string value
-                              |  --verbose         Verbose for extra output
-                              |  --plain           Don't use ansi colour codes
-                              |  --yes             Don't prompt for user confirmation, assume yes
+                              |  -v --verbose      Verbose for extra output
+                              |  -p --plain        Don't use ansi colour codes
+                              |  -y --yes          Don't prompt for user confirmation, assume yes
                               |
                               |
                               |""".stripMargin
@@ -217,11 +217,11 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
   describe("Running the ammonite_example argTestRepeated") {
 
     val ExpectedSignature = """Expected Signature: argTestRepeated
-                              |  --first <str>     A first string argument
-                              |  --repeated <str>  Subsequent arguments are only printed in verbose mode
-                              |  --verbose         Verbose for extra output
-                              |  --plain           Don't use ansi colour codes
-                              |  --yes             Don't prompt for user confirmation, assume yes
+                              |  -f --first <str>     A first string argument
+                              |  -r --repeated <str>  Subsequent arguments are only printed in verbose mode
+                              |  -v --verbose         Verbose for extra output
+                              |  -p --plain           Don't use ansi colour codes
+                              |  -y --yes             Don't prompt for user confirmation, assume yes
                               |
                               |
                               |""".stripMargin
@@ -245,7 +245,7 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
     it("should fail with no arguments") {
       withAmmoniteExample("argTestRepeated") { case (result, stdout, stderr) =>
         result shouldBe false
-        stderr shouldBe s"""Missing argument: --first <str>\n$ExpectedSignature"""
+        stderr shouldBe s"""Missing argument: -f --first <str>\n$ExpectedSignature"""
         stdout shouldBe empty
       }
     }
@@ -281,6 +281,44 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
           stdout shouldBe s"$BOLD${BLUE}one$RESET$BLUE (1)$RESET\ntwo\n"
         }
       }
+    }
+
+    describe("with three arguments is almost always unexpected") {
+      it("(one two three) parses unexpectedly as verbose") {
+        val stdout = argTestRepeated("one", "two", "three")
+        stdout shouldBe s"$BOLD${BLUE}one$RESET$BLUE (1)$RESET\ntwo\n"
+      }
+
+      it("(--verbose one two three) parses unexpected as plain") {
+        val stdout = argTestRepeated("--verbose", "one", "two", "three")
+        stdout shouldBe s"one (1)\ntwo\n"
+      }
+
+      it("(one --verbose  two three) parses unexpected as plain") {
+        val stdout = argTestRepeated("one", "--verbose", "two", "three")
+        stdout shouldBe s"one (1)\ntwo\n"
+      }
+
+      it("(one two three --verbose) is an error") {
+        withAmmoniteExample("argTestRepeated", "one", "two", "three", "--verbose") { case (result, stdout, stderr) =>
+          result shouldBe false
+          stderr shouldBe s"""Duplicate arguments for -v --verbose: "three" ""\n$ExpectedSignature"""
+          stdout shouldBe empty
+        }
+      }
+
+      it("(--first one --verbose --repeated two --plain --repeated three) works") {
+        val stdout =
+          argTestRepeated("--first", "one", "--verbose", "--repeated", "two", "--plain", "--repeated", "three")
+        stdout shouldBe s"one (2)\ntwo\nthree\n"
+      }
+
+      it("(-f one -v -r two -p -r three) also works") {
+        val stdout = argTestRepeated("-f", "one", "-v", "-r", "two", "-p", "-r", "three")
+        stdout shouldBe s"one (2)\ntwo\nthree\n"
+      }
+
+      // TODO -fone -rtwo -vp -rthree might be acceptable for mainargs
     }
   }
 
