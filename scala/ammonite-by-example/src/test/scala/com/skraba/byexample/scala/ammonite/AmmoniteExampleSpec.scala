@@ -322,6 +322,114 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
     }
   }
 
+  describe("Running the ammonite_example argTestLeftover") {
+
+    val ExpectedSignature = """Expected Signature: argTestLeftover
+                              |  -f --first <str>   A first string argument
+                              |  repeated <str>...  Subsequent arguments are only printed in verbose mode
+                              |  -v --verbose       Verbose for extra output
+                              |  -p --plain         Don't use ansi colour codes
+                              |  -y --yes           Don't prompt for user confirmation, assume yes
+                              |
+                              |
+                              |""".stripMargin
+
+    /** Helper to run ammonite_example.sc argTest successfully with some initial checks
+      *
+      * @param args
+      *   Additional arguments to the script
+      * @return
+      *   stdout
+      */
+    def argTestLeftover(args: String*): String = {
+      val arguments: Seq[String] = Seq(ScriptPath.toString, "argTestRepeated") ++ args
+      withAmmoniteMain0AndNoStdIn(HomeFolder, arguments: _*) { case (result, stdout, stderr) =>
+        stderr shouldBe empty
+        result shouldBe true
+        stdout
+      }
+    }
+
+    it("should fail with no arguments") {
+      withAmmoniteExample("argTestLeftover") { case (result, stdout, stderr) =>
+        result shouldBe false
+        stderr shouldBe s"""Missing argument: -f --first <str>\n$ExpectedSignature"""
+        stdout shouldBe empty
+      }
+    }
+
+    describe("with one argument") {
+      it("(one)") {
+        val stdout = argTestLeftover("one")
+        stdout shouldBe s"$BOLD${BLUE}one$RESET$BLUE (0)$RESET\n"
+      }
+
+      it("and the --verbose flag after") {
+        val stdout = argTestLeftover("one", "--verbose")
+        stdout shouldBe s"$BOLD${BLUE}one$RESET$BLUE (0)$RESET\n"
+      }
+
+      it("and the --verbose flag before") {
+        val stdout = argTestLeftover("--verbose", "one")
+        stdout shouldBe s"$BOLD${BLUE}one$RESET$BLUE (0)$RESET\n"
+      }
+    }
+
+    describe("with two arguments") {
+      it("(one two)") {
+        val stdout = argTestLeftover("one", "two")
+        stdout shouldBe s"$BOLD${BLUE}one$RESET$BLUE (1)$RESET\n"
+      }
+
+      for (
+        args <- Seq(Seq("--verbose", "one", "two"), Seq("one", "--verbose", "two"), Seq("one", "two", "--verbose"))
+      ) {
+        it(args.mkString("(", " ", ")")) {
+          val stdout = argTestLeftover(args: _*)
+          stdout shouldBe s"$BOLD${BLUE}one$RESET$BLUE (1)$RESET\ntwo\n"
+        }
+      }
+    }
+
+    describe("with three arguments is almost always unexpected") {
+      it("(one two three) parses unexpectedly as verbose") {
+        val stdout = argTestLeftover("one", "two", "three")
+        stdout shouldBe s"$BOLD${BLUE}one$RESET$BLUE (1)$RESET\ntwo\n"
+      }
+
+      it("(--verbose one two three) parses unexpected as plain") {
+        val stdout = argTestLeftover("--verbose", "one", "two", "three")
+        stdout shouldBe s"one (1)\ntwo\n"
+      }
+
+      it("(one --verbose  two three) parses unexpected as plain") {
+        val stdout = argTestLeftover("one", "--verbose", "two", "three")
+        stdout shouldBe s"one (1)\ntwo\n"
+      }
+
+      it("(one two three --verbose) is an error") {
+        withAmmoniteExample("argTestLeftover", "one", "two", "three", "--verbose") { case (result, stdout, stderr) =>
+          result shouldBe false
+          stderr shouldBe s"""Duplicate arguments for -v --verbose: "two" ""\n$ExpectedSignature"""
+          stdout shouldBe empty
+        }
+      }
+
+      it("(--first one --verbose --repeated two --plain --repeated three) works") {
+        val stdout =
+          argTestLeftover("--first", "one", "--verbose", "--repeated", "two", "--plain", "--repeated", "three")
+        stdout shouldBe s"one (2)\ntwo\nthree\n"
+      }
+
+      it("(-f one -v -r two -p -r three) also works") {
+        val stdout = argTestLeftover("-f", "one", "-v", "-r", "two", "-p", "-r", "three")
+        stdout shouldBe s"one (2)\ntwo\nthree\n"
+      }
+
+      // TODO -fone -rtwo -vp -rthree might be acceptable for mainargs
+    }
+  }
+
   describe("Running the ammonite_example search and replace") {
 
     // Hello world scenario

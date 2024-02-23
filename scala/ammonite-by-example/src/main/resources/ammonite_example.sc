@@ -8,7 +8,7 @@
   *   - requests (https://github.com/lihaoyi/requests-scala)
   *   - upickle (https://github.com/lihaoyi/upickle)
   */
-import mainargs.{Flag, arg, main}
+import mainargs.{Flag, Leftover, arg, main}
 import ujson.Obj
 
 import java.time.format.DateTimeFormatter
@@ -99,7 +99,7 @@ def argTest(
   }
 }
 
-@arg(doc = "Test arguments and defaults")
+@arg(doc = "Test repeated arguments")
 @main
 def argTestRepeated(
     @arg(short = 'f', doc = "A first string argument")
@@ -110,6 +110,19 @@ def argTestRepeated(
 ): Unit = {
   println(cfg.blue(first, s"(${repeated.size})"))
   repeated.foreach(cfg.vPrintln(_))
+}
+
+@arg(doc = "Test leftover arguments")
+@main
+def argTestLeftover(
+    @arg(short = 'f', doc = "A first string argument")
+    first: String,
+    @arg(short = 'r', doc = "Subsequent arguments are only printed in verbose mode")
+    repeated: Leftover[String],
+    cfg: ConsoleCfg
+): Unit = {
+  println(cfg.blue(first, s"(${repeated.value.size})"))
+  repeated.value.foreach(cfg.vPrintln(_))
 }
 
 @arg(doc = "Search and replace text patterns recursively in this directory.")
