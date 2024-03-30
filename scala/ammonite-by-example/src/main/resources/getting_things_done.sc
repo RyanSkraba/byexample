@@ -258,17 +258,21 @@ def addWeek(
     // Simply add one week to the document.
     gtd.addWeek(None)
   }
-  if (gtd == gtdUpdated)
+  val verb = if (gtd == gtdUpdated) {
     println(
       cfg.ok(
         s"No weeks were added:",
         s"current top week is '${gtd.topWeek.map(_.title).getOrElse("Unknown")}'"
       )
     )
+    "Update"
+  } else {
+    "Add"
+  }
   writeGtd(
     gtdUpdated,
     Some(
-      s"feat(status): Add new week ${gtdUpdated.topWeek.map(_.title).getOrElse("")}"
+      s"feat(status): $verb new week ${gtdUpdated.topWeek.map(_.title).getOrElse("")}"
     )
   )
 }
