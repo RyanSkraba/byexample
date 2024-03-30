@@ -3,9 +3,8 @@ import scala.io.AnsiColor._
 
 // ==========================================================================
 
-/** This class finds and loads artifacts from the local machine, which may not
-  * have already been published to Maven. If the artifact is published, this can
-  * be simpler:
+/** This class finds and loads artifacts from the local machine, which may not have already been published to Maven. If
+  * the artifact is published, this can be simpler:
   *
   * {{{
   * import $ivy.`com.skraba.byexample:scala-by-example:0.0.1`
@@ -21,8 +20,7 @@ import scala.io.AnsiColor._
   * import $ivy.`com.skraba.byexample:scala-by-example:0.0.1-SNAPSHOT`
   * }}}
   *
-  * Otherwise, this class can be copied into your script to load compiled
-  * resources from this maven project.
+  * Otherwise, this class can be copied into your script to load compiled resources from this maven project.
   *
   * @param a
   *   The artifact id (also the maven module name by convention)

@@ -62,8 +62,7 @@ val Projects: ujson.Obj = ujson.read(ProjectsJson).obj
 val TextToToDoStates: Map[String, GettingThingsDone.ToDoState] =
   Map("MERGED" -> DoneToDo, "FIXED" -> DoneToDo, "DONE" -> DoneToDo)
 
-/** Write the GettingThingsDone document to disk, optionally providing git
-  * commands to check in the changes.
+/** Write the GettingThingsDone document to disk, optionally providing git commands to check in the changes.
   *
   * @param gtd
   *   The document to write to disk
@@ -127,8 +126,7 @@ object ProjectParserCfg extends ParserCfg {
 
   /** Group JIRA together by the project. */
   override def linkSorter(): PartialFunction[LinkRef, (String, LinkRef)] = {
-    case LinkRef(JiraLinkRefRegex(prj, num), url, title)
-        if Projects.value.contains(prj.toLowerCase) =>
+    case LinkRef(JiraLinkRefRegex(prj, num), url, title) if Projects.value.contains(prj.toLowerCase) =>
       (
         f"0 ${prj.toUpperCase}-0 $num%9s",
         LinkRef(
@@ -143,8 +141,7 @@ object ProjectParserCfg extends ParserCfg {
       )
     case l @ LinkRef(JiraLinkRefRegex(prj, num), _, _) =>
       (f"1 ${prj.toUpperCase}-0 $num%9s", l)
-    case LinkRef(GitHubLinkRefRegex(prj, num), url, title)
-        if Projects.value.contains(prj.toLowerCase) =>
+    case LinkRef(GitHubLinkRefRegex(prj, num), url, title) if Projects.value.contains(prj.toLowerCase) =>
       (
         f"0 ${prj.toUpperCase}-1 $num%9s",
         LinkRef(
@@ -373,9 +370,8 @@ def statsToday(
 
   // Read the existing document.
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
-  val gtdUpdated = groupedStats.foldLeft(gtd) {
-    (acc: GettingThingsDone, list: Seq[String]) =>
-      acc.updateTopWeekStats(list.head, list.tail.headOption.getOrElse(""))
+  val gtdUpdated = groupedStats.foldLeft(gtd) { (acc: GettingThingsDone, list: Seq[String]) =>
+    acc.updateTopWeekStats(list.head, list.tail.headOption.getOrElse(""))
   }
   writeGtd(
     gtdUpdated,
@@ -433,22 +429,20 @@ def statsDaily(cfg: ConsoleCfg): Unit = {
   args.foreach(statsToday(_: _*))
 }
 
-/** Given an optional parameter, calculates the date range that corresponds to
-  * that month.
+/** Given an optional parameter, calculates the date range that corresponds to that month.
   *
   * If the month is not present, the range is two [[None]] values.
   *
-  * If the month is positive, the range is the first and last day of that month
-  * in this year. January is "1" and December is "12".
+  * If the month is positive, the range is the first and last day of that month in this year. January is "1" and
+  * December is "12".
   *
-  * If the month is zero or negative, the selected month is relative to the
-  * current month (where "0" is this month, and "-1" is last month).
+  * If the month is zero or negative, the selected month is relative to the current month (where "0" is this month, and
+  * "-1" is last month).
   *
   * @param month
   *   The optional month parameter.
   * @return
-  *   The date range for the first and last day of that month, or None(s) if the
-  *   parameter isn't specified.
+  *   The date range for the first and last day of that month, or None(s) if the parameter isn't specified.
   */
 private def getMonth(
     month: Option[Int]
@@ -504,9 +498,8 @@ def statExtract(
       println(
         Table(
           Seq.fill(3)(Align.LEFT),
-          TableRow.from("Date", "Stat", "Value") +: stats.map {
-            case (date, stat, value) =>
-              TableRow.from(date.format(Pattern), stat, value)
+          TableRow.from("Date", "Stat", "Value") +: stats.map { case (date, stat, value) =>
+            TableRow.from(date.format(Pattern), stat, value)
           }
         ).build().toString
       )
@@ -593,8 +586,7 @@ def week(
   val topWeek: Seq[Markd] = gtd.mds.flatMap {
     case h @ Header(title, 1, _) if title.startsWith(H1Weeklies) =>
       h.mds.find {
-        case Header(title, 2, _)
-            if week.map(title.startsWith).getOrElse(title.length >= 10) =>
+        case Header(title, 2, _) if week.map(title.startsWith).getOrElse(title.length >= 10) =>
           true
         case _ => false
       }
@@ -612,7 +604,7 @@ def week(
              |      git -C $StatusRepo difftool --staged
              |  git -C $StatusRepo add ${StatusFile.relativeTo(StatusRepo)} &&
              |      git -C $StatusRepo commit -m $BOLD"feat(${StatusFile.baseName
-          .stripSuffix(StatusFile.ext)}): Updated ${week.title}"$RESET
+                    .stripSuffix(StatusFile.ext)}): Updated ${week.title}"$RESET
              |""".stripMargin)
       )
 }
