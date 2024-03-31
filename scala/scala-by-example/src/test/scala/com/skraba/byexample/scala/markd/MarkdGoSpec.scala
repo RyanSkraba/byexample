@@ -69,7 +69,7 @@ class MarkdGoSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach w
         withMarkdGo("beautify")
       }
       t.getMessage shouldBe null
-      t.docopt shouldBe MarkdGo.BeautifyTask.Doc
+      t.docopt shouldBe BeautifyTask.Doc
     }
   }
 
@@ -79,7 +79,7 @@ class MarkdGoSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach w
         withMarkdGo("datecount")
       }
       t.getMessage shouldBe null
-      t.docopt shouldBe MarkdGo.DateCountdownTask.Doc
+      t.docopt shouldBe DateCountdownTask.Doc
     }
 
     it("should process a Table") {
@@ -102,7 +102,7 @@ class MarkdGoSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach w
            !""".stripMargin('!'))
         .get
 
-      val cleaned = MarkdGo.DateCountdownTask.process(md)
+      val cleaned = DateCountdownTask.process(md)
       cleaned.build().toString shouldBe
         """| # | Top T0         | Bottom T0      | No T0          |
           !|---|----------------|----------------|----------------|
@@ -121,9 +121,9 @@ class MarkdGoSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach w
           !| m |                | T 2000-01-01   |                |
           !""".stripMargin('!')
 
-      MarkdGo.DateCountdownTask.process(cleaned) shouldBe cleaned
+      DateCountdownTask.process(cleaned) shouldBe cleaned
 
-      MarkdGo.DateCountdownTask.process(
+      DateCountdownTask.process(
         Table
           .parse("""# | Top T0      | Bottom T0 | No T0
             !---|---|---|---
@@ -174,7 +174,7 @@ class MarkdGoSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach w
             !""".stripMargin('!'))
         .get
 
-      val cleaned = MarkdGo.DateCountdownTask.process(md)
+      val cleaned = DateCountdownTask.process(md)
       cleaned.build().toString shouldBe
         """| Date                                |
           !|-------------------------------------|
@@ -202,10 +202,10 @@ class MarkdGoSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach w
           !| [T+6] 2000-01-07                    |
           !""".stripMargin('!')
 
-      MarkdGo.DateCountdownTask.process(cleaned) shouldBe cleaned
+      DateCountdownTask.process(cleaned) shouldBe cleaned
 
       // TODO: Note that the T+10 isn't exactly what we're looking for.  The regex should be adjusted to include links.
-      MarkdGo.DateCountdownTask
+      DateCountdownTask
         .process(
           Table
             .parse("""|Date |
@@ -248,7 +248,7 @@ class MarkdGoSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach w
              !""".stripMargin('!'))
         .get
 
-      val cleaned = MarkdGo.DateCountdownTask.process(md)
+      val cleaned = DateCountdownTask.process(md)
       cleaned.build().toString shouldBe
         """| Date               |
           !|--------------------|
@@ -256,9 +256,9 @@ class MarkdGoSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach w
           !| [T+3) *2000-01-04_ |
           !""".stripMargin('!')
 
-      MarkdGo.DateCountdownTask.process(cleaned) shouldBe cleaned
+      DateCountdownTask.process(cleaned) shouldBe cleaned
 
-      MarkdGo.DateCountdownTask
+      DateCountdownTask
         .process(
           Table
             .parse("""|Date |
