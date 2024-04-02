@@ -1,4 +1,4 @@
-package com.skraba.byexample.scala
+package com.skraba.docoptcli
 
 import org.docopt.{Docopt, DocoptExitException}
 import scala.jdk.CollectionConverters._

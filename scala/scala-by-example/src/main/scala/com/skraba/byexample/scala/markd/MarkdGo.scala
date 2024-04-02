@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.markd
 
-import com.skraba.byexample.scala.DocoptCliGo
+import com.skraba.docoptcli.DocoptCliGo
 import org.docopt.{Docopt, DocoptExitException}
 
 import scala.reflect.io.{Directory, File, Path}
