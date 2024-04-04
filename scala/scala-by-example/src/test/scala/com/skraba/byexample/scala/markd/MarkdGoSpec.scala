@@ -239,7 +239,7 @@ class MarkdGoSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach w
         .toString shouldBe cleaned.build().toString
     }
 
-    it("flibbity flib") {
+    it("rearrange countdowns and dates") {
       val md = Table
         .parse("""|Date |
              !|---|
