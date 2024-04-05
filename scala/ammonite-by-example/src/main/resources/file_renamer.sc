@@ -262,18 +262,18 @@ def group(
 
 @arg(doc = "Renames payslip files to a standard format")
 @main
-def payslip(srcPath: Option[os.Path] = None, dstPath: Option[os.Path] = None): Unit = {
+def payslip(srcPath: Option[os.Path] = None, dstPath: Option[os.Path] = None, cfg: ConsoleCfg): Unit = {
 
   // Error if the directory doesn't exist.
   val src: os.Path = srcPath.getOrElse(os.pwd)
   if (!(os.exists(src))) {
-    println(s"$RED${BOLD}ERROR:$RESET $src does not exist.")
+    cfg.error("ERROR", s"$src does not exist.")
     System.exit(1)
   }
 
   val dst: os.Path = dstPath.getOrElse(src)
   if (!(os.exists(dst))) {
-    println(s"$RED${BOLD}ERROR:$RESET $dst does not exist.")
+    cfg.error("ERROR", s"$dst does not exist.")
     System.exit(1)
   }
 
@@ -281,20 +281,26 @@ def payslip(srcPath: Option[os.Path] = None, dstPath: Option[os.Path] = None): U
   val fileRe1: Regex = raw"Bulletins (\d\d)_(\d\d\d\d).pdf".r
   val fileRe2: Regex = raw"(\d\d)-(\d\d\d\d)_bulletin_de_paie.pdf".r
 
+  // The intended file name, used for simply moving files
+  val fileRe3: Regex = raw"(\d\d\d\d)(\d\d)Payslip.pdf".r
+
   // All of the files in the directory
   val files: List[os.Path] = os.list(src).toList
-  files
+  val renaming: List[(Path, Option[Path])] = files
     .map { file =>
       file.last match {
-        case fileRe1(mm, yyyy) =>
-          s"""mv "$file" "$dst/$yyyy${mm}Payslip.pdf""""
-        case fileRe2(mm, yyyy) =>
-          s"""mv "$file" "$dst/$yyyy${mm}Payslip.pdf""""
-        case _ => s"# unmatched $file"
+        case f @ fileRe1(mm, yyyy) => src / f -> Some(dst / s"$yyyy${mm}Payslip.pdf")
+        case f @ fileRe2(mm, yyyy) => src / f -> Some(dst / s"$yyyy${mm}Payslip.pdf")
+        case f @ fileRe3(mm, yyyy) => src / f -> Some(dst / s"$yyyy${mm}Payslip.pdf")
+        case _                     => file -> None
       }
     }
-    .sorted
-    .foreach(println(_))
+    .sortBy(_._1)
 
-  // TODO: Verify that no files are deleted or removed by this operation
+  renaming.filter(_._2.isEmpty).foreach(f => cfg.vPrintln(s"# Not a match ${f._1}"))
+  renaming.foreach {
+    case (srcFile, Some(dstFile)) if src == dst => cfg.vPrintln(s"# No move necessary $srcFile")
+    case (srcFile, Some(dstFile))               => println(s"""mv "$srcFile" "$dstFile"""")
+    case _                                      =>
+  }
 }
