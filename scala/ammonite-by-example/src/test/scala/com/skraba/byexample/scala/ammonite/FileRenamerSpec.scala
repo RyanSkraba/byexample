@@ -163,4 +163,68 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
       (dst / "Copied" / "image1.jpg").toFile.slurp() shouldBe "image1.jpg"
     }
   }
+
+  describe("Using file_renamer.sc payslip") {
+
+    /** Creates a simplified scenario with the following items:
+      *
+      *   - `/tmp/tag/src/` as a source directory
+      *     - `Bulletins 01_2021.pdf` (fake PDFs, contains their own name)
+      *     - `Bulletins 02_2021.pdf`
+      *     - `03-2021_bulletin_de_paie.pdf`
+      *     - `04-2021_bulletin_de_paie.pdf`
+      *     - `202105Payslip.pdf`
+      *       - `other.txt`
+      *   - `/tmp/tag/dst/` An empty directory to use as output.
+      *
+      * @param tag
+      *   a string to use to uniquely identify the scenario
+      */
+    def scenario(
+        tag: String,
+        files: Seq[String] = Seq(
+          "Bulletins 01_2021.pdf",
+          "Bulletins 02_2021.pdf",
+          "03-2021_bulletin_de_paie.pdf",
+          "04-2021_bulletin_de_paie.pdf",
+          "202105Payslip.pdf",
+          "other.txt"
+        )
+    ): (Directory, Directory) = {
+      val src = (Tmp / tag / "src").createDirectory(failIfExists = false)
+      val dst = (Tmp / tag / "dst").createDirectory(failIfExists = false)
+      files.foreach(f => (src / f).createFile().writeAll(f))
+      (src, dst)
+    }
+
+    /** Helper to run git_checker.sc help successfully with some initial checks
+      *
+      * @param args
+      *   Additional arguments to the script
+      * @return
+      *   stdout
+      */
+    def payslip(args: String*): String = {
+      val arguments: Seq[String] = Seq("payslip") ++ args
+      withScript(arguments: _*) { case (result, stdout, stderr) =>
+        stderr shouldBe empty
+        result shouldBe true
+        stdout.replace(Tmp.toString(), "<TMP>")
+      }
+    }
+
+    it("should suggest moving payslip files") {
+      val (src, dst) = scenario("basic")
+      val stdout = payslip("--srcPath", src.toString, "--dstPath", dst.toString)
+      stdout shouldBe
+        """mv "<TMP>/basic/src/03-2021_bulletin_de_paie.pdf" "<TMP>/basic/dst/202103Payslip.pdf"
+          |mv "<TMP>/basic/src/04-2021_bulletin_de_paie.pdf" "<TMP>/basic/dst/202104Payslip.pdf"
+          |mv "<TMP>/basic/src/202105Payslip.pdf" "<TMP>/basic/dst/052021Payslip.pdf"
+          |mv "<TMP>/basic/src/Bulletins 01_2021.pdf" "<TMP>/basic/dst/202101Payslip.pdf"
+          |mv "<TMP>/basic/src/Bulletins 02_2021.pdf" "<TMP>/basic/dst/202102Payslip.pdf"
+          |""".stripMargin
+
+      dst.files shouldBe empty
+    }
+  }
 }
