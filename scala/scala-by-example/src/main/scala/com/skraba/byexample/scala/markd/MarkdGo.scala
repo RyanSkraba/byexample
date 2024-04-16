@@ -1,6 +1,7 @@
 package com.skraba.byexample.scala.markd
 
 import com.skraba.docoptcli.DocoptCliGo
+import com.skraba.docoptcli.DocoptCliGo.Task
 import org.docopt.{Docopt, DocoptExitException}
 
 import scala.reflect.io.{Directory, File, Path}
@@ -13,9 +14,9 @@ object MarkdGo extends DocoptCliGo {
 
   override lazy val Version: String = "0.0.1-SNAPSHOT"
 
-  override lazy val Tasks: Seq[Task] = Seq(BeautifyTask.Task, DateCountdownTask.Task)
+  override lazy val Tasks: Seq[Task] = Seq(BeautifyTask, DateCountdownTask)
 
-  override val Doc: String = "A driver for the various markdown utilities.\n\n" + TaskDoc
+  override lazy val Doc: String = "A driver for the various markdown utilities.\n\n" + TaskDoc
 
   /** A helper method to process a list of files supplied on the command line.
     * @param files

@@ -1,10 +1,16 @@
 package com.skraba.byexample.scala.markd
 
+import com.skraba.docoptcli.DocoptCliGo
+
 import scala.jdk.CollectionConverters._
 
 /** Command-line driver for beautifying a markdown file.
   */
-object BeautifyTask {
+object BeautifyTask extends DocoptCliGo.Task {
+
+  val Cmd = "beautify"
+
+  val Description = "Reformat a markdown file."
 
   val Doc: String =
     """Beautify a markdown file.
@@ -18,10 +24,6 @@ object BeautifyTask {
       |  --sortLinkRefs  Sort the link references in the file (off by default)
       |  FILE            File(s) to beautify.
       |""".stripMargin.trim
-
-  val Cmd = "beautify"
-
-  val Description = "Reformat a markdown file."
 
   def go(opts: java.util.Map[String, AnyRef]): Unit = {
 
@@ -43,6 +45,4 @@ object BeautifyTask {
       }
     }
   }
-
-  val Task: MarkdGo.Task = MarkdGo.Task(Doc, Cmd, Description, go)
 }

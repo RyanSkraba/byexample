@@ -274,28 +274,28 @@ class MarkdGoSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach w
   }
 
   for (task <- MarkdGo.Tasks) {
-    describe(s"MarkdGo ${task.cmd} docopt check") {
+    describe(s"MarkdGo ${task.Cmd} docopt check") {
       it("should have less than 80 characters per string for readability") {
-        for (line <- task.doc.split("\n")) {
-          withClue(task.cmd -> line) {
+        for (line <- task.Doc.split("\n")) {
+          withClue(task.Cmd -> line) {
             line.length should be < 80
           }
         }
       }
     }
 
-    describe(s"MarkdGo ${task.cmd} invalid command lines") {
+    describe(s"MarkdGo ${task.Cmd} invalid command lines") {
       it("throws an exception if no files are specified") {
         val t = intercept[InternalDocoptException] {
-          withMarkdGo(task.cmd)
+          withMarkdGo(task.Cmd)
         }
         t.getMessage shouldBe null
-        t.docopt shouldBe task.doc
+        t.docopt shouldBe task.Doc
       }
 
       it("throws an exception with --version") {
         val t = intercept[DocoptExitException] {
-          withMarkdGo(task.cmd, "--version")
+          withMarkdGo(task.Cmd, "--version")
         }
         t.getExitCode shouldBe 0
         t.getMessage shouldBe MarkdGo.Version
@@ -303,25 +303,25 @@ class MarkdGoSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach w
 
       it("throws an exception with --help") {
         val t = intercept[DocoptExitException] {
-          withMarkdGo(task.cmd, "--help")
+          withMarkdGo(task.Cmd, "--help")
         }
         t.getExitCode shouldBe 0
-        t.getMessage shouldBe task.doc
+        t.getMessage shouldBe task.Doc
       }
 
       it(s"throws an exception with unknown options") {
         for (
           args <- Seq(
-            Seq(task.cmd, "--garbage"),
-            Seq(task.cmd, "--debug", "--garbage"),
-            Seq(task.cmd, "--garbage", "--debug"),
-            Seq(task.cmd, "--garbage", "garbage")
+            Seq(task.Cmd, "--garbage"),
+            Seq(task.Cmd, "--debug", "--garbage"),
+            Seq(task.Cmd, "--garbage", "--debug"),
+            Seq(task.Cmd, "--garbage", "garbage")
           )
         ) withClue(s"Using: $args") {
           val t = intercept[InternalDocoptException] {
             withMarkdGo(args: _*)
           }
-          t.docopt shouldBe task.doc
+          t.docopt shouldBe task.Doc
           t.getMessage shouldBe null
         }
       }

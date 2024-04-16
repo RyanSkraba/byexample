@@ -1,5 +1,7 @@
 package com.skraba.byexample.scala.markd
 
+import com.skraba.docoptcli.DocoptCliGo
+
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -7,7 +9,11 @@ import scala.jdk.CollectionConverters._
 import scala.util.Try
 import scala.util.matching.Regex
 
-object DateCountdownTask {
+object DateCountdownTask extends DocoptCliGo.Task {
+
+  val Cmd = "datecount"
+
+  val Description = "Adjust countdown cells in tables."
 
   val Doc: String =
     """Look for tables with dates in a countdown format and fix them.
@@ -31,10 +37,6 @@ object DateCountdownTask {
       |
       |Other cells will not be modified.
       |""".stripMargin.trim
-
-  val Cmd = "datecount"
-
-  val Description = "Adjust countdown cells in tables."
 
   def go(opts: java.util.Map[String, AnyRef]): Unit = {
 
@@ -149,5 +151,4 @@ object DateCountdownTask {
     tbl.copy(mds = mds)
   }
 
-  val Task: MarkdGo.Task = MarkdGo.Task(Doc, Cmd, Description, go)
 }
