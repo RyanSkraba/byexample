@@ -1,40 +1,37 @@
 package com.skraba.byexample.scala.markd
 
-import com.skraba.byexample.scala.markd.MarkdGo.InternalDocoptException
-import com.skraba.byexample.scala.markd.MarkdGoSpec.withMarkdGo
+import com.skraba.docoptcli.DocoptCliGoSpec
 import org.docopt.DocoptExitException
-import org.scalatest.funspec.AnyFunSpecLike
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 
 /** Unit tests for [[MarkdGo]] */
-class MarkdGoSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach with BeforeAndAfterAll {
+class MarkdGoSpec extends DocoptCliGoSpec(MarkdGo) {
 
-  describe("MarkdGo docopt check") {
-    it("should have less than 80 characters per string for readability") {
-      for (line <- MarkdGo.Doc.split("\n")) {
+  describe(s"${Cli.Cli} docopt check") {
+    it("should have less than 80 characters per string for readability.") {
+      for (line <- Doc.split("\n")) {
         withClue("main" -> line) {
+          line.length should be < 80
+        }
+      }
+      for (
+        task <- Cli.Tasks;
+        line <- task.Doc.split("\n")
+      ) {
+        withClue(task.Cmd -> line) {
           line.length should be < 80
         }
       }
     }
   }
 
-  describe("MarkdGo invalid command lines") {
-    it("throws an exception with --version") {
-      val t = intercept[DocoptExitException] {
-        withMarkdGo("--version")
-      }
-      t.getExitCode shouldBe 0
-      t.getMessage shouldBe MarkdGo.Version
-    }
+  describe(s"${Cli.Cli} command line") {
 
-    it("throws an exception with --help") {
-      val t = intercept[DocoptExitException] {
-        withMarkdGo("--help")
-      }
-      t.getExitCode shouldBe 0
-      t.getMessage shouldBe MarkdGo.Doc
+    itShouldThrowOnHelpAndVersionFlags()
+
+    it("throw an exception like --help when run without a command") {
+      val t = interceptGoDocoptEx("--debug")
+      t.getMessage shouldBe "Missing command"
+      t.docopt shouldBe Cli.Doc
     }
 
     it(s"throws an exception with unknown options") {
@@ -47,7 +44,7 @@ class MarkdGoSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach w
         )
       ) withClue(s"Using: $args") {
         val t = intercept[DocoptExitException] {
-          withMarkdGo(args: _*)
+          withGo(args: _*)
         }
         t.getExitCode shouldBe 1
         t.getMessage shouldBe null
@@ -55,8 +52,8 @@ class MarkdGoSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach w
     }
 
     it("throws an exception with an unknown command") {
-      val t = intercept[InternalDocoptException] {
-        withMarkdGo("garbage")
+      val t = intercept[MarkdGo.InternalDocoptException] {
+        withGo("garbage")
       }
       t.getMessage shouldBe "Unknown command: garbage"
       t.docopt shouldBe MarkdGo.Doc
@@ -65,8 +62,8 @@ class MarkdGoSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach w
 
   describe("MarkdGo beautify") {
     it("throws an exception if no files are specified") {
-      val t = intercept[InternalDocoptException] {
-        withMarkdGo("beautify")
+      val t = intercept[MarkdGo.InternalDocoptException] {
+        withGo("beautify")
       }
       t.getMessage shouldBe null
       t.docopt shouldBe BeautifyTask.Doc
@@ -75,8 +72,8 @@ class MarkdGoSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach w
 
   describe("MarkdGo datecount") {
     it("throws an exception if no files are specified") {
-      val t = intercept[InternalDocoptException] {
-        withMarkdGo("datecount")
+      val t = intercept[MarkdGo.InternalDocoptException] {
+        withGo("datecount")
       }
       t.getMessage shouldBe null
       t.docopt shouldBe DateCountdownTask.Doc
@@ -286,8 +283,8 @@ class MarkdGoSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach w
 
     describe(s"MarkdGo ${task.Cmd} invalid command lines") {
       it("throws an exception if no files are specified") {
-        val t = intercept[InternalDocoptException] {
-          withMarkdGo(task.Cmd)
+        val t = intercept[MarkdGo.InternalDocoptException] {
+          withGo(task.Cmd)
         }
         t.getMessage shouldBe null
         t.docopt shouldBe task.Doc
@@ -295,7 +292,7 @@ class MarkdGoSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach w
 
       it("throws an exception with --version") {
         val t = intercept[DocoptExitException] {
-          withMarkdGo(task.Cmd, "--version")
+          withGo(task.Cmd, "--version")
         }
         t.getExitCode shouldBe 0
         t.getMessage shouldBe MarkdGo.Version
@@ -303,7 +300,7 @@ class MarkdGoSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach w
 
       it("throws an exception with --help") {
         val t = intercept[DocoptExitException] {
-          withMarkdGo(task.Cmd, "--help")
+          withGo(task.Cmd, "--help")
         }
         t.getExitCode shouldBe 0
         t.getMessage shouldBe task.Doc
@@ -318,48 +315,13 @@ class MarkdGoSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach w
             Seq(task.Cmd, "--garbage", "garbage")
           )
         ) withClue(s"Using: $args") {
-          val t = intercept[InternalDocoptException] {
-            withMarkdGo(args: _*)
+          val t = intercept[MarkdGo.InternalDocoptException] {
+            withGo(args: _*)
           }
           t.docopt shouldBe task.Doc
           t.getMessage shouldBe null
         }
       }
     }
-  }
-}
-
-object MarkdGoSpec {
-
-  import com.skraba.byexample.scala.scalatest.StdoutSpec.withConsoleMatch
-
-  /** A helper method used to capture the console of a ScalaGo execution and apply it to a partial function.
-    * @param args
-    *   String arguments to pass to the ScalaGo.go method
-    * @param pf
-    *   A partial function to apply matchers
-    * @tparam T
-    *   The return value type of the thunk code to execute
-    * @tparam U
-    *   The return value type of the partial function to return.
-    * @return
-    *   The return value of the partial function.
-    */
-  def withMarkdGoMatch[T, U](
-      args: String*
-  )(pf: scala.PartialFunction[(String, String), U]): U = {
-    withConsoleMatch(MarkdGo.go(args: _*)) { case (_, stdout, stderr) =>
-      pf(stdout, stderr)
-    }
-  }
-
-  /** A helper method used to capture the console of a ScalaGo execution and return the output.
-    * @param args
-    *   String arguments to pass to the ScalaGo.go method
-    * @return
-    *   A tuple of the stdout and stderr
-    */
-  def withMarkdGo(args: String*): (String, String) = {
-    withMarkdGoMatch(args: _*) { case any => any }
   }
 }

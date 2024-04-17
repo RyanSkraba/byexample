@@ -27,16 +27,8 @@ object BeautifyTask extends DocoptCliGo.Task {
 
   def go(opts: java.util.Map[String, AnyRef]): Unit = {
 
-    val files: Seq[String] =
-      opts
-        .get("FILE")
-        .asInstanceOf[java.lang.Iterable[String]]
-        .asScala
-        .toSeq
-
-    val cfg: ParserCfg = new ParserCfg(
-      sortLinkRefs = opts.get("--sortLinkRefs").toString.toBoolean
-    )
+    val files: Seq[String] = opts.get("FILE").asInstanceOf[java.lang.Iterable[String]].asScala.toSeq
+    val cfg: ParserCfg = new ParserCfg(sortLinkRefs = opts.get("--sortLinkRefs").toString.toBoolean)
 
     MarkdGo.processMd(files) { f =>
       {
