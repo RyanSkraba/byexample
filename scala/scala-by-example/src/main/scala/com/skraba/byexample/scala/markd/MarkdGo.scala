@@ -10,7 +10,7 @@ import scala.reflect.io.{Directory, File, Path}
   */
 object MarkdGo extends DocoptCliGo {
 
-  override lazy val Cli: String = this.getClass.getSimpleName
+  override lazy val Cli: String = "MarkdGo"
 
   override lazy val Version: String = "0.0.1-SNAPSHOT"
 
