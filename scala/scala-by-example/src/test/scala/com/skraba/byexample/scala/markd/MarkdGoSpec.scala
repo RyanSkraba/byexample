@@ -5,24 +5,6 @@ import com.skraba.docoptcli.DocoptCliGoSpec
 /** Unit tests for [[MarkdGo]] */
 class MarkdGoSpec extends DocoptCliGoSpec(MarkdGo) {
 
-  describe(s"${Cli.Cli} docopt check") {
-    it("should have less than 80 characters per string for readability.") {
-      for (line <- Doc.split("\n")) {
-        withClue("main" -> line) {
-          line.length should be < 80
-        }
-      }
-      for (
-        task <- Cli.Tasks;
-        line <- task.Doc.split("\n")
-      ) {
-        withClue(task.Cmd -> line) {
-          line.length should be < 80
-        }
-      }
-    }
-  }
-
   describe(s"${Cli.Cli} command line") {
 
     itShouldThrowOnHelpAndVersionFlags()
