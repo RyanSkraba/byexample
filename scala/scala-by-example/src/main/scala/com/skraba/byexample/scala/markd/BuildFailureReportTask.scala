@@ -36,6 +36,55 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       comment: Option[String]
   )
 
+  object Investigation {
+
+    val SplitHttpsRegex: Regex = raw"\s*(.*?)\s*(https?://\S*)?".r
+    def apply(
+        investigateDate: String,
+        buildVersion: String,
+        buildDescription: String,
+        buildLink: String,
+        content: String,
+        comment: Option[String]
+    ): Investigation = {
+      val (jobAndStep, jogLogLink, jira, jiraHint) = parseJobFailure(content.split('\n'): _*)
+      Investigation(
+        investigateDate,
+        buildVersion,
+        buildDescription,
+        buildLink,
+        jobAndStep,
+        jogLogLink,
+        jira,
+        jiraHint,
+        comment
+      )
+    }
+
+    def parseJobFailure(in: String*): (String, String, String, String) = {
+      val (jobAndStep, jobLinkLog) = in.headOption match {
+        case Some(SplitHttpsRegex(before, uri)) => (before, uri)
+        case _                                  => ("", "")
+      }
+
+      val (jira, jiraHint) = in.drop(1).headOption.getOrElse("XXXXX").span(!_.isWhitespace)
+
+      (jobAndStep, jobLinkLog, jira, jiraHint.trim)
+    }
+
+    def parseBuildTitle(in: String): (String, String, String) = {
+      val (buildVersionAndDescription, buildLink) = in match {
+        case SplitHttpsRegex(before, null) => (before, "")
+        case SplitHttpsRegex(before, uri)  => (before, uri)
+      }
+
+      val (buildVersion, buildDescription) = buildVersionAndDescription.span(!_.isWhitespace)
+
+      (buildVersion.trim, buildDescription.trim, buildLink.trim)
+    }
+
+  }
+
   def go(opts: java.util.Map[String, AnyRef]): Unit = {
 
     val files: String = opts.get("FILE").asInstanceOf[String]
@@ -46,22 +95,30 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
         .collectFirstRecursive { case global @ Header("Flink Build Failures", 1, _) => global }
         .getOrElse { throw new IllegalArgumentException("Can't find failure report") }
 
-      val byJira: Map[String, Seq[Investigation]] =
-        Map(
-          "FLINK-12345" -> Seq(
-            Investigation(
-              date = "date",
-              buildVersion = "buildVersion",
-              buildDesc = "buildDesc",
-              buildLink = "buildLink",
-              jobAndStep = "jobAndStep",
-              jogLogLink = "jogLogLink",
-              jira = "jira",
-              jiraHint = "jiraHint",
-              comment = None
-            )
-          )
-        )
+      val results = global.mds
+        .collect { case daily @ Header(investigateDate, 2, _) =>
+          daily.mds.collect { case buildDetails @ Header(buildTitle, 3, _) =>
+            val (buildVersion, buildDescription, buildLink) = Investigation.parseBuildTitle(buildTitle)
+
+            (buildDetails.mds.collect {
+              case p: Paragraph => p
+              case c: Code      => c
+            } :+ Comment("Ignored"))
+              .sliding(2)
+              .flatMap {
+                case Seq(Paragraph(content), c: Code) =>
+                  Some(
+                    Investigation(investigateDate, buildVersion, buildDescription, buildLink, content, Some(c.content))
+                  )
+                case Seq(Paragraph(content), _*) =>
+                  Some(Investigation(investigateDate, buildVersion, buildDescription, buildLink, content, None))
+                case _ => None
+              }
+          }
+        }
+
+      val byJira = results.flatten.flatten
+        .groupBy(_.jira)
 
       val output: Header = Header(
         "By Jira",

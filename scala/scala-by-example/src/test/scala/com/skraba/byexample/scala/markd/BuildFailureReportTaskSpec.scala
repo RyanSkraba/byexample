@@ -21,7 +21,15 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
 
   describe("On parsing a file") {
     val Basic = (Tmp / "basic").createDirectory()
-    File(Basic / "failures.md").writeAll("# Flink Build Failures")
+    File(Basic / "failures.md").writeAll("""# Flink Build Failures
+        |
+        |## YYYY-MM-DD
+        |
+        |### 1.99 build information http://buildLink.com
+        |
+        |job information http://joblink.com
+        |JIRA-123 this is what happened
+        |""".stripMargin)
 
     it("should work") {
       withGoMatching(TaskCmd, Basic / "failures.md") { case (stdout, _) =>
@@ -29,10 +37,10 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
           """By Jira
             |==============================================================================
             |
-            |FLINK-12345 https://issues.apache.org/jira/browse/FLINK-12345
+            |JIRA-123 https://issues.apache.org/jira/browse/JIRA-123
             |------------------------------------------------------------------------------
             |
-            |* buildVersion jobAndStep jogLogLink
+            |* 1.99 job information http://joblink.com
             |""".stripMargin
       }
     }
