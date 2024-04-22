@@ -24,6 +24,26 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       |This has a very specific use, but is also a nice task example.
       |""".stripMargin.trim
 
+  /** All of the information that was collected during a build failure investigation
+    * @param date
+    *   The date that the build failure was investigated (not the date it failed)
+    * @param buildVersion
+    *   The version that was being build
+    * @param buildDesc
+    *   A short description that the CI uses to refer to the build
+    * @param buildLink
+    *   The link to the CI build failure
+    * @param jobAndStep
+    *   The specific job and step in the build that failed
+    * @param jogLogLink
+    *   A link to the error in the build logs (if any)
+    * @param jira
+    *   The JIRA/defect that was identified to have caused the build
+    * @param jiraHint
+    *   A helpful hint to refer to the JIRA
+    * @param comment
+    *   If present, additional comments to add to the JIRA
+    */
   case class Investigation(
       date: String,
       buildVersion: String,
