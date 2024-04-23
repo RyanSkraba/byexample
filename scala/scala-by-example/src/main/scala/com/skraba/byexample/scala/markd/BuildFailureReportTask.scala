@@ -21,7 +21,22 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       |  --version       Show version.
       |  FILE            File to read and summarize
       |
-      |This has a very specific use, but is also a nice task example.
+      |This has a very specific use, but is also a nice example for parsing and
+      |generating markdown.  The input file should have a format like:
+      |
+      |```
+      |# Project Build Failures
+      |
+      |## YYYY-MM-DD The date the failure was investigated
+      |
+      |### 1.99 CI build description
+      |
+      |Job or stage description http://linksToLogs
+      |JIRA-1234 Jira description
+      |
+      |Job or stage description http://linksToLogs
+      |JIRA-1234 Jira description
+      |```
       |""".stripMargin.trim
 
   /** All of the information that was collected during a build failure investigation
