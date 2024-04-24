@@ -31,10 +31,10 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       |
       |### 1.99 CI build description
       |
-      |Job or stage description http://linksToLogs
+      |Job or step description http://linksToLogs
       |JIRA-1234 Jira description
       |
-      |Job or stage description http://linksToLogs
+      |Job or step description http://linksToLogs
       |JIRA-1234 Jira description
       |```
       |""".stripMargin.trim
@@ -43,9 +43,9 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
     * @param date
     *   The date that the build failure was investigated (not the date it failed)
     * @param buildVersion
-    *   The version that was being build
+    *   The version that was being built
     * @param buildDesc
-    *   A short description that the CI uses to refer to the build
+    *   A short description that the CI uses to refer to the build (workflow name)
     * @param buildLink
     *   The link to the CI build failure
     * @param jobAndStep
@@ -53,13 +53,13 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
     * @param jogLogLink
     *   A link to the error in the build logs (if any)
     * @param jira
-    *   The JIRA/defect that was identified to have caused the build
+    *   The JIRA/defect that was identified to have caused the failure
     * @param jiraHint
     *   A helpful hint to refer to the JIRA
     * @param comment
-    *   If present, additional comments to add to the JIRA
+    *   If present, additional comments in a code block to add to the JIRA
     */
-  case class Investigation(
+  case class FailedBuild(
       date: String,
       buildVersion: String,
       buildDesc: String,
@@ -71,20 +71,20 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       comment: Option[String]
   )
 
-  object Investigation {
+  object FailedBuild {
 
     val SplitHttpsRegex: Regex = raw"\s*(.*?)\s*(https?://\S*)?".r
     def apply(
-        investigateDate: String,
+        date: String,
         buildVersion: String,
         buildDescription: String,
         buildLink: String,
         content: String,
         comment: Option[String]
-    ): Investigation = {
+    ): FailedBuild = {
       val (jobAndStep, jogLogLink, jira, jiraHint) = parseJobFailure(content.split('\n'): _*)
-      Investigation(
-        investigateDate,
+      FailedBuild(
+        date,
         buildVersion,
         buildDescription,
         buildLink,
@@ -133,7 +133,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       val results = global.mds
         .collect { case daily @ Header(investigateDate, 2, _) =>
           daily.mds.collect { case buildDetails @ Header(buildTitle, 3, _) =>
-            val (buildVersion, buildDescription, buildLink) = Investigation.parseBuildTitle(buildTitle)
+            val (buildVersion, buildDescription, buildLink) = FailedBuild.parseBuildTitle(buildTitle)
 
             (buildDetails.mds.collect {
               case p: Paragraph => p
@@ -143,10 +143,10 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
               .flatMap {
                 case Seq(Paragraph(content), c: Code) =>
                   Some(
-                    Investigation(investigateDate, buildVersion, buildDescription, buildLink, content, Some(c.content))
+                    FailedBuild(investigateDate, buildVersion, buildDescription, buildLink, content, Some(c.content))
                   )
                 case Seq(Paragraph(content), _*) =>
-                  Some(Investigation(investigateDate, buildVersion, buildDescription, buildLink, content, None))
+                  Some(FailedBuild(investigateDate, buildVersion, buildDescription, buildLink, content, None))
                 case _ => None
               }
           }
