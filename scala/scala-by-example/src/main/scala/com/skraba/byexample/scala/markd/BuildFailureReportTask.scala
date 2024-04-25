@@ -54,7 +54,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
     *   A link to the error in the build logs (if any)
     * @param jira
     *   The JIRA/defect that was identified to have caused the failure
-    * @param jiraHint
+    * @param jiraDesc
     *   A helpful hint to refer to the JIRA
     * @param comment
     *   If present, additional comments in a code block to add to the JIRA
@@ -67,44 +67,49 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       jobAndStep: String,
       jogLogLink: String,
       jira: String,
-      jiraHint: String,
+      jiraDesc: String,
       comment: Option[String]
   )
 
   object FailedBuild {
 
-    val SplitHttpsRegex: Regex = raw"\s*(.*?)\s*(https?://\S*)?".r
+    /** Regex for separating off an http(s) URL from the end of a string. */
+    val SplitHttpsRegex: Regex = raw"\s*(.*?)\s+(https?://\S*)?".r
+
+    /** Construct a description of a failed build where
+      * @param date
+      *   The date that the build failure was investigated (not the date it failed)
+      * @param buildVersion
+      *   The version that was being built
+      * @param buildDesc
+      *   A short description that the CI uses to refer to the build (workflow name)
+      * @param buildLink
+      *   The link to the CI build failure
+      * @param jobAndJiraInfo
+      *   A paragraph of information about the job that should be parsed further
+      * @param comment
+      *   If present, additional comments in a code block to add to the JIRA
+      */
     def apply(
         date: String,
         buildVersion: String,
-        buildDescription: String,
+        buildDesc: String,
         buildLink: String,
-        content: String,
+        jobAndJiraInfo: String,
         comment: Option[String]
     ): FailedBuild = {
-      val (jobAndStep, jogLogLink, jira, jiraHint) = parseJobFailure(content.split('\n'): _*)
+      val (jobAndStep, jogLogLink, jira, jiraDesc) = parseJobFailure(jobAndJiraInfo.split('\n'): _*)
       FailedBuild(
         date,
         buildVersion,
-        buildDescription,
+        buildDesc,
         buildLink,
         jobAndStep,
         jogLogLink,
         jira,
-        jiraHint,
+        jiraDesc,
         comment
       )
-    }
-
-    def parseJobFailure(in: String*): (String, String, String, String) = {
-      val (jobAndStep, jobLinkLog) = in.headOption match {
-        case Some(SplitHttpsRegex(before, uri)) => (before, uri)
-        case _                                  => ("", "")
-      }
-
-      val (jira, jiraHint) = in.drop(1).headOption.getOrElse("XXXXX").span(!_.isWhitespace)
-
-      (jobAndStep, jobLinkLog, jira, jiraHint.trim)
     }
 
     def parseBuildTitle(in: String): (String, String, String) = {
@@ -116,6 +121,17 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       val (buildVersion, buildDescription) = buildVersionAndDescription.span(!_.isWhitespace)
 
       (buildVersion.trim, buildDescription.trim, buildLink.trim)
+    }
+
+    def parseJobFailure(in: String*): (String, String, String, String) = {
+      val (jobAndStep, jobLinkLog) = in.headOption match {
+        case Some(SplitHttpsRegex(before, uri)) => (before, uri)
+        case _                                  => ("", "")
+      }
+
+      val (jira, jiraHint) = in.drop(1).headOption.getOrElse("XXXXX").span(!_.isWhitespace)
+
+      (jobAndStep, jobLinkLog, jira, jiraHint.trim)
     }
 
   }
