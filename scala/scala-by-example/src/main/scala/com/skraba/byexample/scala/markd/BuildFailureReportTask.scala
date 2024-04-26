@@ -98,7 +98,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
         jobAndJiraInfo: String,
         comment: Option[String]
     ): FailedBuild = {
-      val (jobAndStep, jogLogLink, jira, jiraDesc) = parseJobFailure(jobAndJiraInfo.split('\n'): _*)
+      val (jobAndStep, jogLogLink, jira, jiraDesc) = parseJobAndJiraInfo(jobAndJiraInfo.split('\n'): _*)
       FailedBuild(
         date,
         buildVersion,
@@ -123,15 +123,23 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       (buildVersion.trim, buildDescription.trim, buildLink.trim)
     }
 
-    def parseJobFailure(in: String*): (String, String, String, String) = {
-      val (jobAndStep, jobLinkLog) = in.headOption match {
+    /** Separates content about a specific build failure for a job step into some specific attributes.
+      * @param in
+      *   A paragraph describing the build failure
+      * @return
+      *   A tuple containing (in order) the jobAndStep, jobLogLink, jira and jiraDesc to be put into a [[FailedBuild]]
+      *   instance.
+      */
+    def parseJobAndJiraInfo(in: String*): (String, String, String, String) = {
+      // Get the jobAndStep and jobLinkLog from the first line
+      val (jobAndStep, jogLogLink) = in.headOption match {
         case Some(SplitHttpsRegex(before, uri)) => (before, uri)
         case _                                  => ("", "")
       }
 
-      val (jira, jiraHint) = in.drop(1).headOption.getOrElse("XXXXX").span(!_.isWhitespace)
-
-      (jobAndStep, jobLinkLog, jira, jiraHint.trim)
+      // And get the jira information from the second line
+      val (jira, jiraDesc) = in.drop(1).headOption.getOrElse("XXXXX").span(!_.isWhitespace)
+      (jobAndStep, jogLogLink, jira, jiraDesc.trim)
     }
 
   }
