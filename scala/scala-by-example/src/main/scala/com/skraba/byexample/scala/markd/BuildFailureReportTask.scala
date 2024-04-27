@@ -112,15 +112,18 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       )
     }
 
+    /** @param in
+      *   The CI build title
+      * @return
+      *   The buildVersion, buildDesc and buildLink to be put into a [[FailedBuild]]
+      */
     def parseBuildTitle(in: String): (String, String, String) = {
       val (buildVersionAndDescription, buildLink) = in match {
         case SplitHttpsRegex(before, null) => (before, "")
         case SplitHttpsRegex(before, uri)  => (before, uri)
       }
-
-      val (buildVersion, buildDescription) = buildVersionAndDescription.span(!_.isWhitespace)
-
-      (buildVersion.trim, buildDescription.trim, buildLink.trim)
+      val (buildVersion, buildDesc) = buildVersionAndDescription.span(!_.isWhitespace)
+      (buildVersion.trim, buildDesc.trim, buildLink.trim)
     }
 
     /** Separates content about a specific build failure for a job step into some specific attributes.
@@ -141,7 +144,6 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       val (jira, jiraDesc) = in.drop(1).headOption.getOrElse("XXXXX").span(!_.isWhitespace)
       (jobAndStep, jogLogLink, jira, jiraDesc.trim)
     }
-
   }
 
   def go(opts: java.util.Map[String, AnyRef]): Unit = {
