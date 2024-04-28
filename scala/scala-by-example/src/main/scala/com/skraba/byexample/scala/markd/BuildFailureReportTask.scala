@@ -74,7 +74,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
   object FailedBuild {
 
     /** Regex for separating off an http(s) URL from the end of a string. */
-    val SplitHttpsRegex: Regex = raw"\s*(.*?)\s+(https?://\S*)?".r
+    val SplitHttpsRegex: Regex = raw"(.*?)((?<!\S)https?://\S*)".r
 
     /** Construct a description of a failed build where
       * @param date
@@ -112,15 +112,16 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       )
     }
 
-    /** @param in
+    /** Separates content about a specific build failure into some specific attributes
+      * @param in
       *   The CI build title
       * @return
       *   The buildVersion, buildDesc and buildLink to be put into a [[FailedBuild]]
       */
     def parseBuildTitle(in: String): (String, String, String) = {
       val (buildVersionAndDescription, buildLink) = in match {
-        case SplitHttpsRegex(before, null) => (before, "")
-        case SplitHttpsRegex(before, uri)  => (before, uri)
+        case SplitHttpsRegex(before, uri) => (before, uri)
+        case _                            => (in, "")
       }
       val (buildVersion, buildDesc) = buildVersionAndDescription.span(!_.isWhitespace)
       (buildVersion.trim, buildDesc.trim, buildLink.trim)
@@ -137,12 +138,13 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       // Get the jobAndStep and jobLinkLog from the first line
       val (jobAndStep, jogLogLink) = in.headOption match {
         case Some(SplitHttpsRegex(before, uri)) => (before, uri)
+        case Some(str)                          => (str, "")
         case _                                  => ("", "")
       }
 
       // And get the jira information from the second line
       val (jira, jiraDesc) = in.drop(1).headOption.getOrElse("XXXXX").span(!_.isWhitespace)
-      (jobAndStep, jogLogLink, jira, jiraDesc.trim)
+      (jobAndStep.trim, jogLogLink.trim, jira.trim, jiraDesc.trim)
     }
   }
 
