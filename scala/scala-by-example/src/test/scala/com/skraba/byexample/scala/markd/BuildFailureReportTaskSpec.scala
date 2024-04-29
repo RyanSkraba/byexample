@@ -56,6 +56,14 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
     it("should assign a 'abc def ghi http://joblink' to all attributes") {
       FailedBuild.parseBuildTitle("abc def ghi http://joblink") shouldBe ("abc", "def ghi", "http://joblink")
     }
+
+    it("should assign a 'abc def ghi://joblink' build version and link") {
+      FailedBuild.parseBuildTitle("abc def ghi://joblink") shouldBe ("abc", "def ghi://joblink", "")
+    }
+
+    it("should assign a 'abc def ghi xhttp://joblink' build version and link") {
+      FailedBuild.parseBuildTitle("abc def ghi xhttp://joblink") shouldBe ("abc", "def ghi xhttp://joblink", "")
+    }
   }
 
   describe("On parsing a file") {
