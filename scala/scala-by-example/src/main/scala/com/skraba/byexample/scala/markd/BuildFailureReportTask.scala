@@ -143,7 +143,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       }
 
       // And get the jira information from the second line
-      val (jira, jiraDesc) = in.drop(1).headOption.getOrElse("XXXXX").span(!_.isWhitespace)
+      val (jira, jiraDesc) = in.drop(1).headOption.getOrElse("").span(!_.isWhitespace)
       (jobAndStep.trim, jogLogLink.trim, jira.trim, jiraDesc.trim)
     }
   }

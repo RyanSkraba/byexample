@@ -66,6 +66,36 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
     }
   }
 
+  describe("Parsing job content") {
+    it("should return empty values for an empty string") {
+      FailedBuild.parseJobAndJiraInfo("") shouldBe ("", "", "", "")
+      FailedBuild.parseJobAndJiraInfo("", "") shouldBe ("", "", "", "")
+      FailedBuild.parseJobAndJiraInfo("", "", "ignored") shouldBe ("", "", "", "")
+    }
+
+    it("should find build steps and URLS in the first line") {
+      // No URL link
+      FailedBuild.parseJobAndJiraInfo("info") shouldBe ("info", "", "", "")
+      FailedBuild.parseJobAndJiraInfo("info", "") shouldBe ("info", "", "", "")
+      FailedBuild.parseJobAndJiraInfo("info abc") shouldBe ("info abc", "", "", "")
+      FailedBuild.parseJobAndJiraInfo("info abc", "") shouldBe ("info abc", "", "", "")
+      FailedBuild.parseJobAndJiraInfo("info htp://link") shouldBe ("info htp://link", "", "", "")
+      FailedBuild.parseJobAndJiraInfo("info htp://link", "") shouldBe ("info htp://link", "", "", "")
+      FailedBuild.parseJobAndJiraInfo("info xhttps://link") shouldBe ("info xhttps://link", "", "", "")
+      FailedBuild.parseJobAndJiraInfo("info xhttps://link", "") shouldBe ("info xhttps://link", "", "", "")
+
+      // With URL links
+      FailedBuild.parseJobAndJiraInfo("http://link") shouldBe ("", "http://link", "", "")
+      FailedBuild.parseJobAndJiraInfo("http://link", "") shouldBe ("", "http://link", "", "")
+      FailedBuild.parseJobAndJiraInfo("info http://link") shouldBe ("info", "http://link", "", "")
+      FailedBuild.parseJobAndJiraInfo("info http://link", "") shouldBe ("info", "http://link", "", "")
+      FailedBuild.parseJobAndJiraInfo("info abc http://link") shouldBe ("info abc", "http://link", "", "")
+      FailedBuild.parseJobAndJiraInfo("info abc http://link", "") shouldBe ("info abc", "http://link", "", "")
+      FailedBuild.parseJobAndJiraInfo("info https://link") shouldBe ("info", "https://link", "", "")
+      FailedBuild.parseJobAndJiraInfo("info https://link", "") shouldBe ("info", "https://link", "", "")
+    }
+  }
+
   describe("On parsing a file") {
     val Basic = (Tmp / "basic").createDirectory()
     File(Basic / "failures.md").writeAll("""# Flink Build Failures
