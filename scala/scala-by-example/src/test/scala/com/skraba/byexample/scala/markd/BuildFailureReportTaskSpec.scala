@@ -82,6 +82,10 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
         |
         |job information http://joblink.com
         |JIRA-123 this is what happened
+        |
+        |job2 information http://job2link.com
+        |JIRA-123 that is what happened
+        |
         |""".stripMargin)
 
     it("should work") {
@@ -94,6 +98,7 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
             |------------------------------------------------------------------------------
             |
             |* 1.99 job information http://joblink.com
+            |* 1.99 job2 information http://job2link.com
             |""".stripMargin
       }
     }
