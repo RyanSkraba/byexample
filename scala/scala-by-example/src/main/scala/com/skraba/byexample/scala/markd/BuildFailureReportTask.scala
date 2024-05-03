@@ -24,19 +24,25 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       |This has a very specific use, but is also a nice example for parsing and
       |generating markdown.  The input file should have a format like:
       |
-      |```
-      |# Project Build Failures
+      |  # Project Build Failures
       |
-      |## YYYY-MM-DD The date the failure was investigated
+      |  ## YYYY-MM-DD The date the failure was investigated
       |
-      |### 1.99 CI build description
+      |  ### 1.99 CI build description http://buildlink
       |
-      |Job or step description http://linksToLogs
-      |JIRA-1234 Jira description
+      |  Job or step description http://joblink
+      |  JIRA-1234 Jira description
       |
-      |Job or step description http://linksToLogs
-      |JIRA-1234 Jira description
-      |```
+      |  ```
+      |  Optional extra information in a code block of any size
+      |  ```
+      |
+      |  Job or step description http://joblink
+      |  JIRA-1234 Jira description
+      |  
+      |  Job or step description http://joblink
+      |  JIRA-1235 Jira description
+      |
       |""".stripMargin.trim
 
   /** All of the information that was collected during a build failure investigation
