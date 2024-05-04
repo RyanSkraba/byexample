@@ -31,12 +31,12 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
       FailedBuild.parseBuildTitle(" abc ") shouldBe ("", "abc", "")
       FailedBuild.parseBuildTitle(" abc def ") shouldBe ("", "abc def", "")
       FailedBuild.parseBuildTitle("abc def ghi") shouldBe ("abc", "def ghi", "")
-      FailedBuild.parseBuildTitle("http://joblink") shouldBe ("", "", "http://joblink")
-      FailedBuild.parseBuildTitle("abc http://joblink") shouldBe ("abc", "", "http://joblink")
-      FailedBuild.parseBuildTitle(" abc http://joblink") shouldBe ("", "abc", "http://joblink")
-      FailedBuild.parseBuildTitle("abc def ghi http://joblink") shouldBe ("abc", "def ghi", "http://joblink")
-      FailedBuild.parseBuildTitle("abc def ghi://joblink") shouldBe ("abc", "def ghi://joblink", "")
-      FailedBuild.parseBuildTitle("abc def ghi xhttp://joblink") shouldBe ("abc", "def ghi xhttp://joblink", "")
+      FailedBuild.parseBuildTitle("http://link") shouldBe ("", "", "http://link")
+      FailedBuild.parseBuildTitle("abc http://link") shouldBe ("abc", "", "http://link")
+      FailedBuild.parseBuildTitle(" abc http://link") shouldBe ("", "abc", "http://link")
+      FailedBuild.parseBuildTitle("abc def ghi http://link") shouldBe ("abc", "def ghi", "http://link")
+      FailedBuild.parseBuildTitle("abc def ghi://link") shouldBe ("abc", "def ghi://link", "")
+      FailedBuild.parseBuildTitle("abc def ghi xhttp://link") shouldBe ("abc", "def ghi xhttp://link", "")
     }
   }
 
@@ -69,6 +69,16 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
       FailedBuild.parseJobAndJiraInfo("info abc http://link", "") shouldBe ("info abc", "http://link", "", "")
       FailedBuild.parseJobAndJiraInfo("info https://link") shouldBe ("info", "https://link", "", "")
       FailedBuild.parseJobAndJiraInfo("info https://link", "") shouldBe ("info", "https://link", "", "")
+    }
+
+    it("should find defect/jira information in the second line") {
+      FailedBuild.parseJobAndJiraInfo("", "info") shouldBe ("", "", "info", "")
+      FailedBuild.parseJobAndJiraInfo("", "info", "ignored") shouldBe ("", "", "info", "")
+      FailedBuild.parseJobAndJiraInfo("", " info ") shouldBe ("", "", "", "info")
+      FailedBuild.parseJobAndJiraInfo("", "info abc") shouldBe ("", "", "info", "abc")
+      FailedBuild.parseJobAndJiraInfo("", "info abc def") shouldBe ("", "", "info", "abc def")
+      FailedBuild.parseJobAndJiraInfo("", "info abc def", "ignored") shouldBe ("", "", "info", "abc def")
+      FailedBuild.parseJobAndJiraInfo("", " info abc def", "ignored") shouldBe ("", "", "", "info abc def")
     }
   }
 
