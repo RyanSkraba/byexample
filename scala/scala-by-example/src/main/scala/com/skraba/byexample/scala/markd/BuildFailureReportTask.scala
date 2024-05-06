@@ -14,12 +14,13 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
     """Summarize a markdown report on build failures.
       |
       |Usage:
-      |  MarkdGo buildfail FILE
+      |  MarkdGo buildfail [--all] FILE
       |
       |Options:
-      |  -h --help       Show this screen.
-      |  --version       Show version.
-      |  FILE            File to read and summarize
+      |  -h --help  Show this screen.
+      |  --version  Show version.
+      |  --all      Report using all of the build investigations in the file.
+      |  FILE       File to read and summarize
       |
       |This has a very specific use, but is also a nice example for parsing and
       |generating markdown.  The input file should have a format like:
@@ -43,6 +44,9 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       |  Job or step description http://joblink
       |  JIRA-1235 Jira description
       |
+      |By default, only the last investigation date is reported (one day).  If --all
+      |is specified, the entire file is used.
+      |
       |""".stripMargin.trim
 
   /** All of the information that was collected during a build failure investigation
@@ -65,7 +69,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
     * @param comment
     *   If present, additional comments in a code block to add to the JIRA
     */
-  case class FailedBuild(
+  case class FailedStep(
       date: String,
       buildVersion: String,
       buildDesc: String,
@@ -77,7 +81,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       comment: Option[String]
   )
 
-  object FailedBuild {
+  object FailedStep {
 
     /** Regex for separating off an http(s) URL from the end of a string. */
     val SplitHttpsRegex: Regex = raw"(.*?)((?<!\S)https?://\S*)".r
@@ -103,9 +107,9 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
         buildLink: String,
         jobAndJiraInfo: String,
         comment: Option[String]
-    ): FailedBuild = {
+    ): FailedStep = {
       val (jobAndStep, jogLogLink, jira, jiraDesc) = parseJobAndJiraInfo(jobAndJiraInfo.split('\n'): _*)
-      FailedBuild(
+      FailedStep(
         date,
         buildVersion,
         buildDesc,
@@ -119,10 +123,11 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
     }
 
     /** Separates content about a specific build failure into some specific attributes
+      *
       * @param in
       *   The CI build title
       * @return
-      *   The buildVersion, buildDesc and buildLink to be put into a [[FailedBuild]]
+      *   The buildVersion, buildDesc and buildLink to be put into a [[FailedStep]]
       */
     def parseBuildTitle(in: String): (String, String, String) = {
       val (buildVersionAndDescription, buildLink) = in match {
@@ -134,10 +139,11 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
     }
 
     /** Separates content about a specific build failure for a job step into some specific attributes.
+      *
       * @param in
       *   A paragraph describing the build failure
       * @return
-      *   A tuple containing (in order) the jobAndStep, jobLogLink, jira and jiraDesc to be put into a [[FailedBuild]]
+      *   A tuple containing (in order) the jobAndStep, jobLogLink, jira and jiraDesc to be put into a [[FailedStep]]
       *   instance.
       */
     def parseJobAndJiraInfo(in: String*): (String, String, String, String) = {
@@ -157,6 +163,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
   def go(opts: java.util.Map[String, AnyRef]): Unit = {
 
     val files: String = opts.get("FILE").asInstanceOf[String]
+    val chooseAll: Boolean = opts.get("--all").toString.toBoolean
 
     MarkdGo.processMd(Seq(files)) { f =>
       val global: Header = Header
@@ -164,10 +171,10 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
         .collectFirstRecursive { case global @ Header("Flink Build Failures", 1, _) => global }
         .getOrElse { throw new IllegalArgumentException("Can't find failure report") }
 
-      val results = global.mds
+      val byInvestigationDate: Seq[Seq[Seq[FailedStep]]] = global.mds
         .collect { case daily @ Header(investigateDate, 2, _) =>
           daily.mds.collect { case buildDetails @ Header(buildTitle, 3, _) =>
-            val (buildVersion, buildDescription, buildLink) = FailedBuild.parseBuildTitle(buildTitle)
+            val (buildVersion, buildDescription, buildLink) = FailedStep.parseBuildTitle(buildTitle)
 
             (buildDetails.mds.collect {
               case p: Paragraph => p
@@ -177,14 +184,21 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
               .flatMap {
                 case Seq(Paragraph(content), c: Code) =>
                   Some(
-                    FailedBuild(investigateDate, buildVersion, buildDescription, buildLink, content, Some(c.content))
+                    FailedStep(investigateDate, buildVersion, buildDescription, buildLink, content, Some(c.content))
                   )
                 case Seq(Paragraph(content), _*) =>
-                  Some(FailedBuild(investigateDate, buildVersion, buildDescription, buildLink, content, None))
+                  Some(FailedStep(investigateDate, buildVersion, buildDescription, buildLink, content, None))
                 case _ => None
               }
+              .toSeq
           }
         }
+
+      val results: Seq[Seq[Seq[FailedStep]]] = if (chooseAll) {
+        byInvestigationDate
+      } else {
+        byInvestigationDate.take(1)
+      }
 
       val byJira = results.flatten.flatten
         .groupBy(_.jira)

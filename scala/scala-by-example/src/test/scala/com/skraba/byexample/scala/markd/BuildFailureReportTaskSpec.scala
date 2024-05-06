@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.markd
 
-import com.skraba.byexample.scala.markd.BuildFailureReportTask.FailedBuild
+import com.skraba.byexample.scala.markd.BuildFailureReportTask.FailedStep
 import com.skraba.docoptcli.DocoptCliGoSpec
 
 import scala.reflect.io.{Directory, File}
@@ -22,67 +22,67 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
 
   describe("Parsing build titles") {
     it("should return empty values for an empty string") {
-      FailedBuild.parseBuildTitle("") shouldBe ("", "", "")
+      FailedStep.parseBuildTitle("") shouldBe ("", "", "")
     }
 
     it("should find build attributes") {
-      FailedBuild.parseBuildTitle("abc") shouldBe ("abc", "", "")
-      FailedBuild.parseBuildTitle("abc ") shouldBe ("abc", "", "")
-      FailedBuild.parseBuildTitle(" abc ") shouldBe ("", "abc", "")
-      FailedBuild.parseBuildTitle(" abc def ") shouldBe ("", "abc def", "")
-      FailedBuild.parseBuildTitle("abc def ghi") shouldBe ("abc", "def ghi", "")
-      FailedBuild.parseBuildTitle("http://link") shouldBe ("", "", "http://link")
-      FailedBuild.parseBuildTitle("abc http://link") shouldBe ("abc", "", "http://link")
-      FailedBuild.parseBuildTitle(" abc http://link") shouldBe ("", "abc", "http://link")
-      FailedBuild.parseBuildTitle("abc def ghi http://link") shouldBe ("abc", "def ghi", "http://link")
-      FailedBuild.parseBuildTitle("abc def ghi://link") shouldBe ("abc", "def ghi://link", "")
-      FailedBuild.parseBuildTitle("abc def ghi xhttp://link") shouldBe ("abc", "def ghi xhttp://link", "")
+      FailedStep.parseBuildTitle("abc") shouldBe ("abc", "", "")
+      FailedStep.parseBuildTitle("abc ") shouldBe ("abc", "", "")
+      FailedStep.parseBuildTitle(" abc ") shouldBe ("", "abc", "")
+      FailedStep.parseBuildTitle(" abc def ") shouldBe ("", "abc def", "")
+      FailedStep.parseBuildTitle("abc def ghi") shouldBe ("abc", "def ghi", "")
+      FailedStep.parseBuildTitle("http://link") shouldBe ("", "", "http://link")
+      FailedStep.parseBuildTitle("abc http://link") shouldBe ("abc", "", "http://link")
+      FailedStep.parseBuildTitle(" abc http://link") shouldBe ("", "abc", "http://link")
+      FailedStep.parseBuildTitle("abc def ghi http://link") shouldBe ("abc", "def ghi", "http://link")
+      FailedStep.parseBuildTitle("abc def ghi://link") shouldBe ("abc", "def ghi://link", "")
+      FailedStep.parseBuildTitle("abc def ghi xhttp://link") shouldBe ("abc", "def ghi xhttp://link", "")
     }
   }
 
   describe("Parsing job content") {
     it("should return empty values for an empty string") {
-      FailedBuild.parseJobAndJiraInfo("") shouldBe ("", "", "", "")
-      FailedBuild.parseJobAndJiraInfo("", "") shouldBe ("", "", "", "")
-      FailedBuild.parseJobAndJiraInfo("", "", "ignored") shouldBe ("", "", "", "")
+      FailedStep.parseJobAndJiraInfo("") shouldBe ("", "", "", "")
+      FailedStep.parseJobAndJiraInfo("", "") shouldBe ("", "", "", "")
+      FailedStep.parseJobAndJiraInfo("", "", "ignored") shouldBe ("", "", "", "")
     }
 
     it("should find build steps and URLS in the first line") {
       // No URL link
-      FailedBuild.parseJobAndJiraInfo("info") shouldBe ("info", "", "", "")
-      FailedBuild.parseJobAndJiraInfo("info", "") shouldBe ("info", "", "", "")
-      FailedBuild.parseJobAndJiraInfo(" info ") shouldBe ("info", "", "", "")
-      FailedBuild.parseJobAndJiraInfo(" info ", "") shouldBe ("info", "", "", "")
-      FailedBuild.parseJobAndJiraInfo("info abc") shouldBe ("info abc", "", "", "")
-      FailedBuild.parseJobAndJiraInfo("info abc", "") shouldBe ("info abc", "", "", "")
-      FailedBuild.parseJobAndJiraInfo("info htp://link") shouldBe ("info htp://link", "", "", "")
-      FailedBuild.parseJobAndJiraInfo("info htp://link", "") shouldBe ("info htp://link", "", "", "")
-      FailedBuild.parseJobAndJiraInfo("info xhttps://link") shouldBe ("info xhttps://link", "", "", "")
-      FailedBuild.parseJobAndJiraInfo("info xhttps://link", "") shouldBe ("info xhttps://link", "", "", "")
+      FailedStep.parseJobAndJiraInfo("info") shouldBe ("info", "", "", "")
+      FailedStep.parseJobAndJiraInfo("info", "") shouldBe ("info", "", "", "")
+      FailedStep.parseJobAndJiraInfo(" info ") shouldBe ("info", "", "", "")
+      FailedStep.parseJobAndJiraInfo(" info ", "") shouldBe ("info", "", "", "")
+      FailedStep.parseJobAndJiraInfo("info abc") shouldBe ("info abc", "", "", "")
+      FailedStep.parseJobAndJiraInfo("info abc", "") shouldBe ("info abc", "", "", "")
+      FailedStep.parseJobAndJiraInfo("info htp://link") shouldBe ("info htp://link", "", "", "")
+      FailedStep.parseJobAndJiraInfo("info htp://link", "") shouldBe ("info htp://link", "", "", "")
+      FailedStep.parseJobAndJiraInfo("info xhttps://link") shouldBe ("info xhttps://link", "", "", "")
+      FailedStep.parseJobAndJiraInfo("info xhttps://link", "") shouldBe ("info xhttps://link", "", "", "")
 
       // With URL links
-      FailedBuild.parseJobAndJiraInfo("http://link") shouldBe ("", "http://link", "", "")
-      FailedBuild.parseJobAndJiraInfo("http://link", "") shouldBe ("", "http://link", "", "")
-      FailedBuild.parseJobAndJiraInfo("info http://link") shouldBe ("info", "http://link", "", "")
-      FailedBuild.parseJobAndJiraInfo("info http://link", "") shouldBe ("info", "http://link", "", "")
-      FailedBuild.parseJobAndJiraInfo("info abc http://link") shouldBe ("info abc", "http://link", "", "")
-      FailedBuild.parseJobAndJiraInfo("info abc http://link", "") shouldBe ("info abc", "http://link", "", "")
-      FailedBuild.parseJobAndJiraInfo("info https://link") shouldBe ("info", "https://link", "", "")
-      FailedBuild.parseJobAndJiraInfo("info https://link", "") shouldBe ("info", "https://link", "", "")
+      FailedStep.parseJobAndJiraInfo("http://link") shouldBe ("", "http://link", "", "")
+      FailedStep.parseJobAndJiraInfo("http://link", "") shouldBe ("", "http://link", "", "")
+      FailedStep.parseJobAndJiraInfo("info http://link") shouldBe ("info", "http://link", "", "")
+      FailedStep.parseJobAndJiraInfo("info http://link", "") shouldBe ("info", "http://link", "", "")
+      FailedStep.parseJobAndJiraInfo("info abc http://link") shouldBe ("info abc", "http://link", "", "")
+      FailedStep.parseJobAndJiraInfo("info abc http://link", "") shouldBe ("info abc", "http://link", "", "")
+      FailedStep.parseJobAndJiraInfo("info https://link") shouldBe ("info", "https://link", "", "")
+      FailedStep.parseJobAndJiraInfo("info https://link", "") shouldBe ("info", "https://link", "", "")
     }
 
     it("should find defect/jira information in the second line") {
-      FailedBuild.parseJobAndJiraInfo("", "info") shouldBe ("", "", "info", "")
-      FailedBuild.parseJobAndJiraInfo("", "info", "ignored") shouldBe ("", "", "info", "")
-      FailedBuild.parseJobAndJiraInfo("", " info ") shouldBe ("", "", "", "info")
-      FailedBuild.parseJobAndJiraInfo("", "info abc") shouldBe ("", "", "info", "abc")
-      FailedBuild.parseJobAndJiraInfo("", "info abc def") shouldBe ("", "", "info", "abc def")
-      FailedBuild.parseJobAndJiraInfo("", "info abc def", "ignored") shouldBe ("", "", "info", "abc def")
-      FailedBuild.parseJobAndJiraInfo("", " info abc def", "ignored") shouldBe ("", "", "", "info abc def")
+      FailedStep.parseJobAndJiraInfo("", "info") shouldBe ("", "", "info", "")
+      FailedStep.parseJobAndJiraInfo("", "info", "ignored") shouldBe ("", "", "info", "")
+      FailedStep.parseJobAndJiraInfo("", " info ") shouldBe ("", "", "", "info")
+      FailedStep.parseJobAndJiraInfo("", "info abc") shouldBe ("", "", "info", "abc")
+      FailedStep.parseJobAndJiraInfo("", "info abc def") shouldBe ("", "", "info", "abc def")
+      FailedStep.parseJobAndJiraInfo("", "info abc def", "ignored") shouldBe ("", "", "info", "abc def")
+      FailedStep.parseJobAndJiraInfo("", " info abc def", "ignored") shouldBe ("", "", "", "info abc def")
     }
   }
 
-  describe("On parsing a file") {
+  describe("When parsing a sample file") {
     val Basic = (Tmp / "basic").createDirectory()
     File(Basic / "failures.md").writeAll("""# Flink Build Failures
         |
@@ -171,8 +171,43 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
         |FLINK-35041 testSharedStateReRegistration
         |""".stripMargin)
 
-    it("should work") {
+    it("should report on the last day of investigations") {
       withGoMatching(TaskCmd, Basic / "failures.md") { case (stdout, _) =>
+        stdout shouldBe
+          """By Jira
+            |==============================================================================
+            |
+            |FLINK-28440 https://issues.apache.org/jira/browse/FLINK-28440
+            |------------------------------------------------------------------------------
+            |
+            |* 1.20 Default (Java 8) / Test (module: tests) https://github.com/apache/flink/actions/runs/8901164251/job/24444807095#step:10:7971
+            |
+            |FLINK-35002 https://issues.apache.org/jira/browse/FLINK-35002
+            |------------------------------------------------------------------------------
+            |
+            |* 1.19 AdaptiveScheduler / Compile https://github.com/apache/flink/commit/ac4aa35c6e2e2da87760ffbf45d85888b1976c2f/checks/24453516397/logs
+            |
+            |FLINK-35095 https://issues.apache.org/jira/browse/FLINK-35095
+            |------------------------------------------------------------------------------
+            |
+            |* 1.20 Java 21 / Test (module: misc) https://github.com/apache/flink/commit/80af4d502318348ba15a8f75a2a622ce9dbdc968/checks/24453751708/logs
+            |
+            |FLINK-35041 https://issues.apache.org/jira/browse/FLINK-35041
+            |------------------------------------------------------------------------------
+            |
+            |* 1.20 Java 11 / Test (module: core) https://github.com/apache/flink/actions/runs/8917610620/job/24491172511#step:10:8154
+            |* 1.20 Java 21 / Test (module: core) https://github.com/apache/flink/actions/runs/8917610620/job/24491154789#step:10:8873
+            |
+            |FLINK-34227 https://issues.apache.org/jira/browse/FLINK-34227
+            |------------------------------------------------------------------------------
+            |
+            |* 1.18 AdaptiveScheduler / Test (module: table) https://github.com/apache/flink/actions/runs/8904361381/job/24453748069#step:10:14980
+            |""".stripMargin
+      }
+    }
+
+    it("should report on all days investigations") {
+      withGoMatching(TaskCmd, "--all", Basic / "failures.md") { case (stdout, _) =>
         stdout shouldBe
           """By Jira
             |==============================================================================
