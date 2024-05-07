@@ -2,6 +2,7 @@ package com.skraba.byexample.scala.markd
 
 import com.skraba.docoptcli.DocoptCliGo
 
+import scala.collection.SortedMap
 import scala.util.matching.Regex
 
 object BuildFailureReportTask extends DocoptCliGo.Task {
@@ -200,8 +201,12 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
         byInvestigationDate.take(1)
       }
 
-      val byJira = results.flatten.flatten
-        .groupBy(_.jira)
+      // Sort by the JIRA reference
+      val byJira = SortedMap(
+        results.flatten.flatten
+          .groupBy(_.jira)
+          .toList: _*
+      )
 
       val output: Header = Header(
         "By Jira",

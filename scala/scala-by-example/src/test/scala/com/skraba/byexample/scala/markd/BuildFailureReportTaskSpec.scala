@@ -182,15 +182,15 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
             |
             |* 1.20 Default (Java 8) / Test (module: tests) https://github.com/apache/flink/actions/runs/8901164251/job/24444807095#step:10:7971
             |
+            |FLINK-34227 https://issues.apache.org/jira/browse/FLINK-34227
+            |------------------------------------------------------------------------------
+            |
+            |* 1.18 AdaptiveScheduler / Test (module: table) https://github.com/apache/flink/actions/runs/8904361381/job/24453748069#step:10:14980
+            |
             |FLINK-35002 https://issues.apache.org/jira/browse/FLINK-35002
             |------------------------------------------------------------------------------
             |
             |* 1.19 AdaptiveScheduler / Compile https://github.com/apache/flink/commit/ac4aa35c6e2e2da87760ffbf45d85888b1976c2f/checks/24453516397/logs
-            |
-            |FLINK-35095 https://issues.apache.org/jira/browse/FLINK-35095
-            |------------------------------------------------------------------------------
-            |
-            |* 1.20 Java 21 / Test (module: misc) https://github.com/apache/flink/commit/80af4d502318348ba15a8f75a2a622ce9dbdc968/checks/24453751708/logs
             |
             |FLINK-35041 https://issues.apache.org/jira/browse/FLINK-35041
             |------------------------------------------------------------------------------
@@ -198,10 +198,10 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
             |* 1.20 Java 11 / Test (module: core) https://github.com/apache/flink/actions/runs/8917610620/job/24491172511#step:10:8154
             |* 1.20 Java 21 / Test (module: core) https://github.com/apache/flink/actions/runs/8917610620/job/24491154789#step:10:8873
             |
-            |FLINK-34227 https://issues.apache.org/jira/browse/FLINK-34227
+            |FLINK-35095 https://issues.apache.org/jira/browse/FLINK-35095
             |------------------------------------------------------------------------------
             |
-            |* 1.18 AdaptiveScheduler / Test (module: table) https://github.com/apache/flink/actions/runs/8904361381/job/24453748069#step:10:14980
+            |* 1.20 Java 21 / Test (module: misc) https://github.com/apache/flink/commit/80af4d502318348ba15a8f75a2a622ce9dbdc968/checks/24453751708/logs
             |""".stripMargin
       }
     }
@@ -212,10 +212,10 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
           """By Jira
             |==============================================================================
             |
-            |FLINK-34645 https://issues.apache.org/jira/browse/FLINK-34645
+            |FLINK-18476 https://issues.apache.org/jira/browse/FLINK-18476
             |------------------------------------------------------------------------------
             |
-            |* 1.18 Java 11 / Test (module: misc) https://github.com/apache/flink/actions/runs/8872328847/job/24356773170#step:10:21780
+            |* 1.20 Java 21 / Test (module: misc) https://github.com/apache/flink/actions/runs/8888221960/job/24404965886#step:10:22919
             |
             |FLINK-28440 https://issues.apache.org/jira/browse/FLINK-28440
             |------------------------------------------------------------------------------
@@ -223,15 +223,26 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
             |* 1.20 Default (Java 8) / Test (module: tests) https://github.com/apache/flink/actions/runs/8901164251/job/24444807095#step:10:7971
             |* 1.20 Default (Java 8) / Test (module: tests) https://github.com/apache/flink/actions/runs/8887882381/job/24404087819#step:10:8262
             |
-            |FLINK-35095 https://issues.apache.org/jira/browse/FLINK-35095
+            |FLINK-34227 https://issues.apache.org/jira/browse/FLINK-34227
             |------------------------------------------------------------------------------
             |
-            |* 1.20 Java 21 / Test (module: misc) https://github.com/apache/flink/commit/80af4d502318348ba15a8f75a2a622ce9dbdc968/checks/24453751708/logs
+            |* 1.18 AdaptiveScheduler / Test (module: table) https://github.com/apache/flink/actions/runs/8904361381/job/24453748069#step:10:14980
             |
-            |FLINK-35284 https://issues.apache.org/jira/browse/FLINK-35284
+            |FLINK-34273 https://issues.apache.org/jira/browse/FLINK-34273
             |------------------------------------------------------------------------------
             |
-            |* 1.20 e2e_2_cron_adaptive_scheduler https://dev.azure.com/apache-flink/apache-flink/_build/results?buildId=59303&view=logs&j=fb37c667-81b7-5c22-dd91-846535e99a97&t=011e961e-597c-5c96-04fe-7941c8b83f23&l=3076
+            |* 1.20 test_cron_adaptive_scheduler tests https://dev.azure.com/apache-flink/apache-flink/_build/results?buildId=59303&view=logs&j=8fd9202e-fd17-5b26-353c-ac1ff76c8f28&t=bc77b88f-20e6-5fb3-ac3b-0b6efcca48c5&l=1068
+            |
+            |FLINK-34645 https://issues.apache.org/jira/browse/FLINK-34645
+            |------------------------------------------------------------------------------
+            |
+            |* 1.18 Java 11 / Test (module: misc) https://github.com/apache/flink/actions/runs/8872328847/job/24356773170#step:10:21780
+            |
+            |FLINK-35002 https://issues.apache.org/jira/browse/FLINK-35002
+            |------------------------------------------------------------------------------
+            |
+            |* 1.19 AdaptiveScheduler / Compile https://github.com/apache/flink/commit/ac4aa35c6e2e2da87760ffbf45d85888b1976c2f/checks/24453516397/logs
+            |* 1.20 Java 8 / Compile https://github.com/apache/flink/commit/e412402ca4dfc438e28fb990dc53ea7809430aee/checks/24356511040/logs
             |
             |FLINK-35041 https://issues.apache.org/jira/browse/FLINK-35041
             |------------------------------------------------------------------------------
@@ -245,26 +256,15 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
             |* 1.20 Java 17 / Test (module: core) https://github.com/apache/flink/actions/runs/8872328953/job/24356752585#step:10:8911
             |* 1.20 Java 11 / Test (module: core) https://github.com/apache/flink/actions/runs/8864296312/job/24339779126#step:10:9083
             |
-            |FLINK-34273 https://issues.apache.org/jira/browse/FLINK-34273
+            |FLINK-35095 https://issues.apache.org/jira/browse/FLINK-35095
             |------------------------------------------------------------------------------
             |
-            |* 1.20 test_cron_adaptive_scheduler tests https://dev.azure.com/apache-flink/apache-flink/_build/results?buildId=59303&view=logs&j=8fd9202e-fd17-5b26-353c-ac1ff76c8f28&t=bc77b88f-20e6-5fb3-ac3b-0b6efcca48c5&l=1068
+            |* 1.20 Java 21 / Test (module: misc) https://github.com/apache/flink/commit/80af4d502318348ba15a8f75a2a622ce9dbdc968/checks/24453751708/logs
             |
-            |FLINK-34227 https://issues.apache.org/jira/browse/FLINK-34227
+            |FLINK-35284 https://issues.apache.org/jira/browse/FLINK-35284
             |------------------------------------------------------------------------------
             |
-            |* 1.18 AdaptiveScheduler / Test (module: table) https://github.com/apache/flink/actions/runs/8904361381/job/24453748069#step:10:14980
-            |
-            |FLINK-18476 https://issues.apache.org/jira/browse/FLINK-18476
-            |------------------------------------------------------------------------------
-            |
-            |* 1.20 Java 21 / Test (module: misc) https://github.com/apache/flink/actions/runs/8888221960/job/24404965886#step:10:22919
-            |
-            |FLINK-35002 https://issues.apache.org/jira/browse/FLINK-35002
-            |------------------------------------------------------------------------------
-            |
-            |* 1.19 AdaptiveScheduler / Compile https://github.com/apache/flink/commit/ac4aa35c6e2e2da87760ffbf45d85888b1976c2f/checks/24453516397/logs
-            |* 1.20 Java 8 / Compile https://github.com/apache/flink/commit/e412402ca4dfc438e28fb990dc53ea7809430aee/checks/24356511040/logs
+            |* 1.20 e2e_2_cron_adaptive_scheduler https://dev.azure.com/apache-flink/apache-flink/_build/results?buildId=59303&view=logs&j=fb37c667-81b7-5c22-dd91-846535e99a97&t=011e961e-597c-5c96-04fe-7941c8b83f23&l=3076
             |""".stripMargin
       }
     }
