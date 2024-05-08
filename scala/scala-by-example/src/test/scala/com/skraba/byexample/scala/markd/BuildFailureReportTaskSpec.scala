@@ -42,43 +42,43 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
 
   describe("Parsing job content") {
     it("should return empty values for an empty string") {
-      FailedStep.parseJobAndJiraInfo("") shouldBe ("", "", "", "")
-      FailedStep.parseJobAndJiraInfo("", "") shouldBe ("", "", "", "")
-      FailedStep.parseJobAndJiraInfo("", "", "ignored") shouldBe ("", "", "", "")
+      FailedStep.parseStepAndIssueContent("") shouldBe ("", "", "", "")
+      FailedStep.parseStepAndIssueContent("", "") shouldBe ("", "", "", "")
+      FailedStep.parseStepAndIssueContent("", "", "ignored") shouldBe ("", "", "", "")
     }
 
     it("should find build steps and URLS in the first line") {
       // No URL link
-      FailedStep.parseJobAndJiraInfo("info") shouldBe ("info", "", "", "")
-      FailedStep.parseJobAndJiraInfo("info", "") shouldBe ("info", "", "", "")
-      FailedStep.parseJobAndJiraInfo(" info ") shouldBe ("info", "", "", "")
-      FailedStep.parseJobAndJiraInfo(" info ", "") shouldBe ("info", "", "", "")
-      FailedStep.parseJobAndJiraInfo("info abc") shouldBe ("info abc", "", "", "")
-      FailedStep.parseJobAndJiraInfo("info abc", "") shouldBe ("info abc", "", "", "")
-      FailedStep.parseJobAndJiraInfo("info htp://link") shouldBe ("info htp://link", "", "", "")
-      FailedStep.parseJobAndJiraInfo("info htp://link", "") shouldBe ("info htp://link", "", "", "")
-      FailedStep.parseJobAndJiraInfo("info xhttps://link") shouldBe ("info xhttps://link", "", "", "")
-      FailedStep.parseJobAndJiraInfo("info xhttps://link", "") shouldBe ("info xhttps://link", "", "", "")
+      FailedStep.parseStepAndIssueContent("info") shouldBe ("info", "", "", "")
+      FailedStep.parseStepAndIssueContent("info", "") shouldBe ("info", "", "", "")
+      FailedStep.parseStepAndIssueContent(" info ") shouldBe ("info", "", "", "")
+      FailedStep.parseStepAndIssueContent(" info ", "") shouldBe ("info", "", "", "")
+      FailedStep.parseStepAndIssueContent("info abc") shouldBe ("info abc", "", "", "")
+      FailedStep.parseStepAndIssueContent("info abc", "") shouldBe ("info abc", "", "", "")
+      FailedStep.parseStepAndIssueContent("info htp://link") shouldBe ("info htp://link", "", "", "")
+      FailedStep.parseStepAndIssueContent("info htp://link", "") shouldBe ("info htp://link", "", "", "")
+      FailedStep.parseStepAndIssueContent("info xhttps://link") shouldBe ("info xhttps://link", "", "", "")
+      FailedStep.parseStepAndIssueContent("info xhttps://link", "") shouldBe ("info xhttps://link", "", "", "")
 
       // With URL links
-      FailedStep.parseJobAndJiraInfo("http://link") shouldBe ("", "http://link", "", "")
-      FailedStep.parseJobAndJiraInfo("http://link", "") shouldBe ("", "http://link", "", "")
-      FailedStep.parseJobAndJiraInfo("info http://link") shouldBe ("info", "http://link", "", "")
-      FailedStep.parseJobAndJiraInfo("info http://link", "") shouldBe ("info", "http://link", "", "")
-      FailedStep.parseJobAndJiraInfo("info abc http://link") shouldBe ("info abc", "http://link", "", "")
-      FailedStep.parseJobAndJiraInfo("info abc http://link", "") shouldBe ("info abc", "http://link", "", "")
-      FailedStep.parseJobAndJiraInfo("info https://link") shouldBe ("info", "https://link", "", "")
-      FailedStep.parseJobAndJiraInfo("info https://link", "") shouldBe ("info", "https://link", "", "")
+      FailedStep.parseStepAndIssueContent("http://link") shouldBe ("", "http://link", "", "")
+      FailedStep.parseStepAndIssueContent("http://link", "") shouldBe ("", "http://link", "", "")
+      FailedStep.parseStepAndIssueContent("info http://link") shouldBe ("info", "http://link", "", "")
+      FailedStep.parseStepAndIssueContent("info http://link", "") shouldBe ("info", "http://link", "", "")
+      FailedStep.parseStepAndIssueContent("info abc http://link") shouldBe ("info abc", "http://link", "", "")
+      FailedStep.parseStepAndIssueContent("info abc http://link", "") shouldBe ("info abc", "http://link", "", "")
+      FailedStep.parseStepAndIssueContent("info https://link") shouldBe ("info", "https://link", "", "")
+      FailedStep.parseStepAndIssueContent("info https://link", "") shouldBe ("info", "https://link", "", "")
     }
 
-    it("should find defect/jira information in the second line") {
-      FailedStep.parseJobAndJiraInfo("", "info") shouldBe ("", "", "info", "")
-      FailedStep.parseJobAndJiraInfo("", "info", "ignored") shouldBe ("", "", "info", "")
-      FailedStep.parseJobAndJiraInfo("", " info ") shouldBe ("", "", "", "info")
-      FailedStep.parseJobAndJiraInfo("", "info abc") shouldBe ("", "", "info", "abc")
-      FailedStep.parseJobAndJiraInfo("", "info abc def") shouldBe ("", "", "info", "abc def")
-      FailedStep.parseJobAndJiraInfo("", "info abc def", "ignored") shouldBe ("", "", "info", "abc def")
-      FailedStep.parseJobAndJiraInfo("", " info abc def", "ignored") shouldBe ("", "", "", "info abc def")
+    it("should find issue or defect information in the second line") {
+      FailedStep.parseStepAndIssueContent("", "info") shouldBe ("", "", "info", "")
+      FailedStep.parseStepAndIssueContent("", "info", "ignored") shouldBe ("", "", "info", "")
+      FailedStep.parseStepAndIssueContent("", " info ") shouldBe ("", "", "", "info")
+      FailedStep.parseStepAndIssueContent("", "info abc") shouldBe ("", "", "info", "abc")
+      FailedStep.parseStepAndIssueContent("", "info abc def") shouldBe ("", "", "info", "abc def")
+      FailedStep.parseStepAndIssueContent("", "info abc def", "ignored") shouldBe ("", "", "info", "abc def")
+      FailedStep.parseStepAndIssueContent("", " info abc def", "ignored") shouldBe ("", "", "", "info abc def")
     }
   }
 
@@ -174,7 +174,7 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
     it("should report on the last day of investigations") {
       withGoMatching(TaskCmd, Basic / "failures.md") { case (stdout, _) =>
         stdout shouldBe
-          """By Jira
+          """By Issue
             |==============================================================================
             |
             |FLINK-28440 https://issues.apache.org/jira/browse/FLINK-28440
@@ -209,7 +209,7 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
     it("should report on all days investigations") {
       withGoMatching(TaskCmd, "--all", Basic / "failures.md") { case (stdout, _) =>
         stdout shouldBe
-          """By Jira
+          """By Issue
             |==============================================================================
             |
             |FLINK-18476 https://issues.apache.org/jira/browse/FLINK-18476

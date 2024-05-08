@@ -33,17 +33,17 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       |  ### 1.99 CI build description http://buildlink
       |
       |  Job or step description http://joblink
-      |  JIRA-1234 Jira description
+      |  ISSUE-1234 Issue description
       |
       |  ```
       |  Optional extra information in a code block of any size
       |  ```
       |
       |  Job or step description http://joblink
-      |  JIRA-1234 Jira description
+      |  ISSUE-1234 Issue description
       |  
       |  Job or step description http://joblink
-      |  JIRA-1235 Jira description
+      |  ISSUE-1234 Issue description
       |
       |By default, only the last investigation date is reported (one day).  If --all
       |is specified, the entire file is used.
@@ -59,26 +59,26 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
     *   A short description that the CI uses to refer to the build (workflow name)
     * @param buildLink
     *   The link to the CI build failure
-    * @param jobAndStep
+    * @param stepDesc
     *   The specific job and step in the build that failed
-    * @param jogLogLink
+    * @param stepLink
     *   A link to the error in the build logs (if any)
-    * @param jira
-    *   The JIRA/defect that was identified to have caused the failure
-    * @param jiraDesc
-    *   A helpful hint to refer to the JIRA
+    * @param issueTag
+    *   The issue or defect that was identified to have caused the failure
+    * @param issueDesc
+    *   A helpful hint to refer to the issue
     * @param comment
-    *   If present, additional comments in a code block to add to the JIRA
+    *   If present, additional comments in a code block to describe the investigation
     */
   case class FailedStep(
       date: String,
       buildVersion: String,
       buildDesc: String,
       buildLink: String,
-      jobAndStep: String,
-      jogLogLink: String,
-      jira: String,
-      jiraDesc: String,
+      stepDesc: String,
+      stepLink: String,
+      issueTag: String,
+      issueDesc: String,
       comment: Option[String]
   )
 
@@ -96,29 +96,29 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       *   A short description that the CI uses to refer to the build (workflow name)
       * @param buildLink
       *   The link to the CI build failure
-      * @param jobAndJiraInfo
+      * @param stepAndIssueContent
       *   A paragraph of information about the job that should be parsed further
       * @param comment
-      *   If present, additional comments in a code block to add to the JIRA
+      *   If present, additional comments in a code block to describe the investigation
       */
     def apply(
         date: String,
         buildVersion: String,
         buildDesc: String,
         buildLink: String,
-        jobAndJiraInfo: String,
+        stepAndIssueContent: String,
         comment: Option[String]
     ): FailedStep = {
-      val (jobAndStep, jogLogLink, jira, jiraDesc) = parseJobAndJiraInfo(jobAndJiraInfo.split('\n'): _*)
+      val (stepDesc, stepLink, issueTag, issueDesc) = parseStepAndIssueContent(stepAndIssueContent.split('\n'): _*)
       FailedStep(
         date,
         buildVersion,
         buildDesc,
         buildLink,
-        jobAndStep,
-        jogLogLink,
-        jira,
-        jiraDesc,
+        stepDesc,
+        stepLink,
+        issueTag,
+        issueDesc,
         comment
       )
     }
@@ -144,20 +144,20 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       * @param in
       *   A paragraph describing the build failure
       * @return
-      *   A tuple containing (in order) the jobAndStep, jobLogLink, jira and jiraDesc to be put into a [[FailedStep]]
+      *   A tuple containing (in order) the stepDesc, stepLink, issueTag and issueDesc to be put into a [[FailedStep]]
       *   instance.
       */
-    def parseJobAndJiraInfo(in: String*): (String, String, String, String) = {
+    def parseStepAndIssueContent(in: String*): (String, String, String, String) = {
       // Get the jobAndStep and jobLinkLog from the first line
-      val (jobAndStep, jogLogLink) = in.headOption match {
+      val (stepDesc, stepLink) = in.headOption match {
         case Some(SplitHttpsRegex(before, uri)) => (before, uri)
         case Some(str)                          => (str, "")
         case _                                  => ("", "")
       }
 
-      // And get the jira information from the second line
-      val (jira, jiraDesc) = in.drop(1).headOption.getOrElse("").span(!_.isWhitespace)
-      (jobAndStep.trim, jogLogLink.trim, jira.trim, jiraDesc.trim)
+      // And get the issue information from the second line
+      val (issueTag, issueDesc) = in.drop(1).headOption.getOrElse("").span(!_.isWhitespace)
+      (stepDesc.trim, stepLink.trim, issueTag.trim, issueDesc.trim)
     }
   }
 
@@ -201,21 +201,21 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
         byInvestigationDate.take(1)
       }
 
-      // Sort by the JIRA reference
-      val byJira = SortedMap(
+      // Sort by the issue reference
+      val byIssue = SortedMap(
         results.flatten.flatten
-          .groupBy(_.jira)
+          .groupBy(_.issueTag)
           .toList: _*
       )
 
       val output: Header = Header(
-        "By Jira",
+        "By Issue",
         1,
-        byJira.map { case jira -> list =>
+        byIssue.map { case issue -> list =>
           Header(
             2,
-            s"$jira https://issues.apache.org/jira/browse/$jira",
-            Paragraph(list.map(inv => s"* ${inv.buildVersion} ${inv.jobAndStep} ${inv.jogLogLink}").mkString("\n"))
+            s"$issue https://issues.apache.org/jira/browse/$issue",
+            Paragraph(list.map(inv => s"* ${inv.buildVersion} ${inv.stepDesc} ${inv.stepLink}").mkString("\n"))
           )
         }.toSeq
       )
