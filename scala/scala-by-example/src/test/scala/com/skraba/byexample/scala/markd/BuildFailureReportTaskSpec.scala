@@ -21,64 +21,75 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
   }
 
   describe("Parsing build titles") {
+
+    def parseBuildTitle(in: String): (String, String, String) = {
+      val failure = FailedStep("").addBuildInfo(in)
+      (failure.buildVersion, failure.buildDesc, failure.buildLink)
+    }
+
     it("should return empty values for an empty string") {
-      FailedStep.parseBuildTitle("") shouldBe ("", "", "")
+      parseBuildTitle("") shouldBe ("", "", "")
     }
 
     it("should find build attributes") {
-      FailedStep.parseBuildTitle("abc") shouldBe ("abc", "", "")
-      FailedStep.parseBuildTitle("abc ") shouldBe ("abc", "", "")
-      FailedStep.parseBuildTitle(" abc ") shouldBe ("", "abc", "")
-      FailedStep.parseBuildTitle(" abc def ") shouldBe ("", "abc def", "")
-      FailedStep.parseBuildTitle("abc def ghi") shouldBe ("abc", "def ghi", "")
-      FailedStep.parseBuildTitle("http://link") shouldBe ("", "", "http://link")
-      FailedStep.parseBuildTitle("abc http://link") shouldBe ("abc", "", "http://link")
-      FailedStep.parseBuildTitle(" abc http://link") shouldBe ("", "abc", "http://link")
-      FailedStep.parseBuildTitle("abc def ghi http://link") shouldBe ("abc", "def ghi", "http://link")
-      FailedStep.parseBuildTitle("abc def ghi://link") shouldBe ("abc", "def ghi://link", "")
-      FailedStep.parseBuildTitle("abc def ghi xhttp://link") shouldBe ("abc", "def ghi xhttp://link", "")
+      parseBuildTitle("abc") shouldBe ("abc", "", "")
+      parseBuildTitle("abc ") shouldBe ("abc", "", "")
+      parseBuildTitle(" abc ") shouldBe ("", "abc", "")
+      parseBuildTitle(" abc def ") shouldBe ("", "abc def", "")
+      parseBuildTitle("abc def ghi") shouldBe ("abc", "def ghi", "")
+      parseBuildTitle("http://link") shouldBe ("", "", "http://link")
+      parseBuildTitle("abc http://link") shouldBe ("abc", "", "http://link")
+      parseBuildTitle(" abc http://link") shouldBe ("", "abc", "http://link")
+      parseBuildTitle("abc def ghi http://link") shouldBe ("abc", "def ghi", "http://link")
+      parseBuildTitle("abc def ghi://link") shouldBe ("abc", "def ghi://link", "")
+      parseBuildTitle("abc def ghi xhttp://link") shouldBe ("abc", "def ghi xhttp://link", "")
     }
   }
 
   describe("Parsing job content") {
+    def parseStepAndIssueContent(in: String): (String, String, String, String) = {
+      val failure = FailedStep("").addStepAndIssueInfo(in)
+      (failure.stepDesc, failure.stepLink, failure.issueTag, failure.issueDesc)
+    }
+
     it("should return empty values for an empty string") {
-      FailedStep.parseStepAndIssueContent("") shouldBe ("", "", "", "")
-      FailedStep.parseStepAndIssueContent("", "") shouldBe ("", "", "", "")
-      FailedStep.parseStepAndIssueContent("", "", "ignored") shouldBe ("", "", "", "")
+      parseStepAndIssueContent("") shouldBe ("", "", "", "")
+      parseStepAndIssueContent("\n") shouldBe ("", "", "", "")
+      parseStepAndIssueContent("\n\nignored") shouldBe ("", "", "", "")
     }
 
     it("should find build steps and URLS in the first line") {
       // No URL link
-      FailedStep.parseStepAndIssueContent("info") shouldBe ("info", "", "", "")
-      FailedStep.parseStepAndIssueContent("info", "") shouldBe ("info", "", "", "")
-      FailedStep.parseStepAndIssueContent(" info ") shouldBe ("info", "", "", "")
-      FailedStep.parseStepAndIssueContent(" info ", "") shouldBe ("info", "", "", "")
-      FailedStep.parseStepAndIssueContent("info abc") shouldBe ("info abc", "", "", "")
-      FailedStep.parseStepAndIssueContent("info abc", "") shouldBe ("info abc", "", "", "")
-      FailedStep.parseStepAndIssueContent("info htp://link") shouldBe ("info htp://link", "", "", "")
-      FailedStep.parseStepAndIssueContent("info htp://link", "") shouldBe ("info htp://link", "", "", "")
-      FailedStep.parseStepAndIssueContent("info xhttps://link") shouldBe ("info xhttps://link", "", "", "")
-      FailedStep.parseStepAndIssueContent("info xhttps://link", "") shouldBe ("info xhttps://link", "", "", "")
+      parseStepAndIssueContent("info") shouldBe ("info", "", "", "")
+      parseStepAndIssueContent("info\n") shouldBe ("info", "", "", "")
+      parseStepAndIssueContent(" info ") shouldBe ("info", "", "", "")
+      parseStepAndIssueContent(" info \n") shouldBe ("info", "", "", "")
+      parseStepAndIssueContent("info abc") shouldBe ("info abc", "", "", "")
+      parseStepAndIssueContent("info abc\n") shouldBe ("info abc", "", "", "")
+      parseStepAndIssueContent("info htp://link") shouldBe ("info htp://link", "", "", "")
+      parseStepAndIssueContent("info htp://link\n") shouldBe ("info htp://link", "", "", "")
+      parseStepAndIssueContent("info xhttps://link") shouldBe ("info xhttps://link", "", "", "")
+      parseStepAndIssueContent("info xhttps://link\n") shouldBe ("info xhttps://link", "", "", "")
 
       // With URL links
-      FailedStep.parseStepAndIssueContent("http://link") shouldBe ("", "http://link", "", "")
-      FailedStep.parseStepAndIssueContent("http://link", "") shouldBe ("", "http://link", "", "")
-      FailedStep.parseStepAndIssueContent("info http://link") shouldBe ("info", "http://link", "", "")
-      FailedStep.parseStepAndIssueContent("info http://link", "") shouldBe ("info", "http://link", "", "")
-      FailedStep.parseStepAndIssueContent("info abc http://link") shouldBe ("info abc", "http://link", "", "")
-      FailedStep.parseStepAndIssueContent("info abc http://link", "") shouldBe ("info abc", "http://link", "", "")
-      FailedStep.parseStepAndIssueContent("info https://link") shouldBe ("info", "https://link", "", "")
-      FailedStep.parseStepAndIssueContent("info https://link", "") shouldBe ("info", "https://link", "", "")
+      parseStepAndIssueContent("http://link") shouldBe ("", "http://link", "", "")
+      parseStepAndIssueContent("http://link\n") shouldBe ("", "http://link", "", "")
+      parseStepAndIssueContent("info http://link") shouldBe ("info", "http://link", "", "")
+      parseStepAndIssueContent("info http://link\n") shouldBe ("info", "http://link", "", "")
+      parseStepAndIssueContent("info abc http://link") shouldBe ("info abc", "http://link", "", "")
+      parseStepAndIssueContent("info abc http://link\n") shouldBe ("info abc", "http://link", "", "")
+      parseStepAndIssueContent("info https://link") shouldBe ("info", "https://link", "", "")
+      parseStepAndIssueContent("info https://link\n") shouldBe ("info", "https://link", "", "")
     }
 
     it("should find issue or defect information in the second line") {
-      FailedStep.parseStepAndIssueContent("", "info") shouldBe ("", "", "info", "")
-      FailedStep.parseStepAndIssueContent("", "info", "ignored") shouldBe ("", "", "info", "")
-      FailedStep.parseStepAndIssueContent("", " info ") shouldBe ("", "", "", "info")
-      FailedStep.parseStepAndIssueContent("", "info abc") shouldBe ("", "", "info", "abc")
-      FailedStep.parseStepAndIssueContent("", "info abc def") shouldBe ("", "", "info", "abc def")
-      FailedStep.parseStepAndIssueContent("", "info abc def", "ignored") shouldBe ("", "", "info", "abc def")
-      FailedStep.parseStepAndIssueContent("", " info abc def", "ignored") shouldBe ("", "", "", "info abc def")
+      parseStepAndIssueContent("\ninfo") shouldBe ("", "", "info", "")
+      parseStepAndIssueContent("\ninfo\nignored") shouldBe ("", "", "info", "")
+      parseStepAndIssueContent("\n info ") shouldBe ("", "", "", "info")
+      parseStepAndIssueContent("\ninfo abc") shouldBe ("", "", "info", "abc")
+      parseStepAndIssueContent("\ninfo abc def") shouldBe ("", "", "info", "abc def")
+      parseStepAndIssueContent("\ninfo abc def\nignored") shouldBe ("", "", "info", "abc def")
+      parseStepAndIssueContent("\n info abc def\nignored") shouldBe ("", "", "", "info abc def")
     }
   }
 
