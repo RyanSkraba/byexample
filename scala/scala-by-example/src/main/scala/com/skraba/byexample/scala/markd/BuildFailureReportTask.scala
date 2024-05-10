@@ -15,13 +15,15 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
     """Summarize a markdown report on build failures.
       |
       |Usage:
-      |  MarkdGo buildfail [--all] FILE
-      |
+      |  MarkdGo buildfail [--days=DAYS] FILE
+      |  MarkdGo buildfail --all FILE
+      |      |
       |Options:
-      |  -h --help  Show this screen.
-      |  --version  Show version.
-      |  --all      Report using all of the build investigations in the file.
-      |  FILE       File to read and summarize
+      |  -h --help    Show this screen.
+      |  --version    Show version.
+      |  --all        Report using all of the build investigations in the file.
+      |  --days=DAYS  The number of days to include in the report [default: 1]
+      |  FILE         File to read and summarize
       |
       |This has a very specific use, but is also a nice example for parsing and
       |generating markdown.  The input file should have a format like:
@@ -127,6 +129,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
 
     val files: String = opts.get("FILE").asInstanceOf[String]
     val chooseAll: Boolean = opts.get("--all").toString.toBoolean
+    val chooseDays: Option[Int] = Option(opts.get("--days")).map(_.toString.toInt)
 
     MarkdGo.processMd(Seq(files)) { f =>
       val global: Header = Header
@@ -157,7 +160,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       val results: Seq[Seq[Seq[FailedStep]]] = if (chooseAll) {
         byInvestigationDate
       } else {
-        byInvestigationDate.take(1)
+        byInvestigationDate.take(chooseDays.get)
       }
 
       // Sort by the issue reference
