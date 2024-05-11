@@ -18,6 +18,10 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
     itShouldThrowOnUnknownFlag()
 
     itShouldThrowOnMissingOpt(Seq.empty)
+    itShouldThrowOnMissingOpt(Seq("--days", "1"))
+    itShouldThrowOnMissingOpt(Seq("--all"))
+
+    itShouldThrowOnMissingOptValue(Seq("--days"))
   }
 
   describe("Parsing build titles") {
@@ -46,7 +50,7 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
     }
   }
 
-  describe("Parsing job content") {
+  describe("Parsing step content") {
     def parseStepAndIssueContent(in: String): (String, String, String, String) = {
       val failure = FailedStep("").addStepAndIssueInfo(in)
       (failure.stepDesc, failure.stepLink, failure.issueTag, failure.issueDesc)
