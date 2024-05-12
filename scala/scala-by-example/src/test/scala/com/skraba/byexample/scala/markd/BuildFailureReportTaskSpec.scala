@@ -97,10 +97,216 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
     }
   }
 
-  describe("When parsing a sample file") {
+  describe("When parsing a basic file") {
+    // This creates a boring synthetic file with two builds investigated every day, each with the same two bugs
+    val Content = "# Flink Build Failures\n" +
+      (for (date <- 20 to 11 by -1)
+        yield s"""## 2024-05-$date
+             |### 1.0.1 #A$date Nightly build http://link/buildA$date
+             |A1 https://link/buildA$date/A1
+             |BUG-1 Describe bug 1
+             |
+             |A2 https://link/buildA$date/A2
+             |BUG-2 Describe bug 2
+             |### 1.1.2 #B$date Nightly build http://link/buildB$date
+             |B1 https://link/buildB$date/B1
+             |BUG-1 Describe bug 1
+             |
+             |B2 https://link/buildB$date/B2
+             |BUG-2 Describe bug 2
+             |""".stripMargin).mkString("\n")
     val Basic = (Tmp / "basic").createDirectory()
-    File(Basic / "failures.md").writeAll("""# Flink Build Failures
-        |
+    File(Basic / "failures.md").writeAll(Content)
+
+    it("should report on the last day of investigations") {
+      withGoMatching(TaskCmd, Basic / "failures.md") { case (stdout, stderr) =>
+        stderr shouldBe empty
+        stdout shouldBe
+          """By Issue
+            |==============================================================================
+            |
+            |BUG-1 https://issues.apache.org/jira/browse/BUG-1
+            |------------------------------------------------------------------------------
+            |
+            |* 1.0.1 A1 https://link/buildA20/A1
+            |* 1.1.2 B1 https://link/buildB20/B1
+            |
+            |BUG-2 https://issues.apache.org/jira/browse/BUG-2
+            |------------------------------------------------------------------------------
+            |
+            |* 1.0.1 A2 https://link/buildA20/A2
+            |* 1.1.2 B2 https://link/buildB20/B2
+            |""".stripMargin
+      }
+    }
+
+    it("should report on the last two days of investigations") {
+      withGoMatching(TaskCmd, "--days", "2", Basic / "failures.md") { case (stdout, stderr) =>
+        stderr shouldBe empty
+        stdout shouldBe
+          """By Issue
+            |==============================================================================
+            |
+            |BUG-1 https://issues.apache.org/jira/browse/BUG-1
+            |------------------------------------------------------------------------------
+            |
+            |* 1.0.1 A1 https://link/buildA20/A1
+            |* 1.1.2 B1 https://link/buildB20/B1
+            |* 1.0.1 A1 https://link/buildA19/A1
+            |* 1.1.2 B1 https://link/buildB19/B1
+            |
+            |BUG-2 https://issues.apache.org/jira/browse/BUG-2
+            |------------------------------------------------------------------------------
+            |
+            |* 1.0.1 A2 https://link/buildA20/A2
+            |* 1.1.2 B2 https://link/buildB20/B2
+            |* 1.0.1 A2 https://link/buildA19/A2
+            |* 1.1.2 B2 https://link/buildB19/B2
+            |""".stripMargin
+      }
+    }
+
+    it("should report on the investigation before 2024-05-15") {
+      withGoMatching(TaskCmd, "--until", "2024-05-15", Basic / "failures.md") { case (stdout, stderr) =>
+        stderr shouldBe empty
+        stdout shouldBe
+          """By Issue
+            |==============================================================================
+            |
+            |BUG-1 https://issues.apache.org/jira/browse/BUG-1
+            |------------------------------------------------------------------------------
+            |
+            |* 1.0.1 A1 https://link/buildA15/A1
+            |* 1.1.2 B1 https://link/buildB15/B1
+            |
+            |BUG-2 https://issues.apache.org/jira/browse/BUG-2
+            |------------------------------------------------------------------------------
+            |
+            |* 1.0.1 A2 https://link/buildA15/A2
+            |* 1.1.2 B2 https://link/buildB15/B2
+            |""".stripMargin
+      }
+    }
+
+    it("should report on the two days investigation before 2024-05-15") {
+      withGoMatching(TaskCmd, "--days", "2", "--until", "2024-05-15", Basic / "failures.md") { case (stdout, stderr) =>
+        stderr shouldBe empty
+        stdout shouldBe
+          """By Issue
+            |==============================================================================
+            |
+            |BUG-1 https://issues.apache.org/jira/browse/BUG-1
+            |------------------------------------------------------------------------------
+            |
+            |* 1.0.1 A1 https://link/buildA15/A1
+            |* 1.1.2 B1 https://link/buildB15/B1
+            |* 1.0.1 A1 https://link/buildA14/A1
+            |* 1.1.2 B1 https://link/buildB14/B1
+            |
+            |BUG-2 https://issues.apache.org/jira/browse/BUG-2
+            |------------------------------------------------------------------------------
+            |
+            |* 1.0.1 A2 https://link/buildA15/A2
+            |* 1.1.2 B2 https://link/buildB15/B2
+            |* 1.0.1 A2 https://link/buildA14/A2
+            |* 1.1.2 B2 https://link/buildB14/B2
+            |""".stripMargin
+      }
+    }
+
+    it("should report on all days investigation before 2024-05-18") {
+      withGoMatching(TaskCmd, "--all", "--after", "2024-05-18", Basic / "failures.md") { case (stdout, stderr) =>
+        stderr shouldBe empty
+        stdout shouldBe
+          """By Issue
+            |==============================================================================
+            |
+            |BUG-1 https://issues.apache.org/jira/browse/BUG-1
+            |------------------------------------------------------------------------------
+            |
+            |* 1.0.1 A1 https://link/buildA20/A1
+            |* 1.1.2 B1 https://link/buildB20/B1
+            |* 1.0.1 A1 https://link/buildA19/A1
+            |* 1.1.2 B1 https://link/buildB19/B1
+            |* 1.0.1 A1 https://link/buildA18/A1
+            |* 1.1.2 B1 https://link/buildB18/B1
+            |
+            |BUG-2 https://issues.apache.org/jira/browse/BUG-2
+            |------------------------------------------------------------------------------
+            |
+            |* 1.0.1 A2 https://link/buildA20/A2
+            |* 1.1.2 B2 https://link/buildB20/B2
+            |* 1.0.1 A2 https://link/buildA19/A2
+            |* 1.1.2 B2 https://link/buildB19/B2
+            |* 1.0.1 A2 https://link/buildA18/A2
+            |* 1.1.2 B2 https://link/buildB18/B2
+            |""".stripMargin
+      }
+    }
+
+    it("should report on all days of investigations") {
+      withGoMatching(TaskCmd, "--all", Basic / "failures.md") { case (stdout, stderr) =>
+        stderr shouldBe empty
+        stdout shouldBe
+          """By Issue
+            |==============================================================================
+            |
+            |BUG-1 https://issues.apache.org/jira/browse/BUG-1
+            |------------------------------------------------------------------------------
+            |
+            |* 1.0.1 A1 https://link/buildA20/A1
+            |* 1.1.2 B1 https://link/buildB20/B1
+            |* 1.0.1 A1 https://link/buildA19/A1
+            |* 1.1.2 B1 https://link/buildB19/B1
+            |* 1.0.1 A1 https://link/buildA18/A1
+            |* 1.1.2 B1 https://link/buildB18/B1
+            |* 1.0.1 A1 https://link/buildA17/A1
+            |* 1.1.2 B1 https://link/buildB17/B1
+            |* 1.0.1 A1 https://link/buildA16/A1
+            |* 1.1.2 B1 https://link/buildB16/B1
+            |* 1.0.1 A1 https://link/buildA15/A1
+            |* 1.1.2 B1 https://link/buildB15/B1
+            |* 1.0.1 A1 https://link/buildA14/A1
+            |* 1.1.2 B1 https://link/buildB14/B1
+            |* 1.0.1 A1 https://link/buildA13/A1
+            |* 1.1.2 B1 https://link/buildB13/B1
+            |* 1.0.1 A1 https://link/buildA12/A1
+            |* 1.1.2 B1 https://link/buildB12/B1
+            |* 1.0.1 A1 https://link/buildA11/A1
+            |* 1.1.2 B1 https://link/buildB11/B1
+            |
+            |BUG-2 https://issues.apache.org/jira/browse/BUG-2
+            |------------------------------------------------------------------------------
+            |
+            |* 1.0.1 A2 https://link/buildA20/A2
+            |* 1.1.2 B2 https://link/buildB20/B2
+            |* 1.0.1 A2 https://link/buildA19/A2
+            |* 1.1.2 B2 https://link/buildB19/B2
+            |* 1.0.1 A2 https://link/buildA18/A2
+            |* 1.1.2 B2 https://link/buildB18/B2
+            |* 1.0.1 A2 https://link/buildA17/A2
+            |* 1.1.2 B2 https://link/buildB17/B2
+            |* 1.0.1 A2 https://link/buildA16/A2
+            |* 1.1.2 B2 https://link/buildB16/B2
+            |* 1.0.1 A2 https://link/buildA15/A2
+            |* 1.1.2 B2 https://link/buildB15/B2
+            |* 1.0.1 A2 https://link/buildA14/A2
+            |* 1.1.2 B2 https://link/buildB14/B2
+            |* 1.0.1 A2 https://link/buildA13/A2
+            |* 1.1.2 B2 https://link/buildB13/B2
+            |* 1.0.1 A2 https://link/buildA12/A2
+            |* 1.1.2 B2 https://link/buildB12/B2
+            |* 1.0.1 A2 https://link/buildA11/A2
+            |* 1.1.2 B2 https://link/buildB11/B2
+            |""".stripMargin
+      }
+    }
+  }
+
+  describe("When parsing a sample file") {
+
+    val Sample = (Tmp / "sample").createDirectory()
+    File(Sample / "failures.md").writeAll("""# Flink Build Failures
         |## 2024-05-03
         |
         |### 1.20 Nightly (beta) #270 https://github.com/apache/flink/actions/runs/8917610620
@@ -187,7 +393,7 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
         |""".stripMargin)
 
     it("should report on the last day of investigations") {
-      withGoMatching(TaskCmd, Basic / "failures.md") { case (stdout, _) =>
+      withGoMatching(TaskCmd, Sample / "failures.md") { case (stdout, _) =>
         stdout shouldBe
           """By Issue
             |==============================================================================
@@ -222,7 +428,7 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
     }
 
     it("should report on the last two days of investigations") {
-      withGoMatching(TaskCmd, "--days", "2", Basic / "failures.md") { case (stdout, _) =>
+      withGoMatching(TaskCmd, "--days", "2", Sample / "failures.md") { case (stdout, _) =>
         stdout shouldBe
           """By Issue
             |==============================================================================
@@ -268,7 +474,7 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
     }
 
     it("should report on all days investigations") {
-      withGoMatching(TaskCmd, "--all", Basic / "failures.md") { case (stdout, _) =>
+      withGoMatching(TaskCmd, "--all", Sample / "failures.md") { case (stdout, _) =>
         stdout shouldBe
           """By Issue
             |==============================================================================

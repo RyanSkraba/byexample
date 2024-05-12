@@ -15,15 +15,16 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
     """Summarize a markdown report on build failures.
       |
       |Usage:
-      |  MarkdGo buildfail [--days=DAYS] FILE
-      |  MarkdGo buildfail --all FILE
-      |      |
+      |  MarkdGo buildfail FILE [options]
+      |
       |Options:
-      |  -h --help    Show this screen.
-      |  --version    Show version.
-      |  --all        Report using all of the build investigations in the file.
-      |  --days=DAYS  The number of days to include in the report [default: 1]
-      |  FILE         File to read and summarize
+      |  -h --help     Show this screen.
+      |  --version     Show version.
+      |  FILE          File to read and summarize
+      |  --all         Report using all of the build investigations in the file.
+      |  --after=DATE  Exclude any investigations that occurred before DATE
+      |  --until=DATE  Exclude any investigations that occurred after DATE
+      |  --days=DAYS   The number of days to include in the report [default: 1]
       |
       |This has a very specific use, but is also a nice example for parsing and
       |generating markdown.  The input file should have a format like:
@@ -129,39 +130,42 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
 
     val files: String = opts.get("FILE").asInstanceOf[String]
     val chooseAll: Boolean = opts.get("--all").toString.toBoolean
-    val chooseDays: Option[Int] = Option(opts.get("--days")).map(_.toString.toInt)
+    val chooseDays: Int = Option(opts.get("--days")).map(_.toString.toInt).getOrElse(1)
+    val chooseAfter: Option[String] = Option(opts.get("--after")).map(_.toString)
+    val chooseUntil: Option[String] = Option(opts.get("--until")).map(_.toString)
 
     MarkdGo.processMd(Seq(files)) { f =>
-      val global: Header = Header
+      val buildFailureSection: Header = Header
         .parse(f.slurp())
         .collectFirstRecursive { case global @ Header("Flink Build Failures", 1, _) => global }
         .getOrElse { throw new IllegalArgumentException("Can't find failure report") }
 
-      val byInvestigationDate: Seq[Seq[Seq[FailedStep]]] = global.mds
-        .collect { case daily @ Header(investigateDate, 2, _) =>
-          daily.mds.collect { case buildDetails @ Header(buildTitle, 3, _) =>
-            val base = FailedStep(investigateDate).addBuildInfo(buildTitle)
-            (buildDetails.mds.collect {
-              case p: Paragraph => p
-              case c: Code      => c
-            } :+ Comment("Ignored"))
-              .sliding(2)
-              .flatMap {
-                case Seq(Paragraph(content), c: Code) =>
-                  Some(base.addStepAndIssueInfo(content).copy(comment = Some(c.content)))
-                case Seq(Paragraph(content), _*) =>
-                  Some(base.addStepAndIssueInfo(content))
-                case _ => None
-              }
-              .toSeq
-          }
-        }
+      // Limit the selection of dates if they are specified.
+      lazy val dates = buildFailureSection.mds.collect { case Header(date, 2, _) => date }
+      val minDate = chooseAfter.getOrElse(dates.minOption.getOrElse(""))
+      val maxDate = chooseUntil.getOrElse(dates.maxOption.getOrElse(""))
 
-      val results: Seq[Seq[Seq[FailedStep]]] = if (chooseAll) {
-        byInvestigationDate
-      } else {
-        byInvestigationDate.take(chooseDays.get)
-      }
+      val results: Seq[Seq[Seq[FailedStep]]] = buildFailureSection.mds
+        .collect {
+          case daily @ Header(investigateDate, 2, _) if investigateDate >= minDate && investigateDate <= maxDate =>
+            daily.mds.collect { case buildDetails @ Header(buildTitle, 3, _) =>
+              val base = FailedStep(investigateDate).addBuildInfo(buildTitle)
+              (buildDetails.mds.collect {
+                case p: Paragraph => p
+                case c: Code      => c
+              } :+ Comment("Ignored"))
+                .sliding(2)
+                .flatMap {
+                  case Seq(Paragraph(content), c: Code) =>
+                    Some(base.addStepAndIssueInfo(content).copy(comment = Some(c.content)))
+                  case Seq(Paragraph(content), _*) =>
+                    Some(base.addStepAndIssueInfo(content))
+                  case _ => None
+                }
+                .toSeq
+            }
+        }
+        .take(if (chooseAll) dates.size else chooseDays)
 
       // Sort by the issue reference
       val byIssue = SortedMap(
