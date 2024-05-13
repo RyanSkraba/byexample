@@ -22,6 +22,8 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
     itShouldThrowOnMissingOpt(Seq("--all"))
 
     itShouldThrowOnMissingOptValue(Seq("--days"))
+    itShouldThrowOnMissingOptValue(Seq("--until"))
+    itShouldThrowOnMissingOptValue(Seq("--after"))
   }
 
   describe("Parsing build titles") {
