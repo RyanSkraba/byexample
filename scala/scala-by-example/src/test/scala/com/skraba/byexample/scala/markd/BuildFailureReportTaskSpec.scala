@@ -101,7 +101,7 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
 
   describe("When parsing a basic file") {
     // This creates a boring synthetic file with two builds investigated every day, each with the same two bugs
-    val Content = "# Flink Build Failures\n" +
+    val Content = "# Synthetic Build Failures\n" +
       (for (date <- 20 to 11 by -1)
         yield s"""## 2024-05-$date
              |### 1.0.1 #A$date Nightly build http://link/buildA$date

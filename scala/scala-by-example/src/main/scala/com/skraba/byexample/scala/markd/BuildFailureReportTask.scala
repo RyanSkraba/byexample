@@ -137,7 +137,9 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
     MarkdGo.processMd(Seq(files)) { f =>
       val buildFailureSection: Header = Header
         .parse(f.slurp())
-        .collectFirstRecursive { case global @ Header("Flink Build Failures", 1, _) => global }
+        .collectFirstRecursive {
+          case section @ Header(title, 1, _) if title.toLowerCase.matches(raw".*\bbuild failures\b.*") => section
+        }
         .getOrElse { throw new IllegalArgumentException("Can't find failure report") }
 
       // Limit the selection of dates if they are specified.
