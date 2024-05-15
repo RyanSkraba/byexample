@@ -25,6 +25,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       |  --after=DATE  Exclude any investigations that occurred before DATE
       |  --until=DATE  Exclude any investigations that occurred after DATE
       |  --days=DAYS   The number of days to include in the report [default: 1]
+      |  --rewrite     If present, rewrites the investigations as markdown messages.
       |
       |This has a very specific use, but is also a nice example for parsing and
       |generating markdown.  The input file should have a format like:
@@ -129,10 +130,11 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
   def go(opts: java.util.Map[String, AnyRef]): Unit = {
 
     val files: String = opts.get("FILE").asInstanceOf[String]
-    val chooseAll: Boolean = opts.get("--all").toString.toBoolean
-    val chooseDays: Int = Option(opts.get("--days")).map(_.toString.toInt).getOrElse(1)
-    val chooseAfter: Option[String] = Option(opts.get("--after")).map(_.toString)
-    val chooseUntil: Option[String] = Option(opts.get("--until")).map(_.toString)
+    val filterAll: Boolean = opts.get("--all").toString.toBoolean
+    val filterDays: Int = Option(opts.get("--days")).map(_.toString.toInt).getOrElse(1)
+    val filterAfter: Option[String] = Option(opts.get("--after")).map(_.toString)
+    val filterUntil: Option[String] = Option(opts.get("--until")).map(_.toString)
+    val rewrite: Boolean = opts.get("--rewrite").toString.toBoolean
 
     MarkdGo.processMd(Seq(files)) { f =>
       val buildFailureSection: Header = Header
@@ -144,8 +146,8 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
 
       // Limit the selection of dates if they are specified.
       lazy val dates = buildFailureSection.mds.collect { case Header(date, 2, _) => date }
-      val minDate = chooseAfter.getOrElse(dates.minOption.getOrElse(""))
-      val maxDate = chooseUntil.getOrElse(dates.maxOption.getOrElse(""))
+      val minDate = filterAfter.getOrElse(dates.minOption.getOrElse(""))
+      val maxDate = filterUntil.getOrElse(dates.maxOption.getOrElse(""))
 
       val results: Seq[Seq[Seq[FailedStep]]] = buildFailureSection.mds
         .collect {
@@ -167,28 +169,44 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
                 .toSeq
             }
         }
-        .take(if (chooseAll) dates.size else chooseDays)
+        .take(if (filterAll) dates.size else filterDays)
 
-      // Sort by the issue reference
-      val byIssue = SortedMap(
-        results.flatten.flatten
-          .groupBy(_.issueTag)
-          .toList: _*
-      )
-
-      val output: Header = Header(
-        "By Issue",
-        1,
-        byIssue.map { case issue -> list =>
-          Header(
-            2,
-            s"$issue https://issues.apache.org/jira/browse/$issue",
-            Paragraph(list.map(inv => s"* ${inv.buildVersion} ${inv.stepDesc} ${inv.stepLink}").mkString("\n"))
-          )
-        }.toSeq
-      )
-
-      print(output.build().toString)
+      if (rewrite) {
+        val failedSteps = results.flatten.flatten.groupBy(_.buildDesc).toList
+        val output = Header(
+          "By Failure",
+          1,
+          failedSteps.map { case buildDesc -> list =>
+            Header(
+              2,
+              s":red_circle:  Build *[${list.head.buildVersion} ${buildDesc}](${list.head.buildVersion})* failed",
+              Paragraph(
+                list
+                  .map(step =>
+                    s"* [${step.stepDesc}](${step.stepLink}) *[${step.issueTag}](https://issues.apache.org/jira/browse/${step.issueTag})* ${step.issueDesc}"
+                  )
+                  .mkString("\n")
+              )
+            )
+          }
+        )
+        print(output.build().toString)
+      } else {
+        // Sort by the issue reference and create an output that includes all of the investigations
+        val byIssue = SortedMap(results.flatten.flatten.groupBy(_.issueTag).toList: _*)
+        val outputByIssue: Header = Header(
+          "By Issue",
+          1,
+          byIssue.map { case issue -> list =>
+            Header(
+              2,
+              s"$issue https://issues.apache.org/jira/browse/$issue",
+              Paragraph(list.map(inv => s"* ${inv.buildVersion} ${inv.stepDesc} ${inv.stepLink}").mkString("\n"))
+            )
+          }.toSeq
+        )
+        print(outputByIssue.build().toString)
+      }
     }
   }
 }
