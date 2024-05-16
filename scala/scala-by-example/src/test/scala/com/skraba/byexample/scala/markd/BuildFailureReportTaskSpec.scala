@@ -544,71 +544,71 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
           """By Failure
             |==============================================================================
             |
-            |:red_circle:  Build *[1.20 Flink CI (beta) #402](1.20)* failed
+            |:red_circle:  Build *[1.20 Nightly (beta) #270](https://github.com/apache/flink/actions/runs/8917610620)* failed
             |------------------------------------------------------------------------------
             |
-            |* [Default (Java 8) / Test (module: core)](https://github.com/apache/flink/actions/runs/8874021289/job/24361049250#step:10:8308) *[FLINK-35041](https://issues.apache.org/jira/browse/FLINK-35041)* testSharedStateReRegistration
+            |* [Java 11 / Test (module: core)](https://github.com/apache/flink/actions/runs/8917610620/job/24491172511#step:10:8154) *[FLINK-35041](https://issues.apache.org/jira/browse/FLINK-35041)* testSharedStateReRegistration
+            |* [Java 21 / Test (module: core)](https://github.com/apache/flink/actions/runs/8917610620/job/24491154789#step:10:8873) *[FLINK-35041](https://issues.apache.org/jira/browse/FLINK-35041)* testSharedStateReRegistration
             |
-            |:red_circle:  Build *[1.20 Flink CI (beta) #403](1.20)* failed
+            |:red_circle:  Build *[1.18 Nightly (beta) #268](https://github.com/apache/flink/actions/runs/8904361381)* failed
             |------------------------------------------------------------------------------
             |
-            |* [Default (Java 8) / Test (module: tests)](https://github.com/apache/flink/actions/runs/8887882381/job/24404087819#step:10:8262) *[FLINK-28440](https://issues.apache.org/jira/browse/FLINK-28440)* Could not restore keyed state backend
+            |* [AdaptiveScheduler / Test (module: table)](https://github.com/apache/flink/actions/runs/8904361381/job/24453748069#step:10:14980) *[FLINK-34227](https://issues.apache.org/jira/browse/FLINK-34227)* Job doesn't disconnect from ResourceManager
             |
-            |:red_circle:  Build *[1.20 #20240501.1](1.20)* failed
+            |:red_circle:  Build *[1.20 Nightly (beta) #267](https://github.com/apache/flink/actions/runs/8904361061)* failed
+            |------------------------------------------------------------------------------
+            |
+            |* [Java 21 / Test (module: misc)](https://github.com/apache/flink/commit/80af4d502318348ba15a8f75a2a622ce9dbdc968/checks/24453751708/logs) *[FLINK-35095](https://issues.apache.org/jira/browse/FLINK-35095)* ExecutionEnvironmentImplTest.testFromSource
+            |
+            |:red_circle:  Build *[1.19 Nightly (beta) #266](https://github.com/apache/flink/actions/runs/8904361031)* failed
+            |------------------------------------------------------------------------------
+            |
+            |* [AdaptiveScheduler / Compile](https://github.com/apache/flink/commit/ac4aa35c6e2e2da87760ffbf45d85888b1976c2f/checks/24453516397/logs) *[FLINK-35002](https://issues.apache.org/jira/browse/FLINK-35002)* timeout to ArtifactService
+            |
+            |:red_circle:  Build *[1.20 Flink CI (beta) #411](https://github.com/apache/flink/actions/runs/8901164251)* failed
+            |------------------------------------------------------------------------------
+            |
+            |* [Default (Java 8) / Test (module: tests)](https://github.com/apache/flink/actions/runs/8901164251/job/24444807095#step:10:7971) *[FLINK-28440](https://issues.apache.org/jira/browse/FLINK-28440)* Could not restore keyed state backend
+            |
+            |:red_circle:  Build *[1.20 #20240501.1](https://dev.azure.com/apache-flink/apache-flink/_build/results?buildId=59303&view=results)* failed
             |------------------------------------------------------------------------------
             |
             |* [e2e_2_cron_adaptive_scheduler](https://dev.azure.com/apache-flink/apache-flink/_build/results?buildId=59303&view=logs&j=fb37c667-81b7-5c22-dd91-846535e99a97&t=011e961e-597c-5c96-04fe-7941c8b83f23&l=3076) *[FLINK-35284](https://issues.apache.org/jira/browse/FLINK-35284)* File Sink end-to-end Did not finish after 900 seconds
             |* [test_cron_hadoop313 core](https://dev.azure.com/apache-flink/apache-flink/_build/results?buildId=59303&view=logs&j=d89de3df-4600-5585-dadc-9bbc9a5e661c&t=be5a4b15-4b23-56b1-7582-795f58a645a2&l=9001) *[FLINK-35041](https://issues.apache.org/jira/browse/FLINK-35041)* testSharedStateReRegistration
             |* [test_cron_adaptive_scheduler tests](https://dev.azure.com/apache-flink/apache-flink/_build/results?buildId=59303&view=logs&j=8fd9202e-fd17-5b26-353c-ac1ff76c8f28&t=bc77b88f-20e6-5fb3-ac3b-0b6efcca48c5&l=1068) *[FLINK-34273](https://issues.apache.org/jira/browse/FLINK-34273)* git fetch fails
             |
-            |:red_circle:  Build *[1.20 Nightly (beta) #258](1.20)* failed
-            |------------------------------------------------------------------------------
-            |
-            |* [Java 11 / Test (module: core)](https://github.com/apache/flink/actions/runs/8864296312/job/24339779126#step:10:9083) *[FLINK-35041](https://issues.apache.org/jira/browse/FLINK-35041)* testSharedStateReRegistration
-            |
-            |:red_circle:  Build *[1.20 Nightly (beta) #263](1.20)* failed
+            |:red_circle:  Build *[1.20 Nightly (beta) #263](https://github.com/apache/flink/actions/runs/8888221960)* failed
             |------------------------------------------------------------------------------
             |
             |* [Java 11 / Test (module: core)](https://github.com/apache/flink/actions/runs/8888221960/job/24404966761#step:10:7787) *[FLINK-35041](https://issues.apache.org/jira/browse/FLINK-35041)* testSharedStateReRegistration
             |* [Java 21 / Test (module: misc)](https://github.com/apache/flink/actions/runs/8888221960/job/24404965886#step:10:22919) *[FLINK-18476](https://issues.apache.org/jira/browse/FLINK-18476)* Failed to start python process
             |* [AdaptiveScheduler / Test (module: core)](https://github.com/apache/flink/actions/runs/8888221960/job/24404939797#step:10:8361) *[FLINK-35041](https://issues.apache.org/jira/browse/FLINK-35041)* testSharedStateReRegistration
             |
-            |:red_circle:  Build *[1.20 Nightly (beta) #270](1.20)* failed
+            |:red_circle:  Build *[1.20 Flink CI (beta) #403](https://github.com/apache/flink/actions/runs/8887882381)* failed
             |------------------------------------------------------------------------------
             |
-            |* [Java 11 / Test (module: core)](https://github.com/apache/flink/actions/runs/8917610620/job/24491172511#step:10:8154) *[FLINK-35041](https://issues.apache.org/jira/browse/FLINK-35041)* testSharedStateReRegistration
-            |* [Java 21 / Test (module: core)](https://github.com/apache/flink/actions/runs/8917610620/job/24491154789#step:10:8873) *[FLINK-35041](https://issues.apache.org/jira/browse/FLINK-35041)* testSharedStateReRegistration
+            |* [Default (Java 8) / Test (module: tests)](https://github.com/apache/flink/actions/runs/8887882381/job/24404087819#step:10:8262) *[FLINK-28440](https://issues.apache.org/jira/browse/FLINK-28440)* Could not restore keyed state backend
             |
-            |:red_circle:  Build *[1.18 Nightly (beta) #268](1.18)* failed
+            |:red_circle:  Build *[1.20 Flink CI (beta) #402](https://github.com/apache/flink/actions/runs/8874021289)* failed
             |------------------------------------------------------------------------------
             |
-            |* [AdaptiveScheduler / Test (module: table)](https://github.com/apache/flink/actions/runs/8904361381/job/24453748069#step:10:14980) *[FLINK-34227](https://issues.apache.org/jira/browse/FLINK-34227)* Job doesn't disconnect from ResourceManager
+            |* [Default (Java 8) / Test (module: core)](https://github.com/apache/flink/actions/runs/8874021289/job/24361049250#step:10:8308) *[FLINK-35041](https://issues.apache.org/jira/browse/FLINK-35041)* testSharedStateReRegistration
             |
-            |:red_circle:  Build *[1.20 Nightly (beta) #262](1.20)* failed
+            |:red_circle:  Build *[1.20 Nightly (beta) #262](https://github.com/apache/flink/actions/runs/8872328953)* failed
             |------------------------------------------------------------------------------
             |
             |* [Java 8 / Compile](https://github.com/apache/flink/commit/e412402ca4dfc438e28fb990dc53ea7809430aee/checks/24356511040/logs) *[FLINK-35002](https://issues.apache.org/jira/browse/FLINK-35002)* timeout to ArtifactService
             |* [Java 17 / Test (module: core)](https://github.com/apache/flink/actions/runs/8872328953/job/24356752585#step:10:8911) *[FLINK-35041](https://issues.apache.org/jira/browse/FLINK-35041)* testSharedStateReRegistration
             |
-            |:red_circle:  Build *[1.19 Nightly (beta) #266](1.19)* failed
-            |------------------------------------------------------------------------------
-            |
-            |* [AdaptiveScheduler / Compile](https://github.com/apache/flink/commit/ac4aa35c6e2e2da87760ffbf45d85888b1976c2f/checks/24453516397/logs) *[FLINK-35002](https://issues.apache.org/jira/browse/FLINK-35002)* timeout to ArtifactService
-            |
-            |:red_circle:  Build *[1.18 Nightly (beta) #260](1.18)* failed
+            |:red_circle:  Build *[1.18 Nightly (beta) #260](https://github.com/apache/flink/actions/runs/8872328847)* failed
             |------------------------------------------------------------------------------
             |
             |* [Java 11 / Test (module: misc)](https://github.com/apache/flink/actions/runs/8872328847/job/24356773170#step:10:21780) *[FLINK-34645](https://issues.apache.org/jira/browse/FLINK-34645)* testFinishBundleTriggeredByCount
             |
-            |:red_circle:  Build *[1.20 Nightly (beta) #267](1.20)* failed
+            |:red_circle:  Build *[1.20 Nightly (beta) #258](https://github.com/apache/flink/actions/runs/8864296312)* failed
             |------------------------------------------------------------------------------
             |
-            |* [Java 21 / Test (module: misc)](https://github.com/apache/flink/commit/80af4d502318348ba15a8f75a2a622ce9dbdc968/checks/24453751708/logs) *[FLINK-35095](https://issues.apache.org/jira/browse/FLINK-35095)* ExecutionEnvironmentImplTest.testFromSource
-            |
-            |:red_circle:  Build *[1.20 Flink CI (beta) #411](1.20)* failed
-            |------------------------------------------------------------------------------
-            |
-            |* [Default (Java 8) / Test (module: tests)](https://github.com/apache/flink/actions/runs/8901164251/job/24444807095#step:10:7971) *[FLINK-28440](https://issues.apache.org/jira/browse/FLINK-28440)* Could not restore keyed state backend
+            |* [Java 11 / Test (module: core)](https://github.com/apache/flink/actions/runs/8864296312/job/24339779126#step:10:9083) *[FLINK-35041](https://issues.apache.org/jira/browse/FLINK-35041)* testSharedStateReRegistration
             |""".stripMargin
       }
     }

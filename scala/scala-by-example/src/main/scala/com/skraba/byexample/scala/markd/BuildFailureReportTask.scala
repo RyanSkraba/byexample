@@ -58,7 +58,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
   val SplitHttpsRegex: Regex = raw"(.*?)((?<!\S)https?://\S*)".r
 
   /** All of the information that was collected during a build failure investigation
-    * @param date
+    * @param investigateDate
     *   The date that the build failure was investigated (not the date it failed)
     * @param buildVersion
     *   The version that was being built
@@ -78,7 +78,8 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
     *   If present, additional comments in a code block to describe the investigation
     */
   case class FailedStep(
-      date: String,
+      investigateDate: String,
+      investigateOrder: Int = 0,
       buildVersion: String = "",
       buildDesc: String = "",
       buildLink: String = "",
@@ -152,36 +153,43 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       val results: Seq[Seq[Seq[FailedStep]]] = buildFailureSection.mds
         .collect {
           case daily @ Header(investigateDate, 2, _) if investigateDate >= minDate && investigateDate <= maxDate =>
-            daily.mds.collect { case buildDetails @ Header(buildTitle, 3, _) =>
-              val base = FailedStep(investigateDate).addBuildInfo(buildTitle)
-              (buildDetails.mds.collect {
-                case p: Paragraph => p
-                case c: Code      => c
-              } :+ Comment("Ignored"))
-                .sliding(2)
-                .flatMap {
-                  case Seq(Paragraph(content), c: Code) =>
-                    Some(base.addStepAndIssueInfo(content).copy(comment = Some(c.content)))
-                  case Seq(Paragraph(content), _*) =>
-                    Some(base.addStepAndIssueInfo(content))
-                  case _ => None
+            daily.mds
+              .collect { case buildDetails @ Header(buildTitle, 3, _) =>
+                val base = FailedStep(investigateDate).addBuildInfo(buildTitle)
+                (buildDetails.mds.collect {
+                  case p: Paragraph => p
+                  case c: Code      => c
+                } :+ Comment("Ignored"))
+                  .sliding(2)
+                  .flatMap {
+                    case Seq(Paragraph(content), c: Code) =>
+                      Some(base.addStepAndIssueInfo(content).copy(comment = Some(c.content)))
+                    case Seq(Paragraph(content), _*) =>
+                      Some(base.addStepAndIssueInfo(content))
+                    case _ => None
+                  }
+                  .toSeq
+              }
+              .map {
+                // Add the order that the build was investigated every day
+                _.zipWithIndex.map { case step -> index =>
+                  step.copy(investigateOrder = index)
                 }
-                .toSeq
-            }
+              }
         }
         .take(if (filterAll) dates.size else filterDays)
 
       if (rewrite) {
-        val failedSteps = results.flatten.flatten.groupBy(_.buildDesc).toList
+        // For each build add one Header 2 and list the problems found in the build
         val output = Header(
           "By Failure",
           1,
-          failedSteps.map { case buildDesc -> list =>
+          results.flatten.map { steps =>
             Header(
               2,
-              s":red_circle:  Build *[${list.head.buildVersion} ${buildDesc}](${list.head.buildVersion})* failed",
+              s":red_circle:  Build *[${steps.head.buildVersion} ${steps.head.buildDesc}](${steps.head.buildLink})* failed",
               Paragraph(
-                list
+                steps
                   .map(step =>
                     s"* [${step.stepDesc}](${step.stepLink}) *[${step.issueTag}](https://issues.apache.org/jira/browse/${step.issueTag})* ${step.issueDesc}"
                   )
