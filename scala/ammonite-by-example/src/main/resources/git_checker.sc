@@ -44,8 +44,9 @@ def help(cfg: ConsoleCfg): Unit = {
 
   // Usage examples
   println(cfg.helpUse(cli, "cherryPick", "[repo]", "[main]", "[branch]"))
-  println(cfg.helpUse(cli, "ghOpenPrs", "[githuborg/proj]"))
   println(cfg.helpUse(cli, "ghContrib", "[USER]", "[DSTFILE]", "[--verbose]"))
+  println(cfg.helpUse(cli, "ghOpenPrs", "[githuborg/proj]"))
+  println(cfg.helpUse(cli, "ghFailedRuns", "[githuborg/proj]"))
   println(cfg.helpUse(cli, "rewriteDate", "[cmd]"))
   println()
 }
@@ -117,7 +118,54 @@ def ghOpenPrs(
   }
 
   val prs = ujson.read(prsResponse.text())
-  println(prs("total_count"))
+  println(s"### ${prs("total_count").str}")
+}
+
+// ==========================================================================
+// GitHub CLI for finding failed runs
+@arg(doc = "Use the GitHub API to count the failed workflow runs on a given project")
+@main
+def ghFailedRuns(
+    @arg(doc = "The project in the form apache/avro")
+    prj: String,
+    @arg(doc = "The default version for master")
+    default: String = "main",
+    cfg: ConsoleCfg
+): Unit = {
+
+  val failures = os
+    .proc(
+      "gh",
+      "run",
+      "list",
+      "--repo",
+      prj,
+      "--json",
+      "startedAt,updatedAt,name,number,status,url,conclusion,headBranch",
+      "--status",
+      "failure"
+    )
+    .call(os.pwd)
+  cfg.vPrintln(cfg.magenta("Output"))
+  cfg.vPrintln(failures)
+
+  val prs = ujson
+    .read(failures.out.text())
+    .arr
+    .sortBy(_("startedAt").toString)
+    .reverse
+    .map(pr => {
+      val release = pr("headBranch").str match {
+        case "main" | "master"                 => default
+        case rel if rel.startsWith("release-") => rel.substring(8)
+        case br                                => br
+      }
+      val date = pr("updatedAt").str
+      val name = pr("name").str + " #" + pr("number").num
+      val url = pr("url").str
+      s"### $release $name ($date) $url"
+    })
+  prs.foreach(println)
 }
 
 // ==========================================================================
