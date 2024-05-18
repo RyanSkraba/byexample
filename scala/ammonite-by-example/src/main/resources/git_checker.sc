@@ -160,7 +160,7 @@ def ghFailedRuns(
         case rel if rel.startsWith("release-") => rel.substring(8)
         case br                                => br
       }
-      val date = pr("updatedAt").str
+      val date = pr("startedAt").str
       val name = pr("name").str + " #" + pr("number").num
       val url = pr("url").str
       s"### $release $name ($date) $url"
