@@ -60,6 +60,8 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
   /** All of the information that was collected during a build failure investigation
     * @param investigateDate
     *   The date that the build failure was investigated (not the date it failed)
+    * @param investigateOrder
+    *   The order that the build failure was investigated
     * @param buildVersion
     *   The version that was being built
     * @param buildDesc
