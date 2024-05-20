@@ -28,27 +28,41 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
 
   describe("Parsing build titles") {
 
-    def parseBuildTitle(in: String): (String, String, String) = {
+    def parseBuildTitle(in: String): (String, String, String, String) = {
       val failure = FailedStep("").addBuildInfo(in)
-      (failure.buildVersion, failure.buildDesc, failure.buildLink)
+      (failure.buildVersion, failure.buildDesc, failure.buildDate, failure.buildLink)
     }
 
     it("should return empty values for an empty string") {
-      parseBuildTitle("") shouldBe ("", "", "")
+      parseBuildTitle("") shouldBe ("", "", "", "")
     }
 
-    it("should find build attributes") {
-      parseBuildTitle("abc") shouldBe ("abc", "", "")
-      parseBuildTitle("abc ") shouldBe ("abc", "", "")
-      parseBuildTitle(" abc ") shouldBe ("", "abc", "")
-      parseBuildTitle(" abc def ") shouldBe ("", "abc def", "")
-      parseBuildTitle("abc def ghi") shouldBe ("abc", "def ghi", "")
-      parseBuildTitle("http://link") shouldBe ("", "", "http://link")
-      parseBuildTitle("abc http://link") shouldBe ("abc", "", "http://link")
-      parseBuildTitle(" abc http://link") shouldBe ("", "abc", "http://link")
-      parseBuildTitle("abc def ghi http://link") shouldBe ("abc", "def ghi", "http://link")
-      parseBuildTitle("abc def ghi://link") shouldBe ("abc", "def ghi://link", "")
-      parseBuildTitle("abc def ghi xhttp://link") shouldBe ("abc", "def ghi xhttp://link", "")
+    it("should find build attributes without dates") {
+      parseBuildTitle("abc") shouldBe ("abc", "", "", "")
+      parseBuildTitle("abc ") shouldBe ("abc", "", "", "")
+      parseBuildTitle(" abc ") shouldBe ("", "abc", "", "")
+      parseBuildTitle(" abc def ") shouldBe ("", "abc def", "", "")
+      parseBuildTitle("abc def ghi") shouldBe ("abc", "def ghi", "", "")
+      parseBuildTitle("http://link") shouldBe ("", "", "", "http://link")
+      parseBuildTitle("abc http://link") shouldBe ("abc", "", "", "http://link")
+      parseBuildTitle(" abc http://link") shouldBe ("", "abc", "", "http://link")
+      parseBuildTitle("abc def ghi http://link") shouldBe ("abc", "def ghi", "", "http://link")
+      parseBuildTitle("abc def ghi://link") shouldBe ("abc", "def ghi://link", "", "")
+      parseBuildTitle("abc def ghi xhttp://link") shouldBe ("abc", "def ghi xhttp://link", "", "")
+    }
+
+    it("should find build attributes with dates") {
+      parseBuildTitle("abc (xyz)") shouldBe ("abc", "", "xyz", "")
+      parseBuildTitle("abc (xyz) ") shouldBe ("abc", "", "xyz", "")
+      parseBuildTitle(" abc (xyz)") shouldBe ("", "abc", "xyz", "")
+      parseBuildTitle(" abc def (xyz)") shouldBe ("", "abc def", "xyz", "")
+      parseBuildTitle("abc def ghi (xyz)") shouldBe ("abc", "def ghi", "xyz", "")
+      parseBuildTitle("(xyz) http://link") shouldBe ("", "", "xyz", "http://link")
+      parseBuildTitle("abc (xyz) http://link") shouldBe ("abc", "", "xyz", "http://link")
+      parseBuildTitle(" abc (xyz) http://link") shouldBe ("", "abc", "xyz", "http://link")
+      parseBuildTitle("abc def ghi (xyz) http://link") shouldBe ("abc", "def ghi", "xyz", "http://link")
+      parseBuildTitle("abc def (xyz) ghi://link") shouldBe ("abc", "def (xyz) ghi://link", "", "")
+      parseBuildTitle("abc def ghi (xyz) xhttp://link") shouldBe ("abc", "def ghi (xyz) xhttp://link", "", "")
     }
   }
 

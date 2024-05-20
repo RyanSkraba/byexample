@@ -55,7 +55,10 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       |""".stripMargin.trim
 
   /** Regex for separating off an http(s) URL from the end of a string. */
-  val SplitHttpsRegex: Regex = raw"(.*?)((?<!\S)https?://\S*)".r
+  val SplitHttpsRegex: Regex = raw"(.*?)((?<!\S)https?://\S+)\s*".r
+
+  /** Regex for separating off an http(s) URL from the end of a string. */
+  val SplitLastBracketRegex: Regex = raw"(.*?)(?<!\S)\((\S+)\)\s*".r
 
   /** All of the information that was collected during a build failure investigation
     * @param investigateDate
@@ -84,6 +87,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       investigateOrder: Int = 0,
       buildVersion: String = "",
       buildDesc: String = "",
+      buildDate: String = "",
       buildLink: String = "",
       stepDesc: String = "",
       stepLink: String = "",
@@ -100,12 +104,21 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       *   The buildVersion, buildDesc and buildLink to be put into a [[FailedStep]]
       */
     def addBuildInfo(in: String): FailedStep = {
-      val (buildVersionAndDescription, buildLink) = in match {
+      val (buildPreLink, buildLink) = in match {
         case SplitHttpsRegex(before, uri) => (before, uri)
         case _                            => (in, "")
       }
-      val (buildVersion, buildDesc) = buildVersionAndDescription.span(!_.isWhitespace)
-      copy(buildVersion = buildVersion.trim, buildDesc = buildDesc.trim, buildLink = buildLink.trim)
+      val (buildPreDate, buildDate) = buildPreLink match {
+        case SplitLastBracketRegex(before, date) => (before, date)
+        case _                                   => (buildPreLink, "")
+      }
+      val (buildVersion, buildDesc) = buildPreDate.span(!_.isWhitespace)
+      copy(
+        buildVersion = buildVersion.trim,
+        buildDesc = buildDesc.trim,
+        buildDate = buildDate.trim,
+        buildLink = buildLink.trim
+      )
     }
 
     /** Creates a copy of this class enriched with some build information from the step analysis
