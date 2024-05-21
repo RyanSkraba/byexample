@@ -130,6 +130,8 @@ def ghFailedRuns(
     prj: String,
     @arg(doc = "The default version for master")
     default: String = "main",
+    @arg(doc = "Output the text in HTML")
+    html: Flag,
     cfg: ConsoleCfg
 ): Unit = {
 
@@ -149,7 +151,8 @@ def ghFailedRuns(
   cfg.vPrintln(cfg.magenta("Output"))
   cfg.vPrintln(failures)
 
-  val prs = ujson
+  // Extract the information that we need from the build failures
+  val prs: Seq[(String, String, String, String)] = ujson
     .read(failures.out.text())
     .arr
     .sortBy(_("startedAt").toString)
@@ -161,11 +164,39 @@ def ghFailedRuns(
         case br                                => br
       }
       val date = pr("startedAt").str
-      val name = pr("name").str + " #" + pr("number").num
+      val name = pr("name").str + " #" + pr("number").num.toInt
       val url = pr("url").str
-      s"### $release $name ($date) $url"
+      (release, name, date, url)
     })
-  prs.foreach(println)
+    .toSeq
+
+  if (html.value) {
+    println("""<!DOCTYPE html>
+              |<html><body>
+              |""".stripMargin)
+    prs
+      .map { case (release, name, date, url) => name -> s"### $release $name ($date) $url" }
+      .map { case label -> clipboard => s"  <p><button clipboard='$clipboard'>$label</button></p>" }
+      .foreach(println)
+    println("""<script>
+              |// Add event listener to handle clicks on all buttons
+              |document.querySelectorAll('button').forEach(button => {
+              |  button.addEventListener('click', function() {
+              |    var copyText = button.getAttribute('clipboard');
+              |    if (copyText === null || copyText === undefined) {
+              |      copyText = button.textContent;
+              |    }
+              |    navigator.clipboard.writeText(copyText);
+              |  });
+              |});
+              |</script>
+              |</body></html>
+              |""".stripMargin)
+  } else {
+    prs
+      .map { case (release, name, date, url) => s"### $release $name ($date) $url" }
+      .foreach(println)
+  }
 }
 
 // ==========================================================================
