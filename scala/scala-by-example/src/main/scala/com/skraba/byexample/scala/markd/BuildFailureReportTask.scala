@@ -25,8 +25,9 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       |  --after=DATE  Exclude any investigations that occurred before DATE
       |  --until=DATE  Exclude any investigations that occurred after DATE
       |  --days=DAYS   The number of days to include in the report [default: 1]
+      |  --html        If present, writes the text as an html file.
       |  --rewrite     If present, rewrites the investigations as markdown messages.
-      |
+      |      |
       |This has a very specific use, but is also a nice example for parsing and
       |generating markdown.  The input file should have a format like:
       |
@@ -151,6 +152,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
     val filterAfter: Option[String] = Option(opts.get("--after")).map(_.toString)
     val filterUntil: Option[String] = Option(opts.get("--until")).map(_.toString)
     val rewrite: Boolean = opts.get("--rewrite").toString.toBoolean
+    val asHtml: Boolean = opts.get("--html").toString.toBoolean
 
     MarkdGo.processMd(Seq(files)) { f =>
       val buildFailureSection: Header = Header
@@ -217,18 +219,48 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       } else {
         // Sort by the issue reference and create an output that includes all of the investigations
         val byIssue = SortedMap(results.flatten.flatten.groupBy(_.issueTag).toList: _*)
-        val outputByIssue: Header = Header(
-          "By Issue",
-          1,
-          byIssue.map { case issue -> list =>
-            Header(
-              2,
-              s"$issue https://issues.apache.org/jira/browse/$issue",
-              Paragraph(list.map(inv => s"* ${inv.buildVersion} ${inv.stepDesc} ${inv.stepLink}").mkString("\n"))
-            )
-          }.toSeq
-        )
-        print(outputByIssue.build().toString)
+
+        // Print it as HTML if requested, otherwise print it as markdown.
+        if (asHtml) {
+          println("""<!DOCTYPE html>
+                    |<html><head><style>button {white-space: pre-wrap;}</style></head>
+                    |<body>
+                    |""".stripMargin)
+          byIssue
+            .map { case issue -> list =>
+              s"""<p><a href="https://issues.apache.org/jira/browse/$issue">$issue</a> <button>""" +
+                list.map(inv => s"* ${inv.buildVersion} ${inv.stepDesc} ${inv.stepLink}").mkString("\n") +
+                "</button></p>"
+            }
+            .foreach(println)
+          println("""<script>
+                    |// Add event listener to handle clicks on all buttons
+                    |document.querySelectorAll('button').forEach(button => {
+                    |  button.addEventListener('click', function() {
+                    |    var copyText = button.getAttribute('clipboard');
+                    |    if (copyText === null || copyText === undefined) {
+                    |      copyText = button.textContent;
+                    |    }
+                    |    navigator.clipboard.writeText(copyText);
+                    |  });
+                    |});
+                    |</script>
+                    |</body></html>
+                    |""".stripMargin)
+        } else {
+          val outputByIssue: Header = Header(
+            "By Issue",
+            1,
+            byIssue.map { case issue -> list =>
+              Header(
+                2,
+                s"$issue https://issues.apache.org/jira/browse/$issue",
+                Paragraph(list.map(inv => s"* ${inv.buildVersion} ${inv.stepDesc} ${inv.stepLink}").mkString("\n"))
+              )
+            }.toSeq
+          )
+          print(outputByIssue.build().toString)
+        }
       }
     }
   }
