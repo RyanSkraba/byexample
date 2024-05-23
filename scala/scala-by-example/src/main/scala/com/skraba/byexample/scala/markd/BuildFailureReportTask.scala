@@ -61,6 +61,28 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
   /** Regex for separating off an http(s) URL from the end of a string. */
   val SplitLastBracketRegex: Regex = raw"(.*?)(?<!\S)\((\S+)\)\s*".r
 
+  val HtmlStart: String =
+    """<!DOCTYPE html>
+      |<html><head><style>button {white-space: pre-wrap;}</style></head>
+      |<body>
+      |""".stripMargin
+
+  val HtmlEnd: String =
+    """<script>
+      |// Add event listener to handle clicks on all buttons
+      |document.querySelectorAll('button').forEach(button => {
+      |  button.addEventListener('click', function() {
+      |    var copyText = button.getAttribute('clipboard');
+      |    if (copyText === null || copyText === undefined) {
+      |      copyText = button.textContent;
+      |    }
+      |    navigator.clipboard.writeText(copyText);
+      |  });
+      |});
+      |</script>
+      |</body></html>
+      |""".stripMargin
+
   /** All of the information that was collected during a build failure investigation
     * @param investigateDate
     *   The date that the build failure was investigated (not the date it failed)
@@ -222,10 +244,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
 
         // Print it as HTML if requested, otherwise print it as markdown.
         if (asHtml) {
-          println("""<!DOCTYPE html>
-                    |<html><head><style>button {white-space: pre-wrap;}</style></head>
-                    |<body>
-                    |""".stripMargin)
+          println(HtmlStart)
           byIssue
             .map { case issue -> list =>
               s"""<p><a href="https://issues.apache.org/jira/browse/$issue">$issue</a> <button>""" +
@@ -233,20 +252,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
                 "</button></p>"
             }
             .foreach(println)
-          println("""<script>
-                    |// Add event listener to handle clicks on all buttons
-                    |document.querySelectorAll('button').forEach(button => {
-                    |  button.addEventListener('click', function() {
-                    |    var copyText = button.getAttribute('clipboard');
-                    |    if (copyText === null || copyText === undefined) {
-                    |      copyText = button.textContent;
-                    |    }
-                    |    navigator.clipboard.writeText(copyText);
-                    |  });
-                    |});
-                    |</script>
-                    |</body></html>
-                    |""".stripMargin)
+          println(HtmlEnd)
         } else {
           val outputByIssue: Header = Header(
             "By Issue",
