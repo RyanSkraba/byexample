@@ -219,25 +219,43 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
         .take(if (filterAll) dates.size else filterDays)
 
       if (rewrite) {
-        // For each build add one Header 2 and list the problems found in the build
-        val output = Header(
-          "By Failure",
-          1,
-          results.flatten.map { steps =>
-            Header(
-              2,
-              s":red_circle:  Build *[${steps.head.buildVersion} ${steps.head.buildDesc}](${steps.head.buildLink})* failed",
-              Paragraph(
+
+        // Print it as HTML if requested, otherwise print it as markdown.
+        if (asHtml) {
+          println(HtmlStart)
+          results.flatten
+            .map { case steps =>
+              s"""<p><button clipboard=":red_circle:  Build *[${steps.head.buildVersion} ${steps.head.buildDesc}](${steps.head.buildLink})* failed">${steps.head.buildDesc}</button> <button clipboard="""" +
                 steps
                   .map(step =>
                     s"* [${step.stepDesc}](${step.stepLink}) *[${step.issueTag}](https://issues.apache.org/jira/browse/${step.issueTag})* ${step.issueDesc}"
                   )
-                  .mkString("\n")
+                  .mkString("\n") +
+                "\">Comment</button></p>"
+            }
+            .foreach(println)
+          println(HtmlEnd)
+        } else {
+          // For each build add one Header 2 and list the problems found in the build
+          val output = Header(
+            "By Failure",
+            1,
+            results.flatten.map { steps =>
+              Header(
+                2,
+                s":red_circle:  Build *[${steps.head.buildVersion} ${steps.head.buildDesc}](${steps.head.buildLink})* failed",
+                Paragraph(
+                  steps
+                    .map(step =>
+                      s"* [${step.stepDesc}](${step.stepLink}) *[${step.issueTag}](https://issues.apache.org/jira/browse/${step.issueTag})* ${step.issueDesc}"
+                    )
+                    .mkString("\n")
+                )
               )
-            )
-          }
-        )
-        print(output.build().toString)
+            }
+          )
+          print(output.build().toString)
+        }
       } else {
         // Sort by the issue reference and create an output that includes all of the investigations
         val byIssue = SortedMap(results.flatten.flatten.groupBy(_.issueTag).toList: _*)
