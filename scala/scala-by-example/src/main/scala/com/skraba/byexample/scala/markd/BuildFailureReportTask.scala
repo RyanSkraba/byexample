@@ -72,16 +72,21 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       |// Add event listener to handle clicks on all buttons
       |document.querySelectorAll('button').forEach(button => {
       |  button.addEventListener('click', function() {
-      |    var copyText = button.getAttribute('clipboard');
-      |    if (copyText === null || copyText === undefined) {
-      |      copyText = button.textContent;
-      |    }
-      |    navigator.clipboard.writeText(copyText);
+      |    navigator.clipboard.writeText(button.getAttribute('clipboard') || button.textContent);
+      |    if (button.getAttribute('dest')) window.open(button.getAttribute('dest'), '_blank');
       |  });
       |});
       |</script>
       |</body></html>
       |""".stripMargin
+
+  def htmlButton(label: String, clipboard: String = "", dest: String = ""): String = {
+    val sb = new StringBuilder("<button")
+    if (clipboard.nonEmpty) sb ++= s""" clipboard="$clipboard""""
+    if (dest.nonEmpty) sb ++= s""" dest="$dest""""
+    sb ++= s">$label</button>"
+    sb.toString
+  }
 
   /** All of the information that was collected during a build failure investigation
     * @param investigateDate
@@ -224,14 +229,20 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
         if (asHtml) {
           println(HtmlStart)
           results.flatten
-            .map { case steps =>
-              s"""<p><button clipboard=":red_circle:  Build *[${steps.head.buildVersion} ${steps.head.buildDesc}](${steps.head.buildLink})* failed">${steps.head.buildDesc}</button> <button clipboard="""" +
+            .map { steps =>
+              val button1 = htmlButton(
+                steps.head.buildDesc,
+                s":red_circle:  Build *[${steps.head.buildVersion} ${steps.head.buildDesc}](${steps.head.buildLink})* failed"
+              )
+              val button2 = htmlButton(
+                "Issues found",
                 steps
                   .map(step =>
                     s"* [${step.stepDesc}](${step.stepLink}) *[${step.issueTag}](https://issues.apache.org/jira/browse/${step.issueTag})* ${step.issueDesc}"
                   )
-                  .mkString("\n") +
-                "\">Comment</button></p>"
+                  .mkString("\n")
+              )
+              s"<p>$button1 $button2</p>"
             }
             .foreach(println)
           println(HtmlEnd)
@@ -264,10 +275,14 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
         if (asHtml) {
           println(HtmlStart)
           byIssue
-            .map { case issue -> list =>
-              s"""<p><a href="https://issues.apache.org/jira/browse/$issue">$issue</a> <button>""" +
-                list.map(inv => s"* ${inv.buildVersion} ${inv.stepDesc} ${inv.stepLink}").mkString("\n") +
-                "</button></p>"
+            .map { case issue -> steps =>
+              val stepInfo =
+                steps.map(step => s"* ${step.buildVersion} ${step.stepDesc} ${step.stepLink}").mkString("\n")
+              val button1 =
+                htmlButton(issue, clipboard = stepInfo, dest = s"https://issues.apache.org/jira/browse/$issue")
+              val button2 =
+                htmlButton(stepInfo)
+              s"<p>$button1 $button2</p>"
             }
             .foreach(println)
           println(HtmlEnd)
@@ -275,11 +290,11 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
           val outputByIssue: Header = Header(
             "By Issue",
             1,
-            byIssue.map { case issue -> list =>
+            byIssue.map { case issue -> steps =>
               Header(
                 2,
                 s"$issue https://issues.apache.org/jira/browse/$issue",
-                Paragraph(list.map(inv => s"* ${inv.buildVersion} ${inv.stepDesc} ${inv.stepLink}").mkString("\n"))
+                Paragraph(steps.map(step => s"* ${step.buildVersion} ${step.stepDesc} ${step.stepLink}").mkString("\n"))
               )
             }.toSeq
           )
