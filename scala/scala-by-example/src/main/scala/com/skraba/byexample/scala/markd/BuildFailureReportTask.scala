@@ -228,6 +228,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
         // Print it as HTML if requested, otherwise print it as markdown.
         if (asHtml) {
           println(HtmlStart)
+          println("<h1>By build failure</h1>")
           results.flatten
             .map { steps =>
               val button1 = htmlButton(
@@ -274,6 +275,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
         // Print it as HTML if requested, otherwise print it as markdown.
         if (asHtml) {
           println(HtmlStart)
+          println("<h1>By issue</h1>")
           byIssue
             .map { case issue -> steps =>
               val stepInfo =
