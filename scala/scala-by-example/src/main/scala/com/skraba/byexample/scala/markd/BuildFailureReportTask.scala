@@ -27,7 +27,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       |  --days=DAYS   The number of days to include in the report [default: 1]
       |  --html        If present, writes the text as an html file.
       |  --rewrite     If present, rewrites the investigations as markdown messages.
-      |      |
+      |
       |This has a very specific use, but is also a nice example for parsing and
       |generating markdown.  The input file should have a format like:
       |
@@ -223,85 +223,74 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
         }
         .take(if (filterAll) dates.size else filterDays)
 
-      if (rewrite) {
+      // Sort by the issue reference and create an output that includes all of the investigations
+      lazy val byIssue = SortedMap(results.flatten.flatten.groupBy(_.issueTag).toList: _*)
 
-        // Print it as HTML if requested, otherwise print it as markdown.
-        if (asHtml) {
-          println(HtmlStart)
-          println("<h1>By build failure</h1>")
-          results.flatten
-            .map { steps =>
-              val button1 = htmlButton(
-                steps.head.buildDesc,
-                s":red_circle:  Build *[${steps.head.buildVersion} ${steps.head.buildDesc}](${steps.head.buildLink})* failed"
-              )
-              val button2 = htmlButton(
-                "Issues found",
+      if (asHtml) {
+        println(HtmlStart)
+        println("<h1>Build failure notifications</h1>")
+        results.flatten
+          .map { steps =>
+            val button1 = htmlButton(
+              steps.head.buildDesc,
+              s":red_circle:  Build *[${steps.head.buildVersion} ${steps.head.buildDesc}](${steps.head.buildLink})* failed"
+            )
+            val button2 = htmlButton(
+              "Issues found",
+              steps
+                .map(step =>
+                  s"* [${step.stepDesc}](${step.stepLink}) *[${step.issueTag}](https://issues.apache.org/jira/browse/${step.issueTag})* ${step.issueDesc}"
+                )
+                .mkString("\n")
+            )
+            s"<p>$button1 $button2</p>"
+          }
+          .foreach(println)
+        println("<h1>By issue</h1>")
+        byIssue
+          .map { case issue -> steps =>
+            val stepInfo =
+              steps.map(step => s"* ${step.buildVersion} ${step.stepDesc} ${step.stepLink}").mkString("\n")
+            val button1 =
+              htmlButton(issue, clipboard = stepInfo, dest = s"https://issues.apache.org/jira/browse/$issue")
+            val button2 =
+              htmlButton(stepInfo)
+            s"<p>$button1 $button2</p>"
+          }
+          .foreach(println)
+        println(HtmlEnd)
+      } else if (rewrite) {
+        val output = Header(
+          "By Failure",
+          1,
+          results.flatten.map { steps =>
+            Header(
+              2,
+              s":red_circle:  Build *[${steps.head.buildVersion} ${steps.head.buildDesc}](${steps.head.buildLink})* failed",
+              Paragraph(
                 steps
                   .map(step =>
                     s"* [${step.stepDesc}](${step.stepLink}) *[${step.issueTag}](https://issues.apache.org/jira/browse/${step.issueTag})* ${step.issueDesc}"
                   )
                   .mkString("\n")
               )
-              s"<p>$button1 $button2</p>"
-            }
-            .foreach(println)
-          println(HtmlEnd)
-        } else {
-          // For each build add one Header 2 and list the problems found in the build
-          val output = Header(
-            "By Failure",
-            1,
-            results.flatten.map { steps =>
-              Header(
-                2,
-                s":red_circle:  Build *[${steps.head.buildVersion} ${steps.head.buildDesc}](${steps.head.buildLink})* failed",
-                Paragraph(
-                  steps
-                    .map(step =>
-                      s"* [${step.stepDesc}](${step.stepLink}) *[${step.issueTag}](https://issues.apache.org/jira/browse/${step.issueTag})* ${step.issueDesc}"
-                    )
-                    .mkString("\n")
-                )
-              )
-            }
-          )
-          print(output.build().toString)
-        }
+            )
+          }
+        )
+        print(output.build().toString)
       } else {
-        // Sort by the issue reference and create an output that includes all of the investigations
-        val byIssue = SortedMap(results.flatten.flatten.groupBy(_.issueTag).toList: _*)
-
-        // Print it as HTML if requested, otherwise print it as markdown.
-        if (asHtml) {
-          println(HtmlStart)
-          println("<h1>By issue</h1>")
-          byIssue
-            .map { case issue -> steps =>
-              val stepInfo =
-                steps.map(step => s"* ${step.buildVersion} ${step.stepDesc} ${step.stepLink}").mkString("\n")
-              val button1 =
-                htmlButton(issue, clipboard = stepInfo, dest = s"https://issues.apache.org/jira/browse/$issue")
-              val button2 =
-                htmlButton(stepInfo)
-              s"<p>$button1 $button2</p>"
-            }
-            .foreach(println)
-          println(HtmlEnd)
-        } else {
-          val outputByIssue: Header = Header(
-            "By Issue",
-            1,
-            byIssue.map { case issue -> steps =>
-              Header(
-                2,
-                s"$issue https://issues.apache.org/jira/browse/$issue",
-                Paragraph(steps.map(step => s"* ${step.buildVersion} ${step.stepDesc} ${step.stepLink}").mkString("\n"))
-              )
-            }.toSeq
-          )
-          print(outputByIssue.build().toString)
-        }
+        val outputByIssue: Header = Header(
+          "By Issue",
+          1,
+          byIssue.map { case issue -> steps =>
+            Header(
+              2,
+              s"$issue https://issues.apache.org/jira/browse/$issue",
+              Paragraph(steps.map(step => s"* ${step.buildVersion} ${step.stepDesc} ${step.stepLink}").mkString("\n"))
+            )
+          }.toSeq
+        )
+        print(outputByIssue.build().toString)
       }
     }
   }
