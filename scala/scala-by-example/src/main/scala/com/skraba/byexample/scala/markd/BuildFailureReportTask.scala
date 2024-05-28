@@ -80,6 +80,8 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       |</body></html>
       |""".stripMargin
 
+  val AsfIssues: String = "https://issues.apache.org/jira/browse/%s"
+
   def htmlButton(label: String, clipboard: String = "", dest: String = ""): String = {
     val sb = new StringBuilder("<button")
     if (clipboard.nonEmpty) sb ++= s""" clipboard="$clipboard""""
@@ -169,6 +171,11 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       val (issueTag, issueDesc) = lines.drop(1).headOption.getOrElse("").span(!_.isWhitespace)
       copy(stepDesc = stepDesc.trim, stepLink = stepLink.trim, issueTag = issueTag.trim, issueDesc = issueDesc.trim)
     }
+
+    lazy val notifBuildMd: String = s":red_circle:  Build *[${buildVersion} ${buildDesc}](${buildLink})* failed"
+
+    lazy val notifDetailMd: String =
+      s"* [${stepDesc}](${stepLink}) *[${issueTag}](${AsfIssues.format(issueTag)})* ${issueDesc}"
   }
 
   def go(opts: java.util.Map[String, AnyRef]): Unit = {
@@ -231,18 +238,8 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
         println("<h1>Build failure notifications</h1>")
         results.flatten
           .map { steps =>
-            val button1 = htmlButton(
-              steps.head.buildDesc,
-              s":red_circle:  Build *[${steps.head.buildVersion} ${steps.head.buildDesc}](${steps.head.buildLink})* failed"
-            )
-            val button2 = htmlButton(
-              "Issues found",
-              steps
-                .map(step =>
-                  s"* [${step.stepDesc}](${step.stepLink}) *[${step.issueTag}](https://issues.apache.org/jira/browse/${step.issueTag})* ${step.issueDesc}"
-                )
-                .mkString("\n")
-            )
+            val button1 = htmlButton(steps.head.buildDesc, steps.head.notifBuildMd)
+            val button2 = htmlButton(steps.map(_.issueTag).mkString(" "), steps.map(_.notifDetailMd).mkString("\n"))
             s"<p>$button1 $button2</p>"
           }
           .foreach(println)
@@ -252,7 +249,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
             val stepInfo =
               steps.map(step => s"* ${step.buildVersion} ${step.stepDesc} ${step.stepLink}").mkString("\n")
             val button1 =
-              htmlButton(issue, clipboard = stepInfo, dest = s"https://issues.apache.org/jira/browse/$issue")
+              htmlButton(issue, clipboard = stepInfo, dest = AsfIssues.format(issue))
             val button2 =
               htmlButton(stepInfo)
             s"<p>$button1 $button2</p>"
@@ -266,14 +263,8 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
           results.flatten.map { steps =>
             Header(
               2,
-              s":red_circle:  Build *[${steps.head.buildVersion} ${steps.head.buildDesc}](${steps.head.buildLink})* failed",
-              Paragraph(
-                steps
-                  .map(step =>
-                    s"* [${step.stepDesc}](${step.stepLink}) *[${step.issueTag}](https://issues.apache.org/jira/browse/${step.issueTag})* ${step.issueDesc}"
-                  )
-                  .mkString("\n")
-              )
+              steps.head.notifBuildMd,
+              Paragraph(steps.map(_.notifDetailMd).mkString("\n"))
             )
           }
         )
@@ -285,7 +276,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
           byIssue.map { case issue -> steps =>
             Header(
               2,
-              s"$issue https://issues.apache.org/jira/browse/$issue",
+              issue + " " + AsfIssues.format(issue),
               Paragraph(steps.map(step => s"* ${step.buildVersion} ${step.stepDesc} ${step.stepLink}").mkString("\n"))
             )
           }.toSeq
