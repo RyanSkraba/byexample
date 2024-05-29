@@ -80,7 +80,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       |</body></html>
       |""".stripMargin
 
-  val AsfIssues: String = "https://issues.apache.org/jira/browse/%s"
+  val AsfIssueTemplate: String = "https://issues.apache.org/jira/browse/%s"
 
   def htmlButton(label: String, clipboard: String = "", dest: String = ""): String = {
     val sb = new StringBuilder("<button")
@@ -109,6 +109,8 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
     *   The issue or defect that was identified to have caused the failure
     * @param issueDesc
     *   A helpful hint to refer to the issue
+    * @param issueLink
+    *   The link to the issue if available on the web
     * @param comment
     *   If present, additional comments in a code block to describe the investigation
     */
@@ -123,8 +125,18 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       stepLink: String = "",
       issueTag: String = "",
       issueDesc: String = "",
+      issueLink: String = "",
       comment: Option[String] = None
   ) {
+
+    /** A string to use as a markdown notification for the build failure. */
+    lazy val notifBuildMd: String = s":red_circle:  Build *[$buildVersion $buildDesc]($buildLink)* failed"
+
+    /** A string to use as a markdown notification for this specific step. */
+    lazy val notifDetailMd: String = s"* [$stepDesc]($stepLink) *[$issueTag]($issueLink)* $issueDesc"
+
+    /** A string to use as a notification for this specific step (without formatting). */
+    lazy val notifDetail: String = s"* $buildVersion $stepDesc $stepLink"
 
     /** Creates a copy of this class enriched with some build information from the build title
       *
@@ -155,11 +167,13 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       *
       * @param in
       *   A paragraph describing the build failure for the step
+      * @param issueLinkTemplate
+      *   A String format that can be used to create a link for the issue from its tag
       * @return
       *   A tuple containing (in order) the stepDesc, stepLink, issueTag and issueDesc to be put into a [[FailedStep]]
       *   instance.
       */
-    def addStepAndIssueInfo(in: String): FailedStep = {
+    def addStepAndIssueInfo(in: String, issueLinkTemplate: String): FailedStep = {
       // Get the step information from the first line
       val lines = in.split('\n')
       val (stepDesc, stepLink) = lines.headOption match {
@@ -169,13 +183,14 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       }
       // And get the issue information from the second line
       val (issueTag, issueDesc) = lines.drop(1).headOption.getOrElse("").span(!_.isWhitespace)
-      copy(stepDesc = stepDesc.trim, stepLink = stepLink.trim, issueTag = issueTag.trim, issueDesc = issueDesc.trim)
+      copy(
+        stepDesc = stepDesc.trim,
+        stepLink = stepLink.trim,
+        issueTag = issueTag.trim,
+        issueDesc = issueDesc.trim,
+        issueLink = if (issueTag.isEmpty) "" else issueLinkTemplate.format(issueTag)
+      )
     }
-
-    lazy val notifBuildMd: String = s":red_circle:  Build *[${buildVersion} ${buildDesc}](${buildLink})* failed"
-
-    lazy val notifDetailMd: String =
-      s"* [${stepDesc}](${stepLink}) *[${issueTag}](${AsfIssues.format(issueTag)})* ${issueDesc}"
   }
 
   def go(opts: java.util.Map[String, AnyRef]): Unit = {
@@ -187,6 +202,8 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
     val filterUntil: Option[String] = Option(opts.get("--until")).map(_.toString)
     val rewrite: Boolean = opts.get("--rewrite").toString.toBoolean
     val asHtml: Boolean = opts.get("--html").toString.toBoolean
+    // TODO: This could be configurable
+    val issueTemplate = AsfIssueTemplate
 
     MarkdGo.processMd(Seq(files)) { f =>
       val buildFailureSection: Header = Header
@@ -214,9 +231,9 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
                   .sliding(2)
                   .flatMap {
                     case Seq(Paragraph(content), c: Code) =>
-                      Some(base.addStepAndIssueInfo(content).copy(comment = Some(c.content)))
+                      Some(base.addStepAndIssueInfo(content, issueTemplate).copy(comment = Some(c.content)))
                     case Seq(Paragraph(content), _*) =>
-                      Some(base.addStepAndIssueInfo(content))
+                      Some(base.addStepAndIssueInfo(content, issueTemplate))
                     case _ => None
                   }
                   .toSeq
@@ -249,7 +266,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
             val stepInfo =
               steps.map(step => s"* ${step.buildVersion} ${step.stepDesc} ${step.stepLink}").mkString("\n")
             val button1 =
-              htmlButton(issue, clipboard = stepInfo, dest = AsfIssues.format(issue))
+              htmlButton(issue, clipboard = stepInfo, dest = issueTemplate.format(issue))
             val button2 =
               htmlButton(stepInfo)
             s"<p>$button1 $button2</p>"
@@ -276,8 +293,8 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
           byIssue.map { case issue -> steps =>
             Header(
               2,
-              issue + " " + AsfIssues.format(issue),
-              Paragraph(steps.map(step => s"* ${step.buildVersion} ${step.stepDesc} ${step.stepLink}").mkString("\n"))
+              issue + " " + issueTemplate.format(issue),
+              Paragraph(steps.map(_.notifDetail).mkString("\n"))
             )
           }.toSeq
         )
