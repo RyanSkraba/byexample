@@ -63,7 +63,10 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
 
   val HtmlStart: String =
     """<!DOCTYPE html>
-      |<html><head><style>button {white-space: pre-wrap;}</style></head>
+      |<html><head><style>
+      |  button {white-space: pre-wrap;text-align:left;}
+      |  a:active, a:hover, a:link, a:visited {text-decoration: none;}
+      |</style></head>
       |<body>
       |""".stripMargin
 
@@ -255,21 +258,34 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
         println("<h1>Build failure notifications</h1>")
         results.flatten
           .map { steps =>
-            val button1 = htmlButton(steps.head.buildDesc, steps.head.notifBuildMd)
-            val button2 = htmlButton(steps.map(_.issueTag).mkString(" "), steps.map(_.notifDetailMd).mkString("\n"))
-            s"<p>$button1 $button2</p>"
+            val buildButton = htmlButton(steps.head.buildDesc, steps.head.notifBuildMd)
+            val buildLink = if (steps.head.buildLink.nonEmpty) s"""<a href="${steps.head.buildLink}">🔗</a>""" else ""
+            val issuesButton =
+              htmlButton(steps.map(_.issueTag).mkString(" "), steps.map(_.notifDetailMd).mkString("\n"))
+            val issuesLink = steps
+              .map(step =>
+                (if (step.stepLink.nonEmpty) s"""<a href="${step.stepLink}">🔗</a>""" else "") +
+                  (if (step.issueLink.nonEmpty) s"""<a href="${step.issueLink}">🐞</a>""" else "")
+              )
+              .mkString(" · ")
+            s"""<p>$buildButton $buildLink $issuesButton $issuesLink</p>""".stripMargin
           }
           .foreach(println)
+
+        /*
+         * [Java 8 / Test (module: tests)](https://github.com/apache/flink/actions/runs/9110398985/job/25045798401#step:10:8192) *[FLINK-35382](https://issues.apache.org/jira/browse/FLINK-35382)* ChangelogCompatibilityITCase.testRestore fails with an NPE
+         */
+
         println("<h1>By issue</h1>")
         byIssue
           .map { case issue -> steps =>
             val stepInfo =
               steps.map(step => s"* ${step.buildVersion} ${step.stepDesc} ${step.stepLink}").mkString("\n")
-            val button1 =
+            val issueButton =
               htmlButton(issue, clipboard = stepInfo, dest = issueTemplate.format(issue))
-            val button2 =
-              htmlButton(stepInfo)
-            s"<p>$button1 $button2</p>"
+            val issueLink = s"""<a href="${issueTemplate.format(issue)}">🐞</a>"""
+            val buildsButton = htmlButton(stepInfo)
+            s"<p>$issueButton $issueLink $buildsButton</p>"
           }
           .foreach(println)
         println(HtmlEnd)
