@@ -3,7 +3,7 @@ package com.skraba.byexample.scala.markd
 import com.skraba.docoptcli.DocoptCliGoSpec
 import org.docopt.DocoptExitException
 
-/** Unit tests for [[MarkdGo]] */
+/** Unit tests for [[DateCountdownTask]] */
 class DatecountTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(DateCountdownTask)) {
 
   describe(s"${Cli.Cli} $TaskCmd command line") {
