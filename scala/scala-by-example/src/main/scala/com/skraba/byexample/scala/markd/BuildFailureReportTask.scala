@@ -1,9 +1,12 @@
 package com.skraba.byexample.scala.markd
 
 import com.skraba.docoptcli.DocoptCliGo
+import play.api.libs.json.{JsArray, Json}
 
 import scala.collection.SortedMap
 import scala.util.matching.Regex
+import scala.io.Source
+import scala.util.Using
 
 object BuildFailureReportTask extends DocoptCliGo.Task {
 
@@ -18,15 +21,16 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       |  MarkdGo buildfail FILE [options]
       |
       |Options:
-      |  -h --help     Show this screen.
-      |  --version     Show version.
-      |  FILE          File to read and summarize
-      |  --all         Report using all of the build investigations in the file.
-      |  --after=DATE  Exclude any investigations that occurred before DATE
-      |  --until=DATE  Exclude any investigations that occurred after DATE
-      |  --days=DAYS   The number of days to include in the report [default: 1]
-      |  --html        If present, writes the text as an html file.
-      |  --rewrite     If present, rewrites the investigations as markdown messages.
+      |  -h --help         Show this screen.
+      |  --version         Show version.
+      |  FILE              File to read and summarize
+      |  --all             Report using all of the build investigations in the file
+      |  --after=DATE      Exclude any investigations that occurred before DATE
+      |  --until=DATE      Exclude any investigations that occurred after DATE
+      |  --days=DAYS       The number of days to include in the report [default: 1]
+      |  --html            If present, writes the text as an html file
+      |  --add-fails=REPO  If present, adds any GitHub action fails
+      |  --rewrite         If present, rewrites the investigations as markdown
       |
       |This has a very specific use, but is also a nice example for parsing and
       |generating markdown.  The input file should have a format like:
@@ -84,6 +88,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       |""".stripMargin
 
   val AsfIssueTemplate: String = "https://issues.apache.org/jira/browse/%s"
+  val GitHubApiFailsTemplate: String = "https://issues.apache.org/jira/browse/%s"
 
   def htmlButton(label: String, clipboard: String = "", dest: String = ""): String = {
     val sb = new StringBuilder("<button")
@@ -196,6 +201,91 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
     }
   }
 
+  private def getFailedSteps(
+      h0: Header,
+      filterAll: Boolean = false,
+      filterDays: Int = 1,
+      filterAfter: Option[String] = None,
+      filterUntil: Option[String] = None,
+      issueTemplate: String = AsfIssueTemplate
+  ): Seq[Seq[Seq[FailedStep]]] = {
+    val buildFailureSection = h0
+      .collectFirstRecursive {
+        case section @ Header(title, 1, _) if title.toLowerCase.matches(raw".*\bbuild failures\b.*") => section
+      }
+      .getOrElse {
+        throw new IllegalArgumentException("Can't find failure report")
+      }
+
+    // Limit the selection of dates if they are specified.
+    lazy val dates = buildFailureSection.mds.collect { case Header(date, 2, _) => date }
+    val minDate = filterAfter.getOrElse(dates.minOption.getOrElse(""))
+    val maxDate = filterUntil.getOrElse(dates.maxOption.getOrElse(""))
+    val results: Seq[Seq[Seq[FailedStep]]] = buildFailureSection.mds
+      .collect {
+        case daily @ Header(investigateDate, 2, _) if investigateDate >= minDate && investigateDate <= maxDate =>
+          daily.mds
+            .collect { case buildDetails @ Header(buildTitle, 3, _) =>
+              val base = FailedStep(investigateDate).addBuildInfo(buildTitle)
+              (buildDetails.mds.collect {
+                case p: Paragraph => p
+                case c: Code      => c
+              } :+ Comment("Ignored"))
+                .sliding(2)
+                .flatMap {
+                  case Seq(Paragraph(content), c: Code) =>
+                    Some(base.addStepAndIssueInfo(content, issueTemplate).copy(comment = Some(c.content)))
+                  case Seq(Paragraph(content), _*) =>
+                    Some(base.addStepAndIssueInfo(content, issueTemplate))
+                  case _ => None
+                }
+                .toSeq
+            }
+            .map {
+              // Add the order that the build was investigated every day
+              _.zipWithIndex.map { case step -> index =>
+                step.copy(investigateOrder = index)
+              }
+            }
+      }
+      .take(if (filterAll) dates.size else filterDays)
+
+    results
+  }
+
+  private def addNewFailures(doc: Header, repo: String, failsUrlTemplate: String): Header = {
+    // The GitHub Actions workflow failures
+    case class WorkflowRun(id: String, name: String, head_branch: String, html_url: String, created_at: String)
+
+    // The list of the currently known builds
+    val failures = getFailedSteps(doc)
+
+    // The list of failed builds fetched from the GitHub API
+    val jsString = Using(Source.fromURL(failsUrlTemplate.format(repo)))(_.mkString)
+    val workflows = jsString
+      .map(Json.parse)
+      .map(_ \ "workflow_runs")
+      .map(
+        _.get
+          .as[JsArray]
+          .value
+          .map(js =>
+            WorkflowRun(
+              (js \ "id").get.as[Long].toString,
+              (js \ "name").get.as[String],
+              (js \ "head_branch").get.as[String],
+              (js \ "html_url").get.as[String],
+              (js \ "created_at").get.as[String]
+            )
+          )
+      )
+      .get // Throws any exception that was found on the way.
+      .toSeq
+
+    // TODO: Update the document with the missing builds
+    doc
+  }
+
   def go(opts: java.util.Map[String, AnyRef]): Unit = {
 
     val files: String = opts.get("FILE").asInstanceOf[String]
@@ -205,50 +295,19 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
     val filterUntil: Option[String] = Option(opts.get("--until")).map(_.toString)
     val rewrite: Boolean = opts.get("--rewrite").toString.toBoolean
     val asHtml: Boolean = opts.get("--html").toString.toBoolean
-    // TODO: This could be configurable
+
     val issueTemplate = AsfIssueTemplate
+    val failsUrlTemplate = GitHubApiFailsTemplate
+
+    // Whether to modify the document by adding any new failed build before processing.
+    val addFails: Option[String] = Option(opts.get("--add-fails")).map(_.toString)
 
     MarkdGo.processMd(Seq(files)) { f =>
-      val buildFailureSection: Header = Header
-        .parse(f.slurp())
-        .collectFirstRecursive {
-          case section @ Header(title, 1, _) if title.toLowerCase.matches(raw".*\bbuild failures\b.*") => section
-        }
-        .getOrElse { throw new IllegalArgumentException("Can't find failure report") }
+      // Modify the file with new build failures on request
+      val doc0 = Header.parse(f.slurp())
+      val doc = addFails.map(addNewFailures(doc0, _, failsUrlTemplate)).getOrElse(doc0)
 
-      // Limit the selection of dates if they are specified.
-      lazy val dates = buildFailureSection.mds.collect { case Header(date, 2, _) => date }
-      val minDate = filterAfter.getOrElse(dates.minOption.getOrElse(""))
-      val maxDate = filterUntil.getOrElse(dates.maxOption.getOrElse(""))
-
-      val results: Seq[Seq[Seq[FailedStep]]] = buildFailureSection.mds
-        .collect {
-          case daily @ Header(investigateDate, 2, _) if investigateDate >= minDate && investigateDate <= maxDate =>
-            daily.mds
-              .collect { case buildDetails @ Header(buildTitle, 3, _) =>
-                val base = FailedStep(investigateDate).addBuildInfo(buildTitle)
-                (buildDetails.mds.collect {
-                  case p: Paragraph => p
-                  case c: Code      => c
-                } :+ Comment("Ignored"))
-                  .sliding(2)
-                  .flatMap {
-                    case Seq(Paragraph(content), c: Code) =>
-                      Some(base.addStepAndIssueInfo(content, issueTemplate).copy(comment = Some(c.content)))
-                    case Seq(Paragraph(content), _*) =>
-                      Some(base.addStepAndIssueInfo(content, issueTemplate))
-                    case _ => None
-                  }
-                  .toSeq
-              }
-              .map {
-                // Add the order that the build was investigated every day
-                _.zipWithIndex.map { case step -> index =>
-                  step.copy(investigateOrder = index)
-                }
-              }
-        }
-        .take(if (filterAll) dates.size else filterDays)
+      val results = getFailedSteps(doc, filterAll, filterDays, filterAfter, filterUntil, issueTemplate)
 
       // Sort by the issue reference and create an output that includes all of the investigations
       lazy val byIssue = SortedMap(results.flatten.flatten.groupBy(_.issueTag).toList: _*)
