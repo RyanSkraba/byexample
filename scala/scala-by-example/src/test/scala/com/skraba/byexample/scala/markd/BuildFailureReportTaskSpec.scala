@@ -1,6 +1,5 @@
 package com.skraba.byexample.scala.markd
 
-import com.skraba.byexample.scala.markd.BuildFailureReportTask.FailedStep
 import com.skraba.docoptcli.DocoptCliGoSpec
 
 import scala.reflect.io.{Directory, File}
