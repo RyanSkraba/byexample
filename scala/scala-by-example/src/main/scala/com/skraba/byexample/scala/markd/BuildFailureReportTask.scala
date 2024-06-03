@@ -223,7 +223,7 @@ class BuildFailureReport(
   }
 }
 
-class HtmlOutput {
+class HtmlOutput(report: BuildFailureReport) {
   val HtmlStart: String =
     """<!DOCTYPE html>
       |<html><head><style>
@@ -254,9 +254,9 @@ class HtmlOutput {
     sb.toString
   }
 
-  def go(report: BuildFailureReport): Unit = {
-    println(HtmlStart)
-    println("<h1>Build failure notifications</h1>")
+  override def toString: String = {
+    val sb = new StringBuilder(HtmlStart)
+    sb ++= "<h1>Build failure notifications</h1>"
     report.allSteps.flatten
       .map { steps =>
         val buildButton = htmlButton(steps.head.buildDesc, steps.head.notifBuildMd)
@@ -271,8 +271,8 @@ class HtmlOutput {
           .mkString(" · ")
         s"""<p>$buildButton $buildLink $issuesButton $issuesLink</p>""".stripMargin
       }
-      .foreach(println)
-    println("<h1>By issue</h1>")
+      .foreach(sb.addAll)
+    sb ++= "<h1>By issue</h1>"
     report.byIssue
       .map { case issue -> steps =>
         val stepInfo =
@@ -283,8 +283,9 @@ class HtmlOutput {
         val buildsButton = htmlButton(stepInfo)
         s"<p>$issueButton $issueLink $buildsButton</p>"
       }
-      .foreach(println)
-    println(HtmlEnd)
+      .foreach(sb.addAll)
+    sb ++= HtmlEnd
+    sb.toString
   }
 }
 
@@ -360,7 +361,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       val report = addFails.map(report0.addNewFailures(report0.doc, _)).getOrElse(report0)
 
       if (asHtml) {
-        new HtmlOutput().go(report)
+        println(new HtmlOutput(report).toString)
       } else if (rewrite) {
         val output = Header(
           "By Failure",
