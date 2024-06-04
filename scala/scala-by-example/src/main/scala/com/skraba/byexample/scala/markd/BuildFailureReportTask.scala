@@ -120,7 +120,17 @@ case class FailedStep(
   }
 }
 
-/** Represents the build failure report that is being read and written.
+/** Represents the build failure report that is being read (and optionally updated).
+  *
+  * @param doc
+  *   The entire markdown file to parse
+  * @param filterDays
+  *   The number of days (second level headers) that should be included in any output
+  * @param filterAfter
+  *   A String to compare to day titles (the second level headers) to only include those that are greater than or equal
+  *   to.
+  * @param filterUntil
+  *   A String to compare to day titles (the second level headers) to only include those that are less than or equal to.
   */
 class BuildFailureReport(
     val doc: Header,
@@ -141,6 +151,7 @@ class BuildFailureReport(
     .orElse(sys.env.get("GITHUB_RUN_FAILS_TEMPLATE"))
     .getOrElse("https://api.github.com/repos/%s/actions/runs?status=failure&exclude_pull_requests=true")
 
+  /** The section containing the build failures reports. */
   lazy val buildFailureSection: Header = doc
     .collectFirstRecursive {
       case section @ Header(title, 1, _) if title.toLowerCase.matches(raw".*\bbuild failures\b.*") => section
@@ -149,6 +160,7 @@ class BuildFailureReport(
       throw new IllegalArgumentException("Can't find failure report")
     }
 
+  /** All of the documented steps that are contained in the build failure reports. */
   lazy val allSteps: Seq[Seq[Seq[FailedStep]]] = {
     // Limit the selection of dates if they are specified.
     lazy val dates = buildFailureSection.mds.collect { case Header(date, 2, _) => date }
@@ -184,9 +196,10 @@ class BuildFailureReport(
       .take(filterDays)
   }
 
-  lazy val byIssue = SortedMap(allSteps.flatten.flatten.groupBy(_.issueTag).toList: _*)
+  /** All of the steps organised by the reported issue. */
+  lazy val allStepsByIssue = SortedMap(allSteps.flatten.flatten.groupBy(_.issueTag).toList: _*)
 
-  def addNewFailures(doc: Header, repo: String): BuildFailureReport = {
+  def addNewFailures(repo: String): BuildFailureReport = {
     // The GitHub Actions workflow failures
     case class WorkflowRun(id: String, name: String, head_branch: String, html_url: String, created_at: String)
 
@@ -273,7 +286,7 @@ class HtmlOutput(report: BuildFailureReport) {
       }
       .foreach(sb.addAll)
     sb ++= "<h1>By issue</h1>"
-    report.byIssue
+    report.allStepsByIssue
       .map { case issue -> steps =>
         val stepInfo =
           steps.map(step => s"* ${step.buildVersion} ${step.stepDesc} ${step.stepLink}").mkString("\n")
@@ -358,7 +371,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
     MarkdGo.processMd(Seq(files)) { f =>
       // Modify the file with new build failures on request
       val report0 = new BuildFailureReport(Header.parse(f.slurp()), filterDays, filterAfter, filterUntil)
-      val report = addFails.map(report0.addNewFailures(report0.doc, _)).getOrElse(report0)
+      val report = addFails.map(report0.addNewFailures).getOrElse(report0)
 
       if (asHtml) {
         println(new HtmlOutput(report).toString)
@@ -379,7 +392,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
         val outputByIssue: Header = Header(
           "By Issue",
           1,
-          report.byIssue.map { case issue -> steps =>
+          report.allStepsByIssue.map { case issue -> steps =>
             Header(
               2,
               issue + " " + report.IssueTemplate.format(issue),
