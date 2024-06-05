@@ -15,13 +15,15 @@ import scala.util.Using
   * @param investigateDate
   *   The date that the build failure was investigated (not the date it failed)
   * @param investigateOrder
-  *   The order that the build failure was investigated
+  *   The order of the investigate date section, with zero being the most recent.
   * @param buildVersion
   *   The version that was being built
   * @param buildDesc
   *   A short description that the CI uses to refer to the build (workflow name)
   * @param buildLink
   *   The link to the CI build failure
+  * @param buildOrder
+  *   The order that the specific build was investigated, with zero being the most recent.
   * @param stepDesc
   *   The specific job and step in the build that failed
   * @param stepLink
@@ -42,6 +44,7 @@ case class FailedStep(
     buildDesc: String = "",
     buildDate: String = "",
     buildLink: String = "",
+    buildOrder: Int = 0,
     stepDesc: String = "",
     stepLink: String = "",
     issueTag: String = "",
@@ -160,51 +163,60 @@ class BuildFailureReport(
       throw new IllegalArgumentException("Can't find failure report")
     }
 
-  /** All of the documented steps that are contained in the build failure reports. */
-  lazy val allSteps: Seq[Seq[Seq[FailedStep]]] = {
-    // Limit the selection of dates if they are specified.
-    lazy val dates = buildFailureSection.mds.collect { case Header(date, 2, _) => date }
-    val minDate = filterAfter.getOrElse(dates.minOption.getOrElse(""))
-    val maxDate = filterUntil.getOrElse(dates.maxOption.getOrElse(""))
-    buildFailureSection.mds
-      .collect {
-        case daily @ Header(investigateDate, 2, _) if investigateDate >= minDate && investigateDate <= maxDate =>
-          daily.mds
-            .collect { case buildDetails @ Header(buildTitle, 3, _) =>
-              val base = FailedStep(investigateDate).addBuildInfo(buildTitle)
-              (buildDetails.mds.collect {
-                case p: Paragraph => p
-                case c: Code      => c
-              } :+ Comment("Ignored"))
-                .sliding(2)
-                .flatMap {
-                  case Seq(Paragraph(content), c: Code) =>
-                    Some(base.addStepAndIssueInfo(content, IssueTemplate).copy(comment = Some(c.content)))
-                  case Seq(Paragraph(content), _*) =>
-                    Some(base.addStepAndIssueInfo(content, IssueTemplate))
-                  case _ => None
-                }
-                .toSeq
+  /** All of the documented failures that is contained in the build failure report. */
+  lazy val all: Seq[FailedStep] = buildFailureSection.mds
+    .collect { case daily @ Header(_, 2, _) => daily }
+    .zipWithIndex
+    .flatMap { case (daily @ Header(investigateDate, 2, _)) -> investigateOrder =>
+      daily.mds
+        .collect { case buildDetails @ Header(buildTitle, 3, _) =>
+          val base = FailedStep(investigateDate, investigateOrder).addBuildInfo(buildTitle)
+          (buildDetails.mds.collect {
+            case p: Paragraph => p
+            case c: Code      => c
+          } :+ Comment("Ignored"))
+            .sliding(2)
+            .flatMap {
+              case Seq(Paragraph(content), c: Code) =>
+                Some(base.addStepAndIssueInfo(content, IssueTemplate).copy(comment = Some(c.content)))
+              case Seq(Paragraph(content), _*) =>
+                Some(base.addStepAndIssueInfo(content, IssueTemplate))
+              case _ => None
             }
-            .map {
-              // Add the order that the build was investigated every day
-              _.zipWithIndex.map { case step -> index =>
-                step.copy(investigateOrder = index)
-              }
-            }
-      }
-      .take(filterDays)
+            .toSeq
+        }
+    }
+    .flatten
+    .zipWithIndex
+    .map { case step -> index => step.copy(buildOrder = index) }
+
+  lazy val filtered: Seq[FailedStep] = {
+    val withMin = filterAfter.map(minDate => all.filter(_.investigateDate >= minDate)).getOrElse(all)
+    val filteredDates = filterUntil.map(maxDate => withMin.filter(_.investigateDate <= maxDate)).getOrElse(withMin)
+
+    if (filterDays == Int.MaxValue) filteredDates
+    else {
+      val headOrder = filteredDates.headOption.map(_.investigateOrder).getOrElse(0) + filterDays
+      filteredDates.filter(_.investigateOrder < headOrder)
+    }
   }
 
   /** All of the steps organised by the reported issue. */
-  lazy val allStepsByIssue = SortedMap(allSteps.flatten.flatten.groupBy(_.issueTag).toList: _*)
+  lazy val allStepsByIssue: SortedMap[String, Seq[FailedStep]] = SortedMap(
+    filtered.groupBy(_.issueTag).toList: _*
+  )
+
+  /** All of the steps organised by the specific build. */
+  lazy val allStepsByBuild: Seq[Seq[FailedStep]] = SortedMap(
+    filtered.groupBy(_.buildLink).toList: _*
+  ).values.toSeq.sortWith(_.head.buildOrder < _.head.buildOrder)
 
   def addNewFailures(repo: String): BuildFailureReport = {
     // The GitHub Actions workflow failures
     case class WorkflowRun(id: String, name: String, head_branch: String, html_url: String, created_at: String)
 
     // The list of the currently known builds
-    val buildLinks = allSteps.flatten.flatten.map(_.buildLink).toSet
+    val buildLinks = filtered.map(_.buildLink).toSet
 
     // The list of failed builds fetched from the GitHub API
     val jsString = Using(Source.fromURL(RunFailsUriTemplate.format(repo)))(_.mkString)
@@ -229,7 +241,7 @@ class BuildFailureReport(
       .toSeq
 
     // The list of failed runs that are currently not documented
-    val newRuns = workflows.filterNot(run => buildLinks.apply(run.html_url))
+    val newRuns = workflows.takeWhile(run => !buildLinks.apply(run.html_url))
 
     // TODO: Update the document with the missing builds
     new BuildFailureReport(doc, filterDays, filterAfter, filterUntil)
@@ -270,7 +282,7 @@ class HtmlOutput(report: BuildFailureReport) {
   override def toString: String = {
     val sb = new StringBuilder(HtmlStart)
     sb ++= "<h1>Build failure notifications</h1>"
-    report.allSteps.flatten
+    report.allStepsByBuild
       .map { steps =>
         val buildButton = htmlButton(steps.head.buildDesc, steps.head.notifBuildMd)
         val buildLink = if (steps.head.buildLink.nonEmpty) s"""<a href="${steps.head.buildLink}">🔗</a>""" else ""
@@ -379,13 +391,13 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
         val output = Header(
           "By Failure",
           1,
-          report.allSteps.flatten.map { steps =>
+          report.allStepsByBuild.map { steps =>
             Header(
               2,
               steps.head.notifBuildMd,
               Paragraph(steps.map(_.notifDetailMd).mkString("\n"))
             )
-          }
+          }.toSeq
         )
         print(output.build().toString)
       } else {
