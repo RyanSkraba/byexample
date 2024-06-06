@@ -163,7 +163,7 @@ class BuildFailureReport(
       throw new IllegalArgumentException("Can't find failure report")
     }
 
-  /** All of the documented failures that is contained in the build failure report. */
+  /** All of the documented failures contained in the build failure report. */
   lazy val all: Seq[FailedStep] = buildFailureSection.mds
     .collect { case daily @ Header(_, 2, _) => daily }
     .zipWithIndex
@@ -190,6 +190,7 @@ class BuildFailureReport(
     .zipWithIndex
     .map { case step -> index => step.copy(buildOrder = index) }
 
+  /** All of the documented failures that match the filters set for the report. */
   lazy val filtered: Seq[FailedStep] = {
     val withMin = filterAfter.map(minDate => all.filter(_.investigateDate >= minDate)).getOrElse(all)
     val filteredDates = filterUntil.map(maxDate => withMin.filter(_.investigateDate <= maxDate)).getOrElse(withMin)
@@ -201,12 +202,12 @@ class BuildFailureReport(
     }
   }
 
-  /** All of the steps organised by the reported issue. */
+  /** All of the failures organised by the reported issue. */
   lazy val allStepsByIssue: SortedMap[String, Seq[FailedStep]] = SortedMap(
     filtered.groupBy(_.issueTag).toList: _*
   )
 
-  /** All of the steps organised by the specific build. */
+  /** All of the failures organised by the specific build. */
   lazy val allStepsByBuild: Seq[Seq[FailedStep]] = SortedMap(
     filtered.groupBy(_.buildLink).toList: _*
   ).values.toSeq.sortWith(_.head.buildOrder < _.head.buildOrder)
@@ -216,7 +217,7 @@ class BuildFailureReport(
     case class WorkflowRun(id: String, name: String, head_branch: String, html_url: String, created_at: String)
 
     // The list of the currently known builds
-    val buildLinks = filtered.map(_.buildLink).toSet
+    val buildLinks = all.map(_.buildLink).toSet
 
     // The list of failed builds fetched from the GitHub API
     val jsString = Using(Source.fromURL(RunFailsUriTemplate.format(repo)))(_.mkString)
@@ -241,14 +242,17 @@ class BuildFailureReport(
       .toSeq
 
     // The list of failed runs that are currently not documented
-    val newRuns = workflows.takeWhile(run => !buildLinks.apply(run.html_url))
+    val newRuns = workflows.filterNot(run => buildLinks.apply(run.html_url))
 
     // TODO: Update the document with the missing builds
     new BuildFailureReport(doc, filterDays, filterAfter, filterUntil)
   }
 }
 
+/** Generates an HTML page with all of the notifications and reports present. */
 class HtmlOutput(report: BuildFailureReport) {
+
+  /** The start of the HTML document. */
   val HtmlStart: String =
     """<!DOCTYPE html>
       |<html><head><style>
@@ -258,6 +262,7 @@ class HtmlOutput(report: BuildFailureReport) {
       |<body>
       |""".stripMargin
 
+  /** The end of the HTML document. */
   val HtmlEnd: String =
     """<script>
       |// Add event listener to handle clicks on all buttons
@@ -271,6 +276,17 @@ class HtmlOutput(report: BuildFailureReport) {
       |</body></html>
       |""".stripMargin
 
+  /** A button in HTML that can be clicked to copy text to the clipboard, optionally opening a new tab at the same time.
+    *
+    * @param label
+    *   The label of the button.
+    * @param clipboard
+    *   If present, the text to copy to the clipboard when the button is clicked (otherwise the label is copied)
+    * @param dest
+    *   If present, pops up this URL in a new tab when the button is clicked.
+    * @return
+    *   The string that contains the button.
+    */
   def htmlButton(label: String, clipboard: String = "", dest: String = ""): String = {
     val sb = new StringBuilder("<button")
     if (clipboard.nonEmpty) sb ++= s""" clipboard="$clipboard""""
