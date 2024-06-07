@@ -4,6 +4,8 @@ import com.skraba.byexample.scala.markd.BuildFailureReportTask
 import com.skraba.docoptcli.DocoptCliGo
 import play.api.libs.json.{JsArray, Json}
 
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import scala.collection.SortedMap
 import scala.util.matching.Regex
 import scala.io.Source
@@ -214,7 +216,16 @@ class BuildFailureReport(
 
   def addNewFailures(repo: String): BuildFailureReport = {
     // The GitHub Actions workflow failures
-    case class WorkflowRun(id: String, name: String, head_branch: String, html_url: String, created_at: String)
+    case class WorkflowRun(
+        id: String,
+        name: String,
+        runNumber: String,
+        head_branch: String,
+        html_url: String,
+        created_at: String
+    ) {
+      lazy val buildFailureTitleMd: String = s"$head_branch $name #$runNumber ($created_at) $html_url".trim
+    }
 
     // The list of the currently known builds
     val buildLinks = all.map(_.buildLink).toSet
@@ -232,6 +243,7 @@ class BuildFailureReport(
             WorkflowRun(
               (js \ "id").get.as[Long].toString,
               (js \ "name").get.as[String],
+              (js \ "run_number").get.as[Long].toString,
               (js \ "head_branch").get.as[String],
               (js \ "html_url").get.as[String],
               (js \ "created_at").get.as[String]
@@ -242,10 +254,23 @@ class BuildFailureReport(
       .toSeq
 
     // The list of failed runs that are currently not documented
-    val newRuns = workflows.filterNot(run => buildLinks.apply(run.html_url))
+    val newRuns: Seq[WorkflowRun] = workflows.filterNot(run => buildLinks.apply(run.html_url))
 
-    // TODO: Update the document with the missing builds
-    new BuildFailureReport(doc, filterDays, filterAfter, filterUntil)
+    if (newRuns.isEmpty) this
+    else {
+      // Today's date for the investigation
+      val investigateDate = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(LocalDate.now())
+      // The section includes all of the new failures
+      val newInvestigateSection = Header(investigateDate, 2, newRuns.map(run => Header(3, run.buildFailureTitleMd)))
+      val newDoc = doc.replaceRecursively {
+        case section @ Header(title, 1, _) if title.toLowerCase.matches(raw".*\bbuild failures\b.*") =>
+          section.flatMapFirstIn(section.mds :+ newInvestigateSection) { case h2 @ Header(_, 2, _) =>
+            Seq(newInvestigateSection, h2)
+          }
+      }
+
+      new BuildFailureReport(newDoc, filterDays, filterAfter, filterUntil)
+    }
   }
 }
 
@@ -399,7 +424,13 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
     MarkdGo.processMd(Seq(files)) { f =>
       // Modify the file with new build failures on request
       val report0 = new BuildFailureReport(Header.parse(f.slurp()), filterDays, filterAfter, filterUntil)
-      val report = addFails.map(report0.addNewFailures).getOrElse(report0)
+      val report = addFails
+        .map { repo =>
+          val rep = report0.addNewFailures(repo)
+          f.writeAll(rep.doc.build().toString)
+          rep
+        }
+        .getOrElse(report0)
 
       if (asHtml) {
         println(new HtmlOutput(report).toString)

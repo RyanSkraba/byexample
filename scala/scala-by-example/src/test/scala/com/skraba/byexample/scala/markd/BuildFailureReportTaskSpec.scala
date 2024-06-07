@@ -2,6 +2,8 @@ package com.skraba.byexample.scala.markd
 
 import com.skraba.docoptcli.DocoptCliGoSpec
 
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import scala.reflect.io.{Directory, File}
 
 /** Unit tests for [[BuildFailureReportTask]] */
@@ -11,7 +13,6 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
   val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
 
   describe(s"${Cli.Cli} $TaskCmd command line") {
-
     itShouldThrowOnHelpAndVersionFlags()
 
     itShouldThrowOnUnknownFlag()
@@ -23,6 +24,7 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
     itShouldThrowOnMissingOptValue(Seq("--days"))
     itShouldThrowOnMissingOptValue(Seq("--until"))
     itShouldThrowOnMissingOptValue(Seq("--after"))
+    itShouldThrowOnMissingOptValue(Seq("--add-fails"))
   }
 
   describe("Parsing build titles") {
@@ -315,6 +317,101 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
             |* 1.1.2 B2 https://link/buildB11/B2
             |""".stripMargin
       }
+    }
+  }
+
+  describe("When automatically adding failed builds") {
+
+    val Scenario = (Tmp / "addfails").createDirectory()
+
+    it("should overwrite the file to include uninvestigated build failures") {
+
+      // This file will be overwritten
+      File(Scenario / "failures.md").writeAll("""# Synthetic Build Failures
+         |* A note here
+         |## 2024-01-02
+         |### 1.3 Nightly build https://build3
+         |Fail3
+         |BUG-1
+         |### 1.2 Nightly build https://build2
+         |Fail2
+         |BUG-1
+         |## 2024-01-01
+         |### 1.1 Nightly build https://build1
+         |Fail1
+         |BUG-1
+         |### 1.0 Nightly build https://build0
+         |Fail0
+         |BUG-1
+         |""".stripMargin)
+
+      // This is the mock return result from the API call, constructed by overriding the system property to
+      // create a file URL instead of a REST API.
+      File(Scenario / "run_fails.json").writeAll("""{"workflow_runs":[
+         |{"id":0,"name":"a5","run_number":5,"head_branch":"main","html_url":"https://build5","created_at":"2024-01-05"},
+         |{"id":1,"name":"a4","run_number":4,"head_branch":"master","html_url":"https://build4","created_at":"2024-01-04"},
+         |{"id":2,"name":"a3","run_number":3,"head_branch":"release-1.3","html_url":"https://build3","created_at":"2024-01-03"},
+         |{"id":3,"name":"a2","run_number":2,"head_branch":"release-1.2","html_url":"https://build2","created_at":"2024-01-02"},
+         |{"id":4,"name":"a1","run_number":1,"head_branch":"release-1.1","html_url":"https://build1","created_at":"2024-01-01"}]}
+         |""".stripMargin)
+
+      sys.props("run.fails.template") = s"file://$Scenario/%s"
+      withGoMatching(TaskCmd, "--add-fails", "run_fails.json", Scenario / "failures.md") { case (stdout, stderr) =>
+        stderr shouldBe empty
+        stdout shouldBe
+          """By Issue
+            |==============================================================================
+            |
+            |BUG-1 https://issues.apache.org/jira/browse/BUG-1
+            |------------------------------------------------------------------------------
+            |
+            |* 1.3 Fail3
+            |* 1.2 Fail2
+            |""".stripMargin
+      }
+      sys.props.remove("run.fails.template")
+
+      val today = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(LocalDate.now())
+      (Scenario / "failures.md").toFile.slurp() shouldBe
+        s"""Synthetic Build Failures
+          |==============================================================================
+          |
+          |* A note here
+          |
+          |$today
+          |------------------------------------------------------------------------------
+          |
+          |### main a5 #5 (2024-01-05) https://build5
+          |
+          |### master a4 #4 (2024-01-04) https://build4
+          |
+          |2024-01-02
+          |------------------------------------------------------------------------------
+          |
+          |### 1.3 Nightly build https://build3
+          |
+          |Fail3
+          |BUG-1
+          |
+          |### 1.2 Nightly build https://build2
+          |
+          |Fail2
+          |BUG-1
+          |
+          |2024-01-01
+          |------------------------------------------------------------------------------
+          |
+          |### 1.1 Nightly build https://build1
+          |
+          |Fail1
+          |BUG-1
+          |
+          |### 1.0 Nightly build https://build0
+          |
+          |Fail0
+          |BUG-1
+          |""".stripMargin
+
     }
   }
 
@@ -626,5 +723,4 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
       }
     }
   }
-
 }
