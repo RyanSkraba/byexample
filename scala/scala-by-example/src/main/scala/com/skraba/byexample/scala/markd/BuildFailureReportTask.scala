@@ -261,7 +261,8 @@ class BuildFailureReport(
       // Today's date for the investigation
       val investigateDate = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(LocalDate.now())
       // The section includes all of the new failures
-      val newInvestigateSection = Header(investigateDate, 2, newRuns.map(run => Header(3, run.buildFailureTitleMd)))
+      val newInvestigateSection =
+        Header(investigateDate, 2, newRuns.map(run => Header(3, run.buildFailureTitleMd, Paragraph("TODO"))))
       val newDoc = doc.replaceRecursively {
         case section @ Header(title, 1, _) if title.toLowerCase.matches(raw".*\bbuild failures\b.*") =>
           section.flatMapFirstIn(section.mds :+ newInvestigateSection) { case h2 @ Header(_, 2, _) =>
@@ -454,7 +455,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
           report.allStepsByIssue.map { case issue -> steps =>
             Header(
               2,
-              issue + " " + report.IssueTemplate.format(issue),
+              if (issue.isEmpty) "Unknown" else issue + " " + report.IssueTemplate.format(issue),
               Paragraph(steps.map(_.notifDetail).mkString("\n"))
             )
           }.toSeq

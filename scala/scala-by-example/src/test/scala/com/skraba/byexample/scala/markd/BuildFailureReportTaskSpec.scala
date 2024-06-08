@@ -362,11 +362,11 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
           """By Issue
             |==============================================================================
             |
-            |BUG-1 https://issues.apache.org/jira/browse/BUG-1
+            |Unknown
             |------------------------------------------------------------------------------
             |
-            |* 1.3 Fail3
-            |* 1.2 Fail2
+            |* main TODO
+            |* master TODO
             |""".stripMargin
       }
       sys.props.remove("run.fails.template")
@@ -383,7 +383,11 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
           |
           |### main a5 #5 (2024-01-05) https://build5
           |
+          |TODO
+          |
           |### master a4 #4 (2024-01-04) https://build4
+          |
+          |TODO
           |
           |2024-01-02
           |------------------------------------------------------------------------------
