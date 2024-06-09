@@ -652,8 +652,8 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
       }
     }
 
-    it("should rewrite all days investigations") {
-      withGoMatching(TaskCmd, "--all", "--rewrite", Sample / "failures.md") { case (stdout, _) =>
+    it("should rewrite all days investigations as markdown notifications") {
+      withGoMatching(TaskCmd, "--all", "--markdown-msg", Sample / "failures.md") { case (stdout, _) =>
         stdout shouldBe
           """By Failure
             |==============================================================================

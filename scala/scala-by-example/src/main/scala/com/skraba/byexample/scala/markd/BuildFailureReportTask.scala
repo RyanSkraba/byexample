@@ -1,6 +1,5 @@
 package com.skraba.byexample.scala.markd
 
-import com.skraba.byexample.scala.markd.BuildFailureReportTask
 import com.skraba.docoptcli.DocoptCliGo
 import play.api.libs.json.{JsArray, Json}
 
@@ -56,10 +55,10 @@ case class FailedStep(
 ) {
 
   /** Regex for separating off an http(s) URL from the end of a string. */
-  val SplitHttpsRegex: Regex = raw"(.*?)((?<!\S)https?://\S+)\s*".r
+  private val SplitHttpsRegex: Regex = raw"(.*?)((?<!\S)https?://\S+)\s*".r
 
   /** Regex for separating off an http(s) URL from the end of a string. */
-  val SplitLastBracketRegex: Regex = raw"(.*?)(?<!\S)\((\S+)\)\s*".r
+  private val SplitLastBracketRegex: Regex = raw"(.*?)(?<!\S)\((\S+)\)\s*".r
 
   /** A string to use as a markdown notification for the build failure. */
   lazy val notifBuildMd: String = s":red_circle:  Build *[$buildVersion $buildDesc]($buildLink)* failed"
@@ -151,13 +150,13 @@ class BuildFailureReport(
     .getOrElse("https://issues.apache.org/jira/browse/%s")
 
   /** The URL used to find new run failures is generated using this template, given the repo. */
-  lazy val RunFailsUriTemplate: String = sys.props
+  private lazy val RunFailsUriTemplate: String = sys.props
     .get("run.fails.template")
     .orElse(sys.env.get("GITHUB_RUN_FAILS_TEMPLATE"))
     .getOrElse("https://api.github.com/repos/%s/actions/runs?status=failure&exclude_pull_requests=true")
 
   /** The section containing the build failures reports. */
-  lazy val buildFailureSection: Header = doc
+  private lazy val buildFailureSection: Header = doc
     .collectFirstRecursive {
       case section @ Header(title, 1, _) if title.toLowerCase.matches(raw".*\bbuild failures\b.*") => section
     }
@@ -193,7 +192,7 @@ class BuildFailureReport(
     .map { case step -> index => step.copy(buildOrder = index) }
 
   /** All of the documented failures that match the filters set for the report. */
-  lazy val filtered: Seq[FailedStep] = {
+  private lazy val filtered: Seq[FailedStep] = {
     val withMin = filterAfter.map(minDate => all.filter(_.investigateDate >= minDate)).getOrElse(all)
     val filteredDates = filterUntil.map(maxDate => withMin.filter(_.investigateDate <= maxDate)).getOrElse(withMin)
 
@@ -279,7 +278,7 @@ class BuildFailureReport(
 class HtmlOutput(report: BuildFailureReport) {
 
   /** The start of the HTML document. */
-  val HtmlStart: String =
+  private val HtmlStart: String =
     """<!DOCTYPE html>
       |<html><head><style>
       |  button {white-space: pre-wrap;text-align:left;}
@@ -289,7 +288,7 @@ class HtmlOutput(report: BuildFailureReport) {
       |""".stripMargin
 
   /** The end of the HTML document. */
-  val HtmlEnd: String =
+  private val HtmlEnd: String =
     """<script>
       |// Add event listener to handle clicks on all buttons
       |document.querySelectorAll('button').forEach(button => {
@@ -313,7 +312,7 @@ class HtmlOutput(report: BuildFailureReport) {
     * @return
     *   The string that contains the button.
     */
-  def htmlButton(label: String, clipboard: String = "", dest: String = ""): String = {
+  private def htmlButton(label: String, clipboard: String = "", dest: String = ""): String = {
     val sb = new StringBuilder("<button")
     if (clipboard.nonEmpty) sb ++= s""" clipboard="$clipboard""""
     if (dest.nonEmpty) sb ++= s""" dest="$dest""""
@@ -378,7 +377,8 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       |  --days=DAYS       The number of days to include in the report [default: 1]
       |  --html            If present, writes the text as an html file
       |  --add-fails=REPO  If present, adds any GitHub action fails
-      |  --rewrite         If present, rewrites the investigations as markdown
+      |  --markdown-msg    If present, rewrites the investigations as markdown
+      |                    notifications.
       |
       |This has a very specific use, but is also a nice example for parsing and
       |generating markdown.  The input file should have a format like:
@@ -416,7 +416,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       else Option(opts.get("--days")).map(_.toString.toInt).getOrElse(1)
     val filterAfter: Option[String] = Option(opts.get("--after")).map(_.toString)
     val filterUntil: Option[String] = Option(opts.get("--until")).map(_.toString)
-    val rewrite: Boolean = opts.get("--rewrite").toString.toBoolean
+    val asMarkdownMsg: Boolean = opts.get("--markdown-msg").toString.toBoolean
     val asHtml: Boolean = opts.get("--html").toString.toBoolean
 
     // Whether to modify the document by adding any new failed build before processing.
@@ -435,7 +435,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
 
       if (asHtml) {
         println(new HtmlOutput(report).toString)
-      } else if (rewrite) {
+      } else if (asMarkdownMsg) {
         val output = Header(
           "By Failure",
           1,
