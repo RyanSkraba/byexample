@@ -213,17 +213,25 @@ class BuildFailureReport(
     filtered.groupBy(_.buildLink).toList: _*
   ).values.toSeq.sortWith(_.head.buildOrder < _.head.buildOrder)
 
-  def addNewFailures(repo: String): BuildFailureReport = {
+  def addNewFailures(repo: String, mainVersion: Option[String]): BuildFailureReport = {
     // The GitHub Actions workflow failures
     case class WorkflowRun(
         id: String,
         name: String,
         runNumber: String,
-        head_branch: String,
-        html_url: String,
-        created_at: String
+        headBranch: String,
+        htmlUrl: String,
+        createdAt: String
     ) {
-      lazy val buildFailureTitleMd: String = s"$head_branch $name #$runNumber ($created_at) $html_url".trim
+      lazy val branch = mainVersion
+        .map(default =>
+          if (headBranch.startsWith("release-")) headBranch.substring(8)
+          else if (headBranch == "main" || headBranch == "master") default
+          else headBranch
+        )
+        .getOrElse(headBranch)
+
+      lazy val buildFailureTitleMd: String = s"$branch $name #$runNumber ($createdAt) $htmlUrl".trim
     }
 
     // The list of the currently known builds
@@ -253,20 +261,17 @@ class BuildFailureReport(
       .toSeq
 
     // The list of failed runs that are currently not documented
-    val newRuns: Seq[WorkflowRun] = workflows.filterNot(run => buildLinks.apply(run.html_url))
+    val newRuns: Seq[WorkflowRun] = workflows.filterNot(run => buildLinks.apply(run.htmlUrl))
 
     if (newRuns.isEmpty) this
     else {
       // Today's date for the investigation
       val investigateDate = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(LocalDate.now())
       // The section includes all of the new failures
-      val newInvestigateSection =
-        Header(investigateDate, 2, newRuns.map(run => Header(3, run.buildFailureTitleMd, Paragraph("TODO"))))
-      val newDoc = doc.replaceRecursively {
-        case section @ Header(title, 1, _) if title.toLowerCase.matches(raw".*\bbuild failures\b.*") =>
-          section.flatMapFirstIn(section.mds :+ newInvestigateSection) { case h2 @ Header(_, 2, _) =>
-            Seq(newInvestigateSection, h2)
-          }
+      val newBuildFailures = newRuns.map(run => Header(3, run.buildFailureTitleMd, Paragraph("TODO")))
+      val newDoc = doc.mapFirstIn() {
+        case section: Header if section == buildFailureSection =>
+          section.prepend(investigateDate, newBuildFailures: _*)
       }
 
       new BuildFailureReport(newDoc, filterDays, filterAfter, filterUntil)
@@ -379,6 +384,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       |  --add-fails=REPO  If present, adds any GitHub action fails
       |  --markdown-msg    If present, rewrites the investigations as markdown
       |                    notifications.
+      |  --main-version=V  If present, uses V as the build version for main/master
       |
       |This has a very specific use, but is also a nice example for parsing and
       |generating markdown.  The input file should have a format like:
@@ -421,13 +427,14 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
 
     // Whether to modify the document by adding any new failed build before processing.
     val addFails: Option[String] = Option(opts.get("--add-fails")).map(_.toString)
+    val mainVersion: Option[String] = Option(opts.get("--main-version")).map(_.toString)
 
     MarkdGo.processMd(Seq(files)) { f =>
       // Modify the file with new build failures on request
       val report0 = new BuildFailureReport(Header.parse(f.slurp()), filterDays, filterAfter, filterUntil)
       val report = addFails
         .map { repo =>
-          val rep = report0.addNewFailures(repo)
+          val rep = report0.addNewFailures(repo, mainVersion)
           f.writeAll(rep.doc.build().toString)
           rep
         }
