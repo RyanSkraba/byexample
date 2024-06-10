@@ -421,6 +421,25 @@ package object markd {
 
     override def copyMds(newMds: Seq[Markd]): Self = copy(mds = newMds)
 
+    /** Helper method to simplify prepending a sublevel header at the top of this section. A new subsection that is one
+      * level below this one will be added, after the content of this section but before any subsections. Appending is
+      * much simpler via copyMds.
+      *
+      * @param innerTitle
+      *   The title of the subsection to prepend
+      * @param innerMds
+      *   The contents of the subsection.
+      * @return
+      *   This header with the new subsection prepended to it.
+      */
+    def prepend(innerTitle: String, innerMds: Markd*): Header = {
+      val toPrepend = Header(innerTitle, level + 1, innerMds)
+      flatMapFirstIn(ifNotFound = mds :+ toPrepend, replace = true) {
+        case h @ Header(_, lvl, _) if lvl == toPrepend.level && toPrepend != h => Seq(toPrepend, h)
+        case h @ Header(_, lvl, _) if lvl == toPrepend.level                   => Seq(h)
+      }
+    }
+
     override def build(
         sb: StringBuilder = new StringBuilder(),
         cfg: FormatCfg = FormatCfg.Default

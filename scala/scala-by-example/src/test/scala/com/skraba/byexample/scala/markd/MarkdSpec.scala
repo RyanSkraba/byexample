@@ -1425,6 +1425,15 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
           Header(1, "Three"),
           Header(1, "FOUR")
         )
+        md.mapFirstIn(ifNotFound = Header(1, "Four") +: md.mds, replace = true) {
+          case h @ Header(title, 1, _) if title.startsWith("F") =>
+            h.copy(title = h.title.toUpperCase)
+        }.mds shouldBe Seq(
+          Header(1, "FOUR"),
+          Header(1, "One"),
+          Header(1, "Two"),
+          Header(1, "Three")
+        )
       }
     }
 
@@ -1461,6 +1470,32 @@ class MarkdSpec extends AnyFunSpecLike with Matchers {
         md.replaceIn(filter = true) { case (Some(md), 0) =>
           Seq(Header(1, "Zero"), md)
         }.mds shouldBe Seq(Header(1, "Zero"), Header(1, "One"))
+      }
+    }
+
+    describe("when prepending to a section header") {
+      it("should put the new section after any existing elements") {
+        // For a top level header
+        Header(0, "A1").prepend("B1") shouldBe Header(0, "A1", Header(1, "B1"))
+        Header(0, "A1", Comment("HI")).prepend("B1") shouldBe Header(0, "A1", Comment("HI"), Header(1, "B1"))
+        // Skipped header levels are left at the top level, not added to the new section
+        Header(0, "A1", Header(3, "HI")).prepend("B1") shouldBe Header(0, "A1", Header(3, "HI"), Header(1, "B1"))
+
+        // For a nth level header
+        Header(3, "A1").prepend("B1") shouldBe Header(3, "A1", Header(4, "B1"))
+        Header(3, "A1", Comment("HI")).prepend("B1") shouldBe Header(3, "A1", Comment("HI"), Header(4, "B1"))
+        Header(3, "A1", Header(3, "HI")).prepend("B1") shouldBe Header(3, "A1", Header(3, "HI"), Header(4, "B1"))
+      }
+
+      it("should put the new section before any other headers of the same level") {
+        Header(0, "A1", Header(1, "B2")).prepend("B1") shouldBe Header(0, "A1", Header(1, "B1"), Header(1, "B2"))
+        Header(0, "A1", Comment("HI"), Header(1, "B2"))
+          .prepend("B1") shouldBe Header(0, "A1", Comment("HI"), Header(1, "B1"), Header(1, "B2"))
+
+        // For a nth level header
+        Header(3, "A1", Header(4, "B2")).prepend("B1") shouldBe Header(3, "A1", Header(4, "B1"), Header(4, "B2"))
+        Header(3, "A1", Comment("HI"), Header(4, "B2"))
+          .prepend("B1") shouldBe Header(3, "A1", Comment("HI"), Header(4, "B1"), Header(4, "B2"))
       }
     }
 
