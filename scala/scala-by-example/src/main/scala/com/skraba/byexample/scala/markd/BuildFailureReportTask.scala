@@ -349,7 +349,11 @@ class HtmlOutput(report: BuildFailureReport) {
         val stepInfo =
           steps.map(step => s"* ${step.buildVersion} ${step.stepDesc} ${step.stepLink}").mkString("\n")
         val issueButton =
-          htmlButton(issue, clipboard = stepInfo, dest = report.IssueTemplate.format(issue))
+          htmlButton(
+            if (issue.isEmpty) "Unknown" else issue,
+            clipboard = stepInfo,
+            if (issue.isEmpty) "" else report.IssueTemplate.format(issue)
+          )
         val issueLink = s"""<a href="${report.IssueTemplate.format(issue)}">🐞</a>"""
         val buildsButton = htmlButton(stepInfo)
         s"<p>$issueButton $issueLink $buildsButton</p>"
