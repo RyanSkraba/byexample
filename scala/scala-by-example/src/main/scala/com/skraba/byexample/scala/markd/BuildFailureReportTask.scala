@@ -364,6 +364,37 @@ class HtmlOutput(report: BuildFailureReport) {
   }
 }
 
+class ByIssueOutput(report: BuildFailureReport) {
+  override def toString: String = {
+    Header(
+      "By Issue",
+      1,
+      report.allStepsByIssue.map { case issue -> steps =>
+        Header(
+          2,
+          if (issue.isEmpty) "Unknown" else issue + " " + report.IssueTemplate.format(issue),
+          Paragraph(steps.map(_.notifDetail).mkString("\n"))
+        )
+      }.toSeq
+    ).build().toString
+  }
+}
+
+class ByFailureOutput(report: BuildFailureReport) {
+  override def toString: String = {
+    Header(
+      "By Failure",
+      1,
+      report.allStepsByBuild.map { steps =>
+        Header(
+          2,
+          steps.head.notifBuildMd,
+          Paragraph(steps.map(_.notifDetailMd).mkString("\n"))
+        )
+      }.toSeq
+    ).build().toString
+  }
+}
 object BuildFailureReportTask extends DocoptCliGo.Task {
 
   val Cmd = "buildfail"
@@ -444,35 +475,10 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
         }
         .getOrElse(report0)
 
-      if (asHtml) {
-        println(new HtmlOutput(report).toString)
-      } else if (asMarkdownMsg) {
-        val output = Header(
-          "By Failure",
-          1,
-          report.allStepsByBuild.map { steps =>
-            Header(
-              2,
-              steps.head.notifBuildMd,
-              Paragraph(steps.map(_.notifDetailMd).mkString("\n"))
-            )
-          }.toSeq
-        )
-        print(output.build().toString)
-      } else {
-        val outputByIssue: Header = Header(
-          "By Issue",
-          1,
-          report.allStepsByIssue.map { case issue -> steps =>
-            Header(
-              2,
-              if (issue.isEmpty) "Unknown" else issue + " " + report.IssueTemplate.format(issue),
-              Paragraph(steps.map(_.notifDetail).mkString("\n"))
-            )
-          }.toSeq
-        )
-        print(outputByIssue.build().toString)
-      }
+      // Print the requested output
+      if (asHtml) print(new HtmlOutput(report).toString)
+      else if (asMarkdownMsg) print(new ByFailureOutput(report).toString)
+      else print(new ByIssueOutput(report).toString)
     }
   }
 }
