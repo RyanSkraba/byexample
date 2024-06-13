@@ -115,24 +115,92 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
     }
   }
 
-  describe("When parsing a basic file") {
+  describe("When parsing a very simple  file") {
+    val Simple = (Tmp / "simple").createDirectory()
+    File(Simple / "failures.md").writeAll("""# Simple Build Failures
+        |## 2024-01-01
+        |### 1.0 Build failed https://buildlink
+        |Step name https://buildlink/log#100
+        |ISSUE-123 Everything is broken
+        |""".stripMargin)
+
+    it("should report on the bugs found") {
+      withGoMatching(TaskCmd, Simple / "failures.md") { case (stdout, stderr) =>
+        stderr shouldBe empty
+        stdout shouldBe
+          """By Issue
+            |==============================================================================
+            |
+            |ISSUE-123 https://issues.apache.org/jira/browse/ISSUE-123
+            |------------------------------------------------------------------------------
+            |
+            |* 1.0 Step name https://buildlink/log#100
+            |""".stripMargin
+      }
+    }
+
+    it("should report on the issues found") {
+      withGoMatching(TaskCmd, "--markdown-msg", Simple / "failures.md") { case (stdout, stderr) =>
+        stderr shouldBe empty
+        stdout shouldBe
+          """By Failure
+            |==============================================================================
+            |
+            |:red_circle:  Build *[1.0 Build failed](https://buildlink)* failed
+            |------------------------------------------------------------------------------
+            |
+            |* [Step name](https://buildlink/log#100) *[ISSUE-123](https://issues.apache.org/jira/browse/ISSUE-123)* Everything is broken
+            |""".stripMargin
+      }
+    }
+
+    it("should make an html report") {
+      withGoMatching(TaskCmd, "--html", Simple / "failures.md") { case (stdout, stderr) =>
+        stderr shouldBe empty
+        stdout shouldBe
+          """<!DOCTYPE html>
+            |<html><head><style>
+            |  button {white-space: pre-wrap;text-align:left;}
+            |  a:active, a:hover, a:link, a:visited {text-decoration: none;}
+            |</style></head>
+            |<body>
+            |<h1>Build failure notifications</h1>
+            |<p><button clipboard=":red_circle:  Build *[1.0 Build failed](https://buildlink)* failed">Build failed</button> <a href="https://buildlink">🔗</a> <button clipboard="* [Step name](https://buildlink/log#100) *[ISSUE-123](https://issues.apache.org/jira/browse/ISSUE-123)* Everything is broken">ISSUE-123</button> <a href="https://buildlink/log#100">🔗</a><a href="https://issues.apache.org/jira/browse/ISSUE-123">🐞</a></p>
+            |<h1>By issue</h1>
+            |<p><button clipboard="* 1.0 Step name https://buildlink/log#100" dest="https://issues.apache.org/jira/browse/ISSUE-123">ISSUE-123</button> <a href="https://issues.apache.org/jira/browse/ISSUE-123">🐞</a> <button>* 1.0 Step name https://buildlink/log#100</button></p>
+            |<script>
+            |// Add event listener to handle clicks on all buttons
+            |document.querySelectorAll('button').forEach(button => {
+            |  button.addEventListener('click', function() {
+            |    navigator.clipboard.writeText(button.getAttribute('clipboard') || button.textContent);
+            |    if (button.getAttribute('dest')) window.open(button.getAttribute('dest'), '_blank');
+            |  });
+            |});
+            |</script>
+            |</body></html>
+            |""".stripMargin
+      }
+    }
+  }
+
+  describe("When parsing a synthetic, simple file") {
     // This creates a boring synthetic file with two builds investigated every day, each with the same two bugs
     val Content = "# Synthetic Build Failures\n" +
       (for (date <- 20 to 11 by -1)
         yield s"""## 2024-05-$date
-             |### 1.0.1 #A$date Nightly build http://link/buildA$date
-             |A1 https://link/buildA$date/A1
-             |BUG-1 Describe bug 1
-             |
-             |A2 https://link/buildA$date/A2
-             |BUG-2 Describe bug 2
-             |### 1.1.2 #B$date Nightly build http://link/buildB$date
-             |B1 https://link/buildB$date/B1
-             |BUG-1 Describe bug 1
-             |
-             |B2 https://link/buildB$date/B2
-             |BUG-2 Describe bug 2
-             |""".stripMargin).mkString("\n")
+                 |### 1.0.1 #A$date Nightly build http://link/buildA$date
+                 |A1 https://link/buildA$date/A1
+                 |BUG-1 Describe bug 1
+                 |
+                 |A2 https://link/buildA$date/A2
+                 |BUG-2 Describe bug 2
+                 |### 1.1.2 #B$date Nightly build http://link/buildB$date
+                 |B1 https://link/buildB$date/B1
+                 |BUG-1 Describe bug 1
+                 |
+                 |B2 https://link/buildB$date/B2
+                 |BUG-2 Describe bug 2
+                 |""".stripMargin).mkString("\n")
     val Basic = (Tmp / "basic").createDirectory()
     File(Basic / "failures.md").writeAll(Content)
 

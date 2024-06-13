@@ -327,7 +327,7 @@ class HtmlOutput(report: BuildFailureReport) {
 
   override def toString: String = {
     val sb = new StringBuilder(HtmlStart)
-    sb ++= "<h1>Build failure notifications</h1>"
+    sb ++= "<h1>Build failure notifications</h1>\n"
     report.allStepsByBuild
       .map { steps =>
         val buildButton = htmlButton(steps.head.buildDesc, steps.head.notifBuildMd)
@@ -340,10 +340,10 @@ class HtmlOutput(report: BuildFailureReport) {
               (if (step.issueLink.nonEmpty) s"""<a href="${step.issueLink}">🐞</a>""" else "")
           )
           .mkString(" · ")
-        s"""<p>$buildButton $buildLink $issuesButton $issuesLink</p>""".stripMargin
+        s"""<p>$buildButton $buildLink $issuesButton $issuesLink</p>\n""".stripMargin
       }
       .foreach(sb.addAll)
-    sb ++= "<h1>By issue</h1>"
+    sb ++= "<h1>By issue</h1>\n"
     report.allStepsByIssue
       .map { case issue -> steps =>
         val stepInfo =
@@ -356,7 +356,7 @@ class HtmlOutput(report: BuildFailureReport) {
           )
         val issueLink = s"""<a href="${report.IssueTemplate.format(issue)}">🐞</a>"""
         val buildsButton = htmlButton(stepInfo)
-        s"<p>$issueButton $issueLink $buildsButton</p>"
+        s"<p>$issueButton $issueLink $buildsButton</p>\n"
       }
       .foreach(sb.addAll)
     sb ++= HtmlEnd
