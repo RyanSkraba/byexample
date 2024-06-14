@@ -333,7 +333,7 @@ class HtmlOutput(report: BuildFailureReport) {
         val buildButton = htmlButton(steps.head.buildDesc, steps.head.notifBuildMd)
         val buildLink = if (steps.head.buildLink.nonEmpty) s"""<a href="${steps.head.buildLink}">🔗</a>""" else ""
         val issuesButton =
-          htmlButton(steps.map(_.issueTag).mkString(" "), steps.map(_.notifDetailMd).mkString("\n"))
+          htmlButton(steps.map(_.issueTag).filter(_.nonEmpty).mkString(" "), steps.map(_.notifDetailMd).mkString("\n"))
         val issuesLink = steps
           .map(step =>
             (if (step.stepLink.nonEmpty) s"""<a href="${step.stepLink}">🔗</a>""" else "") +

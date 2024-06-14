@@ -188,19 +188,19 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
     val Content = "# Synthetic Build Failures\n" +
       (for (date <- 20 to 11 by -1)
         yield s"""## 2024-05-$date
-                 |### 1.0.1 #A$date Nightly build http://link/buildA$date
-                 |A1 https://link/buildA$date/A1
-                 |BUG-1 Describe bug 1
-                 |
-                 |A2 https://link/buildA$date/A2
-                 |BUG-2 Describe bug 2
-                 |### 1.1.2 #B$date Nightly build http://link/buildB$date
-                 |B1 https://link/buildB$date/B1
-                 |BUG-1 Describe bug 1
-                 |
-                 |B2 https://link/buildB$date/B2
-                 |BUG-2 Describe bug 2
-                 |""".stripMargin).mkString("\n")
+             |### 1.0.1 #A$date Nightly build http://link/buildA$date
+             |A1 https://link/buildA$date/A1
+             |BUG-1 Describe bug 1
+             |
+             |A2 https://link/buildA$date/A2
+             |BUG-2 Describe bug 2
+             |### 1.1.2 #B$date Nightly build http://link/buildB$date
+             |B1 https://link/buildB$date/B1
+             |BUG-1 Describe bug 1
+             |
+             |B2 https://link/buildB$date/B2
+             |BUG-2 Describe bug 2
+             |""".stripMargin).mkString("\n")
     val Basic = (Tmp / "basic").createDirectory()
     File(Basic / "failures.md").writeAll(Content)
 
