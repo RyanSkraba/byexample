@@ -9,6 +9,10 @@ Resources
 * Source: <https://github.com/lihaoyi/scalatags>
 * Docs: <https://www.lihaoyi.com/scalatags/>
 
+## SVG Resources
+
+* Describing paths: https://www.nan.fyi/svg-paths/
+
 Running the driver
 ------------------------------------------------------------------------------
 

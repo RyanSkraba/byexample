@@ -1,5 +1,6 @@
 package com.skraba.byexample.scalatags
 
+import com.skraba.byexample.scalatags.countdown.CountdownTask
 import com.skraba.byexample.scalatags.duolingo.cn.DuolingoCnCheatsheetTask
 import com.skraba.byexample.scalatags.palette.PaletteTask
 import org.docopt.{Docopt, DocoptExitException}
@@ -36,7 +37,7 @@ object ScalatagsGo {
       val docopt: String = Doc
   ) extends RuntimeException(msg, ex)
 
-  val Tasks: Seq[Task] = Seq(PaletteTask.Task, DuolingoCnCheatsheetTask.Task)
+  val Tasks: Seq[Task] = Seq(PaletteTask.Task, CountdownTask.Task, DuolingoCnCheatsheetTask.Task)
 
   val Doc: String =
     """A driver for the various utilities written with Scalatags.

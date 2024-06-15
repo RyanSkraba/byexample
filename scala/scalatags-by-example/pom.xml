@@ -22,10 +22,20 @@
     <exec.mainClass>com.skraba.byexample.scalatags.ScalatagsGo</exec.mainClass>
     <!-- other project dependency versions as properties -->
     <scalatags.version>0.11.1</scalatags.version>
+    <!-- Experimental for XML parsing SVG
+    <scala.module.xml.version>2.1.0</scala.module.xml.version>
+    -->
   </properties>
 
   <dependencies>
     <!-- {{Insert dependencies for specific project.}} -->
+    <!-- Experimental for XML parsing SVG
+    <dependency>
+      <groupId>org.scala-lang.modules</groupId>
+      <artifactId>scala-xml_${scala.binary.version}</artifactId>
+      <version>${scala.module.xml.version}</version>
+    </dependency>
+    -->
     <dependency>
       <groupId>com.offbytwo</groupId>
       <artifactId>docopt</artifactId>
