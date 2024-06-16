@@ -22,6 +22,9 @@ object CountdownTask {
     |  TEMPLATE       The template file to use
     |  --dstDir=DIR   The destination directory, relative to the template
     |  --frameRate=N  The number of frames per second to use [default: 30]
+    |  --warmup=N     The seconds to generate before the countdown [default: 2]
+    |  --duration=N   The number of seconds for the countdown [default: 300]
+    |  --cooldown=N   The seconds to generate after the countdown [default: 10]
     |
     |""".stripMargin.trim
 
@@ -39,7 +42,7 @@ object CountdownTask {
     *   The number of frames per second for the video
     * @param warmup
     *   The number of seconds in the video before the countdown starts (READY, SET...)
-    * @param timer
+    * @param duration
     *   The number of seconds that the countdown should last (GO!)
     * @param cooldown
     *   The number of seconds after the countdown (Please stop now)
@@ -49,12 +52,12 @@ object CountdownTask {
       dstDir: Directory,
       frameRate: Int = 30,
       warmup: Double = 2,
-      timer: Double = 5 * 60,
+      duration: Double = 5 * 60,
       cooldown: Double = 2
   ) {
 
     /** The total number of frames that the video will include */
-    val framesTotal: Int = frameRate * (warmup + timer + cooldown).toInt
+    val framesTotal: Int = frameRate * (warmup + duration + cooldown).toInt
 
     /** The width and height of the template. */
     val (dx, dy) = (1920, 1080)
@@ -121,13 +124,14 @@ object CountdownTask {
     val time: Double = frameNum.toDouble / v.frameRate - v.warmup
 
     /** The time bounded by the expected timer duration (not negative or greater than the timer). */
-    val timeBounded: Double = v.timer min time max 0
+    val timeBounded: Double = v.duration min time max 0
 
     /** The bounded time represented as a floating point number between 0 and 1. */
-    val fraction: Double = timeBounded / v.timer
+    val fraction: Double = timeBounded / v.duration
 
     /** The time of the task represented as M:SS */
-    val timeRemaining: String = f"${(v.timer - timeBounded).toInt / 60}%01d:${(v.timer - timeBounded).toInt % 60}%02d"
+    val timeRemaining: String =
+      f"${(v.duration - timeBounded).toInt / 60}%01d:${(v.duration - timeBounded).toInt % 60}%02d"
 
     /** The center and size of the progress pie. */
     val (cx, cy, r) = (v.dx / 2, v.dy / 2, 890 / 2)
@@ -166,7 +170,6 @@ object CountdownTask {
   }
 
   def go(opts: java.util.Map[String, AnyRef]): Unit = {
-
     val template: File = File(opts.get("TEMPLATE").asInstanceOf[String])
     val dstDir: Directory = {
       Option(opts.get("--dstDir").asInstanceOf[String])
@@ -174,9 +177,20 @@ object CountdownTask {
         .getOrElse((template.parent / "target").toDirectory)
     }
     val frameRate = opts.get("--frameRate").asInstanceOf[String].toInt
+    val warmup = opts.get("--warmup").asInstanceOf[String].toDouble
+    val duration = opts.get("--duration").asInstanceOf[String].toDouble
+    val cooldown = opts.get("--cooldown").asInstanceOf[String].toDouble
 
     dstDir.createDirectory()
-    Video(src = template, dstDir = dstDir, frameRate = frameRate).write()
+
+    Video(
+      src = template,
+      dstDir = dstDir,
+      frameRate = frameRate,
+      warmup = warmup,
+      duration = duration,
+      cooldown = cooldown
+    ).write()
   }
 
   val Task: ScalatagsGo.Task = ScalatagsGo.Task(Doc, Cmd, Description, go)
