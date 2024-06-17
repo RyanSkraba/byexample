@@ -3,10 +3,21 @@ package com.skraba.byexample.scalatags.countdown
 import com.skraba.byexample.scalatags.ScalatagsGo
 
 import scala.reflect.io.{Directory, File}
+import scala.sys.process.stringSeqToProcess
 import scala.util.matching.Regex
 
 /** Command-line driver for generating a countdown video frame by frame based on an SVG template, and which can be
   * turned to images and assembled into a video.
+  *
+  * If the --dstVideo option is enabled, this attempts to make system calls to construct the video:
+  *
+  * {{{
+  * # Use inkscape to convert an svg file to a png file:
+  * inkscape -w 1920 -h 1080 "$svg" --export-filename "${svg%.svg}.png"
+  * # Use ffmpeg to convert a series of png files to a video:
+  * ffmpeg -framerate 30 -pattern_type glob -i '/tmp/timer*.png' -c:a copy -shortest -c:v libx264 \
+  *     -pix_fmt yuv420p /tmp/timer.mp4
+  * }}}
   */
 object CountdownTask {
 
@@ -25,6 +36,8 @@ object CountdownTask {
     |  --warmup=N     The seconds to generate before the countdown [default: 2]
     |  --duration=N   The number of seconds for the countdown [default: 300]
     |  --cooldown=N   The seconds to generate after the countdown [default: 10]
+    |  --dstVideo=F   If present, attempts to use system calls to inkscape and
+    |                 ffmpeg to generate the video
     |
     |""".stripMargin.trim
 
@@ -67,12 +80,41 @@ object CountdownTask {
     /** The contents of the template file */
     val inString: String = src.slurp()
 
-    def write(): Unit = {
+    private def execInkscape(f: Int, src: String, dst: String): Unit = {
+      Seq("inkscape", "-w", "1920", "-h", "1080", src, "--export-filename", dst).!!
+      print(if (((f - 1) % frameRate) == 0) "x" else ".")
+      if (f / frameRate == 60) print(f / frameRate)
+    }
+
+    private def execFfmpeg(dst: File): Unit = {
+      println(".")
+      Seq(
+        "ffmpeg",
+        "-framerate",
+        frameRate.toString,
+        "-pattern_type",
+        "glob",
+        "-i",
+        dstDir.toString + "/*.png",
+        "-c:a",
+        "copy",
+        "-shortest",
+        "-c:v",
+        "libx264",
+        "-pix_fmt",
+        "yuv420p",
+        dst.toString
+      ).!!
+    }
+
+    def write(dstVideo: Option[File]): Unit = {
       for (f <- 0 to framesTotal) {
-        val dst: File =
-          (dstDir / (src.stripExtension + f".${f / frameRate}%05d.${f % frameRate}%05d" + "." + src.extension)).toFile
-        dst.writeAll(Frame(this, f).contents())
+        val fileBase = src.stripExtension + f".${f / frameRate}%05d.${f % frameRate}%05d"
+        val dstSvg: File = (dstDir / (fileBase + "." + src.extension)).toFile
+        dstSvg.writeAll(Frame(this, f).contents())
+        if (dstVideo.nonEmpty) execInkscape(f, dstSvg.toString, fileBase + ".png")
       }
+      dstVideo.foreach(execFfmpeg)
     }
   }
 
@@ -180,6 +222,7 @@ object CountdownTask {
     val warmup = opts.get("--warmup").asInstanceOf[String].toDouble
     val duration = opts.get("--duration").asInstanceOf[String].toDouble
     val cooldown = opts.get("--cooldown").asInstanceOf[String].toDouble
+    val dstVideo = Option(opts.get("--dstVideo").asInstanceOf[String]).map(File.apply(_))
 
     dstDir.createDirectory()
 
@@ -190,7 +233,7 @@ object CountdownTask {
       warmup = warmup,
       duration = duration,
       cooldown = cooldown
-    ).write()
+    ).write(dstVideo)
   }
 
   val Task: ScalatagsGo.Task = ScalatagsGo.Task(Doc, Cmd, Description, go)

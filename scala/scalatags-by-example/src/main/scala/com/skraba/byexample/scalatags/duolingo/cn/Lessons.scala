@@ -12,4 +12,6 @@ object Lessons {
     Vocab("我感冒了:Wo³ ga³nma⁴o le:I have a cold。"),
     Vocab("她下班了:Ta¹ xia³ba¹n le!:She got off work!")
   )
+
+  val Vegetables = Lessons("Vegetables", Vocab("茄子:qie²zi:Eggplant"), Vocab("西红柿:xi¹hong²shi⁴:Tomato"))
 }
