@@ -35,6 +35,10 @@ object CountdownTask {
     |  --frameRate=N  The number of frames per second to use [default: 30]
     |  --warmup=N     The seconds to generate before the countdown [default: 2]
     |  --duration=N   The number of seconds for the countdown [default: 300]
+    |  --mild=N       The number of seconds at the end of the countdown that
+    |                 indicate a mild warning [default: 60]
+    |  --strong=N     The number of seconds at the end of the countdown that
+    |                 indicate a strong warning [default: 20]
     |  --cooldown=N   The seconds to generate after the countdown [default: 10]
     |  --dstVideo=F   If present, attempts to use system calls to inkscape and
     |                 ffmpeg to generate the video
@@ -57,6 +61,10 @@ object CountdownTask {
     *   The number of seconds in the video before the countdown starts (READY, SET...)
     * @param duration
     *   The number of seconds that the countdown should last (GO!)
+    * @param warningMild
+    *   The number of seconds relative to the end of the duration that should be considered a mild time warning.
+    * @param warningStrong
+    *   The number of seconds relative to the end of the duration that should be considered a mild time warning.
     * @param cooldown
     *   The number of seconds after the countdown (Please stop now)
     */
@@ -66,7 +74,9 @@ object CountdownTask {
       frameRate: Int = 30,
       warmup: Double = 2,
       duration: Double = 5 * 60,
-      cooldown: Double = 2
+      warningMild: Double = 60,
+      warningStrong: Double = 20,
+      cooldown: Double = 10
   ) {
 
     /** The total number of frames that the video will include */
@@ -82,8 +92,10 @@ object CountdownTask {
 
     private def execInkscape(f: Int, src: String, dst: String): Unit = {
       Seq("inkscape", "-w", "1920", "-h", "1080", src, "--export-filename", dst).!!
-      print(if (((f - 1) % frameRate) == 0) "x" else ".")
-      if (f / frameRate == 60) print(f / frameRate)
+      if ((f + 1) % frameRate == 0) {
+        if (f / frameRate % 10 == 0) print(f / frameRate)
+        else print("x")
+      } else print(".")
     }
 
     private def execFfmpeg(dst: File): Unit = {
@@ -178,8 +190,11 @@ object CountdownTask {
     /** The center and size of the progress pie. */
     val (cx, cy, r) = (v.dx / 2, v.dy / 2, 890 / 2)
 
-    private val PathRegex: Regex = raw"""(?s).*(<path.*?id="progress".*?/>)""".r
-    private val DAttributeRegex: Regex = raw"""\bd="(.*?)"""".r
+    private val CountdownLayerRegex: Regex = raw"""(?s).*(<g.*?\bid="Countdown".*?>)""".r
+    private val CountdownMildLayerRegex: Regex = raw"""(?s).*(<g.*?\bid="CountdownMild".*?>)""".r
+    private val CountdownStrongLayerRegex: Regex = raw"""(?s).*(<g.*?\bid="CountdownStrong".*?>)""".r
+
+    private val PathRegex: Regex = raw"""(?s).*(<path.*?\bid="progress".*?/>)""".r
 
     /** @return
       *   An SVG path representing the progress of the timer.
@@ -197,18 +212,60 @@ object CountdownTask {
       s"M $cx $cy L $p1x, $p1y A $r, $r 0 0 1 ${cx + r} $cy A $r, $r 0 0 1 $p2x, $p2y L $cx $cy z"
     }
 
+    private def modifyLayer(in: String, re: Regex, opacity: Double): String = {
+      val m = re.findFirstMatchIn(in).get
+      val modified = {
+        if (opacity == 0) m.group(1).replaceAll(raw"\bdisplay:\w+\b", "display:none")
+        else if (opacity == 1) m.group(1).replaceAll(raw"\bdisplay:\w+\b", "display:inline")
+        else m.group(1).replaceAll(raw"\bdisplay:\w+\b", s"display:inline;opacity:$opacity")
+      }
+      m.before(1) + modified + m.after(1)
+    }
+
+    private def flash(time: Double, cycle: Double, start: Double, end: Double): Double = {
+      val cycleTime = time % cycle
+      val mid = start / 2 + end / 2
+      0d max 1d min (if (cycleTime >= start && cycleTime <= mid) 1 - (cycleTime - start) / (end - start) * 2
+                     else if (cycleTime >= mid && cycleTime <= end) (cycleTime - mid) / (end - start) * 2
+                     else 1d)
+    }
+
+    private def fadeOut(time: Double, fade: Double): Double = {
+      0d max 1d min (1 - time / fade)
+    }
+
     def contents(): String = {
       // Replace the time in the string
-      val timeOutString = v.inString.replace("$:$$", timeRemaining)
+      val withTime = v.inString.replace("$:$$", timeRemaining)
 
-      // Find the path representing the progress of the talk
-      val m1 = PathRegex.findFirstMatchIn(timeOutString).get
+      // Find the path representing the progress of the talk and use the match to replace the path
+      val withProgress = {
+        val m = PathRegex.findFirstMatchIn(withTime).get
+        "" + m.before(1) + m.group(1).replaceAll(raw"""(?s)\bd=".*?"""", s"""d="${progressPath()}"""") + m.after(1)
+      }
 
-      // And use the match to replace the path.
-      val out =
-        "" + m1.before(1) + DAttributeRegex.replaceFirstIn(m1.group(1), "d=\"" + progressPath() + '"') + m1.after(1)
-      out
+      // Style the text according to the warnings
+      if (time >= v.duration - v.warningStrong) {
+        val timeWarned = time - v.duration + v.warningStrong
+
+        // A strong warning turns red
+        val withoutCountdown = modifyLayer(withProgress, CountdownLayerRegex, 0)
+        val withoutCountdownMild = modifyLayer(withoutCountdown, CountdownMildLayerRegex, fadeOut(timeWarned, 1))
+
+        // And flashes faster during the first and last half
+        val opacity =
+          if (time >= v.duration - v.warningStrong / 2) flash(timeWarned, 1, 0.4, 0.8)
+          else flash(timeWarned, 2, 1.4, 1.8)
+        modifyLayer(withoutCountdownMild, CountdownStrongLayerRegex, opacity)
+
+      } else if (time >= v.duration - v.warningMild) {
+        // Mild warning just changes the colour
+        val timeWarned = time - v.duration + v.warningMild
+        val withoutCountdown = modifyLayer(withProgress, CountdownLayerRegex, fadeOut(timeWarned, 2))
+        modifyLayer(withoutCountdown, CountdownMildLayerRegex, 1)
+      } else withProgress
     }
+
   }
 
   def go(opts: java.util.Map[String, AnyRef]): Unit = {
@@ -221,6 +278,8 @@ object CountdownTask {
     val frameRate = opts.get("--frameRate").asInstanceOf[String].toInt
     val warmup = opts.get("--warmup").asInstanceOf[String].toDouble
     val duration = opts.get("--duration").asInstanceOf[String].toDouble
+    val mild = opts.get("--mild").asInstanceOf[String].toDouble
+    val strong = opts.get("--strong").asInstanceOf[String].toDouble
     val cooldown = opts.get("--cooldown").asInstanceOf[String].toDouble
     val dstVideo = Option(opts.get("--dstVideo").asInstanceOf[String]).map(File.apply(_))
 
@@ -232,6 +291,8 @@ object CountdownTask {
       frameRate = frameRate,
       warmup = warmup,
       duration = duration,
+      warningMild = mild,
+      warningStrong = strong,
       cooldown = cooldown
     ).write(dstVideo)
   }

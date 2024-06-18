@@ -9,12 +9,12 @@ import org.scalatest.matchers.should.Matchers
 class CountdownTaskSpec extends AnyFunSpecLike with Matchers {
 
   describe("CountdownTaskSpec manual test") {
-    ignore("should run") {
+    it("should run") {
       withScalatagsGoMatch(
         CountdownTask.Cmd,
         "--dstDir",
-        "/tmp/timer",
-        "timer.svg"
+        "/tmp/timerx",
+        "/home/ryan.skraba/working/projects/byexample/scala/scalatags-by-example/src/test/resources/timer.svg"
       ) { case (stdout, stderr) =>
         stderr shouldBe ""
       }
