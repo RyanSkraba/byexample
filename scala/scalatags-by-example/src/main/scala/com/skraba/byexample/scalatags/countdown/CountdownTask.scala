@@ -2,6 +2,7 @@ package com.skraba.byexample.scalatags.countdown
 
 import com.skraba.byexample.scalatags.ScalatagsGo
 
+import java.nio.file.{Files, StandardCopyOption}
 import scala.reflect.io.{Directory, File}
 import scala.sys.process.stringSeqToProcess
 import scala.util.matching.Regex
@@ -39,7 +40,7 @@ object CountdownTask {
     |                 indicate a mild warning [default: 60]
     |  --strong=N     The number of seconds at the end of the countdown that
     |                 indicate a strong warning [default: 20]
-    |  --cooldown=N   The seconds to generate after the countdown [default: 10]
+    |  --cooldown=N   The seconds to generate after the countdown [default: 30]
     |  --dstVideo=F   If present, attempts to use system calls to inkscape and
     |                 ffmpeg to generate the video
     |
@@ -90,6 +91,8 @@ object CountdownTask {
     /** The contents of the template file */
     val inString: String = src.slurp()
 
+    private lazy val execCache = collection.mutable.Map[String, File]()
+
     private def execInkscape(f: Int, src: String, dst: String): Unit = {
       Seq("inkscape", "-w", "1920", "-h", "1080", src, "--export-filename", dst).!!
       if ((f + 1) % frameRate == 0) {
@@ -123,8 +126,28 @@ object CountdownTask {
       for (f <- 0 to framesTotal) {
         val fileBase = src.stripExtension + f".${f / frameRate}%05d.${f % frameRate}%05d"
         val dstSvg: File = (dstDir / (fileBase + "." + src.extension)).toFile
-        dstSvg.writeAll(Frame(this, f).contents())
-        if (dstVideo.nonEmpty) execInkscape(f, dstSvg.toString, fileBase + ".png")
+
+        // Always write the file contents
+        val contents = Frame(this, f).contents()
+        dstSvg.writeAll(contents)
+
+        // If the destination video is being written, do the png conversion
+        if (dstVideo.nonEmpty) {
+          val dst = File(fileBase + ".png")
+          // See if this frame already has an identical file
+          val cached = execCache.getOrElseUpdate(
+            contents, {
+              // If it doesn't, then use Inkscape to create it.
+              execInkscape(f, dstSvg.toString, dst.toString)
+              dst
+            }
+          )
+          if (cached != dst) {
+            // If the frame does exist already, then just make a copy.
+            print("o")
+            Files.copy(cached.jfile.toPath, dst.jfile.toPath, StandardCopyOption.REPLACE_EXISTING)
+          }
+        }
       }
       dstVideo.foreach(execFfmpeg)
     }
@@ -225,13 +248,13 @@ object CountdownTask {
     private def flash(time: Double, cycle: Double, start: Double, end: Double): Double = {
       val cycleTime = time % cycle
       val mid = start / 2 + end / 2
-      0d max 1d min (if (cycleTime >= start && cycleTime <= mid) 1 - (cycleTime - start) / (end - start) * 2
-                     else if (cycleTime >= mid && cycleTime <= end) (cycleTime - mid) / (end - start) * 2
-                     else 1d)
+      (if (cycleTime >= start && cycleTime <= mid) 1 - (cycleTime - start) / (end - start) * 2
+       else if (cycleTime >= mid && cycleTime <= end) (cycleTime - mid) / (end - start) * 2
+       else 1d) min 1d max 0d
     }
 
     private def fadeOut(time: Double, fade: Double): Double = {
-      0d max 1d min (1 - time / fade)
+      (1 - time / fade) min 1d max 0d
     }
 
     def contents(): String = {
@@ -245,22 +268,22 @@ object CountdownTask {
       }
 
       // Style the text according to the warnings
-      if (time >= v.duration - v.warningStrong) {
-        val timeWarned = time - v.duration + v.warningStrong
+      if (time >= v.duration - v.warningStrong - 1) {
+        val timeWarned = time - v.duration + v.warningStrong + 1
 
         // A strong warning turns red
         val withoutCountdown = modifyLayer(withProgress, CountdownLayerRegex, 0)
         val withoutCountdownMild = modifyLayer(withoutCountdown, CountdownMildLayerRegex, fadeOut(timeWarned, 1))
 
-        // And flashes faster during the first and last half
+        // And flashes faster during the last half
         val opacity =
-          if (time >= v.duration - v.warningStrong / 2) flash(timeWarned, 1, 0.4, 0.8)
-          else flash(timeWarned, 2, 1.4, 1.8)
+          if (time >= v.duration - v.warningStrong / 2) flash(timeWarned - 0.5, 1, 0.4, 0.8)
+          else 1
         modifyLayer(withoutCountdownMild, CountdownStrongLayerRegex, opacity)
 
-      } else if (time >= v.duration - v.warningMild) {
+      } else if (time >= v.duration - v.warningMild - 1) {
         // Mild warning just changes the colour
-        val timeWarned = time - v.duration + v.warningMild
+        val timeWarned = time - v.duration + v.warningMild + 1
         val withoutCountdown = modifyLayer(withProgress, CountdownLayerRegex, fadeOut(timeWarned, 2))
         modifyLayer(withoutCountdown, CountdownMildLayerRegex, 1)
       } else withProgress
