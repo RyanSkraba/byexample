@@ -23,6 +23,15 @@ class FilesSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
         ex.printStackTrace()
     }
 
+  /** A resource in this maven project, discoverable on the classpath. */
+  val SrcTestResource: Option[File] = {
+    val uri = Thread
+      .currentThread()
+      .getContextClassLoader
+      .getResource(getClass.getPackageName.replace('.', '/') + s"/greeting.txt")
+    if (uri.getProtocol == "file") Some(File(uri.getFile)) else None
+  }
+
   describe("Filesystem operations") {
     val Basic = (Tmp / "basic").createDirectory()
     File(Basic / "count").writeAll("1;one\n2;two\n")
@@ -88,6 +97,10 @@ class FilesSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
       count
         .lines()
         .toList should contain inOrderOnly ("1;one", "2;two")
+    }
+
+    it("should find a file in the resources") {
+      SrcTestResource should not be None
     }
   }
 }
