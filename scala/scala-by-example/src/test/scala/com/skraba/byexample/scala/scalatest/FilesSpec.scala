@@ -1,6 +1,7 @@
 package com.skraba.byexample.scala.scalatest
 
 import org.scalatest.BeforeAndAfterAll
+import org.scalatest.OptionValues.convertOptionToValuable
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
@@ -100,7 +101,7 @@ class FilesSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
     }
 
     it("should find a file in the resources") {
-      SrcTestResource should not be None
+      SrcTestResource.value.slurp() shouldBe "Hello world!"
     }
   }
 }
