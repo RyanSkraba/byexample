@@ -14,10 +14,17 @@ import scala.util.matching.Regex
   *
   * {{{
   * # Use inkscape to convert an svg file to a png file:
-  * inkscape -w 1920 -h 1080 "$svg" --export-filename "${svg%.svg}.png"
+  * inkscape -w 1920 -h 1080 "$svg" --export-filename "${filename%.svg}.png"
   * # Use ffmpeg to convert a series of png files to a video:
-  * ffmpeg -framerate 30 -pattern_type glob -i '/tmp/timer*.png' -c:a copy -shortest -c:v libx264 \
+  * ffmpeg -framerate 30 -pattern_type glob -i '/tmp/countdown/timer*.png' -c:a copy -shortest -c:v libx264 \
   *     -pix_fmt yuv420p /tmp/timer.mp4
+  * }}}
+  *
+  * If you wanted to do a quick test run to see the animation in low resolution and relatively fast timing:
+  *
+  * {{{
+  * byexample_go_scalatags countdown --dstDir /tmp/countdown/ --dstVideo /tmp/countdown/timer.mp4 \
+  *       --frameRate 10 --duration 30 --mild 25 --strong 20 timer.svg
   * }}}
   */
 object CountdownTask {
@@ -65,7 +72,7 @@ object CountdownTask {
     * @param warningMild
     *   The number of seconds relative to the end of the duration that should be considered a mild time warning.
     * @param warningStrong
-    *   The number of seconds relative to the end of the duration that should be considered a mild time warning.
+    *   The number of seconds relative to the end of the duration that should be considered a strong time warning.
     * @param cooldown
     *   The number of seconds after the countdown (Please stop now)
     */
@@ -133,7 +140,7 @@ object CountdownTask {
 
         // If the destination video is being written, do the png conversion
         if (dstVideo.nonEmpty) {
-          val dst = File(fileBase + ".png")
+          val dst = dstDir / File(fileBase + ".png")
           // See if this frame already has an identical file
           val cached = execCache.getOrElseUpdate(
             contents, {
