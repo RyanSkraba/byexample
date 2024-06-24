@@ -62,6 +62,10 @@ class FilesSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
       myFile.canWrite shouldBe true
       myFile.toFile.length shouldBe 12
 
+      myFile.jfile should exist
+      myFile.jfile shouldBe readable
+      myFile.jfile shouldBe writable
+
       // Now append using the buffered writer
       Streamable.closing(
         myFile.bufferedWriter(append = true)
@@ -101,7 +105,7 @@ class FilesSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
     }
 
     it("should find a file in the resources") {
-      SrcTestResource.value.slurp() shouldBe "Hello world!"
+      SrcTestResource.value.slurp().trim shouldBe "Hello world!"
     }
   }
 }
