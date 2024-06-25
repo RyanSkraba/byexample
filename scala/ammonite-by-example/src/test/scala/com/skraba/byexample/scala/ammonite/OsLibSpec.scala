@@ -4,6 +4,7 @@ import com.skraba.byexample.scala.ammonite.AmmoniteScriptSpecBase._
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
+import os.RelPath
 
 import scala.reflect.io._
 
@@ -20,6 +21,25 @@ class OsLibSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
       os.proc("which", cmd).call(os.pwd, check = false).exitCode == 0
     )
   )
+
+  describe("Manipulating files with os.Path") {
+
+    it("should manage relative and absolute files") {
+      // os.Path is always absolute
+      val tmp: os.Path = os.root / "tmp"
+      val home = os.root / "home"
+
+      tmp.toString shouldBe "/tmp"
+
+      // There's a class for relative paths too
+      val relative = os.RelPath("next")
+      (tmp / relative).toString() shouldBe "/tmp/next"
+      (tmp / "next").toString shouldBe "/tmp/next"
+
+      tmp.relativeTo(home).toString shouldBe "../tmp"
+      home.relativeTo(tmp).toString shouldBe "../home"
+    }
+  }
 
   describe("Running a command with os.proc(...).call(...)") {
 
