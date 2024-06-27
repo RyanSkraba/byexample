@@ -1,6 +1,7 @@
 package com.skraba.byexample.scala.ammonite
 
 import com.skraba.byexample.scala.ammonite.AmmoniteScriptSpecBase._
+import com.skraba.docoptcli.AnsiConsole
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
@@ -460,7 +461,7 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
     it("should do a basic replace while logging ansi output") {
       val src = scenario("basic_output")
       // For colour codes
-      val cfg = ConsoleCfg()
+      val cfg = AnsiConsole()
       val X = s"${cfg.Red}X${cfg.Reset}"
       val x = s"${cfg.Green}x${cfg.Reset}"
       withAmmoniteExample("sar", src.toString, "--re", "Hello", "--re", "Hi", "--verbose") {

@@ -5,7 +5,7 @@ import os.CommandResult
 
 import scala.util.{Success, Try}
 import CherryPickerReport._
-import com.skraba.byexample.scala.ammonite.ConsoleCfg
+import com.skraba.docoptcli.AnsiConsole
 
 case class CherryPickerReport(
     lBranch: String,
@@ -14,7 +14,7 @@ case class CherryPickerReport(
     right: Seq[Commit],
     issuesUrl: Option[String] = None,
     doc: Header = Header(0, ""),
-    cfg: ConsoleCfg = ConsoleCfg(plain = false, verbose = false)
+    cfg: AnsiConsole = AnsiConsole(plain = false, verbose = false)
 ) {
 
   /** The left branch name with colour and indicator. */
