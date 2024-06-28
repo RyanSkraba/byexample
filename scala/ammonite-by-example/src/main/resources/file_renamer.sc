@@ -14,6 +14,7 @@ import scala.util.matching.Regex
 // Adding artifacts to your local build (from this project, from maven and
 // from local maven).
 import $file.local_import_util
+local_import_util.load("scala-by-example")
 local_import_util.load("ammonite-by-example")
 
 @
@@ -267,13 +268,13 @@ def payslip(srcPath: Option[os.Path] = None, dstPath: Option[os.Path] = None, cf
   // Error if the directory doesn't exist.
   val src: os.Path = srcPath.getOrElse(os.pwd)
   if (!(os.exists(src))) {
-    cfg.error("ERROR", s"$src does not exist.")
+    println(cfg.error("ERROR", s"$src does not exist."))
     System.exit(1)
   }
 
   val dst: os.Path = dstPath.getOrElse(src)
   if (!(os.exists(dst))) {
-    cfg.error("ERROR", s"$dst does not exist.")
+    println(cfg.error("ERROR", s"$dst does not exist."))
     System.exit(1)
   }
 
@@ -297,10 +298,10 @@ def payslip(srcPath: Option[os.Path] = None, dstPath: Option[os.Path] = None, cf
     }
     .sortBy(_._1)
 
-  renaming.filter(_._2.isEmpty).foreach(f => cfg.vPrintln(s"# Not a match ${f._1}"))
+  renaming.filter(_._2.isEmpty).foreach(f => cfg.vPrintln(cfg.error(s"# Not a match ${f._1}")))
   renaming.foreach {
-    case (srcFile, Some(dstFile)) if src == dst => cfg.vPrintln(s"# No move necessary $srcFile")
-    case (srcFile, Some(dstFile))               => println(s"""mv "$srcFile" "$dstFile"""")
-    case _                                      =>
+    case (srcFile, Some(dstFile)) if srcFile == dstFile => cfg.vPrintln(cfg.warn(s"# No move necessary $srcFile"))
+    case (srcFile, Some(dstFile))                       => println(cfg.ok(s"""mv "$srcFile" "$dstFile""""))
+    case _                                              =>
   }
 }

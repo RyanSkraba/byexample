@@ -215,7 +215,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
 
     it("should suggest moving payslip files") {
       val (src, dst) = scenario("basic")
-      val stdout = payslip("--srcPath", src.toString, "--dstPath", dst.toString)
+      val stdout = payslip("--plain", "--srcPath", src.toString, "--dstPath", dst.toString)
       stdout shouldBe
         """mv "<TMP>/basic/src/03-2021_bulletin_de_paie.pdf" "<TMP>/basic/dst/202103Payslip.pdf"
           |mv "<TMP>/basic/src/04-2021_bulletin_de_paie.pdf" "<TMP>/basic/dst/202104Payslip.pdf"
