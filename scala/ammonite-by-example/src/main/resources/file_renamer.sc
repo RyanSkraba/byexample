@@ -79,10 +79,14 @@ def cameraphone(
     src: Option[os.Path] = None,
     @arg(doc = "The subdirectory to move source directories once they are copied")
     srcSub: Option[String] = None,
+    @arg(doc = "The subdirectory to move source directories once they are copied")
+    srcRelPath: String = "DCIM/Camera",
     @arg(doc = "Create directories here to copy or move out media. (Default: ~/Pictures).")
     dst: Option[os.Path] = None,
     @arg(doc = "If specified, the name of the created subdirectory in dst (Default: Autocreated with a date prefix)")
     dstSub: Option[String] = None,
+    @arg(doc = "If specified, the name of the created subdirectory in dst (Default: Autocreated with a date prefix)")
+    dstSuffix: String = " Cameraphone",
     @arg(doc = "A substring to search for when finding where the phone might be mounted")
     phoneTag: Option[String] = None,
     @arg(doc = "True if no files should actually be copied or moved")
@@ -98,14 +102,14 @@ def cameraphone(
   cfg.vPrintln(srcDir)
 
   // This is one directory that might contain media in the device
-  val mediaDir = srcDir / "DCIM" / "Camera"
+  val mediaDir = srcDir / os.RelPath(srcRelPath)
   if (!os.exists(mediaDir)) {
     println(cfg.error("Source directory not found", mediaDir))
     return
   }
 
   val files = os.list(mediaDir).filter(os.isFile)
-  cfg.vPrintln(s"There are ${files.size} files.")
+  cfg.vPrintln(s"There are ${files.size} files in <SRC>/$srcRelPath.")
   val byExtension = files.groupBy(_.ext)
   for (ext <- byExtension)
     cfg.vPrintln(s"  ${cfg.bold(ext._1)}: ${ext._2.size}")
@@ -131,7 +135,7 @@ def cameraphone(
       .from(2)
       .map("-" + _)
       .prepended("")
-      .map(today + _ + " Cameraphone")
+      .map(today + _ + dstSuffix)
       .filterNot(sub => os.exists(dst2 / sub))
       .head
   }
