@@ -14,9 +14,9 @@ import scala.util.matching.Regex
   *
   * {{{
   * # Use inkscape to convert an svg file to a png file:
-  * inkscape -w 1920 -h 1080 "$svg" --export-filename "${filename%.svg}.png"
+  * inkscape -w 1920 -h 1080 "$filename" --export-filename "${filename%.svg}.png"
   * # Use ffmpeg to convert a series of png files to a video:
-  * ffmpeg -framerate 30 -pattern_type glob -i '/tmp/countdown/timer*.png' -c:a copy -shortest -c:v libx264 \
+  * ffmpeg -framerate 30 -pattern_type glob -i '/tmp/timer*.png' -c:a copy -shortest -c:v libx264 \
   *     -pix_fmt yuv420p /tmp/timer.mp4
   * }}}
   *
@@ -50,6 +50,8 @@ object CountdownTask {
     |  --cooldown=N   The seconds to generate after the countdown [default: 30]
     |  --dstVideo=F   If present, attempts to use system calls to inkscape and
     |                 ffmpeg to generate the video
+    |  --dstClean     If the video is generated, delete all of the intermediary
+    |                 frames.
     |
     |""".stripMargin.trim
 
@@ -129,7 +131,7 @@ object CountdownTask {
       ).!!
     }
 
-    def write(dstVideo: Option[File]): Unit = {
+    def write(dstVideo: Option[File], dstClean: Boolean = false): Unit = {
       for (f <- 0 to framesTotal) {
         val fileBase = src.stripExtension + f".${f / frameRate}%05d.${f % frameRate}%05d"
         val dstSvg: File = (dstDir / (fileBase + "." + src.extension)).toFile
@@ -140,7 +142,7 @@ object CountdownTask {
 
         // If the destination video is being written, do the png conversion
         if (dstVideo.nonEmpty) {
-          val dst = dstDir / File(fileBase + ".png")
+          val dst = (dstDir / (fileBase + ".png")).toFile
           // See if this frame already has an identical file
           val cached = execCache.getOrElseUpdate(
             contents, {
@@ -157,6 +159,17 @@ object CountdownTask {
         }
       }
       dstVideo.foreach(execFfmpeg)
+      dstVideo.foreach(_ =>
+        if (dstClean) {
+          for (f <- 0 to framesTotal) {
+            val fileBase = src.stripExtension + f".${f / frameRate}%05d.${f % frameRate}%05d"
+            val dstSvg: File = (dstDir / (fileBase + "." + src.extension)).toFile
+            val dstPng: File = (dstDir / (fileBase + ".png")).toFile
+            dstSvg.delete()
+            dstPng.delete()
+          }
+        }
+      )
     }
   }
 
