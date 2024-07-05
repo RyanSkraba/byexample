@@ -5,7 +5,7 @@ import org.scalatest.OptionValues.convertOptionToValuable
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-import scala.reflect.io.{Directory, File, Path, Streamable}
+import scala.reflect.io.{Directory, File, Streamable}
 
 /** Matchers and assertions on files. ScalaTest doesn't help much, but it's pretty easy to use existing methods and
   * tools.

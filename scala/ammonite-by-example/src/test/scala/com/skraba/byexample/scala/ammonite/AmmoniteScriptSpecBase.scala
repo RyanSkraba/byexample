@@ -8,7 +8,7 @@ import org.scalatest.matchers.should.Matchers
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import java.nio.charset.StandardCharsets
 import java.nio.file.Paths
-import scala.reflect.io._
+import scala.reflect.io.{Directory, File, Path, Streamable}
 import scala.util.Properties
 
 /** Testing ammonite scripts can be a bit tricky!
