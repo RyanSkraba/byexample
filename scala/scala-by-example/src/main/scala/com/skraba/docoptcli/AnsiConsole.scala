@@ -15,7 +15,7 @@ trait AnsiConsole {
   protected val _yes: Boolean
 
   /** Optionally provide a printer to capture output. */
-  protected val _print: Option[Any => Unit]
+  protected val _print: Option[Any => Any]
 
   lazy val Black: String = ifAnsi(AnsiColor.BLACK)
   lazy val Red: String = ifAnsi(AnsiColor.RED)
@@ -322,11 +322,11 @@ object AnsiConsole {
       verbose: Boolean = false,
       plain: Boolean = false,
       yes: Boolean = false,
-      print: Option[Any => Unit] = None
+      print: Option[Any => Any] = None
   ): AnsiConsole = new AnsiConsole() {
     override protected val _verbose: Boolean = verbose
     override protected val _plain: Boolean = plain
     override protected val _yes: Boolean = yes
-    override protected val _print: Option[Any => Unit] = print
+    override protected val _print: Option[Any => Any] = print
   }
 }

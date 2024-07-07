@@ -33,7 +33,7 @@ case class ConsoleCfg(
 
   protected override val _yes: Boolean = yes.value
 
-  protected override val _print: Option[Any => Unit] = None
+  protected override val _print: Option[Any => Any] = None
 }
 
 object ConsoleCfg {
