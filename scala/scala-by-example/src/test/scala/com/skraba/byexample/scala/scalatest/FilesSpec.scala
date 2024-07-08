@@ -5,19 +5,40 @@ import org.scalatest.OptionValues.convertOptionToValuable
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
+import java.nio.file.StandardCopyOption
 import scala.reflect.io.{Directory, File, Streamable}
+import scala.util.Properties
 
 /** Matchers and assertions on files. ScalaTest doesn't help much, but it's pretty easy to use existing methods and
   * tools.
   */
 class FilesSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 
-  /** Create a temporary directory to use for all tests. */
+  /** Create a temporary directory to use for all tests. This will be automatically cleaned up. */
   val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
+
+  /** Create a temporary directory that will be shared and not deleted between runs. Be careful, this can have
+    * unintended side effects.
+    */
+  val CachedTmp: Directory = (Directory(Properties.tmpDir) / getClass.getSimpleName).createDirectory()
+
+  /** If this is not None, retain the last [[Tmp]] here. */
+  val SaveLastTmp: Option[Directory] = Some(CachedTmp / "last").map(_.toDirectory)
 
   /** And delete it after the tests. */
   override protected def afterAll(): Unit =
     try {
+      // Optionally save the last temp directory
+      SaveLastTmp.map(last => {
+        last.deleteRecursively()
+        java.nio.file.Files.move(
+          Tmp.jfile.toPath,
+          last.jfile.toPath,
+          StandardCopyOption.ATOMIC_MOVE,
+          StandardCopyOption.REPLACE_EXISTING
+        )
+      })
+      // Delete the temporary directory
       Tmp.deleteRecursively()
     } catch {
       case ex: Exception =>
