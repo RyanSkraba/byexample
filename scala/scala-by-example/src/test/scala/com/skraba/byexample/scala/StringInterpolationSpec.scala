@@ -133,6 +133,10 @@ class StringInterpolationSpec extends AnyFunSpecLike with Matchers {
       val conversion = 2.54d
       val unit2 = "centimetre"
       f"$unit1%s is $conversion%2.1f $unit2%s" shouldBe "inch is 2.5 centimetre"
+
+      // Zero padding a number
+      f"${1}%07d" shouldBe "0000001"
+      f"${123}%07d" shouldBe "0000123"
     }
 
     it("should format floating point") {
