@@ -143,7 +143,17 @@ class StringInterpolationSpec extends AnyFunSpecLike with Matchers {
       val pi: Double = math.Pi
       val negpi: Double = -math.Pi
       f"$pi%(,.2f" shouldBe "3.14"
+      f"${pi * 1000}%(,.2f" shouldBe "3,141.59"
       f"$negpi%(,.2f" shouldBe "(3.14)"
+
+      // Zero padding floating points
+      f"${1d}%.2f" shouldBe "1.00"
+      f"${1.1}%.2f" shouldBe "1.10"
+      f"${1.111}%.2f" shouldBe "1.11"
+      f"${1.115}%.2f" shouldBe "1.12"
+      f"${1.115}%05.2f" shouldBe "01.12"
+      f"${11.115}%02.2f" shouldBe "11.12"
+      f"${111.115}%05.2f" shouldBe "111.12"
     }
 
     it("should format dates") {
