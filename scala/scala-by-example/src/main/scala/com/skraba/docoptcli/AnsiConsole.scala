@@ -174,6 +174,34 @@ trait AnsiConsole {
   def bold(in: Any, in2: Any = "", reset: Boolean = true): String =
     style(in, in2, "", reset, bold = true)
 
+  def msg(
+      in: Any,
+      in2: Any = "",
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String =
+    cyan(in, in2, reset, bold)
+  def msg1(
+      in: Any,
+      in2: Any = "",
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String =
+    msg(in, in2, reset, bold)
+  def msg2(
+      in: Any,
+      in2: Any = "",
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String =
+    blue(in, in2, reset, bold)
+  def msg3(
+      in: Any,
+      in2: Any = "",
+      reset: Boolean = true,
+      bold: Boolean = false
+  ): String =
+    magenta(in, in2, reset, bold)
   def ok(
       in: Any,
       in2: Any = "",
@@ -215,7 +243,7 @@ trait AnsiConsole {
       reset: Boolean = true,
       bold: Boolean = false
   ): String =
-    magenta(key, "", reset, bold) + " : " + value
+    magenta(key, "", reset, bold) + ": " + value
 
   /** Print a standardized help for a script with subcommands
     * @param cli
