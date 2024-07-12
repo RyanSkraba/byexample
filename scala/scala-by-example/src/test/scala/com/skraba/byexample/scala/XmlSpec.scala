@@ -15,6 +15,71 @@ class XmlSpec extends AnyFunSpecLike with Matchers {
 
   val InkNs: String = "http://www.inkscape.org/namespaces/inkscape"
 
+  val ExampleSvg: Elem = XML.loadString(s"""<svg xmlns:inkscape="$InkNs">
+    |  <g style="display:inline" inkscape:groupmode="layer" inkscape:label="Layer1">
+    |    <rect x="10" y="10" width="180" height="180" fill="blue" />
+    |  </g>
+    |  <g style="display:none" inkscape:groupmode="layer" inkscape:label="Layer2">
+    |    <line x1="0" y1="0" x2="0" y3="0" fill="red" />
+    |    <circle cx="100" cy="100" r="50" fill="green" />
+    |  </g>
+    |</svg>""".stripMargin)
+
+  describe("Using the XPath-like selectors") {
+
+    it("Should find direct children nodes with '\\'") {
+      val groups: NodeSeq = ExampleSvg \ "g"
+      groups should have size 2
+      groups.head.label shouldBe "g"
+      groups.head.attribute("style") shouldBe Some(Text("display:inline"))
+      groups.head.attribute(InkNs, "label") shouldBe Some(Text("Layer1"))
+      groups.head.child should have size 3 // including newlines and spaces
+      groups.head.child(1).label shouldBe "rect"
+      groups(1).label shouldBe "g"
+      groups(1).attribute("style") shouldBe Some(Text("display:none"))
+      groups(1).attribute(InkNs, "label") shouldBe Some(Text("Layer2"))
+      groups(1).child should have size 5 // including newlines and spaces
+
+      // But there isn't any top level rectangle
+      (ExampleSvg \ "rect") shouldBe empty
+    }
+
+    it("Should find deep children nodes with '\\\\'") {
+      val groups: NodeSeq = ExampleSvg \\ "g"
+      groups should have size 2
+      groups.head.label shouldBe "g"
+      groups.head.attribute("style") shouldBe Some(Text("display:inline"))
+      groups.head.attribute(InkNs, "label") shouldBe Some(Text("Layer1"))
+      groups.head.child should have size 3 // including newlines and spaces
+      groups.head.child(1).label shouldBe "rect"
+      groups(1).label shouldBe "g"
+      groups(1).attribute("style") shouldBe Some(Text("display:none"))
+      groups(1).attribute(InkNs, "label") shouldBe Some(Text("Layer2"))
+      groups(1).child should have size 5 // including newlines and spaces
+
+      // It finds this
+      (ExampleSvg \\ "rect") should have size 1
+    }
+
+    it("Should search all elements for an attribute") {
+      val radius = (ExampleSvg \\ "_").filter(node => (node \ "@r").toString == "50")
+      radius should have size 1
+      radius.head.label shouldBe "circle"
+
+      val filled = (ExampleSvg \\ "_").filter(_.attribute("fill").isDefined)
+      filled should have size 3
+      filled.map(_.label) shouldBe Seq("rect", "line", "circle")
+
+      val fills = (ExampleSvg \\ "_").flatMap(_.attribute("fill")).map(_.text).distinct
+      fills shouldBe Seq("blue", "red", "green")
+    }
+
+    it("Should find attributes") {
+      (ExampleSvg \\ "rect" \ "@width") shouldBe Group(Text("180"))
+      (ExampleSvg \\ "rect" \@ "width") shouldBe "180"
+    }
+  }
+
   private def isLayer(n: Node): Boolean =
     n.label == "g" && (n \@ s"{$InkNs}groupmode") == "layer"
 
@@ -76,14 +141,15 @@ class XmlSpec extends AnyFunSpecLike with Matchers {
     }
 
     it("should find multiple Inkscape layers") {
-      val moreNode = XML.loadString(s"""<svg xmlns:inkscape="$InkNs">
-          |  <g style="display:none" inkscape:groupmode="layer" inkscape:label="My Layer"/>
-          |  <g style="display:none" inkscape:groupmode="layer" inkscape:label="My Layer2"/>
-          |</svg>""".stripMargin)
-      val outNode: Seq[Node] = findLayers(moreNode)
+      val outNode: Seq[Node] = findLayers(ExampleSvg)
       outNode.map(_.toString) shouldBe Seq(
-        s"""<g style="display:none" inkscape:groupmode="layer" inkscape:label="My Layer" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"/>""",
-        s"""<g style="display:none" inkscape:groupmode="layer" inkscape:label="My Layer2" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"/>"""
+        """<g style="display:inline" inkscape:groupmode="layer" inkscape:label="Layer1" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">
+          |    <rect x="10" y="10" width="180" height="180" fill="blue"/>
+          |  </g>""".stripMargin,
+        """<g style="display:none" inkscape:groupmode="layer" inkscape:label="Layer2" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">
+          |    <line x1="0" y1="0" x2="0" y3="0" fill="red"/>
+          |    <circle cx="100" cy="100" r="50" fill="green"/>
+          |  </g>""".stripMargin
       )
     }
 
