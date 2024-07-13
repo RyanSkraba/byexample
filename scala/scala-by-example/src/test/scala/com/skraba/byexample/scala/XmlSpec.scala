@@ -15,12 +15,12 @@ class XmlSpec extends AnyFunSpecLike with Matchers {
 
   val InkNs: String = "http://www.inkscape.org/namespaces/inkscape"
 
-  val ExampleSvg: Elem = XML.loadString(s"""<svg xmlns:inkscape="$InkNs">
+  val ExampleSvg: Elem = XML.loadString(s"""<svg xmlns:inkscape="$InkNs" width="200" height="200">
     |  <g style="display:inline" inkscape:groupmode="layer" inkscape:label="Layer1">
     |    <rect x="10" y="10" width="180" height="180" fill="blue" />
     |  </g>
     |  <g style="display:none" inkscape:groupmode="layer" inkscape:label="Layer2">
-    |    <line x1="0" y1="0" x2="0" y3="0" fill="red" />
+    |    <line x1="0" y1="0" x2="200" y2="200" stroke="red" />
     |    <circle cx="100" cy="100" r="50" fill="green" />
     |  </g>
     |</svg>""".stripMargin)
@@ -67,11 +67,11 @@ class XmlSpec extends AnyFunSpecLike with Matchers {
       radius.head.label shouldBe "circle"
 
       val filled = (ExampleSvg \\ "_").filter(_.attribute("fill").isDefined)
-      filled should have size 3
-      filled.map(_.label) shouldBe Seq("rect", "line", "circle")
+      filled should have size 2
+      filled.map(_.label) shouldBe Seq("rect", "circle")
 
       val fills = (ExampleSvg \\ "_").flatMap(_.attribute("fill")).map(_.text).distinct
-      fills shouldBe Seq("blue", "red", "green")
+      fills shouldBe Seq("blue", "green")
     }
 
     it("Should find attributes") {
@@ -147,7 +147,7 @@ class XmlSpec extends AnyFunSpecLike with Matchers {
           |    <rect x="10" y="10" width="180" height="180" fill="blue"/>
           |  </g>""".stripMargin,
         """<g style="display:none" inkscape:groupmode="layer" inkscape:label="Layer2" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">
-          |    <line x1="0" y1="0" x2="0" y3="0" fill="red"/>
+          |    <line x1="0" y1="0" x2="200" y2="200" stroke="red"/>
           |    <circle cx="100" cy="100" r="50" fill="green"/>
           |  </g>""".stripMargin
       )
