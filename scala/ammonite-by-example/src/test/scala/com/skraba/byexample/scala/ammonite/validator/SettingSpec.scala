@@ -1,8 +1,10 @@
 package com.skraba.byexample.scala.ammonite.validator
 
+import com.skraba.docoptcli.AnsiConsole
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
+import scala.io.AnsiColor._
 
 /** Test the [[Setting]] instances. */
 class SettingSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterAll {
@@ -16,6 +18,18 @@ class SettingSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterAll {
       "pathRel" -> "propsRel",
       "pathAbs" -> "/props/abs"
     )
+
+  describe("Generating property files") {
+    it("should show whether values are default or not") {
+      Setting.properties(
+        cfg = AnsiConsole(),
+        cfgs = Setting.str(Some("Explicit"), props, "key1", "Doc")("default"),
+        Setting.str(None, props, "key2", "Doc")("default")
+      ) shouldBe
+        s"""${CYAN}key1$RESET=${MAGENTA}Explicit$RESET
+           |${CYAN}key2$RESET=${GREEN}default$RESET""".stripMargin
+    }
+  }
 
   describe("String configuration using Setting.str") {
     it("should take any explicitly set value") {
