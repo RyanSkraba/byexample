@@ -31,11 +31,11 @@ import com.skraba.byexample.scala.markd._
 
 @arg(doc = "Print help to the console.")
 @main
-def help(cfg: ConsoleCfg): Unit = {
+def help(out: ConsoleCfg): Unit = {
   // The help header includes all of the subcommands
   val cli = "git_checker.sc"
   println(
-    cfg.helpHeader(
+    out.helpHeader(
       cli,
       "Do some analysis on git repositories",
       "cherryPick" -> "Get a status report on two branches"
@@ -43,11 +43,11 @@ def help(cfg: ConsoleCfg): Unit = {
   )
 
   // Usage examples
-  println(cfg.helpUse(cli, "cherryPick", "[repo]", "[main]", "[branch]"))
-  println(cfg.helpUse(cli, "ghContrib", "[USER]", "[DSTFILE]", "[--verbose]"))
-  println(cfg.helpUse(cli, "ghOpenPrs", "[githuborg/proj]"))
-  println(cfg.helpUse(cli, "ghFailedRuns", "[githuborg/proj]"))
-  println(cfg.helpUse(cli, "rewriteDate", "[cmd]"))
+  println(out.helpUse(cli, "cherryPick", "[repo]", "[main]", "[branch]"))
+  println(out.helpUse(cli, "ghContrib", "[USER]", "[DSTFILE]", "[--verbose]"))
+  println(out.helpUse(cli, "ghOpenPrs", "[githuborg/proj]"))
+  println(out.helpUse(cli, "ghFailedRuns", "[githuborg/proj]"))
+  println(out.helpUse(cli, "rewriteDate", "[cmd]"))
   println()
 }
 
@@ -61,16 +61,16 @@ def releaseCherryPickPrep(
     lTag: String = "main",
     rTag: String = "branch",
     statusDoc: Option[os.Path] = None,
-    cfg: ConsoleCfg
+    out: ConsoleCfg
 ): Unit = {
 
-  cfg.vPrintln(cfg.bold("Arguments:"))
-  cfg.vPrintln(cfg.kv("      repo", repo))
-  cfg.vPrintln(cfg.kv("      lTag", lTag))
-  cfg.vPrintln(cfg.kv("      rTag", rTag))
-  cfg.vPrintln(cfg.kv(" statusDoc", statusDoc))
-  cfg.vPrintln(cfg.bold("\nGit command:"))
-  cfg.vPrintln((CherryPickerReport.Cmd :+ s"$lTag...$rTag").mkString(" "))
+  out.vPrintln(out.bold("Arguments:"))
+  out.vPrintln(out.kv("      repo", repo))
+  out.vPrintln(out.kv("      lTag", lTag))
+  out.vPrintln(out.kv("      rTag", rTag))
+  out.vPrintln(out.kv(" statusDoc", statusDoc))
+  out.vPrintln(out.bold("\nGit command:"))
+  out.vPrintln((CherryPickerReport.Cmd :+ s"$lTag...$rTag").mkString(" "))
 
   // The current state of the git branches
   val current: CherryPickerReport =
@@ -94,7 +94,7 @@ def releaseCherryPickPrep(
 
   val cleaned = Header.parse(updated.toDoc.build().toString)
   val txt = cleaned.build().toString
-  if (cfg.verbose.value || statusDoc.isEmpty) println(txt)
+  if (out.verbose.value || statusDoc.isEmpty) println(txt)
 
   statusDoc.foreach(os.write.over(_, txt))
 }
@@ -132,7 +132,7 @@ def ghFailedRuns(
     default: String = "main",
     @arg(doc = "Output the text in HTML")
     html: Flag,
-    cfg: ConsoleCfg
+    out: ConsoleCfg
 ): Unit = {
 
   val failures = os
@@ -148,8 +148,8 @@ def ghFailedRuns(
       "failure"
     )
     .call(os.pwd)
-  cfg.vPrintln(cfg.magenta("Output"))
-  cfg.vPrintln(failures)
+  out.vPrintln(out.magenta("Output"))
+  out.vPrintln(failures)
 
   // Extract the information that we need from the build failures
   val prs: Seq[(String, String, String, String)] = ujson
@@ -209,7 +209,7 @@ def ghContrib(
     user: String,
     @arg(doc = "The destination file to save the JSON")
     dstFile: String = "/tmp/github_contributions.json",
-    cfg: ConsoleCfg
+    out: ConsoleCfg
 ): Unit = {
   // You need the gh token to proceed
   val token = os.proc("gh", "auth", "token").call(os.pwd)
@@ -238,8 +238,8 @@ def ghContrib(
       .replace('\n', ' ')
   )
   os.write.over(os.Path(dstFile), contributions.text())
-  cfg.vPrintln(contributions.text())
-  println(cfg.ok("Writing to " + cfg.bold(dstFile)))
+  out.vPrintln(contributions.text())
+  println(out.ok("Writing to " + out.bold(dstFile)))
 }
 
 // ==========================================================================
@@ -252,7 +252,7 @@ def rewriteDate(
     prj: String = os.pwd.toString(),
     timeZone: String = ":Europe/Paris",
     fuzz: Double = 0.1,
-    cfg: ConsoleCfg
+    out: ConsoleCfg
 ): Unit = {
 
   // Regex to match command that adjust a base date with a certain number of units.
@@ -297,7 +297,7 @@ def rewriteDate(
     case _ =>
       val attempts = Formatters.toStream.map(fmt => {
         val attempt = Try { LocalDateTime.parse(cmd, fmt._2) }
-        cfg.vPrintln(
+        out.vPrintln(
           if (attempt.isSuccess) s"${GREEN}Succeeded parsing ${fmt._1}\n"
           else s"${RED}Failure trying ${fmt._1}"
         )
@@ -346,7 +346,7 @@ def rewriteDate(
     val fuzzed =
       bd.plusSeconds(adjustedDiff + fuzzSeconds)
 
-    cfg.vPrintln {
+    out.vPrintln {
       val fuzzedDiff = bd.until(fuzzed, SECONDS)
       s"""$BOLD$MAGENTA      fuzz: $RESET$fuzz / $fuzzDev / ${fuzzSeconds}s
          |$BOLD$MAGENTA base date: $RESET$bd
@@ -361,13 +361,13 @@ def rewriteDate(
   // Apply the fuzzed date to the head of the repo
   fuzzedDate.fold(
     dtpe => {
-      if (cfg.verbose.value) dtpe.printStackTrace()
+      if (out.verbose.value) dtpe.printStackTrace()
       println(s"$RED${BOLD}Unexpected command: $cmd")
     },
     fuzzed => {
       val fakedDate =
         fuzzed.atZone(java.time.ZoneId.systemDefault()).toEpochSecond.toString
-      cfg.vPrintln(
+      out.vPrintln(
         s"""$BOLD${BLUE}GPG_FAKED_DATE="$fakedDate" GIT_COMMITTER_DATE="$fuzzed" git -c "gpg.program=$gpgWithRewrite" commit --amend --no-edit --date $fuzzed$RESET
              |""".stripMargin
       )

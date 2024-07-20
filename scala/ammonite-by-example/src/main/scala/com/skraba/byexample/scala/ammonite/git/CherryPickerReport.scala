@@ -14,14 +14,14 @@ case class CherryPickerReport(
     right: Seq[Commit],
     issuesUrl: Option[String] = None,
     doc: Header = Header(0, ""),
-    cfg: AnsiConsole = AnsiConsole(plain = false, verbose = false)
+    out: AnsiConsole = AnsiConsole(plain = false, verbose = false)
 ) {
 
   /** The left branch name with colour and indicator. */
-  lazy val lTag: String = cfg.left(s"$lBranch (LEFT)")
+  lazy val lTag: String = out.left(s"$lBranch (LEFT)")
 
   /** The right branch name with colour and indicator. */
-  lazy val rTag: String = cfg.right(s"$rBranch (RIGHT)")
+  lazy val rTag: String = out.right(s"$rBranch (RIGHT)")
 
   lazy val leftSubjects: Map[String, Seq[Commit]] = left.groupBy(_.subject)
   lazy val rightSubjects: Map[String, Seq[Commit]] = right.groupBy(_.subject)
@@ -229,7 +229,7 @@ case class CherryPickerReport(
       tag: String
   ): String = {
     if (s.size != commits.size) {
-      s"* Found duplicate subjects on $tag (${cfg.warn(s.size)} unique subjects)\n" +
+      s"* Found duplicate subjects on $tag (${out.warn(s.size)} unique subjects)\n" +
         s.map {
           case (subject, commits) if commits.size > 1 =>
             s"  - $subject (${commits.size})\n"
@@ -243,9 +243,9 @@ case class CherryPickerReport(
   def summarize(): Unit = {
     println()
     println()
-    println(cfg.bold("Summary:"))
-    println(s"* There are ${cfg.ok(left.size)} on $lTag")
-    println(s"* There are ${cfg.ok(right.size)} on $rTag")
+    println(out.bold("Summary:"))
+    println(s"* There are ${out.ok(left.size)} on $lTag")
+    println(s"* There are ${out.ok(right.size)} on $rTag")
 
     print(summarizeSubjects(left, leftSubjects, lTag))
     print(summarizeSubjects(right, rightSubjects, rTag))
@@ -253,21 +253,21 @@ case class CherryPickerReport(
     val actuallyCherryPicked =
       leftSubjects.keySet.intersect(rightSubjects.keySet)
     println(
-      s"* There were ${cfg.warn(actuallyCherryPicked.size)} commits that look cherrypicked:"
+      s"* There were ${out.warn(actuallyCherryPicked.size)} commits that look cherrypicked:"
     )
     print(actuallyCherryPicked.map(msg => s"  - $msg\n").mkString)
 
     println(s"\n# $lTag\n")
     left.foreach {
       case cmt if actuallyCherryPicked(cmt.subject) =>
-        println(cfg.ok(cmt))
+        println(out.ok(cmt))
       case cmt => println(cmt)
     }
 
     println(s"\n# $rTag\n")
     right.foreach {
       case cmt if actuallyCherryPicked(cmt.subject) =>
-        println(cfg.ok(cmt))
+        println(out.ok(cmt))
       case cmt => println(cmt)
     }
   }

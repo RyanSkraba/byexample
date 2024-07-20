@@ -255,12 +255,12 @@ class AnsiConsoleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matcher
 
     def simpleAsk(
         userResponse: String,
-        cfg: AnsiConsole = AnsiConsole()
+        out: AnsiConsole = AnsiConsole()
     ): (String, Option[String]) = Streamable.closing(
       new ByteArrayInputStream(s"$userResponse\n".getBytes)
     ) { in =>
       Console.withIn(in) {
-        withConsoleMatch(cfg.ask("Password?") { "Open sesame" }) { case (result, out, err) =>
+        withConsoleMatch(out.ask("Password?") { "Open sesame" }) { case (result, out, err) =>
           err shouldBe empty
           (out, result)
         }

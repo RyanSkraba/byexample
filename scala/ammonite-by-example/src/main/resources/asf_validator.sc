@@ -115,29 +115,29 @@ case class AsfReleaseConfig(
   lazy val NexusStaging: String =
     nexusStaging.orElse(props.get("nexusStaging")).getOrElse("")
 
-  def properties(cfg: ConsoleCfg): String =
-    s"""${cfg.bold("Environment:")}
+  def properties(out: ConsoleCfg): String =
+    s"""${out.bold("Environment:")}
        |
-       |${cfg.left("top")}=${cfg.right(Top)}
-       |${cfg.left("incubation")}=${cfg.right(Incubation)}
-       |${cfg.left("version")}=${cfg.right(Version)}
-       |${cfg.left("rc")}=${cfg.right(Rc)}
+       |${out.left("top")}=${out.right(Top)}
+       |${out.left("incubation")}=${out.right(Incubation)}
+       |${out.left("version")}=${out.right(Version)}
+       |${out.left("rc")}=${out.right(Rc)}
        |
-       |${cfg.left("buildBaseDir")}=${cfg.right(BuildBaseDir)}
-       |${cfg.left("buildGithubDir")}=${cfg.right(BuildGithubDir)}
-       |${cfg.left("buildSvnDir")}=${cfg.right(BuildSvnDir)}
-       |${cfg.left("buildNexusDir")}=${cfg.right(BuildNexusDir)}
+       |${out.left("buildBaseDir")}=${out.right(BuildBaseDir)}
+       |${out.left("buildGithubDir")}=${out.right(BuildGithubDir)}
+       |${out.left("buildSvnDir")}=${out.right(BuildSvnDir)}
+       |${out.left("buildNexusDir")}=${out.right(BuildNexusDir)}
        |
-       |${cfg.left("githubRepo")}=${cfg.right(GithubRepo)}
-       |${cfg.left("githubRcTag")}=${cfg.right(GithubRcTag)}
-       |${cfg.left("githubRcCommit")}=${cfg.right(GithubRcCommit)}
+       |${out.left("githubRepo")}=${out.right(GithubRepo)}
+       |${out.left("githubRcTag")}=${out.right(GithubRcTag)}
+       |${out.left("githubRcCommit")}=${out.right(GithubRcCommit)}
        |
-       |${cfg.left("svnUrl")}=${cfg.right(SvnUrl)}
-       |${cfg.left("svnBaseDir")}=${cfg.right(SvnBaseDir)}
-       |${cfg.left("svnDir")}=${cfg.right(SvnDir)}
-       |${cfg.left("svnRcRevision")}=${cfg.right(SvnRcRevision)}
+       |${out.left("svnUrl")}=${out.right(SvnUrl)}
+       |${out.left("svnBaseDir")}=${out.right(SvnBaseDir)}
+       |${out.left("svnDir")}=${out.right(SvnDir)}
+       |${out.left("svnRcRevision")}=${out.right(SvnRcRevision)}
        |
-       |${cfg.left("nexusStaging")}=${cfg.right(NexusStaging)}
+       |${out.left("nexusStaging")}=${out.right(NexusStaging)}
        |
        |""".stripMargin
 }
@@ -156,11 +156,11 @@ implicit def asfReleaseConfigParser: ParserForClass[AsfReleaseConfig] =
 
 @arg(doc = "Print help to the console.")
 @main
-def help(asf: AsfReleaseConfig, cfg: ConsoleCfg): Unit = {
+def help(asf: AsfReleaseConfig, out: ConsoleCfg): Unit = {
   // The help header includes all of the subcommands
   val cli = "asf_validator.sc"
   println(
-    cfg.helpHeader(
+    out.helpHeader(
       cli,
       "Validating a release for the ASF",
       "help" -> "Help, usage and release validation resources."
@@ -168,24 +168,23 @@ def help(asf: AsfReleaseConfig, cfg: ConsoleCfg): Unit = {
   )
 
   // Usage examples
-  println(cfg.helpUse(cli, "test", "[--verbose]"))
+  println(out.helpUse(cli, "test", "[--verbose]"))
   println()
 
-  println(asf.properties(cfg));
+  println(asf.properties(out));
 }
 
-/** Print out some useful information about the environment variables used to
-  * validate ASF releases.
+/** Print out some useful information about the environment variables used to validate ASF releases.
   *
-  * @param cfg
+  * @param out
   *   Colour configuration for the output
   */
 @main
-def svn(asf: AsfReleaseConfig, cfg: ConsoleCfg): Unit = {
-  cfg.vPrintln(asf.properties(cfg))
+def svn(asf: AsfReleaseConfig, out: ConsoleCfg): Unit = {
+  out.vPrintln(asf.properties(out))
   if (!os.exists(asf.SvnDir)) {
-    cfg.vPrintln(
-      cfg.warn("Creating subversion directory:", bold = true) + cfg.warn(
+    out.vPrintln(
+      out.warn("Creating subversion directory:", bold = true) + out.warn(
         asf.SvnDir
       )
     )

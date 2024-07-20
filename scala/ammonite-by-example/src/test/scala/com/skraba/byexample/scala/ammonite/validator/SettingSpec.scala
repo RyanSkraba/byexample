@@ -22,7 +22,7 @@ class SettingSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterAll {
   describe("Generating property files") {
     it("should show whether values are default or not") {
       Setting.properties(
-        cfg = AnsiConsole(),
+        out = AnsiConsole(),
         cfgs = Setting.str(Some("Explicit"), props, "key1", "Doc")("default"),
         Setting.str(None, props, "key2", "Doc")("default")
       ) shouldBe

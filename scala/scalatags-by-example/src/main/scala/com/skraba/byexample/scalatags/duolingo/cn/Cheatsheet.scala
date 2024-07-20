@@ -49,22 +49,22 @@ object Vocab {
   * @param offset
   *   A helpful offset for laying out the words in relation to the upper-left document corner, or the upper-left of the
   *   last laid out group of words.
-  * @param cfg
+  * @param out
   *   Configuration for drawing the sheet.
   */
 case class VocabGroup(
     words: Seq[Vocab],
     title: Option[String] = None,
     offset: Option[(Double, Double)] = None,
-    cfg: Config = Config()
+    out: Config = Config()
 ) {
 
   /** Draws the vocab group, with the title on top moving down one line for each vocab.
     */
   def toSvg: Tag = {
     g(
-      (title.map(cfg.title).toSeq ++ words.map(cfg.vocab)).zipWithIndex.map { case (tag, y) =>
-        tag(Svg.attrTranslate(0, y * cfg.lineHeight))
+      (title.map(out.title).toSeq ++ words.map(out.vocab)).zipWithIndex.map { case (tag, y) =>
+        tag(Svg.attrTranslate(0, y * out.lineHeight))
       }
     )
   }
@@ -75,10 +75,10 @@ case class VocabGroup(
   *
   * @param vocab
   *   the list of words to include in the cheat sheet.
-  * @param cfg
+  * @param out
   *   Configuration for drawing the sheet.
   */
-case class Cheatsheet(vocab: Seq[Vocab], cfg: Config = Config()) {
+case class Cheatsheet(vocab: Seq[Vocab], out: Config = Config()) {
 
   /** Draws the cheatsheet. The first column of words is centered at 0, 0, and the entire page will likely need to be
     * translated.
@@ -94,10 +94,10 @@ case class Cheatsheet(vocab: Seq[Vocab], cfg: Config = Config()) {
     // Set the words in a group vertically, and the lessons horizontally.
     val groupTags: Seq[Tag] = byLesson.zipWithIndex.map { case (vs, x) =>
       val vocabTags = vs
-        .map(cfg.vocab)
+        .map(out.vocab)
         .zipWithIndex
         .map { case (tag, y) =>
-          tag(Svg.attrTranslate(0, y * cfg.lineHeight))
+          tag(Svg.attrTranslate(0, y * out.lineHeight))
         }
       g(vocabTags: _*)(Svg.attrTranslate(x * 150, 0))
     }

@@ -30,12 +30,12 @@ val DefaultTimeGap = 30.seconds
 
 @arg(doc = "Print help to the console.")
 @main
-def help(cfg: ConsoleCfg): Unit = {
+def help(out: ConsoleCfg): Unit = {
 
   // The help header includes all of the subcommands
   val cli = "getting_things_done.sc"
   println(
-    cfg.helpHeader(
+    out.helpHeader(
       "file_renamer.sc",
       "File operations for general clean-up",
       "cameraphone" -> "Backs up pictures from the connected phone",
@@ -45,9 +45,9 @@ def help(cfg: ConsoleCfg): Unit = {
   )
 
   // Usage examples
-  println(cfg.helpUse(cli, "group", "[DIR]"))
-  println(cfg.helpUse(cli, "payslip", "[DIR]"))
-  println(cfg.helpUse(cli, "cameraphone", "[DIR]"))
+  println(out.helpUse(cli, "group", "[DIR]"))
+  println(out.helpUse(cli, "payslip", "[DIR]"))
+  println(out.helpUse(cli, "cameraphone", "[DIR]"))
   println()
 }
 
@@ -267,18 +267,18 @@ def group(
 
 @arg(doc = "Renames payslip files to a standard format")
 @main
-def payslip(srcPath: Option[os.Path] = None, dstPath: Option[os.Path] = None, cfg: ConsoleCfg): Unit = {
+def payslip(srcPath: Option[os.Path] = None, dstPath: Option[os.Path] = None, out: ConsoleCfg): Unit = {
 
   // Error if the directory doesn't exist.
   val src: os.Path = srcPath.getOrElse(os.pwd)
   if (!(os.exists(src))) {
-    println(cfg.error("ERROR", s"$src does not exist."))
+    println(out.error("ERROR", s"$src does not exist."))
     System.exit(1)
   }
 
   val dst: os.Path = dstPath.getOrElse(src)
   if (!(os.exists(dst))) {
-    println(cfg.error("ERROR", s"$dst does not exist."))
+    println(out.error("ERROR", s"$dst does not exist."))
     System.exit(1)
   }
 
@@ -302,10 +302,10 @@ def payslip(srcPath: Option[os.Path] = None, dstPath: Option[os.Path] = None, cf
     }
     .sortBy(_._1)
 
-  renaming.filter(_._2.isEmpty).foreach(f => cfg.vPrintln(cfg.error(s"# Not a match ${f._1}")))
+  renaming.filter(_._2.isEmpty).foreach(f => out.vPrintln(out.error(s"# Not a match ${f._1}")))
   renaming.foreach {
-    case (srcFile, Some(dstFile)) if srcFile == dstFile => cfg.vPrintln(cfg.warn(s"# No move necessary $srcFile"))
-    case (srcFile, Some(dstFile))                       => println(cfg.ok(s"""mv "$srcFile" "$dstFile""""))
+    case (srcFile, Some(dstFile)) if srcFile == dstFile => out.vPrintln(out.warn(s"# No move necessary $srcFile"))
+    case (srcFile, Some(dstFile))                       => println(out.ok(s"""mv "$srcFile" "$dstFile""""))
     case _                                              =>
   }
 }

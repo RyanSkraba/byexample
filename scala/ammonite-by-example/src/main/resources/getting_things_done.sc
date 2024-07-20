@@ -167,11 +167,11 @@ object ProjectParserCfg extends ParserCfg {
 
 @arg(doc = "Print help to the console.")
 @main
-def help(cfg: ConsoleCfg): Unit = {
+def help(out: ConsoleCfg): Unit = {
   // The help header includes all of the subcommands
   val cli = "getting_things_done.sc"
   println(
-    cfg.helpHeader(
+    out.helpHeader(
       cli,
       "Let's get things done!",
       "clean" -> "Beautify the status document",
@@ -181,16 +181,16 @@ def help(cfg: ConsoleCfg): Unit = {
       "stat" -> "Add or update a weekly statistic",
       "statsDaily" -> "Update a list of configured statistics (if any)",
       "statsExtract" -> "Extract a statistic from the document",
-      "task" -> s"Add or update a weekly task ${cfg.redBg("TODO")}",
+      "task" -> s"Add or update a weekly task ${out.redBg("TODO")}",
       "week" -> "Print the last week status or a specific week"
     )
   )
 
   // Usage examples
-  println(cfg.helpUse(cli, "clean"))
-  println(cfg.helpUse(cli, "addWeek"))
+  println(out.helpUse(cli, "clean"))
+  println(out.helpUse(cli, "addWeek"))
   println(
-    cfg.helpUse(
+    out.helpUse(
       cli,
       "pr",
       "avro",
@@ -200,8 +200,8 @@ def help(cfg: ConsoleCfg): Unit = {
       "REVIEWED"
     )
   )
-  println(cfg.helpUse(cli, "stat", "unread", "448", "[Wed]"))
-  println(cfg.helpUse(cli, "week", "[2021-03-08]"))
+  println(out.helpUse(cli, "stat", "unread", "448", "[Wed]"))
+  println(out.helpUse(cli, "week", "[2021-03-08]"))
   println()
 }
 
@@ -241,7 +241,7 @@ def edit(): Unit = {
 @arg(doc = "Adds new weeks to the status document, up to the current date.")
 @main
 def addWeek(
-    cfg: ConsoleCfg,
+    out: ConsoleCfg,
     @arg(doc = "If set, just add one single new week instead of to the current date")
     single: Flag
 ): Unit = {
@@ -249,7 +249,7 @@ def addWeek(
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
   val gtdUpdated = if (!single.value) {
     val token = GettingThingsDone.Pattern.format(Instant.now())
-    cfg.vPrintln(s"Updating the top week up to $token")
+    out.vPrintln(s"Updating the top week up to $token")
     gtd.addWeek(Some(token))
   } else {
     // Simply add one week to the document.
@@ -257,7 +257,7 @@ def addWeek(
   }
   val verb = if (gtd == gtdUpdated) {
     println(
-      cfg.ok(
+      out.ok(
         s"No weeks were added:",
         s"current top week is '${gtd.topWeek.map(_.title).getOrElse("Unknown")}'"
       )
@@ -384,10 +384,10 @@ def statsToday(
 
 @arg(doc = "Update the daily statistics.")
 @main
-def statsDaily(cfg: ConsoleCfg): Unit = {
+def statsDaily(out: ConsoleCfg): Unit = {
 
   // Ensure we are on the current week to add today's stats.
-  addWeek(cfg, Flag(false))
+  addWeek(out, Flag(false))
 
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
 

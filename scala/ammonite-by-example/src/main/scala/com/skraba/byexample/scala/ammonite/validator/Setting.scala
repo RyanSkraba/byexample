@@ -45,7 +45,7 @@ case class Setting[T](
   override def toString: String = get.toString
 
   /** Provides a colourful representation of the value, notably different if the default or non-default is used. */
-  def toString(cfg: AnsiConsole): String = if (isDefault) cfg.green(this) else cfg.right(this)
+  def toString(out: AnsiConsole): String = if (isDefault) out.green(this) else out.right(this)
 }
 
 object Setting {
@@ -106,6 +106,6 @@ object Setting {
       d
     )
 
-  def properties(cfg: AnsiConsole, cfgs: Setting[?]*): String =
-    cfgs.map(c => s"${cfg.left(c.propKey)}=${c.toString(cfg)}").mkString("\n")
+  def properties(out: AnsiConsole, cfgs: Setting[?]*): String =
+    cfgs.map(c => s"${out.left(c.propKey)}=${c.toString(out)}").mkString("\n")
 }

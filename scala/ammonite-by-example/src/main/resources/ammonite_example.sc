@@ -41,11 +41,11 @@ val MonthDay = DateTimeFormatter.ofPattern("MMM d")
 
 @arg(doc = "Print help to the console.")
 @main
-def help(cfg: ConsoleCfg): Unit = {
+def help(out: ConsoleCfg): Unit = {
   // The help header includes all of the subcommands
   val cli = "ammonite_example.sc"
   println(
-    cfg.helpHeader(
+    out.helpHeader(
       cli,
       "Demonstrate how to script with Ammonite",
       "argTest" -> "Show how ammonite arguments are used",
@@ -57,12 +57,12 @@ def help(cfg: ConsoleCfg): Unit = {
   )
 
   // Usage examples
-  println(cfg.helpUse(cli, "argTest", "[USER]", "[GREETING]", "[--verbose]", "[--plain]"))
-  println(cfg.helpUse(cli, "githubJson", "[DSTFILE] [--verbose]"))
-  println(cfg.helpUse(cli, "sysExec", "[DIR] [--verbose]"))
-  println(cfg.helpUse(cli, "idfbm", "help"))
+  println(out.helpUse(cli, "argTest", "[USER]", "[GREETING]", "[--verbose]", "[--plain]"))
+  println(out.helpUse(cli, "githubJson", "[DSTFILE] [--verbose]"))
+  println(out.helpUse(cli, "sysExec", "[DIR] [--verbose]"))
+  println(out.helpUse(cli, "idfbm", "help"))
   println()
-  if (cfg.verbose.value) println(s"The --verbose flag was set!")
+  if (out.verbose.value) println(s"The --verbose flag was set!")
 }
 
 /** @see
@@ -75,11 +75,11 @@ def argTest(
     user: String = sys.env("USER"),
     @arg(doc = "A string value")
     greeting: Option[String] = None,
-    cfg: ConsoleCfg
+    out: ConsoleCfg
 ): Unit = {
   val Cli = s"${GREEN}ammonite_example.sc$RESET"
   println(s"""$YELLOW${greeting.getOrElse("Hello")}, $BOLD$user$RESET""")
-  if (cfg.verbose.value) {
+  if (out.verbose.value) {
     println(s"""$RESET
          |The --verbose flag was set!
          |
@@ -106,10 +106,10 @@ def argTestRepeated(
     first: String,
     @arg(short = 'r', doc = "Subsequent arguments are only printed in verbose mode")
     repeated: Seq[String],
-    cfg: ConsoleCfg
+    out: ConsoleCfg
 ): Unit = {
-  println(cfg.blue(first, s"(${repeated.size})"))
-  repeated.foreach(cfg.vPrintln(_))
+  println(out.blue(first, s"(${repeated.size})"))
+  repeated.foreach(out.vPrintln(_))
 }
 
 @arg(doc = "Test leftover arguments")
@@ -119,10 +119,10 @@ def argTestLeftover(
     first: String,
     @arg(short = 'r', doc = "Subsequent arguments are only printed in verbose mode")
     repeated: Leftover[String],
-    cfg: ConsoleCfg
+    out: ConsoleCfg
 ): Unit = {
-  println(cfg.blue(first, s"(${repeated.value.size})"))
-  repeated.value.foreach(cfg.vPrintln(_))
+  println(out.blue(first, s"(${repeated.value.size})"))
+  repeated.value.foreach(out.vPrintln(_))
 }
 
 @arg(doc = "Search and replace text patterns recursively in this directory.")
@@ -136,7 +136,7 @@ def sar(
     include: Seq[String] = Seq(".*"),
     @arg(doc = "Pairs of regular expressions to search and replace")
     re: Seq[String] = Seq(),
-    cfg: ConsoleCfg
+    out: ConsoleCfg
 ): Unit = {
 
   // The source path to analyse
@@ -160,14 +160,14 @@ def sar(
 
   val included: Set[os.FilePath] = files.filter(p => includeRe.exists(_.matches(p.toString))).toSet
 
-  cfg.vPrintln(cfg.green("Matching files:", bold = true))
-  cfg.vPrintln(included.toSeq.map("  " + _).sorted.mkString("\n"))
-  cfg.vPrintln(cfg.red(s"Exclude patterns (leaving ${files.size} file to scan):", bold = true))
-  cfg.vPrintln(excludeRe.map("  " + _).sorted.mkString("\n"))
-  cfg.vPrintln(cfg.green(s"Include patterns ${included.size}:", bold = true))
-  cfg.vPrintln(includeRe.map("  " + _).sorted.mkString("\n"))
+  out.vPrintln(out.green("Matching files:", bold = true))
+  out.vPrintln(included.toSeq.map("  " + _).sorted.mkString("\n"))
+  out.vPrintln(out.red(s"Exclude patterns (leaving ${files.size} file to scan):", bold = true))
+  out.vPrintln(excludeRe.map("  " + _).sorted.mkString("\n"))
+  out.vPrintln(out.green(s"Include patterns ${included.size}:", bold = true))
+  out.vPrintln(includeRe.map("  " + _).sorted.mkString("\n"))
 
-  cfg.vPrint("\nProcessing: ")
+  out.vPrint("\nProcessing: ")
   val modified = for (f <- files) yield {
     if (included(f)) {
       val original = os.read(f.resolveFrom(src))
@@ -176,34 +176,34 @@ def sar(
         case (acc, _)                    => acc // Ignore any leftover
       }
       val modified = contents != original
-      cfg.vPrint(if (modified) cfg.red("X") else cfg.green("x"))
+      out.vPrint(if (modified) out.red("X") else out.green("x"))
       if (modified) {
         os.write.over(f.resolveFrom(src), contents)
         Seq(f)
       } else Seq.empty
     } else {
-      cfg.vPrint(".")
+      out.vPrint(".")
       Seq.empty
     }
   }
 
-  cfg.vPrint("\n\n")
-  cfg.vPrintln(cfg.bold(s"Modified ${modified.flatten.size} files."))
+  out.vPrint("\n\n")
+  out.vPrintln(out.bold(s"Modified ${modified.flatten.size} files."))
 }
 
 @arg(doc = "Make a system call")
 @main
-def sysExec(path: Option[os.Path], cfg: ConsoleCfg): Unit = {
+def sysExec(path: Option[os.Path], out: ConsoleCfg): Unit = {
   Try(
     os.proc("ls").call(path.getOrElse(os.pwd))
   ) match {
     case Success(result) if result.exitCode == 0 =>
-      println(cfg.ok(s"Successful (${result.exitCode})", bold = true))
+      println(out.ok(s"Successful (${result.exitCode})", bold = true))
       result.out.lines.map(_.replace("\"", "")).foreach(println)
     case Success(result) =>
-      println(cfg.ok(s"Successful (${result.exitCode})"))
+      println(out.ok(s"Successful (${result.exitCode})"))
     case Failure(ex) =>
-      println(cfg.error("Failure! (${result.exitCode})"))
+      println(out.error("Failure! (${result.exitCode})"))
       ex.printStackTrace()
   }
 }
@@ -212,9 +212,7 @@ def sysExec(path: Option[os.Path], cfg: ConsoleCfg): Unit = {
 @main
 def githubJson(
     @arg(doc = "The source file to read the JSON from")
-    srcFile: String = "/tmp/github_contributions.json",
-    @arg(doc = "Verbose for extra output")
-    verbose: Flag
+    srcFile: String = "/tmp/github_contributions.json"
 ): Unit = {
   val contribs = ujson.read(os.read(os.Path(srcFile))).asInstanceOf[Obj]
   val githubContribsByDate = githubJsonParse(contribs).filter(_._2 != 0)
@@ -317,7 +315,7 @@ def gitJsonDecorated(
   *   A three letter code for the train destination
   */
 @main
-def idfbm(src: String = "vda", dst: String = "vda", cfg: ConsoleCfg, open: Flag): Unit = {
+def idfbm(src: String = "vda", dst: String = "vda", out: ConsoleCfg, open: Flag): Unit = {
 
   val tags = Map(
     "lad" -> ("La Défense", "stop_area%3AIDFM%3A71517", "La Déf"),
@@ -329,7 +327,7 @@ def idfbm(src: String = "vda", dst: String = "vda", cfg: ConsoleCfg, open: Flag)
   )
 
   if (src == "help") {
-    tags.foreach { case (tag, (name, _, _)) => println(s"${cfg.bold(tag)} -> $name") }
+    tags.foreach { case (tag, (name, _, _)) => println(s"${out.bold(tag)} -> $name") }
   } else {
 
     def idfBm(src: (String, String, String), dst: (String, String, String)): (String, String) =
