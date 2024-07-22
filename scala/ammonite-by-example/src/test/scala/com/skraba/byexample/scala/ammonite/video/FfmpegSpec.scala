@@ -1,7 +1,8 @@
 package com.skraba.byexample.scala.ammonite.video
 
 import com.skraba.byexample.scala.ammonite.OsPathScalaRelectIOConverters._
-import org.scalatest.BeforeAndAfterAll
+import org.scalactic.source.Position
+import org.scalatest.{BeforeAndAfterAll, Tag}
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
@@ -86,7 +87,27 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
     lastLog
   }
 
+  /** This is a technique for disabling all of the unit tests in this spec by rewriting the `it` word that is used to
+    * run the tests. If `ffmpeg` or `ffprobe` are not present, the word is replaced entirely by ignored calls.
+    */
+  protected class FfmpegItWord extends ItWord {
+
+    /** Determine if the tests should be run or not. */
+    val enabled: Boolean = {
+      import scala.sys.process._
+      try { "ffmpeg -version".! == 0 && "ffprobe -version".! == 0 }
+      catch { case _: Exception => false }
+    }
+    override def apply(specText: String, testTags: Tag*)(testFun: => Any)(implicit pos: Position): Unit = {
+      // Since we override `it`, we fall back on the equivalent `they` if the tests are enabled.
+      if (enabled) they(specText)(testFun)
+      else ignore(specText)()
+    }
+  }
+  override val it = new FfmpegItWord
+
   describe("Create a basic movie from still images") {
+
     it("should create a video from a single frame") {
       val ff = Ffmpeg(mp4 = Tmp / "still.mp4", cmdLog = new FfmpegLogCmd())
       ff.pngToMp4(frames.head)
