@@ -1,5 +1,7 @@
 package com.skraba.byexample.scala.scalatest
 
+import org.scalactic.source.Position
+import org.scalatest.Tag
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.tagobjects.Slow
@@ -52,12 +54,57 @@ class BasicFunSpec extends AnyFunSpecLike with Matchers {
 
   describe("Controlling scenarios") {
     val condition = false
+
+    it("can have pending tests") {
+      pending
+      fail("This test was not actually run: Test Pending")
+    }
+
+    it("can have pendingUntilFixed tests") {
+      pendingUntilFixed {
+        // This test is marked as PENDING if and only if it actually fails
+        fail("This isn't run")
+      }
+    }
+
     it("can stop") {
       assume(condition)
-      fail("This test was not actually run.")
+      fail("This test was not actually run: Test Canceled: condition was false")
     }
+
     it("can have cancelled tests") {
       if (!condition) cancel("I don't really fail")
+      fail("This test was not actually run: Test Canceled: I don't really fail")
+    }
+
+    describe("inside a pending describe block") {
+      if (!condition) pending
+      it("should fail") { fail("This isn't run but isn't seen in the console") }
+      it("should also fail") { fail("This isn't run but isn't seen in the console") }
+    }
+
+    /** This is a technique for disabling all of the unit tests in this spec by rewriting the `it` word that is used to
+      * run the tests.
+      */
+    class MaybeItWord(enabled: Boolean) extends ItWord {
+      override def apply(specText: String, testTags: Tag*)(testFun: => Any)(implicit pos: Position): Unit = {
+        // Since we override `it`, we fall back on the equivalent `they` if the tests are enabled.
+        if (enabled) they(specText)(testFun)
+        else ignore(specText)()
+      }
+    }
+
+    describe("by overwriting the `it` method") {
+      val it = new MaybeItWord(false)
+      it("so this failing test isn't used") { fail("I never get here") }
+    }
+
+    describe("by writing different `it` equivalents") {
+      val yesIt = new MaybeItWord(true)
+      val noIt = new MaybeItWord(false)
+      it("so this test is run") { succeed }
+      yesIt("so this test is also run") { succeed }
+      noIt("so this failing test isn't used") { fail("I never get here") }
     }
   }
 }
