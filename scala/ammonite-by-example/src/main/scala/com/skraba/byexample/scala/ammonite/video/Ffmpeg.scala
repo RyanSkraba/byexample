@@ -21,7 +21,7 @@ import com.skraba.docoptcli.AnsiConsole
   *
   * @param mp4
   *   An MP4 file being created or investigated. Depending on the command, this might be the input file (such as
-  *   [[trim]], or the output file (such as [[concat]].
+  *   [[trim]]), or the output file (such as [[concat]]).
   * @param cmdLog
   *   A callback that can be used to log Ffmpeg or other system commands that were executed.
   * @param cmdResult
@@ -169,7 +169,7 @@ case class Ffmpeg(
     os.proc(args: _*).call(os.pwd, stderr = if (cmdQuietStderr) os.Pipe else os.Inherit)
   }
 
-  /** Given a single image, creates an MP4 of duration N
+  /** Given a single image, creates the destination [[mp4]] of duration N
     *
     * {{{
     * ffmpeg -framerate 25 -loop 1 -t 5 -i input.png \
@@ -179,7 +179,7 @@ case class Ffmpeg(
     *     -c:a aac -b:a 128k -shortest -y output.mp4
     * }}}
     *
-    * @param inPng
+    * @param srcPng
     *   The input image file to read
     * @param duration
     *   Length of the video in seconds
@@ -190,10 +190,10 @@ case class Ffmpeg(
     * @param dy
     *   Height of the video
     * @return
-    *   The `ffmpeg` command results
+    *   An instance containing the destination MP4 and the command results.
     */
   def pngToMp4(
-      inPng: os.Path,
+      srcPng: os.Path,
       duration: Int = 5,
       audioRate: Int = 96000,
       dx: Int = 1920,
@@ -207,7 +207,7 @@ case class Ffmpeg(
       "ffmpeg",
       frameRateArg,
       // Loop the input image indefinitely for a certain number of seconds
-      Seq("-loop", "1", "-t", duration, "-i", inPng).map(_.toString),
+      Seq("-loop", "1", "-t", duration, "-i", srcPng).map(_.toString),
       // Include a silent audio stream
       Seq("-f", "lavfi", "-i", s"anullsrc=channel_layout=stereo:sample_rate=$audioRate"),
       // The video codec and pixel format
@@ -224,7 +224,7 @@ case class Ffmpeg(
     copy(cmdResult = Some(cmd))
   }
 
-  /** Given a sequence of PNG files where each is meant to serve as a frame, creates an MP4.
+  /** Given a sequence of PNG files where each is meant to serve as a frame, creates the destination [[mp4]].
     *
     * {{{
     * ffmpeg -framerate 30 -pattern_type glob -i 'input*.png' -c:a copy -shortest -c:v libx264 \
@@ -242,7 +242,7 @@ case class Ffmpeg(
     * @param dy
     *   Height of the video
     * @return
-    *   The `ffmpeg` command results
+    *   An instance containing the destination MP4 and the command results.
     */
   def pngsToMp4(
       inPngGlob: String,
@@ -277,20 +277,22 @@ case class Ffmpeg(
     copy(cmdResult = Some(cmd))
   }
 
-  /** Annotate a video with time and frame information in the upper left corner.
+  /** Annotate the source [[mp4]] video with time and frame information in the upper left corner.
     *
     * {{{
     * ffmpeg -i input.mp4 \
     *    -vf "drawtext=text='%{pts\:hms} %{n}':fontsize=24:fontcolor=white:x=10:y=10:box=1:boxcolor=black@0.5"
     *    -c:a copy output.mp4
     * }}}
-    * @param outMp4
+    * @param dstMp4
     *   The mp4 file to create.
+    * @param fontFile
+    *   Optionally, the file to use in the font
     * @return
-    *   The `ffmpeg` command results
+    *   An instance containing the destination MP4 and the command results.
     */
   def annotate(
-      outMp4: os.Path,
+      dstMp4: os.Path,
       fontFile: Option[os.Path] = None
   ): Ffmpeg = {
     val cmd = osProc(
@@ -315,12 +317,12 @@ case class Ffmpeg(
       // Copy the audio
       Seq("-c:a", "copy"),
       // Overwrite and output
-      Seq("-y", outMp4).map(_.toString)
+      Seq("-y", dstMp4).map(_.toString)
     )
-    mp4(outMp4).copy(cmdResult = Some(cmd))
+    mp4(dstMp4).copy(cmdResult = Some(cmd))
   }
 
-  /** Generate an audio track over top of the video.
+  /** Generate an audio track over top of the source [[mp4]] video.
     *
     * {{{
     * # For a sweep:
@@ -331,19 +333,19 @@ case class Ffmpeg(
     *
     * }}}
     *
-    * @param outMp4
+    * @param dstMp4
     *   The mp4 file to create with the new audio.
     * @param dt
     *   The length of the sound clip to generate (it should be repeated)
     * @param audioRate
     *   Audio sampling rate to generate
     * @param aevalsrc
-    *   Optionally, an `ffmpeg` aevalsrc expression, such as [[aevalsrcSweep()]].
+    *   Optionally, an `ffmpeg` aevalsrc expression, such as [[aevalsrcSweep]]
     * @return
-    *   The `ffmpeg` command results
+    *   An instance containing the destination MP4 and the command results.
     */
   def replaceGeneratedAudio(
-      outMp4: os.Path,
+      dstMp4: os.Path,
       dt: Int = 5,
       audioRate: Int = 96000,
       aevalsrc: String = ""
@@ -360,29 +362,29 @@ case class Ffmpeg(
       Seq("-map", "0:v:0", "-map", "[aout]"),
       "-shortest",
       // Overwrite and output
-      Seq("-y", outMp4).map(_.toString)
+      Seq("-y", dstMp4).map(_.toString)
     )
-    mp4(outMp4).copy(cmdResult = Some(cmd))
+    mp4(dstMp4).copy(cmdResult = Some(cmd))
   }
 
-  /** Given MP4s with the same encoding, concatenate them into a single file.
+  /** Given MP4s with the same encoding, concatenate them into a single destination [[mp4]] video.
     * @param concatTxt
     *   The text file to create for the concatenation
-    * @param inMp4s
+    * @param srcMp4s
     *   A list of input mp4s to be concatenated
     * @param reencode
     *   Whether to use fast copying or slow reencoding behaviour.
     * @return
-    *   The `ffmpeg` command results
+    *   An instance containing the destination MP4 and the command results.
     */
   def concat(
       concatTxt: os.Path,
-      inMp4s: Seq[os.Path],
+      srcMp4s: Seq[os.Path],
       reencode: Boolean = false
   ): Ffmpeg = {
     os.write.over(
       concatTxt,
-      inMp4s.map(_.toString.replaceAll(" ", "\\\\ ")).map(mp4 => s"file file:$mp4\n").mkString
+      srcMp4s.map(_.toString.replaceAll(" ", "\\\\ ")).map(mp4 => s"file file:$mp4\n").mkString
     )
     val cmd = osProc(
       "ffmpeg",
@@ -399,15 +401,20 @@ case class Ffmpeg(
     copy(cmdResult = Some(cmd))
   }
 
-  /** @param outMp4
+  /** Trims the source [[mp4]] to the specified times (if present)
+    * @param dstMp4
+    *   The destination file to create with the contents of the trimmed file.
     * @param start
+    *   If present, the start time of the source.
     * @param end
+    *   If present, the end time of the source.
     * @param reencode
     *   Whether to use fast copying or slow reencoding behaviour.
     * @return
+    *   An instance containing the destination MP4 and the command results.
     */
   def trim(
-      outMp4: os.Path,
+      dstMp4: os.Path,
       start: Option[String] = None,
       end: Option[String] = None,
       reencode: Boolean
@@ -421,18 +428,23 @@ case class Ffmpeg(
       Seq("-i", mp4).map(_.toString),
       if (reencode) Seq.empty[String] else Seq("-c", "copy"),
       // Overwrite and output
-      Seq("-y", outMp4).map(_.toString)
+      Seq("-y", dstMp4).map(_.toString)
     )
-    mp4(outMp4).copy(cmdResult = Some(cmd))
+    mp4(dstMp4).copy(cmdResult = Some(cmd))
   }
 
-  /** @param outMp4
+  /** Fades the source [[mp4]] for a certain number of start and end seconds.
+    * @param dstMp4
+    *   The destination file to create with the new audio.
     * @param start
+    *   If non-zero, the number of seconds to apply a fade in.
     * @param end
+    *   If non-zero, the number of seconds to apply a fade out.
     * @return
+    *   An instance containing the destination MP4 and the command results.
     */
   def fade(
-      outMp4: os.Path,
+      dstMp4: os.Path,
       start: Double = 0,
       end: Double = 0
   ): Ffmpeg = {
@@ -446,19 +458,25 @@ case class Ffmpeg(
       Seq("-af", fadeFilter),
       Seq("-c:v", "copy"),
       // Overwrite and output
-      Seq("-y", outMp4).map(_.toString)
+      Seq("-y", dstMp4).map(_.toString)
     )
-    mp4(outMp4).copy(cmdResult = Some(cmd))
+    mp4(dstMp4).copy(cmdResult = Some(cmd))
   }
 
-  def normalizeMp4(outMp4: os.Path): os.CommandResult = osProc(
+  /** Normalizes the audio of the source [[mp4]].
+    * @param dstMp4
+    *   The destination file to create with the normalized audio
+    * @return
+    *   An instance containing the destination MP4 and the command results.
+    */
+  def normalizeMp4(dstMp4: os.Path): os.CommandResult = osProc(
     "ffmpeg",
     Seq("-i", mp4).map(_.toString),
     Seq("-filter:a", "loudnorm=I=-15 [f] ; [f] afftdn=nr=97 [g]; [g] highpass=f=100"),
     // Audio codec
     Seq("-c:a", "aac"),
     // Overwrite and output
-    Seq("-y", outMp4).map(_.toString)
+    Seq("-y", dstMp4).map(_.toString)
   )
 }
 

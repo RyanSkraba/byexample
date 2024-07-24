@@ -11,7 +11,7 @@ import scala.collection.mutable
 import scala.reflect.io.{Directory, File}
 import scala.util.Properties
 
-/** Test the [[FileMaker]] class. */
+/** Test the [[Ffmpeg]] class. */
 class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 
   /** Create a temporary directory to use for all tests. This will be automatically cleaned up. */
