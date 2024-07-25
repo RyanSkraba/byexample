@@ -112,8 +112,8 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
       val ff = Ffmpeg(mp4 = Tmp / "still.mp4", cmdLog = new FfmpegLogCmd())
       ff.pngToMp4(frames.head)
       lastLog(ff) shouldBe s"ffmpeg -framerate 25 -loop 1 -t 5 -i ${frames.head} " +
-        s"-f lavfi -i anullsrc=channel_layout=stereo:sample_rate=96000 -c:v libx264 -pix_fmt yuv420p " +
-        s"-vf scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2 " +
+        "-f lavfi -i anullsrc=channel_layout=stereo:sample_rate=96000 -c:v libx264 -pix_fmt yuv420p " +
+        """-vf "scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2" """ +
         s"-c:a aac -b:a 128k -shortest -y $Tmp/still.mp4"
       ff.duration shouldBe 5.0
       ff.frameRate shouldBe 25.0
@@ -126,8 +126,8 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
         val ff = Ffmpeg(mp4 = Tmp / "animated.mp4", cmdLog = new FfmpegLogCmd())
         ff.pngsToMp4((CachedTmp / "src" / "input").toString + "*.png", 10)
         lastLog(ff) shouldBe s"ffmpeg -framerate 25 -stream_loop 9 -pattern_type glob -i $CachedTmp/src/input*.png " +
-          s"-f lavfi -i anullsrc=channel_layout=stereo:sample_rate=96000 -c:v libx264 -pix_fmt yuv420p " +
-          s"-vf scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2 " +
+          "-f lavfi -i anullsrc=channel_layout=stereo:sample_rate=96000 -c:v libx264 -pix_fmt yuv420p " +
+          """-vf "scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2" """ +
           s"-c:a aac -b:a 128k -shortest -y $Tmp/animated.mp4"
         ff
       }
@@ -136,7 +136,7 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
       lazy val annotated: Ffmpeg = {
         basic.annotate(Tmp / "annotated.mp4")
         lastLog(basic) shouldBe s"ffmpeg -i $Tmp/animated.mp4 " +
-          s"""-vf "drawtext=text='%{pts\\:hms} [%{n}]':fontsize=24:fontcolor=white:x=10:y=10:boxborderw=3:box=1:boxcolor=black@0.5" """ +
+          """-vf "drawtext=text='%{pts\:hms} [%{n}]':fontsize=24:fontcolor=white:x=10:y=10:boxborderw=3:box=1:boxcolor=black@0.5" """ +
           s"-c:a copy -y $Tmp/annotated.mp4"
         basic.mp4(Tmp / "annotated.mp4").copy(cmdLog = new FfmpegLogCmd())
       }
@@ -149,7 +149,7 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
           aevalsrc = Ffmpeg.aevalsrcSine(hiFrequency = 880, dt = 2)
         )
         lastLog(annotated) shouldBe s"ffmpeg -i $Tmp/annotated.mp4 -f lavfi " +
-          "-i aevalsrc=sin(2*PI*t*(550)-330*cos(2*PI*t/2)):s=96000:d=2 " +
+          """-i "aevalsrc=sin(2*PI*t*(550)-330*cos(2*PI*t/2)):s=96000:d=2" """ +
           "-filter_complex [1:a]aloop=loop=-1:size=192000[aout] " +
           "-c:v copy -c:a aac -ac 2 -ar 96000 -map 0:v:0 -map [aout] " +
           s"-shortest -y $Tmp/sound.mp4"
@@ -170,10 +170,18 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 
       it("with basic silence") {
         basic.duration shouldBe 40.0
+        basic.rFrameRate shouldBe (25, 1)
+        basic.rTimeBase shouldBe (1, 12800)
+        basic.audio0Stream.value should contain("codec_type" -> ujson.Str("audio"))
+        basic.video0Stream.value should contain("codec_type" -> ujson.Str("video"))
       }
 
       it("with annotations") {
         annotated.duration shouldBe 40.0
+        annotated.rFrameRate shouldBe (25, 1)
+        annotated.rTimeBase shouldBe (1, 12800)
+        annotated.audio0Stream.value should contain("codec_type" -> ujson.Str("audio"))
+        annotated.video0Stream.value should contain("codec_type" -> ujson.Str("video"))
       }
 
       describe("when fetching the first 1000 frames") {

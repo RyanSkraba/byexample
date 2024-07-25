@@ -165,7 +165,7 @@ case class Ffmpeg(
     *   the command results
     */
   def osProc(args: os.Shellable*): os.CommandResult = {
-    cmdLog(args.flatMap(_.value).map(arg => if (arg.contains(" ")) s"\"$arg\"" else arg).mkString(" "))
+    cmdLog(args.flatMap(_.value).map(arg => if (arg.matches(".*[\\s;()]+.*")) s"\"$arg\"" else arg).mkString(" "))
     os.proc(args: _*).call(os.pwd, stderr = if (cmdQuietStderr) os.Pipe else os.Inherit)
   }
 
