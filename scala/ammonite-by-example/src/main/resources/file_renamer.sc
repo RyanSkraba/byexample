@@ -36,11 +36,12 @@ def help(out: ConsoleCfg): Unit = {
   val cli = "getting_things_done.sc"
   println(
     out.helpHeader(
-      "file_renamer.sc",
-      "File operations for general clean-up",
-      "cameraphone" -> "Backs up pictures from the connected phone",
+      cli = "file_renamer.sc",
+      description = "File operations for general clean-up",
+      subcommands = "cameraphone" -> "Backs up pictures from the connected phone",
       "group" -> "Rename files grouped by time",
-      "payslip" -> "Rename payslip files"
+      "payslip" -> "Rename payslip files",
+      "screenshot" -> "Backs up screenshots from the connected phone"
     )
   )
 
@@ -75,17 +76,19 @@ def phoneDir(
 @arg(doc = "Backs up pictures and media from the connected phone")
 @main
 def cameraphone(
-    @arg(doc = "The root path of the device containing pictures, or None to detect")
-    src: Option[os.Path] = None,
-    @arg(doc = "The subdirectory to move source directories once they are copied")
-    srcSub: Option[String] = None,
-    @arg(doc = "The subdirectory to move source directories once they are copied")
-    srcRelPath: String = "DCIM/Camera",
+    @arg(doc = "The root path of the device containing pictures (Default: autodetected in /run/media)")
+    deviceRootDir: Option[os.Path] = None,
+    @arg(doc = "The subdirectory to move source directories once they are copied (Default: backedupYYYYMMDD)")
+    deviceBackedupSubDir: Option[String] = None,
+    @arg(doc = "From the device root, the relative paths to find media in (Default: DCIM/Camera)")
+    deviceRelPath: Seq[String],
+    @arg(doc = "The extensions to copy and move (Default: mp4 and jpg).")
+    extension: Seq[String],
     @arg(doc = "Create directories here to copy or move out media. (Default: ~/Pictures).")
     dst: Option[os.Path] = None,
     @arg(doc = "If specified, the name of the created subdirectory in dst (Default: Autocreated with a date prefix)")
     dstSub: Option[String] = None,
-    @arg(doc = "If specified, the name of the created subdirectory in dst (Default: Autocreated with a date prefix)")
+    @arg(doc = "When autocreating the destination subdirectory, a suffix after the date (Default: Cameraphone)")
     dstSuffix: String = " Cameraphone",
     @arg(doc = "A substring to search for when finding where the phone might be mounted")
     phoneTag: Option[String] = None,
@@ -95,38 +98,57 @@ def cameraphone(
     noVerbose: Flag = Flag(false),
     cfgGroup: ConsoleCfg
 ): Unit = {
+
+  // A config with verbose on by default
   val cfg = cfgGroup.withVerbose(!noVerbose.value)
 
-  // Use the given src for the device, or try to detect it
-  val srcDir = src.getOrElse(phoneDir(phoneTag))
-  cfg.vPrintln(srcDir)
+  // These defaults need to be a bit more refined
+  val deviceRelPathsWithDefault = if (deviceRelPath.nonEmpty) deviceRelPath else Seq("DCIM/Camera")
+  val extensionsWithDefault = if (extension.nonEmpty) extension else Seq("mp4", "jpg")
+  val deviceBackedupSubDirWithDefault: String =
+    deviceBackedupSubDir.getOrElse(s"backedup${DateTimeFormatter.ofPattern("yyyyMM").format(LocalDate.now())}")
 
-  // This is one directory that might contain media in the device
-  val mediaDir = srcDir / os.RelPath(srcRelPath)
-  if (!os.exists(mediaDir)) {
-    println(cfg.error("Source directory not found", mediaDir))
-    return
+  // Find all of the files that exist in the device subdirectories
+  val files = {
+    // Use the given src for the device, or try to detect it
+    val rootDir = deviceRootDir.getOrElse(phoneDir(phoneTag))
+    cfg.vPrintln(rootDir)
+
+    for (mediaDir <- deviceRelPathsWithDefault.map(os.RelPath.apply(_)).map(rootDir / _)) yield {
+      if (!os.exists(mediaDir)) {
+        cfg.vPrintln(cfg.warn("Source directory not found", mediaDir))
+        Seq.empty
+      } else {
+        val files = os.list(mediaDir).filter(os.isFile)
+        cfg.vPrintln(s"There are ${files.size} files in <SRC>/${mediaDir.relativeTo(rootDir)}.")
+        files
+      }
+    }
   }
 
-  val files = os.list(mediaDir).filter(os.isFile)
-  cfg.vPrintln(s"There are ${files.size} files in <SRC>/$srcRelPath.")
-  val byExtension = files.groupBy(_.ext)
-  for (ext <- byExtension)
-    cfg.vPrintln(s"  ${cfg.bold(ext._1)}: ${ext._2.size}")
+  // Only consider the valid extensions
+  val filesToCopy = {
+    val byExtension = files.flatten.groupBy(_.ext)
+    for (ext <- byExtension) {
+      cfg.vPrintln(s"  ${cfg.bold(ext._1)}: ${ext._2.size}")
+    }
+    extensionsWithDefault.flatMap(byExtension.get).flatten
+  }
 
-  val filesToCopy = Seq("jpg", "mp4").flatMap(byExtension.get).flatten
   if (filesToCopy.isEmpty) {
-    println(cfg.ok("No files to copy", bold = true))
+    cfg.vPrintln(cfg.ok("No files to copy", bold = true))
     return
   }
 
-  val dst2 = dst.getOrElse(os.home / "Pictures")
-  if (!os.exists(dst2)) {
-    println(cfg.error("Destination directory not found", dst2))
+  // The actual destination directory or the default
+  val dstRoot = dst.getOrElse(os.home / "Pictures")
+  if (!os.exists(dstRoot)) {
+    println(cfg.error("Destination directory not found", dstRoot))
     return
   }
 
-  val tag: String = dstSub.getOrElse {
+  // The actual destination subdirectory or the auto-generated default
+  val actualDstSub: String = dstSub.getOrElse {
     // The tag for today
     val today = DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now())
 
@@ -136,27 +158,25 @@ def cameraphone(
       .map("-" + _)
       .prepended("")
       .map(today + _ + dstSuffix)
-      .filterNot(sub => os.exists(dst2 / sub))
+      .filterNot(sub => os.exists(dstRoot / sub))
       .head
   }
 
-  val dstDir = dst2 / tag
+  val dstDir = dstRoot / actualDstSub
   if (!dryRun.value) os.makeDir(dstDir)
-
-  val srcSubDir: String = srcSub.getOrElse(s"backedup${DateTimeFormatter.ofPattern("yyyyMM").format(LocalDate.now())}")
-  val backupDir: Path = mediaDir / srcSubDir
-
-  if (!dryRun.value) os.makeDir.all(backupDir)
 
   for (file <- filesToCopy) {
     if (dryRun.value) {
       println(s"cp $file ${dstDir / file.last}")
-      println(s"mv $file ${backupDir / file.last}")
+      println(s"mv $file ${file / os.up / deviceBackedupSubDirWithDefault / file.last}")
     } else {
       cfg.vPrint(s"${dstDir / file.last}.")
       os.copy(file, dstDir / file.last)
       cfg.vPrint(".")
-      os.move(file, backupDir / file.last)
+
+      val deviceBackedupDir = file / os.up / deviceBackedupSubDirWithDefault
+      os.makeDir.all(deviceBackedupDir)
+      os.move(file, deviceBackedupDir / file.last)
       cfg.vPrintln(".")
     }
   }
@@ -182,8 +202,7 @@ def monthify(
   cfg.vPrintln(s"dst: $dst2")
 
   // The regex used too extract dates from the filenames
-  val DateExtract: Regex =
-    raw"^(\D+_)?(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2}).*".r
+  val DateExtract: Regex = raw"^(\D+_)?(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2}).*".r
 
   val files: Map[String, Seq[String]] =
     os.list(src)

@@ -89,7 +89,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
 
       // Running the first time should move all of the files
       {
-        val stdout = cameraphone("--noVerbose", "--src", src.toString, "--dst", dst.toString)
+        val stdout = cameraphone("--noVerbose", "--deviceRootDir", src.toString, "--dst", dst.toString)
         stdout shouldBe empty
 
         (src / "DCIM" / "Camera").toDirectory.files shouldBe empty
@@ -107,7 +107,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
 
       // Running the second time should create a new default destination
       {
-        val stdout = cameraphone("--noVerbose", "--src", src.toString, "--dst", dst.toString)
+        val stdout = cameraphone("--noVerbose", "--deviceRootDir", src.toString, "--dst", dst.toString)
         stdout shouldBe empty
 
         (src / "DCIM" / "Camera").toDirectory.files shouldBe empty
@@ -127,7 +127,8 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
       // Set up a scenario
       val (src, dst) = scenario("specificDst")
 
-      val stdout = cameraphone("--noVerbose", "--src", src.toString, "--dst", dst.toString, "--dstSub", "Copied")
+      val stdout =
+        cameraphone("--noVerbose", "--deviceRootDir", src.toString, "--dst", dst.toString, "--dstSub", "Copied")
       stdout shouldBe empty
 
       (src / "DCIM" / "Camera").toDirectory.files shouldBe empty
@@ -144,9 +145,9 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
 
       val stdout = cameraphone(
         "--noVerbose",
-        "--src",
+        "--deviceRootDir",
         src.toString,
-        "--srcSub",
+        "--deviceBackedupSubDir",
         "BackedUp",
         "--dst",
         dst.toString,
