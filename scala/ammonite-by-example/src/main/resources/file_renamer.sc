@@ -182,6 +182,47 @@ def cameraphone(
   }
 }
 
+@arg(doc = "Backs up screenshots from the connected phone")
+@main
+def screenshot(
+    @arg(doc = "The root path of the device containing pictures (Default: autodetected in /run/media)")
+    deviceRootDir: Option[os.Path] = None,
+    @arg(doc = "The subdirectory to move source directories once they are copied (Default: backedupYYYYMMDD)")
+    deviceBackedupSubDir: Option[String] = None,
+    @arg(doc = "From the device root, relative paths to find media (Default: Pictures/Screenshots, DCIM/Screenshots)")
+    deviceRelPath: Seq[String],
+    @arg(doc = "The extensions to copy and move (Default: mp4 and jpg).")
+    extension: Seq[String],
+    @arg(doc = "Create directories here to copy or move out media. (Default: ~/Pictures).")
+    dst: Option[os.Path] = None,
+    @arg(doc = "If specified, the name of the created subdirectory in dst (Default: Autocreated with a date prefix)")
+    dstSub: Option[String] = None,
+    @arg(doc = "When autocreating the destination subdirectory, a suffix after the date (Default: Cameraphone)")
+    dstSuffix: String = " Screenshots",
+    @arg(doc = "A substring to search for when finding where the phone might be mounted")
+    phoneTag: Option[String] = None,
+    @arg(doc = "True if no files should actually be copied or moved")
+    dryRun: Flag,
+    @arg(doc = "True if the action should be silent (verbose by default)")
+    noVerbose: Flag = Flag(false),
+    cfgGroup: ConsoleCfg
+): Unit = {
+// This is identical to the cameraphone task but with different defauls
+  cameraphone(
+    deviceRootDir = deviceRootDir,
+    deviceBackedupSubDir = deviceBackedupSubDir,
+    deviceRelPath = if (deviceRelPath.nonEmpty) deviceRelPath else Seq("Pictures/Screenshots", "DCIM/Screenshots"),
+    extension = extension,
+    dst = dst,
+    dstSub = dstSub,
+    dstSuffix = dstSuffix,
+    phoneTag = phoneTag,
+    dryRun = dryRun,
+    noVerbose = noVerbose,
+    cfgGroup = cfgGroup
+  )
+}
+
 @arg(doc = "Given a directory with dated photo files, moves them to directories sorted by YYYYMM")
 @main
 def monthify(

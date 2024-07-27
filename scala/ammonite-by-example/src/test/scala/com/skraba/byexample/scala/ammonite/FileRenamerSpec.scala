@@ -40,7 +40,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
     }
   }
 
-  describe("Using file_renamer.sc cameraphone") {
+  describe("Using file_renamer.sc cameraphone and screenshot") {
 
     val backedup = "backedup" + DateTimeFormatter.ofPattern("yyyyMM").format(LocalDate.now())
 
@@ -57,39 +57,39 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
       */
     def scenario(
         tag: String,
-        cameraFiles: Seq[String] = Seq("image1.jpg", "image2.jpg", "image3.jpg")
+        subDir: String = "DCIM/Camera",
+        deviceFiles: Seq[String] = Seq("image1.jpg", "image2.jpg", "image3.jpg")
     ): (Directory, Directory) = {
       val src = (Tmp / tag / "src").createDirectory(failIfExists = false)
       val dst = (Tmp / tag / "dst").createDirectory(failIfExists = false)
-      val cameraSrc =
-        (src / "DCIM" / "Camera").createDirectory(failIfExists = false)
-      cameraFiles.foreach(f => (cameraSrc / f).createFile().writeAll(f))
+      val fileDir = (src / subDir).createDirectory(failIfExists = false)
+      deviceFiles.foreach(f => (fileDir / f).createFile().writeAll(f))
       (src, dst)
     }
 
-    /** Helper to run git_checker.sc help successfully with some initial checks
+    /** Helper to run the cameraphone target
       *
       * @param args
       *   Additional arguments to the script
       * @return
       *   stdout
       */
-    def cameraphone(args: String*): String = {
-      val arguments: Seq[String] = Seq("cameraphone") ++ args
+    def go(task: String, args: String*): String = {
+      val arguments: Seq[String] = Seq(task) ++ args
       withScript(arguments: _*) { case (result, stdout, stderr) =>
         stderr shouldBe empty
         result shouldBe true
-        stdout
+        stdout.replace(Tmp.toString(), "<TMP>")
       }
     }
 
-    it("should move files from the source to the directory with all defaults") {
+    it("should move files from the camera source to the directory with all defaults") {
       // Set up a scenario
       val (src, dst) = scenario("basic")
 
       // Running the first time should move all of the files
       {
-        val stdout = cameraphone("--noVerbose", "--deviceRootDir", src.toString, "--dst", dst.toString)
+        val stdout = go("cameraphone", "--noVerbose", "--deviceRootDir", src.toString, "--dst", dst.toString)
         stdout shouldBe empty
 
         (src / "DCIM" / "Camera").toDirectory.files shouldBe empty
@@ -103,11 +103,11 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
       }
 
       // Add another image to the camera
-      scenario("basic", Seq("image4.jpg"))
+      scenario("basic", deviceFiles = Seq("image4.jpg"))
 
       // Running the second time should create a new default destination
       {
-        val stdout = cameraphone("--noVerbose", "--deviceRootDir", src.toString, "--dst", dst.toString)
+        val stdout = go("cameraphone", "--noVerbose", "--deviceRootDir", src.toString, "--dst", dst.toString)
         stdout shouldBe empty
 
         (src / "DCIM" / "Camera").toDirectory.files shouldBe empty
@@ -123,12 +123,37 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
       }
     }
 
+    it("should move files from the screenshot source to the directory with all defaults") {
+      // Set up a scenario
+      val (src, dst) = {
+        scenario("shots", "Pictures/Screenshots")
+        scenario("shots", "DCIM/Screenshots", Seq("image4.jpg"))
+      }
+
+      // Running the first time should move all of the files
+      {
+        val stdout = go("screenshot", "--noVerbose", "--deviceRootDir", src.toString, "--dst", dst.toString)
+        stdout shouldBe empty
+
+        (src / "Pictures" / "Screenshots").toDirectory.files shouldBe empty
+        (src / "Pictures" / "Screenshots" / backedup).toDirectory.files should have size 3
+        (src / "DCIM" / "Screenshots").toDirectory.files shouldBe empty
+        (src / "DCIM" / "Screenshots" / backedup).toDirectory.files should have size 1
+
+        dst.toDirectory.files shouldBe empty
+        val dstDirs = dst.toDirectory.dirs.toSeq
+        dstDirs should have size 1
+        dstDirs.head.files should have size 4
+        (dstDirs.head / "image1.jpg").toFile.slurp() shouldBe "image1.jpg"
+      }
+    }
+
     it("should copy files from the source to a specific destination") {
       // Set up a scenario
       val (src, dst) = scenario("specificDst")
 
       val stdout =
-        cameraphone("--noVerbose", "--deviceRootDir", src.toString, "--dst", dst.toString, "--dstSub", "Copied")
+        go("cameraphone", "--noVerbose", "--deviceRootDir", src.toString, "--dst", dst.toString, "--dstSub", "Copied")
       stdout shouldBe empty
 
       (src / "DCIM" / "Camera").toDirectory.files shouldBe empty
@@ -143,8 +168,9 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
       // Set up a scenario
       val (src, dst) = scenario("specificSrc")
 
-      val stdout = cameraphone(
-        "--noVerbose",
+      val stdout = go(
+        task = "cameraphone",
+        args = "--noVerbose",
         "--deviceRootDir",
         src.toString,
         "--deviceBackedupSubDir",
