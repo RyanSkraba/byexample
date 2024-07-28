@@ -33,8 +33,9 @@ class OsLibSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 
       // There's a class for relative paths too
       val relative = os.RelPath("next")
-      (tmp / relative).toString() shouldBe "/tmp/next"
+      (tmp / relative).toString shouldBe "/tmp/next"
       (tmp / "next").toString shouldBe "/tmp/next"
+      (tmp / os.RelPath("next1/next2")).toString shouldBe "/tmp/next1/next2"
 
       tmp.relativeTo(home).toString shouldBe "../tmp"
       home.relativeTo(tmp).toString shouldBe "../home"
