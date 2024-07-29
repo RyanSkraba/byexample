@@ -41,8 +41,7 @@ class AsfValidatorSpec extends AmmoniteScriptSpecBase {
       *   the defaults.
       */
     def extractEnvFromHelp(args: String*): mutable.Map[String, String] = {
-      val txtHelp =
-        help((Seq("--plain") ++ args): _*).split("Environment:\n\n", 2)
+      val txtHelp = help(Seq("--plain") ++ args: _*).split("Environment:\n\n", 2)
       txtHelp should have size 2
       val asProps = new Properties()
       asProps.load(new StringReader(txtHelp(1)))
@@ -50,9 +49,7 @@ class AsfValidatorSpec extends AmmoniteScriptSpecBase {
     }
 
     it("should print a useful message") {
-      help() should startWith(
-        s"$BOLD${GREEN}asf_validator.sc$RESET - Validating a release for the ASF"
-      )
+      help() should startWith(s"$BOLD${GREEN}asf_validator.sc$RESET - Validating a release for the ASF")
       // This property is necessary for reproducible help  messages
       val ansiHelp = help("--buildBaseDir", "/tmp/validate")
       help("--verbose", "--buildBaseDir", "/tmp/validate") shouldBe ansiHelp
@@ -100,9 +97,7 @@ class AsfValidatorSpec extends AmmoniteScriptSpecBase {
       env("version") shouldBe "1.0.0"
     }
 
-    it(
-      "should print the environment with custom values from the command line"
-    ) {
+    it("should print the environment with custom values from the command line") {
       val env = extractEnvFromHelp("--top", "avro")
       env("top") shouldBe "avro"
       env("svnDir") should endWith("working/apache/asf-svn/avro-dev-dist")
@@ -111,26 +106,19 @@ class AsfValidatorSpec extends AmmoniteScriptSpecBase {
 
     it("should print the environment with custom values from a config file") {
       val cfgFile = Tmp / "config.properties"
-      cfgFile.toFile.writeAll(
-        "top=iceberg\n",
-        "svnUrl=https://dist.apache.org/repos/dist/release/iceberg/\n"
-      )
+      cfgFile.toFile.writeAll("top=iceberg\n", "svnUrl=https://dist.apache.org/repos/dist/release/iceberg/\n")
 
       val env = extractEnvFromHelp("--cfgFile", cfgFile.toString)
       env("top") shouldBe "iceberg"
       env("svnDir") should endWith("working/apache/asf-svn/iceberg-dev-dist")
-      env(
-        "svnUrl"
-      ) shouldBe "https://dist.apache.org/repos/dist/release/iceberg/"
+      env("svnUrl") shouldBe "https://dist.apache.org/repos/dist/release/iceberg/"
 
       // The key from the command line is prioritized, then the file, then the default
       val env2 =
         extractEnvFromHelp("--cfgFile", cfgFile.toString, "--top", "pekko")
       env2("top") shouldBe "pekko"
       env2("svnDir") should endWith("working/apache/asf-svn/pekko-dev-dist")
-      env2(
-        "svnUrl"
-      ) shouldBe "https://dist.apache.org/repos/dist/release/iceberg/"
+      env2("svnUrl") shouldBe "https://dist.apache.org/repos/dist/release/iceberg/"
     }
   }
 }

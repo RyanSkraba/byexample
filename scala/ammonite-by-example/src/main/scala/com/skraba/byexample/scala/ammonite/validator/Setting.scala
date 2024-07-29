@@ -37,7 +37,7 @@ case class Setting[T](
   lazy val d = defaultFn
 
   /** True if this value is the default. */
-  lazy val isDefault: Boolean = get.equals(d)
+  lazy val isDefault: Boolean = get == d
 
   /** The evaluated value, either the explicit value, from the properties or the default. */
   lazy val get: T = v.orElse(props.get(propKey).map(propFn)).getOrElse(d)
