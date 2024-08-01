@@ -47,6 +47,14 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 
   /** Generated sequence of frames. */
   val frames: Seq[File] = {
+    val template: Card =
+      Card(_ => "", "", dirSvg = CachedTmp / "src", dirPng = CachedTmp / "src", dirMp4 = CachedTmp / "src")
+    for (i <- 0 to 99)
+      yield template.copy(genSvg = _ => CardSpec.svg(i / 50d), filename = f"input$i%03d").png.dst.get
+  }
+
+  /** Generated sequence of frames. */
+  val frames2: Seq[File] = {
     for (i <- 0 to 99) yield {
       val dst = (CachedTmp / "src" / f"input$i%03d.png").toFile
       os.makeDir.all(dst.parent)
@@ -225,6 +233,7 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
             "pkt_pos",
             "pkt_size",
             "pts_time",
+            "sample_aspect_ratio",
             "side_data_list",
             "width"
           )
@@ -245,6 +254,7 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
           // The packet size will probably depend on the contents of the frame
           // first("pkt_size") shouldBe ujson.Str("2623")
           first("pts_time") shouldBe ujson.Str("0.000000")
+          first("sample_aspect_ratio") shouldBe ujson.Str("1:1")
           first("width") shouldBe ujson.Num(1920)
         }
       }
