@@ -512,5 +512,6 @@ object Ffmpeg {
     * @return
     *   A method that can be passed to an [[Ffmpeg]] instance for logging to a file.
     */
-  def cmdLogToFile(file: os.Path): String => Any = os.write.append(file, _)
+  def cmdLogToFile(file: os.Path): String => Any = log =>
+    if (os.exists(file)) os.write.append(file, log) else os.write(file, log)
 }
