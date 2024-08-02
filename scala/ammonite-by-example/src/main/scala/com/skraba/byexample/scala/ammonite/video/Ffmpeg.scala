@@ -506,4 +506,11 @@ object Ffmpeg {
     */
   def aevalsrcSine(loFrequency: Int = 220, hiFrequency: Int = 440, dt: Int = 5): String =
     s"sin(2*PI*t*(${(loFrequency + hiFrequency) / 2})-${(hiFrequency - loFrequency) / 2}*cos(2*PI*t/$dt))"
+
+  /** @param file
+    *   A file to log commands to.
+    * @return
+    *   A method that can be passed to an [[Ffmpeg]] instance for logging to a file.
+    */
+  def cmdLogToFile(file: os.Path): String => Any = os.write.append(file, _)
 }
