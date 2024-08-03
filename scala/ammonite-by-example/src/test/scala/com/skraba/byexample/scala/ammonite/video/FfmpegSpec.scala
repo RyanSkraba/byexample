@@ -74,27 +74,6 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
     }
   }
 
-  /** Helper to capture commands in an ffmpeg tool. */
-  class FfmpegLogCmd extends Function[String, Any] {
-    val log: mutable.Buffer[String] = mutable.Buffer()
-
-    override def apply(cmd: String): Any = log.addOne(cmd)
-  }
-
-  /** Helper to get the logCmd as the utility. */
-  def log(ff: Ffmpeg): FfmpegLogCmd = ff.cmdLog.asInstanceOf[FfmpegLogCmd]
-
-  /** Check that exactly one command was sent, and clears the log.
-    * @return
-    *   the last command that was logged.
-    */
-  def lastLog(ff: Ffmpeg): String = {
-    log(ff).log.size should be >= 1
-    val lastLog = log(ff).log.last
-    log(ff).log.clear()
-    lastLog
-  }
-
   /** This is a technique for disabling all of the unit tests in this spec by rewriting the `it` word that is used to
     * run the tests. If `ffmpeg` or `ffprobe` are not present, the word is replaced entirely by ignored calls.
     */
@@ -117,9 +96,9 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
   describe("Create a basic movie from still images") {
 
     it("should create a video from a single frame") {
-      val ff = Ffmpeg(mp4 = Tmp / "still.mp4", cmdLog = new FfmpegLogCmd())
+      val ff = Ffmpeg(mp4 = Tmp / "still.mp4", cmdLog = Ffmpeg.cmdLogToMemory())
       ff.pngToMp4(frames.head)
-      lastLog(ff) shouldBe s"ffmpeg -framerate 25 -loop 1 -t 5 -i ${frames.head} " +
+      Ffmpeg.log(ff).last shouldBe s"ffmpeg -loop 1 -t 5 -i ${frames.head} " +
         "-f lavfi -i anullsrc=channel_layout=stereo:sample_rate=96000 -c:v libx264 -pix_fmt yuv420p " +
         """-vf "scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2" """ +
         s"-c:a aac -b:a 128k -shortest -y $Tmp/still.mp4"
@@ -127,13 +106,26 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
       ff.frameRate shouldBe 25.0
     }
 
+    it("should create a 5fps video from a single frame") {
+      val ff = Ffmpeg(mp4 = Tmp / "still.mp4", cmdLog = Ffmpeg.cmdLogToMemory())
+      ff.pngToMp4(frames.head, frameRate = 5)
+      Ffmpeg.log(ff).last shouldBe s"ffmpeg -framerate 5 -loop 1 -t 5 -i ${frames.head} " +
+        "-f lavfi -i anullsrc=channel_layout=stereo:sample_rate=96000 -c:v libx264 -pix_fmt yuv420p " +
+        """-vf "scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2" """ +
+        s"-c:a aac -b:a 128k -shortest -y $Tmp/still.mp4"
+      ff.duration shouldBe 5.0
+      ff.frameRate shouldBe 5.0
+    }
+
     describe("should create a video from multiple frames") {
 
       /** Basic silent animation reused in tests in this section. */
       lazy val basic: Ffmpeg = {
-        val ff = Ffmpeg(mp4 = Tmp / "animated.mp4", cmdLog = new FfmpegLogCmd())
+        val ff = Ffmpeg(mp4 = Tmp / "animated.mp4", cmdLog = Ffmpeg.cmdLogToMemory())
         ff.pngsToMp4((CachedTmp / "src" / "input").toString + "*.png", 10)
-        lastLog(ff) shouldBe s"ffmpeg -framerate 25 -stream_loop 9 -pattern_type glob -i $CachedTmp/src/input*.png " +
+        Ffmpeg
+          .log(ff)
+          .last shouldBe s"ffmpeg -framerate 25 -stream_loop 9 -pattern_type glob -i $CachedTmp/src/input*.png " +
           "-f lavfi -i anullsrc=channel_layout=stereo:sample_rate=96000 -c:v libx264 -pix_fmt yuv420p " +
           """-vf "scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2" """ +
           s"-c:a aac -b:a 128k -shortest -y $Tmp/animated.mp4"
@@ -143,10 +135,10 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
       /** Basic annotated animation reused in tests in this section. */
       lazy val annotated: Ffmpeg = {
         basic.annotate(Tmp / "annotated.mp4")
-        lastLog(basic) shouldBe s"ffmpeg -i $Tmp/animated.mp4 " +
+        Ffmpeg.log(basic).last shouldBe s"ffmpeg -i $Tmp/animated.mp4 " +
           """-vf "drawtext=text='%{pts\:hms} [%{n}]':fontsize=24:fontcolor=white:x=10:y=10:boxborderw=3:box=1:boxcolor=black@0.5" """ +
           s"-c:a copy -y $Tmp/annotated.mp4"
-        basic.mp4(Tmp / "annotated.mp4").copy(cmdLog = new FfmpegLogCmd())
+        basic.mp4(Tmp / "annotated.mp4").copy(cmdLog = Ffmpeg.cmdLogToMemory())
       }
 
       /** Basic annotated animation with sound reused in tests in this section. */
@@ -156,12 +148,12 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
           dt = 2,
           aevalsrc = Ffmpeg.aevalsrcSine(hiFrequency = 880, dt = 2)
         )
-        lastLog(annotated) shouldBe s"ffmpeg -i $Tmp/annotated.mp4 -f lavfi " +
+        Ffmpeg.log(annotated).last shouldBe s"ffmpeg -i $Tmp/annotated.mp4 -f lavfi " +
           """-i "aevalsrc=sin(2*PI*t*(550)-330*cos(2*PI*t/2)):s=96000:d=2" """ +
           "-filter_complex [1:a]aloop=loop=-1:size=192000[aout] " +
           "-c:v copy -c:a aac -ac 2 -ar 96000 -map 0:v:0 -map [aout] " +
           s"-shortest -y $Tmp/sound.mp4"
-        basic.mp4(Tmp / "sound.mp4").copy(cmdLog = new FfmpegLogCmd())
+        basic.mp4(Tmp / "sound.mp4").copy(cmdLog = Ffmpeg.cmdLogToMemory())
       }
 
       /** Frame information about the first 1000 frames of the video with sound */
@@ -169,10 +161,8 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
         // Get a single frame from the annotated video
         val frames = sound.frameChunkInfo("0", "+#1000")
         frames.value.size shouldBe 1000
-        lastLog(
-          sound
-        ) shouldBe s"ffprobe -v quiet -print_format json -show_frames -select_streams v:0 -read_intervals 0%+#1000 " +
-          s"$Tmp/sound.mp4"
+        Ffmpeg.log(sound).last shouldBe s"ffprobe -v quiet -print_format json -show_frames -select_streams v:0 " +
+          s"-read_intervals 0%+#1000 $Tmp/sound.mp4"
         frames
       }
 
@@ -262,7 +252,7 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
       it("when fetching a single frame") {
         val frames = sound.frameChunkInfo("0", "+#1")
         frames.value.size shouldBe 1
-        lastLog(sound) shouldBe s"ffprobe -v quiet -print_format json -show_frames -select_streams v:0 " +
+        Ffmpeg.log(sound).last shouldBe s"ffprobe -v quiet -print_format json -show_frames -select_streams v:0 " +
           s"-read_intervals 0%+#1 $Tmp/sound.mp4"
         val first: ujson.Obj = frames(0).obj
         val soundFirst: ujson.Obj = soundFrames(0).obj

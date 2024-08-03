@@ -201,7 +201,7 @@ case class Ffmpeg(
       frameRate: Int = 25
   ): Ffmpeg = {
     // The arguments that may override the default frame rate
-    val frameRateArg: Seq[String] = if (frameRate == 25) Seq("-framerate", frameRate.toString) else Seq.empty[String]
+    val frameRateArg: Seq[String] = if (frameRate != 25) Seq("-framerate", frameRate.toString) else Seq.empty[String]
 
     val cmd = osProc(
       "ffmpeg",
@@ -512,6 +512,22 @@ object Ffmpeg {
     * @return
     *   A method that can be passed to an [[Ffmpeg]] instance for logging to a file.
     */
-  def cmdLogToFile(file: os.Path): String => Any = log =>
-    if (os.exists(file)) os.write.append(file, log) else os.write(file, log)
+  def cmdLogToFile(file: os.Path): String => Any = log => os.write.append(file, log + "\n")
+
+  /** Helper class to capture commands in an ffmpeg tool. */
+  private class CmdLogToMemory extends Function[String, Any] {
+    val log: scala.collection.mutable.Buffer[String] = scala.collection.mutable.Buffer()
+
+    override def apply(cmd: String): Any = log.addOne(cmd)
+  }
+
+  /** @return
+    *   A method that can be passed to an [[Ffmpeg]] instance for logging to an mutable buffer.
+    */
+  def cmdLogToMemory(): String => Any = new CmdLogToMemory()
+
+  /** If created from [[cmdLogToMemory()]], return the logged commands. */
+  def log(ff: Ffmpeg): Seq[String] = ff.cmdLog match {
+    case mem: CmdLogToMemory => mem.log.toSeq
+  }
 }
