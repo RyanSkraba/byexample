@@ -507,12 +507,18 @@ object Ffmpeg {
   def aevalsrcSine(loFrequency: Int = 220, hiFrequency: Int = 440, dt: Int = 5): String =
     s"sin(2*PI*t*(${(loFrequency + hiFrequency) / 2})-${(hiFrequency - loFrequency) / 2}*cos(2*PI*t/$dt))"
 
+  /** Helper class to capture commands in an ffmpeg tool to a file. */
+  case class CmdLogToFile(file: os.Path) extends Function[String, Any] {
+
+    override def apply(cmd: String): Any = os.write.append(file, cmd + "\n")
+  }
+
   /** @param file
     *   A file to log commands to.
     * @return
     *   A method that can be passed to an [[Ffmpeg]] instance for logging to a file.
     */
-  def cmdLogToFile(file: os.Path): String => Any = log => os.write.append(file, log + "\n")
+  def cmdLogToFile(file: os.Path): String => Any = CmdLogToFile(file)
 
   /** Helper class to capture commands in an ffmpeg tool. */
   private class CmdLogToMemory extends Function[String, Any] {
@@ -526,8 +532,9 @@ object Ffmpeg {
     */
   def cmdLogToMemory(): String => Any = new CmdLogToMemory()
 
-  /** If created from [[cmdLogToMemory()]], return the logged commands. */
+  /** If created from [[cmdLogToMemory()]] or [[cmdLogToFile()]], return the logged commands. */
   def log(ff: Ffmpeg): Seq[String] = ff.cmdLog match {
     case mem: CmdLogToMemory => mem.log.toSeq
+    case file: CmdLogToFile  => os.read.lines(file.file)
   }
 }
