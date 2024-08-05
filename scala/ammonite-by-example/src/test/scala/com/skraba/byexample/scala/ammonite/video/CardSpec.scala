@@ -52,7 +52,12 @@ class CardSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
       (Tmp / "svg" / "canada_flag.svg").jfile should exist
       (Tmp / "png" / "canada_flag.png").jfile should exist
 
-      flag.mp4(Ffmpeg(), 25).dst
+      val ff = Ffmpeg(cmdLog = Ffmpeg.cmdLogToFile(Tmp / "out.log"))
+      flag.mp4(ff, 25).dst
+      Ffmpeg.log(ff).last shouldBe s"ffmpeg -loop 1 -t 5 -i $Tmp/png/canada_flag.png -f lavfi " +
+        "-i anullsrc=channel_layout=stereo:sample_rate=96000 -c:v libx264 -pix_fmt yuv420p " +
+        "-vf \"scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2\" " +
+        s"-c:a aac -b:a 128k -shortest -y $Tmp/mp4/canada_flag.mp4"
       (Tmp / "svg").jfile should exist
       (Tmp / "png").jfile should exist
       (Tmp / "mp4").jfile should exist
@@ -60,7 +65,11 @@ class CardSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
       (Tmp / "png" / "canada_flag.png").jfile should exist
       (Tmp / "mp4" / "canada_flag.mp4").jfile should exist
 
-      flag.mp4(Ffmpeg(), 30).dst
+      flag.mp4(ff, 30).dst
+      Ffmpeg.log(ff).last shouldBe s"ffmpeg -framerate 30 -loop 1 -t 5 -i $Tmp/png/canada_flag.png -f lavfi " +
+        "-i anullsrc=channel_layout=stereo:sample_rate=96000 -c:v libx264 -pix_fmt yuv420p " +
+        "-vf \"scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2\" " +
+        s"-c:a aac -b:a 128k -shortest -y $Tmp/mp4/canada_flag.30fps.mp4"
       (Tmp / "svg").jfile should exist
       (Tmp / "png").jfile should exist
       (Tmp / "mp4").jfile should exist
