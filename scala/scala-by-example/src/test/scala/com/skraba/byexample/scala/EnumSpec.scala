@@ -3,6 +3,8 @@ package com.skraba.byexample.scala
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
+import scala.util.Try
+
 /** Using [[Enumeration]] in Scala. These are significantly improved in Scala 3! */
 class EnumSpec extends AnyFunSpecLike with Matchers {
 
@@ -25,6 +27,8 @@ class EnumSpec extends AnyFunSpecLike with Matchers {
           Dir.withName("Norst")
         }.getMessage shouldBe "No value found for 'Norst'"
       }
+
+      it("should wrap in Try to avoid an exception") { Try(Dir.withName("Norst")).toOption shouldBe None }
     }
   }
 }
