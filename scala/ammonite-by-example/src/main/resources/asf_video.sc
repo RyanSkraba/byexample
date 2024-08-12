@@ -443,7 +443,7 @@ def titleCard(
 
   (Session.Sponsors ++ Session.NextStop ++ sessions.map(_.titleCard)).foreach { card =>
     out.vPrint(out.bold(card.filename) + ".")
-    card.png
+    card.png.dst
     out.vPrintln(".")
   }
 }
