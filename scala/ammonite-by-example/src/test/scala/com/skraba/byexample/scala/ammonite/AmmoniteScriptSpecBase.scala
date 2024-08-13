@@ -20,6 +20,9 @@ abstract class AmmoniteScriptSpecBase extends AnyFunSpecLike with BeforeAndAfter
   /** The path containing ammonite scripts. */
   val ScriptPath: File
 
+  /** The filename of the script being run. */
+  lazy val ScriptName: String = ScriptPath.name
+
   /** A temporary directory for playing with files. */
   val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
 
@@ -39,6 +42,35 @@ abstract class AmmoniteScriptSpecBase extends AnyFunSpecLike with BeforeAndAfter
       case ex: Exception =>
         ex.printStackTrace()
     }
+
+  /** Creates a scenario in the temporary directory with some items, by default:
+    *
+    *   - `/tmp/tag/src/DCIM/Camera` for a camera directory
+    *     - `image1.jpg` (fake images, containing their name as text)
+    *     - `image2.jpg`
+    *     - `image3.jpg`
+    *   - `/tmp/tag/dst/` An empty directory to use as output.
+    *
+    * @param tag
+    *   A string tag to use to uniquely identify the scenario
+    * @param srcSubDir
+    *   The subdirectory to create in the src directory
+    * @param srcSubDirFiles
+    *   The files to create in the src subdirectory
+    * @return
+    *   the source and destination directories.
+    */
+  def createSrcDst(
+      tag: String,
+      srcSubDir: String = "DCIM/Camera",
+      srcSubDirFiles: Seq[String] = Seq("image1.jpg", "image2.jpg", "image3.jpg")
+  ): (Directory, Directory) = {
+    val src = (Tmp / tag / "src").createDirectory(failIfExists = false)
+    val dst = (Tmp / tag / "dst").createDirectory(failIfExists = false)
+    val fileDir = if (srcSubDir.isEmpty) src else (src / srcSubDir).createDirectory(failIfExists = false)
+    srcSubDirFiles.foreach(f => (fileDir / f).createFile().writeAll(f))
+    (src, dst)
+  }
 
   /** A standalone helper method for running one specific script.
     *
@@ -87,6 +119,27 @@ abstract class AmmoniteScriptSpecBase extends AnyFunSpecLike with BeforeAndAfter
   def withScript2[U](args1: String*)(args2: String*)(
       pf: scala.PartialFunction[(Boolean, String, String), U]
   ): U = withScript(args1 ++ args2: _*)(pf)
+
+  /** A helper method for running an ammonite script with an assumed successful result.
+    * @param replacements
+    *   A list of pairs of strings to replace in the output.
+    * @param task
+    *   The task to run
+    * @param args
+    *   The arguments to apply to the ammonite script
+    * @return
+    *   The output of the script with all of the string replacements applied, as well as replacing the temporary
+    *   directory with &lt;TMP&gt;.
+    */
+  def withTaskSuccess(replacements: (String, String)*)(task: String)(args: String*): String = {
+    withScript2(task)(args: _*) { case (result, stdout, stderr) =>
+      stderr shouldBe empty
+      result shouldBe true
+      replacements.foldLeft(stdout.replace(Tmp.toString, "<TMP>")) { (acc, r) =>
+        acc.replace(r._1, r._2)
+      }
+    }
+  }
 }
 
 object AmmoniteScriptSpecBase {
