@@ -12,9 +12,14 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
   /** The path containing ammonite scripts. */
   override val ScriptPath: File = AmmoniteScriptSpecBase.find("/file_renamer.sc")
 
+  val yyyyMm = DateTimeFormatter.ofPattern("yyyyMM").format(LocalDate.now())
+  val yyyyMmDd = DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now())
+
   def help(args: String*): String = withTaskSuccess()("help")(args: _*)
-  def cameraphone(args: String*): String = withTaskSuccess()("cameraphone")(args: _*)
-  def screenshot(args: String*): String = withTaskSuccess()("screenshot")(args: _*)
+  def cameraphone(args: String*): String =
+    withTaskSuccess(yyyyMmDd -> "<YYYYMMDD>", yyyyMm -> "<YYYYMM>")("cameraphone")(args: _*)
+  def screenshot(args: String*): String =
+    withTaskSuccess(yyyyMmDd -> "<YYYYMMDD>", yyyyMm -> "<YYYYMM>")("screenshot")(args: _*)
   def payslip(args: String*): String = withTaskSuccess()("payslip")(args: _*)
 
   describe(s"Running the $ScriptName help") {
@@ -29,8 +34,6 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
 
   describe(s"Using $ScriptName cameraphone and screenshot") {
 
-    val backedup = "backedup" + DateTimeFormatter.ofPattern("yyyyMM").format(LocalDate.now())
-
     it("should move files from the camera source to the directory with all defaults") {
       // Set up a scenario
       val (src, dst) = createSrcDst("basic")
@@ -41,7 +44,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
         stdout shouldBe empty
 
         (src / "DCIM" / "Camera").toDirectory.files shouldBe empty
-        (src / "DCIM" / "Camera" / backedup).toDirectory.files should have size 3
+        (src / "DCIM" / "Camera" / s"backedup$yyyyMm").toDirectory.files should have size 3
 
         dst.toDirectory.files shouldBe empty
         val dstDirs = dst.toDirectory.dirs.toSeq
@@ -59,7 +62,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
         stdout shouldBe empty
 
         (src / "DCIM" / "Camera").toDirectory.files shouldBe empty
-        (src / "DCIM" / "Camera" / backedup).toDirectory.files should have size 4
+        (src / "DCIM" / "Camera" / s"backedup$yyyyMm").toDirectory.files should have size 4
 
         dst.toDirectory.files shouldBe empty
         val dstDirs = dst.toDirectory.dirs.toSeq
@@ -80,13 +83,21 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
 
       // Running the first time should move all of the files
       {
-        val stdout = screenshot("--noVerbose", "--deviceRootDir", src.toString, "--dst", dst.toString)
-        stdout shouldBe empty
+        val stdout = screenshot("--plain", "--deviceRootDir", src.toString, "--dst", dst.toString)
+        stdout shouldBe """<TMP>/shots/src
+                          |There are 3 files in <SRC>/Pictures/Screenshots.
+                          |There are 1 files in <SRC>/DCIM/Screenshots.
+                          |  jpg: 4
+                          |<TMP>/shots/dst/<YYYYMMDD> Screenshots/image1.jpg...
+                          |<TMP>/shots/dst/<YYYYMMDD> Screenshots/image2.jpg...
+                          |<TMP>/shots/dst/<YYYYMMDD> Screenshots/image3.jpg...
+                          |<TMP>/shots/dst/<YYYYMMDD> Screenshots/image4.jpg...
+                          |""".stripMargin
 
         (src / "Pictures" / "Screenshots").toDirectory.files shouldBe empty
-        (src / "Pictures" / "Screenshots" / backedup).toDirectory.files should have size 3
+        (src / "Pictures" / "Screenshots" / s"backedup$yyyyMm").toDirectory.files should have size 3
         (src / "DCIM" / "Screenshots").toDirectory.files shouldBe empty
-        (src / "DCIM" / "Screenshots" / backedup).toDirectory.files should have size 1
+        (src / "DCIM" / "Screenshots" / s"backedup$yyyyMm").toDirectory.files should have size 1
 
         dst.toDirectory.files shouldBe empty
         val dstDirs = dst.toDirectory.dirs.toSeq
@@ -105,7 +116,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
       stdout shouldBe empty
 
       (src / "DCIM" / "Camera").toDirectory.files shouldBe empty
-      (src / "DCIM" / "Camera" / backedup).toDirectory.files should have size 3
+      (src / "DCIM" / "Camera" / s"backedup$yyyyMm").toDirectory.files should have size 3
 
       dst.toDirectory.files shouldBe empty
       (dst / "Copied").toDirectory.files should have size 3
