@@ -38,6 +38,27 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
       // Set up a scenario
       val (src, dst) = createSrcDst("basic")
 
+      // Running the first time tests a dry run
+      {
+        val stdout = cameraphone("--dryRun", "--plain", "--deviceRootDir", src.toString, "--dst", dst.toString)
+        stdout shouldBe """<TMP>/basic/src
+            |There are 3 files in <SRC>/DCIM/Camera.
+            |  jpg: 3
+            |cp <TMP>/basic/src/DCIM/Camera/image1.jpg <TMP>/basic/dst/<YYYYMMDD> Cameraphone/image1.jpg
+            |mv <TMP>/basic/src/DCIM/Camera/image1.jpg <TMP>/basic/src/DCIM/Camera/backedup<YYYYMM>/image1.jpg
+            |cp <TMP>/basic/src/DCIM/Camera/image2.jpg <TMP>/basic/dst/<YYYYMMDD> Cameraphone/image2.jpg
+            |mv <TMP>/basic/src/DCIM/Camera/image2.jpg <TMP>/basic/src/DCIM/Camera/backedup<YYYYMM>/image2.jpg
+            |cp <TMP>/basic/src/DCIM/Camera/image3.jpg <TMP>/basic/dst/<YYYYMMDD> Cameraphone/image3.jpg
+            |mv <TMP>/basic/src/DCIM/Camera/image3.jpg <TMP>/basic/src/DCIM/Camera/backedup<YYYYMM>/image3.jpg
+            |""".stripMargin
+
+        (src / "DCIM" / "Camera").toDirectory.files should have size 3
+        (src / "DCIM" / "Camera" / s"backedup$yyyyMm").toDirectory.files shouldBe empty
+
+        dst.toDirectory.files shouldBe empty
+        dst.toDirectory.dirs shouldBe empty
+      }
+
       // Running the first time should move all of the files
       {
         val stdout = cameraphone("--noVerbose", "--deviceRootDir", src.toString, "--dst", dst.toString)
