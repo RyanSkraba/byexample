@@ -40,10 +40,10 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
 
       // Running the first time tests a dry run
       {
-        val stdout = cameraphone("--dryRun", "--plain", "--deviceRootDir", src.toString, "--dst", dst.toString)
-        stdout shouldBe """<TMP>/basic/src
+        val stdout = cameraphone("--dryRun", "--deviceRootDir", src.toString, "--dst", dst.toString)
+        stdout shouldBe s"""<TMP>/basic/src
             |There are 3 files in <SRC>/DCIM/Camera.
-            |  jpg: 3
+            |  ${Ansi.bold("jpg")}: 3
             |cp <TMP>/basic/src/DCIM/Camera/image1.jpg <TMP>/basic/dst/<YYYYMMDD> Cameraphone/image1.jpg
             |mv <TMP>/basic/src/DCIM/Camera/image1.jpg <TMP>/basic/src/DCIM/Camera/backedup<YYYYMM>/image1.jpg
             |cp <TMP>/basic/src/DCIM/Camera/image2.jpg <TMP>/basic/dst/<YYYYMMDD> Cameraphone/image2.jpg

@@ -1,6 +1,7 @@
 package com.skraba.byexample.scala.ammonite
 
 import com.skraba.byexample.scala.ammonite.AmmoniteScriptSpecBase._
+import com.skraba.docoptcli.AnsiConsole
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
@@ -25,6 +26,9 @@ abstract class AmmoniteScriptSpecBase extends AnyFunSpecLike with BeforeAndAfter
 
   /** A temporary directory for playing with files. */
   val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
+
+  /** A default AnsiConsole for testing output. */
+  val Ansi: AnsiConsole = AnsiConsole()
 
   /** Either create a new home directory reused across this suite, or use the common one.
     */
