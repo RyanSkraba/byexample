@@ -40,6 +40,7 @@ def help(out: ConsoleCfg): Unit = {
       description = "File operations for general clean-up",
       subcommands = "cameraphone" -> "Backs up pictures from the connected phone",
       "group" -> "Rename files grouped by time",
+      "monthify" -> "Move image files to directories by month",
       "payslip" -> "Rename payslip files",
       "screenshot" -> "Backs up screenshots from the connected phone"
     )
@@ -49,6 +50,7 @@ def help(out: ConsoleCfg): Unit = {
   println(out.helpUse(cli, "group", "[DIR]"))
   println(out.helpUse(cli, "payslip", "[DIR]"))
   println(out.helpUse(cli, "cameraphone", "[DIR]"))
+  println(out.helpUse(cli, "monthify", "[DIR]"))
   println()
 }
 

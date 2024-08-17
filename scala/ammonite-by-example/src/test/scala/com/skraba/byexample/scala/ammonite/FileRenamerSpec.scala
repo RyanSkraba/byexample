@@ -6,20 +6,29 @@ import scala.Console._
 import scala.io.AnsiColor.{BOLD, RESET}
 import scala.reflect.io.{Directory, File}
 
-/** Test the file_renamer.sc script. */
+/** Test the file_renamer.sc script.
+  *
+  * Some of the file renaming functions depend on the current date. If this spec is run too close to midnight, it is
+  * possible that failures will occur.
+  */
 class FileRenamerSpec extends AmmoniteScriptSpecBase {
 
   /** The path containing ammonite scripts. */
   override val ScriptPath: File = AmmoniteScriptSpecBase.find("/file_renamer.sc")
 
-  val yyyyMm = DateTimeFormatter.ofPattern("yyyyMM").format(LocalDate.now())
-  val yyyyMmDd = DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now())
+  /** The current year and month for testing. */
+  val yyyyMm: String = DateTimeFormatter.ofPattern("yyyyMM").format(LocalDate.now())
+
+  /** The current year, month, and day for testing. */
+  val yyyyMmDd: String = DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now())
 
   def help(args: String*): String = withTaskSuccess()("help")(args: _*)
   def cameraphone(args: String*): String =
     withTaskSuccess(yyyyMmDd -> "<YYYYMMDD>", yyyyMm -> "<YYYYMM>")("cameraphone")(args: _*)
   def screenshot(args: String*): String =
     withTaskSuccess(yyyyMmDd -> "<YYYYMMDD>", yyyyMm -> "<YYYYMM>")("screenshot")(args: _*)
+  def monthify(args: String*): String =
+    withTaskSuccess()("monthify")(args: _*)
   def payslip(args: String*): String = withTaskSuccess()("payslip")(args: _*)
 
   describe(s"Running the $ScriptName help") {
@@ -170,6 +179,38 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
     }
   }
 
+  describe(s"Using $ScriptName monthify") {
+
+    val (src, dst) = createSrcDst(
+      "monthify",
+      srcSubDir = "",
+      srcSubDirFiles = Seq(
+        "other.txt",
+        "IMG_20240101_123456.jpg",
+        "20240102_123456.jpg",
+        "20240103_123456Stuff.jpg",
+        "20240104_123456.txt",
+        "20240201_123456.txt"
+      )
+    )
+
+    it("should move files") {
+      val stdout = monthify("--plain", "--src", src.toString, "--dst", (dst / "back").toString)
+      stdout shouldBe """dst: <TMP>/monthify/dst/back
+          |YYYYMM: 202401 (4 files) to back202401
+          |.....
+          |YYYYMM: 202402 (1 files) to back202402
+          |..
+          |""".stripMargin
+
+      dst.files shouldBe empty
+      (dst / "back202401").toDirectory.files should have size 4
+      (dst / "back202402").toDirectory.files should have size 1
+      src.files should have size 1
+    }
+
+  }
+
   describe(s"Using $ScriptName payslip") {
 
     /** Creates a simplified scenario with the following items:
@@ -183,7 +224,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
       *   - `/tmp/tag/dst/` An empty directory to use as output.
       */
     val (src, dst) = createSrcDst(
-      "basic",
+      "payslip",
       srcSubDir = "",
       srcSubDirFiles = Seq(
         "Bulletins 01_2021.pdf",
@@ -198,11 +239,11 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
     it("should suggest moving payslip files") {
       val stdout = payslip("--plain", "--srcPath", src.toString, "--dstPath", dst.toString)
       stdout shouldBe
-        """mv "<TMP>/basic/src/03-2021_bulletin_de_paie.pdf" "<TMP>/basic/dst/202103Payslip.pdf"
-          |mv "<TMP>/basic/src/04-2021_bulletin_de_paie.pdf" "<TMP>/basic/dst/202104Payslip.pdf"
-          |mv "<TMP>/basic/src/202105Payslip.pdf" "<TMP>/basic/dst/052021Payslip.pdf"
-          |mv "<TMP>/basic/src/Bulletins 01_2021.pdf" "<TMP>/basic/dst/202101Payslip.pdf"
-          |mv "<TMP>/basic/src/Bulletins 02_2021.pdf" "<TMP>/basic/dst/202102Payslip.pdf"
+        """mv "<TMP>/payslip/src/03-2021_bulletin_de_paie.pdf" "<TMP>/payslip/dst/202103Payslip.pdf"
+          |mv "<TMP>/payslip/src/04-2021_bulletin_de_paie.pdf" "<TMP>/payslip/dst/202104Payslip.pdf"
+          |mv "<TMP>/payslip/src/202105Payslip.pdf" "<TMP>/payslip/dst/052021Payslip.pdf"
+          |mv "<TMP>/payslip/src/Bulletins 01_2021.pdf" "<TMP>/payslip/dst/202101Payslip.pdf"
+          |mv "<TMP>/payslip/src/Bulletins 02_2021.pdf" "<TMP>/payslip/dst/202102Payslip.pdf"
           |""".stripMargin
 
       dst.files shouldBe empty
