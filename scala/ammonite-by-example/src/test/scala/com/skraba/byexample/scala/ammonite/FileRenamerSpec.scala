@@ -195,18 +195,36 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
     )
 
     it("should move files") {
-      val stdout = monthify("--plain", "--src", src.toString, "--dst", (dst / "back").toString)
-      stdout shouldBe """dst: <TMP>/monthify/dst/back
+      // Running the first time tests a dry run
+      {
+        val stdout = monthify("--dryRun", "--src", src.toString, "--dst", (dst / "back").toString)
+        stdout shouldBe """dst: <TMP>/monthify/dst/back
+                          |YYYYMM: 202401 (4 files) to back202401
+                          |.....
+                          |YYYYMM: 202402 (1 files) to back202402
+                          |..
+                          |""".stripMargin
+
+        dst.files shouldBe empty
+        dst.dirs shouldBe empty
+        src.files should have size 6
+      }
+
+      // Running the first time should move all of the files
+      {
+        val stdout = monthify("--plain", "--src", src.toString, "--dst", (dst / "back").toString)
+        stdout shouldBe """dst: <TMP>/monthify/dst/back
           |YYYYMM: 202401 (4 files) to back202401
           |.....
           |YYYYMM: 202402 (1 files) to back202402
           |..
           |""".stripMargin
 
-      dst.files shouldBe empty
-      (dst / "back202401").toDirectory.files should have size 4
-      (dst / "back202402").toDirectory.files should have size 1
-      src.files should have size 1
+        dst.files shouldBe empty
+        (dst / "back202401").toDirectory.files should have size 4
+        (dst / "back202402").toDirectory.files should have size 1
+        src.files should have size 1
+      }
     }
 
   }
