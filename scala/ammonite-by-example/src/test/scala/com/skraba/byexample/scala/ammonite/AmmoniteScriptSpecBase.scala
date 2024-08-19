@@ -87,7 +87,7 @@ abstract class AmmoniteScriptSpecBase extends AnyFunSpecLike with BeforeAndAfter
     * @return
     *   The output of the partial function
     */
-  def withScript[U](args: String*)(
+  def withScript[U](args: Any*)(
       pf: scala.PartialFunction[(Boolean, String, String), U]
   ): U = Streamable.closing(new ByteArrayInputStream(Array.empty[Byte])) { in =>
     Console.withIn(in) {
@@ -98,7 +98,7 @@ abstract class AmmoniteScriptSpecBase extends AnyFunSpecLike with BeforeAndAfter
             "--home",
             HomeFolder.toString,
             ScriptPath.toString
-          ) ++ args,
+          ) ++ args.map(_.toString),
           in,
           Console.out,
           Console.err
@@ -120,7 +120,7 @@ abstract class AmmoniteScriptSpecBase extends AnyFunSpecLike with BeforeAndAfter
     * @return
     *   The output of the partial function
     */
-  def withScript2[U](args1: String*)(args2: String*)(
+  def withScript2[U](args1: Any*)(args2: Any*)(
       pf: scala.PartialFunction[(Boolean, String, String), U]
   ): U = withScript(args1 ++ args2: _*)(pf)
 
@@ -135,7 +135,7 @@ abstract class AmmoniteScriptSpecBase extends AnyFunSpecLike with BeforeAndAfter
     *   The output of the script with all of the string replacements applied, as well as replacing the temporary
     *   directory with &lt;TMP&gt;.
     */
-  def withTaskSuccess(replacements: (String, String)*)(task: String)(args: String*): String = {
+  def withTaskSuccess(replacements: (String, String)*)(task: String)(args: Any*): String = {
     withScript2(task)(args: _*) { case (result, stdout, stderr) =>
       stderr shouldBe empty
       result shouldBe true

@@ -27,7 +27,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
     withTaskSuccess(yyyyMmDd -> "<YYYYMMDD>", yyyyMm -> "<YYYYMM>")("cameraphone")(args: _*)
   def screenshot(args: String*): String =
     withTaskSuccess(yyyyMmDd -> "<YYYYMMDD>", yyyyMm -> "<YYYYMM>")("screenshot")(args: _*)
-  def monthify(args: String*): String =
+  def monthify(args: Any*): String =
     withTaskSuccess()("monthify")(args: _*)
   def payslip(args: String*): String = withTaskSuccess()("payslip")(args: _*)
 

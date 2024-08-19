@@ -244,7 +244,7 @@ def monthify(
   val dst2 = dst.getOrElse(src)
   cfg.vPrintln(s"dst: $dst2")
 
-  // The regex used too extract dates from the filenames
+  // The regex used to extract dates from the filenames
   val DateExtract: Regex = raw"^(\D+_)?(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2}).*".r
 
   val files: Map[String, Seq[String]] =
