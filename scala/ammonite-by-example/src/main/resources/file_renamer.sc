@@ -230,8 +230,10 @@ def screenshot(
 def monthify(
     @arg(doc = "The directory to analyse and move files from")
     src: os.Path,
-    @arg(doc = "The destination directory (before adding a YYYYMM suffix)")
+    @arg(doc = "The destination directory to create YYYYMM subdirectories and move files to")
     dst: Option[os.Path] = None,
+    @arg(doc = "The prefix of the YYYYMM directories in dst")
+    prefix: String = "",
     @arg(doc = "True if no files should actually be copied or moved")
     dryRun: Flag,
     @arg(doc = "True if the action should be silent (verbose by default)")
@@ -241,8 +243,8 @@ def monthify(
   val cfg = cfgGroup.withVerbose(!noVerbose.value)
 
   // Use the given src for the device, or try to detect it
-  val dst2 = dst.getOrElse(src)
-  cfg.vPrintln(s"dst: $dst2")
+  val actualDst = dst.getOrElse(src)
+  cfg.vPrintln(cfg.bold("Destination: ") + actualDst)
 
   // The regex used to extract dates from the filenames
   val DateExtract: Regex = raw"^(\D+_)?(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2}).*".r
@@ -259,15 +261,15 @@ def monthify(
 
   files.keySet.toSeq.sorted.foreach { yymm =>
     val fToMove = files(yymm)
-    val dstDir = dst2 / os.up / (dst2.last + yymm)
-    cfg.vPrintln(s"YYYYMM: $yymm (${fToMove.size} files) to ${dstDir.last}")
+    val dstDir = actualDst / (prefix + yymm)
+    cfg.vPrint(s"  ${cfg.ok(dstDir.last, bold = true)}: Moving files (${fToMove.size})")
 
     if (!dryRun.value) os.makeDir.all(dstDir)
     fToMove.foreach { fmv =>
       cfg.vPrint(".")
       if (!dryRun.value) os.move(src / fmv, dstDir / fmv)
     }
-    cfg.vPrintln(".")
+    cfg.vPrintln()
   }
 }
 

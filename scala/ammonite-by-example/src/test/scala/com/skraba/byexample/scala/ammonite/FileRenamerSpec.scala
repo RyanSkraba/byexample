@@ -197,13 +197,11 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
     it("should move files") {
       // Running the first time tests a dry run
       {
-        val stdout = monthify("--dryRun", "--src", src.toString, "--dst", (dst / "back").toString)
-        stdout shouldBe """dst: <TMP>/monthify/dst/back
-                          |YYYYMM: 202401 (4 files) to back202401
-                          |.....
-                          |YYYYMM: 202402 (1 files) to back202402
-                          |..
-                          |""".stripMargin
+        val stdout = monthify("--dryRun", "--plain", "--src", src, "--dst", dst, "--prefix", "back")
+        stdout shouldBe """Destination: <TMP>/monthify/dst
+          |  back202401: Moving files (4)....
+          |  back202402: Moving files (1).
+          |""".stripMargin
 
         dst.files shouldBe empty
         dst.dirs shouldBe empty
@@ -212,12 +210,10 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
 
       // Running the first time should move all of the files
       {
-        val stdout = monthify("--plain", "--src", src.toString, "--dst", (dst / "back").toString)
-        stdout shouldBe """dst: <TMP>/monthify/dst/back
-          |YYYYMM: 202401 (4 files) to back202401
-          |.....
-          |YYYYMM: 202402 (1 files) to back202402
-          |..
+        val stdout = monthify("--src", src, "--dst", dst, "--prefix", "back")
+        stdout shouldBe s"""${Ansi.bold("Destination: ")}<TMP>/monthify/dst
+          |  ${Ansi.ok("back202401", bold = true)}: Moving files (4)....
+          |  ${Ansi.ok("back202402", bold = true)}: Moving files (1).
           |""".stripMargin
 
         dst.files shouldBe empty
