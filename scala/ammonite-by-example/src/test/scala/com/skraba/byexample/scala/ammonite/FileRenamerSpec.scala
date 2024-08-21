@@ -22,14 +22,14 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
   /** The current year, month, and day for testing. */
   val yyyyMmDd: String = DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now())
 
-  def help(args: String*): String = withTaskSuccess()("help")(args: _*)
-  def cameraphone(args: String*): String =
+  def help(args: Any*): String = withTaskSuccess()("help")(args: _*)
+  def cameraphone(args: Any*): String =
     withTaskSuccess(yyyyMmDd -> "<YYYYMMDD>", yyyyMm -> "<YYYYMM>")("cameraphone")(args: _*)
-  def screenshot(args: String*): String =
+  def screenshot(args: Any*): String =
     withTaskSuccess(yyyyMmDd -> "<YYYYMMDD>", yyyyMm -> "<YYYYMM>")("screenshot")(args: _*)
   def monthify(args: Any*): String =
     withTaskSuccess()("monthify")(args: _*)
-  def payslip(args: String*): String = withTaskSuccess()("payslip")(args: _*)
+  def payslip(args: Any*): String = withTaskSuccess()("payslip")(args: _*)
 
   describe(s"Running the $ScriptName help") {
     it("should print a useful message") {
@@ -49,7 +49,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
 
       // Running the first time tests a dry run
       {
-        val stdout = cameraphone("--dryRun", "--deviceRootDir", src.toString, "--dst", dst.toString)
+        val stdout = cameraphone("--dryRun", "--deviceRootDir", src, "--dst", dst)
         stdout shouldBe s"""<TMP>/basic/src
             |There are 3 files in <SRC>/DCIM/Camera.
             |  ${Ansi.bold("jpg")}: 3
@@ -70,7 +70,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
 
       // Running the first time should move all of the files
       {
-        val stdout = cameraphone("--noVerbose", "--deviceRootDir", src.toString, "--dst", dst.toString)
+        val stdout = cameraphone("--noVerbose", "--deviceRootDir", src, "--dst", dst)
         stdout shouldBe empty
 
         (src / "DCIM" / "Camera").toDirectory.files shouldBe empty
@@ -88,7 +88,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
 
       // Running the second time should create a new default destination
       {
-        val stdout = cameraphone("--noVerbose", "--deviceRootDir", src.toString, "--dst", dst.toString)
+        val stdout = cameraphone("--noVerbose", "--deviceRootDir", src, "--dst", dst)
         stdout shouldBe empty
 
         (src / "DCIM" / "Camera").toDirectory.files shouldBe empty
@@ -113,7 +113,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
 
       // Running the first time should move all of the files
       {
-        val stdout = screenshot("--plain", "--deviceRootDir", src.toString, "--dst", dst.toString)
+        val stdout = screenshot("--plain", "--deviceRootDir", src, "--dst", dst)
         stdout shouldBe """<TMP>/shots/src
                           |There are 3 files in <SRC>/Pictures/Screenshots.
                           |There are 1 files in <SRC>/DCIM/Screenshots.
@@ -141,8 +141,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
       // Set up a scenario
       val (src, dst) = createSrcDst("specificDst")
 
-      val stdout =
-        cameraphone("--noVerbose", "--deviceRootDir", src.toString, "--dst", dst.toString, "--dstSub", "Copied")
+      val stdout = cameraphone("--noVerbose", "--deviceRootDir", src, "--dst", dst, "--dstSub", "Copied")
       stdout shouldBe empty
 
       (src / "DCIM" / "Camera").toDirectory.files shouldBe empty
@@ -160,11 +159,11 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
       val stdout = cameraphone(
         "--noVerbose",
         "--deviceRootDir",
-        src.toString,
+        src,
         "--deviceBackedupSubDir",
         "BackedUp",
         "--dst",
-        dst.toString,
+        dst,
         "--dstSub",
         "Copied"
       )
@@ -251,7 +250,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
     )
 
     it("should suggest moving payslip files") {
-      val stdout = payslip("--plain", "--srcPath", src.toString, "--dstPath", dst.toString)
+      val stdout = payslip("--plain", "--srcPath", src, "--dstPath", dst)
       stdout shouldBe
         """mv "<TMP>/payslip/src/03-2021_bulletin_de_paie.pdf" "<TMP>/payslip/dst/202103Payslip.pdf"
           |mv "<TMP>/payslip/src/04-2021_bulletin_de_paie.pdf" "<TMP>/payslip/dst/202104Payslip.pdf"
