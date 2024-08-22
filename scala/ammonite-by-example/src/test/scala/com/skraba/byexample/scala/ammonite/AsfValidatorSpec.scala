@@ -8,30 +8,13 @@ import scala.io.AnsiColor.{BOLD, RESET}
 import scala.jdk.CollectionConverters.PropertiesHasAsScala
 import scala.reflect.io.File
 
-/** Test the file_renamer.sc script. */
+/** Test the asf_validator.sc script. */
 class AsfValidatorSpec extends AmmoniteScriptSpecBase {
 
   /** The path containing ammonite scripts. */
-  override val ScriptPath: File =
-    AmmoniteScriptSpecBase.find("/asf_validator.sc")
+  override val ScriptPath: File = AmmoniteScriptSpecBase.find("/asf_validator.sc")
 
-  describe("Running the asf_validator.sc help") {
-
-    /** Helper to run git_checker.sc help successfully with some initial checks
-      *
-      * @param args
-      *   Additional arguments to the script
-      * @return
-      *   stdout
-      */
-    def help(args: String*): String = {
-      val arguments: Seq[String] = Seq("help") ++ args
-      withScript(arguments: _*) { case (result, stdout, stderr) =>
-        stderr shouldBe empty
-        result shouldBe true
-        stdout
-      }
-    }
+  describe(s"Running $ScriptName help") {
 
     /** Helper to extract the environment from the given help text.
       * @param args

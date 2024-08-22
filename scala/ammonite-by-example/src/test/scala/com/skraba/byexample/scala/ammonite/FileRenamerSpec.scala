@@ -22,16 +22,14 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
   /** The current year, month, and day for testing. */
   val yyyyMmDd: String = DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now())
 
-  def help(args: Any*): String = withTaskSuccess()("help")(args: _*)
   def cameraphone(args: Any*): String =
     withTaskSuccess(yyyyMmDd -> "<YYYYMMDD>", yyyyMm -> "<YYYYMM>")("cameraphone")(args: _*)
   def screenshot(args: Any*): String =
     withTaskSuccess(yyyyMmDd -> "<YYYYMMDD>", yyyyMm -> "<YYYYMM>")("screenshot")(args: _*)
-  def monthify(args: Any*): String =
-    withTaskSuccess()("monthify")(args: _*)
+  def monthify(args: Any*): String = withTaskSuccess()("monthify")(args: _*)
   def payslip(args: Any*): String = withTaskSuccess()("payslip")(args: _*)
 
-  describe(s"Running the $ScriptName help") {
+  describe(s"Running $ScriptName help") {
     it("should print a useful message") {
       // with helpers
       val ansiHelp = help()
@@ -41,7 +39,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
     }
   }
 
-  describe(s"Using $ScriptName cameraphone and screenshot") {
+  describe(s"Running $ScriptName cameraphone and screenshot") {
 
     it("should move files from the camera source to the directory with all defaults") {
       // Set up a scenario
@@ -178,7 +176,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
     }
   }
 
-  describe(s"Using $ScriptName monthify") {
+  describe(s"Running $ScriptName monthify") {
 
     val (src, dst) = createSrcDst(
       "monthify",
@@ -224,7 +222,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase {
 
   }
 
-  describe(s"Using $ScriptName payslip") {
+  describe(s"Running $ScriptName payslip") {
 
     /** Creates a simplified scenario with the following items:
       *   - `/tmp/tag/src/` as a source directory

@@ -10,8 +10,7 @@ import scala.reflect.io.File
 class GtdScriptSpec extends AmmoniteScriptSpecBase {
 
   /** The path containing ammonite scripts. */
-  override val ScriptPath: File =
-    AmmoniteScriptSpecBase.find("/getting_things_done.sc")
+  override val ScriptPath: File = AmmoniteScriptSpecBase.find("/getting_things_done.sc")
 
   /** A file with a basic scenario. */
   val Basic: File = (Tmp / "basic_gtd.md").createFile()
@@ -25,23 +24,7 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase {
       !""".stripMargin('!')
   )
 
-  describe("Running the getting_things_done.sc help") {
-
-    /** Helper to run getting_things_done.sc help successfully with some initial checks
-      *
-      * @param args
-      *   Additional arguments to the script
-      * @return
-      *   stdout
-      */
-    def help(args: String*): String = {
-      withScript2("help")(args: _*) { case (result, stdout, stderr) =>
-        stderr shouldBe empty
-        result shouldBe true
-        stdout
-      }
-    }
-
+  describe(s"Running $ScriptName help") {
     it("should print a useful message") {
       // with helpers
       val ansiHelp = help()
@@ -55,7 +38,7 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase {
     }
   }
 
-  describe("Running the getting_things_done.sc clean") {
+  describe(s"Running $ScriptName clean") {
 
     /** Helper to run getting_things_done.sc help successfully with some initial checks
       *

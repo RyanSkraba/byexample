@@ -144,6 +144,9 @@ abstract class AmmoniteScriptSpecBase extends AnyFunSpecLike with BeforeAndAfter
       }
     }
   }
+
+  /** Shortcuts for the help task in the script. */
+  def help(args: Any*): String = withTaskSuccess()("help")(args: _*)
 }
 
 object AmmoniteScriptSpecBase {
