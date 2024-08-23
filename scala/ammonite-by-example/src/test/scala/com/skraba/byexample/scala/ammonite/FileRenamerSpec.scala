@@ -11,10 +11,7 @@ import scala.reflect.io.{Directory, File}
   * Some of the file renaming functions depend on the current date. If this spec is run too close to midnight, it is
   * possible that failures will occur.
   */
-class FileRenamerSpec extends AmmoniteScriptSpecBase {
-
-  /** The path containing ammonite scripts. */
-  override val ScriptPath: File = AmmoniteScriptSpecBase.find("/file_renamer.sc")
+class FileRenamerSpec extends AmmoniteScriptSpecBase("/file_renamer.sc") {
 
   /** The current year and month for testing. */
   val yyyyMm: String = DateTimeFormatter.ofPattern("yyyyMM").format(LocalDate.now())

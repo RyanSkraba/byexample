@@ -9,10 +9,7 @@ import scala.jdk.CollectionConverters.PropertiesHasAsScala
 import scala.reflect.io.File
 
 /** Test the asf_validator.sc script. */
-class AsfValidatorSpec extends AmmoniteScriptSpecBase {
-
-  /** The path containing ammonite scripts. */
-  override val ScriptPath: File = AmmoniteScriptSpecBase.find("/asf_validator.sc")
+class AsfValidatorSpec extends AmmoniteScriptSpecBase("/asf_validator.sc") {
 
   describe(s"Running $ScriptName help") {
 

@@ -12,14 +12,15 @@ import java.nio.file.Paths
 import scala.reflect.io.{Directory, File, Path, Streamable}
 import scala.util.Properties
 
-/** Testing ammonite scripts can be a bit tricky!
-  *
-  * This class provides a useful base for setting up a scripting environment.
+/** Testing ammonite scripts can be a bit tricky! This class provides a useful base for setting up a scripting
+  * environment.
+  * @param ScriptPath
+  *   The path to the script to run.
   */
-abstract class AmmoniteScriptSpecBase extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
+abstract class AmmoniteScriptSpecBase(ScriptPath: File) extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 
-  /** The path containing ammonite scripts. */
-  val ScriptPath: File
+  /** @param script The filename of the script to run. This looks through the path to find the file. */
+  def this(script: String) = this(AmmoniteScriptSpecBase.find(script))
 
   /** The filename of the script being run. */
   lazy val ScriptName: String = ScriptPath.name

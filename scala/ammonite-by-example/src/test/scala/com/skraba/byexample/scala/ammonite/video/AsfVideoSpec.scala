@@ -7,10 +7,7 @@ import scala.io.AnsiColor.{BOLD, RESET}
 import scala.reflect.io.File
 
 /** Test the asf_video.sc script. */
-class AsfVideoSpec extends AmmoniteScriptSpecBase {
-
-  /** The path containing ammonite scripts. */
-  override val ScriptPath: File = AmmoniteScriptSpecBase.find("/asf_video.sc")
+class AsfVideoSpec extends AmmoniteScriptSpecBase("/asf_video.sc") {
 
   /** A file with a basic scenario. */
   describe(s"Running $ScriptName help") {

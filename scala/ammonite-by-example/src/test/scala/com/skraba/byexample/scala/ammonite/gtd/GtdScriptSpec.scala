@@ -7,10 +7,7 @@ import scala.io.AnsiColor.{BOLD, RESET}
 import scala.reflect.io.File
 
 /** Test the getting_things_done.sc script. */
-class GtdScriptSpec extends AmmoniteScriptSpecBase {
-
-  /** The path containing ammonite scripts. */
-  override val ScriptPath: File = AmmoniteScriptSpecBase.find("/getting_things_done.sc")
+class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
 
   /** A file with a basic scenario. */
   val Basic: File = (Tmp / "basic_gtd.md").createFile()
