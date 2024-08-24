@@ -25,9 +25,7 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
     it("should print a useful message") {
       // with helpers
       val ansiHelp = help()
-      ansiHelp should startWith(
-        s"$BOLD${GREEN}getting_things_done.sc$RESET - Let's get things done!"
-      )
+      ansiHelp should startWith(s"$BOLD${GREEN}getting_things_done.sc$RESET - Let's get things done!")
       help("--verbose") shouldBe ansiHelp
       help("--plain") should startWith(
         "getting_things_done.sc - Let's get things done!"

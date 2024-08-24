@@ -140,9 +140,9 @@ abstract class AmmoniteScriptSpecBase(ScriptPath: File) extends AnyFunSpecLike w
     withScript2(task)(args: _*) { case (result, stdout, stderr) =>
       stderr shouldBe empty
       result shouldBe true
-      replacements.foldLeft(stdout.replace(Tmp.toString, "<TMP>")) { (acc, r) =>
-        acc.replace(r._1, r._2)
-      }
+      replacements
+        .foldLeft(stdout) { (acc, r) => acc.replace(r._1, r._2) }
+        .replace(Tmp.toString, "<TMP>")
     }
   }
 

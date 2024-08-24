@@ -11,9 +11,7 @@ class GitCheckerSpec extends AmmoniteScriptSpecBase("/git_checker.sc") {
     it("should print a useful message") {
       // with helpers
       val ansiHelp = help()
-      ansiHelp should startWith(
-        s"$BOLD${GREEN}git_checker.sc$RESET - Do some analysis on git repositories"
-      )
+      ansiHelp should startWith(s"$BOLD${GREEN}git_checker.sc$RESET - Do some analysis on git repositories")
       help("--verbose") shouldBe ansiHelp
       help("--plain") should startWith(
         "git_checker.sc - Do some analysis on git repositories"
