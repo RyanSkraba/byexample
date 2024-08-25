@@ -135,14 +135,14 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
   describe("Running the ammonite_example argTest") {
 
     val ExpectedSignature = """Expected Signature: argTest
-                              |  --user <str>      The user running the script, or current user if not present
-                              |  --greeting <str>  A string value
-                              |  -v --verbose      Verbose for extra output
-                              |  -p --plain        Don't use ansi colour codes
-                              |  -y --yes          Don't prompt for user confirmation, assume yes
-                              |
-                              |
-                              |""".stripMargin
+      |  --user <str>      The user running the script, or current user if not present
+      |  --greeting <str>  A string value
+      |  -v --verbose      Verbose for extra output
+      |  -p --plain        Don't use ansi colour codes
+      |  -y --yes          Don't prompt for user confirmation, assume yes
+      |
+      |
+      |""".stripMargin
 
     /** Helper to run ammonite_example.sc argTest successfully with some initial checks
       *
@@ -218,14 +218,14 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
   describe("Running the ammonite_example argTestRepeated") {
 
     val ExpectedSignature = """Expected Signature: argTestRepeated
-                              |  -f --first <str>     A first string argument
-                              |  -r --repeated <str>  Subsequent arguments are only printed in verbose mode
-                              |  -v --verbose         Verbose for extra output
-                              |  -p --plain           Don't use ansi colour codes
-                              |  -y --yes             Don't prompt for user confirmation, assume yes
-                              |
-                              |
-                              |""".stripMargin
+      |  -f --first <str>     A first string argument
+      |  -r --repeated <str>  Subsequent arguments are only printed in verbose mode
+      |  -v --verbose         Verbose for extra output
+      |  -p --plain           Don't use ansi colour codes
+      |  -y --yes             Don't prompt for user confirmation, assume yes
+      |
+      |
+      |""".stripMargin
 
     /** Helper to run ammonite_example.sc argTest successfully with some initial checks
       *
@@ -326,14 +326,14 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
   describe("Running the ammonite_example argTestLeftover") {
 
     val ExpectedSignature = """Expected Signature: argTestLeftover
-                              |  -f --first <str>   A first string argument
-                              |  repeated <str>...  Subsequent arguments are only printed in verbose mode
-                              |  -v --verbose       Verbose for extra output
-                              |  -p --plain         Don't use ansi colour codes
-                              |  -y --yes           Don't prompt for user confirmation, assume yes
-                              |
-                              |
-                              |""".stripMargin
+      |  -f --first <str>   A first string argument
+      |  repeated <str>...  Subsequent arguments are only printed in verbose mode
+      |  -v --verbose       Verbose for extra output
+      |  -p --plain         Don't use ansi colour codes
+      |  -y --yes           Don't prompt for user confirmation, assume yes
+      |
+      |
+      |""".stripMargin
 
     /** Helper to run ammonite_example.sc argTest successfully with some initial checks
       *

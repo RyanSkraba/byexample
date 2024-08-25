@@ -95,8 +95,7 @@ class AsfValidatorSpec extends AmmoniteScriptSpecBase("/asf_validator.sc") {
       env("svnUrl") shouldBe "https://dist.apache.org/repos/dist/release/iceberg/"
 
       // The key from the command line is prioritized, then the file, then the default
-      val env2 =
-        extractEnvFromHelp("--cfgFile", cfgFile.toString, "--top", "pekko")
+      val env2 = extractEnvFromHelp("--cfgFile", cfgFile.toString, "--top", "pekko")
       env2("top") shouldBe "pekko"
       env2("svnDir") should endWith("working/apache/asf-svn/pekko-dev-dist")
       env2("svnUrl") shouldBe "https://dist.apache.org/repos/dist/release/iceberg/"

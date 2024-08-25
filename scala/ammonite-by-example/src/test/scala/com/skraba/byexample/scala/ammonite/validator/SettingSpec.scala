@@ -9,15 +9,14 @@ import scala.io.AnsiColor._
 /** Test the [[Setting]] instances. */
 class SettingSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterAll {
 
-  val props: Map[String, String] =
-    Map(
-      "string" -> "ValueFromMap",
-      "empty" -> "",
-      "booleanFalse" -> "false",
-      "booleanTrue" -> "true",
-      "pathRel" -> "propsRel",
-      "pathAbs" -> "/props/abs"
-    )
+  val props: Map[String, String] = Map(
+    "string" -> "ValueFromMap",
+    "empty" -> "",
+    "booleanFalse" -> "false",
+    "booleanTrue" -> "true",
+    "pathRel" -> "propsRel",
+    "pathAbs" -> "/props/abs"
+  )
 
   describe("Generating property files") {
     it("should show whether values are default or not") {
