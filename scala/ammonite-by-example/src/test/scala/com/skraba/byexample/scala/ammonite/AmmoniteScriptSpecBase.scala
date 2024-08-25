@@ -146,6 +146,28 @@ abstract class AmmoniteScriptSpecBase(ScriptPath: File) extends AnyFunSpecLike w
     }
   }
 
+  /** A helper method for running an ammonite script with an assumed successful result, specifically for scenarios
+    * involving source and destination directories.
+    *
+    * @param src
+    *   The source directory.
+    * @param dst
+    *   The destination directory.
+    * @param replacements
+    *   A list of pairs of strings to replace in the output.
+    * @param task
+    *   The task to run.
+    * @param args
+    *   The arguments to apply to the ammonite script.
+    * @return
+    *   The output of the script with all of the string replacements applied, as well as replacing the source and
+    *   destination directories with &lt;SRC&gt; and &lt;DST&gt; respectively.
+    */
+  def withTaskSuccessSrcDst(src: Directory, dst: Directory, replacements: (String, String)*)(
+      task: String
+  )(args: Any*): String =
+    withTaskSuccess(replacements ++ Seq(src.toString -> "<SRC>", dst.toString() -> "<DST>"): _*)(task)(args: _*)
+
   /** Shortcuts for the help task in the script. */
   def help(args: Any*): String = withTaskSuccess()("help")(args: _*)
 }

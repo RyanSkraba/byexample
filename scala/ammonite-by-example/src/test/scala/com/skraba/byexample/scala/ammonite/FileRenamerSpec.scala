@@ -19,12 +19,13 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase("/file_renamer.sc") {
   /** The current year, month, and day for testing. */
   val yyyyMmDd: String = DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now())
 
-  def cameraphone(args: Any*): String =
-    withTaskSuccess(yyyyMmDd -> "<YYYYMMDD>", yyyyMm -> "<YYYYMM>")("cameraphone")(args: _*)
-  def screenshot(args: Any*): String =
-    withTaskSuccess(yyyyMmDd -> "<YYYYMMDD>", yyyyMm -> "<YYYYMM>")("screenshot")(args: _*)
-  def monthify(args: Any*): String = withTaskSuccess()("monthify")(args: _*)
-  def payslip(args: Any*): String = withTaskSuccess()("payslip")(args: _*)
+  def cameraphone(src: Directory, dst: Directory)(args: Any*): String =
+    withTaskSuccessSrcDst(src, dst, yyyyMmDd -> "<YYYYMMDD>", yyyyMm -> "<YYYYMM>")("cameraphone")(args: _*)
+  def screenshot(src: Directory, dst: Directory)(args: Any*): String =
+    withTaskSuccessSrcDst(src, dst, yyyyMmDd -> "<YYYYMMDD>", yyyyMm -> "<YYYYMM>")("screenshot")(args: _*)
+  def monthify(src: Directory, dst: Directory)(args: Any*): String =
+    withTaskSuccessSrcDst(src, dst)("monthify")(args: _*)
+  def payslip(src: Directory, dst: Directory)(args: Any*): String = withTaskSuccessSrcDst(src, dst)("payslip")(args: _*)
 
   describe(s"Running $ScriptName help") {
     it("should print a useful message") {
@@ -44,16 +45,16 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase("/file_renamer.sc") {
 
       // Running the first time tests a dry run
       {
-        val stdout = cameraphone("--dryRun", "--deviceRootDir", src, "--dst", dst)
-        stdout shouldBe s"""<TMP>/basic/src
+        val stdout = cameraphone(src, dst)("--dryRun", "--deviceRootDir", src, "--dst", dst)
+        stdout shouldBe s"""<SRC>
             |There are 3 files in <SRC>/DCIM/Camera.
             |  ${Ansi.bold("jpg")}: 3
-            |cp <TMP>/basic/src/DCIM/Camera/image1.jpg <TMP>/basic/dst/<YYYYMMDD> Cameraphone/image1.jpg
-            |mv <TMP>/basic/src/DCIM/Camera/image1.jpg <TMP>/basic/src/DCIM/Camera/backedup<YYYYMM>/image1.jpg
-            |cp <TMP>/basic/src/DCIM/Camera/image2.jpg <TMP>/basic/dst/<YYYYMMDD> Cameraphone/image2.jpg
-            |mv <TMP>/basic/src/DCIM/Camera/image2.jpg <TMP>/basic/src/DCIM/Camera/backedup<YYYYMM>/image2.jpg
-            |cp <TMP>/basic/src/DCIM/Camera/image3.jpg <TMP>/basic/dst/<YYYYMMDD> Cameraphone/image3.jpg
-            |mv <TMP>/basic/src/DCIM/Camera/image3.jpg <TMP>/basic/src/DCIM/Camera/backedup<YYYYMM>/image3.jpg
+            |cp <SRC>/DCIM/Camera/image1.jpg <DST>/<YYYYMMDD> Cameraphone/image1.jpg
+            |mv <SRC>/DCIM/Camera/image1.jpg <SRC>/DCIM/Camera/backedup<YYYYMM>/image1.jpg
+            |cp <SRC>/DCIM/Camera/image2.jpg <DST>/<YYYYMMDD> Cameraphone/image2.jpg
+            |mv <SRC>/DCIM/Camera/image2.jpg <SRC>/DCIM/Camera/backedup<YYYYMM>/image2.jpg
+            |cp <SRC>/DCIM/Camera/image3.jpg <DST>/<YYYYMMDD> Cameraphone/image3.jpg
+            |mv <SRC>/DCIM/Camera/image3.jpg <SRC>/DCIM/Camera/backedup<YYYYMM>/image3.jpg
             |""".stripMargin
 
         (src / "DCIM" / "Camera").toDirectory.files should have size 3
@@ -65,7 +66,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase("/file_renamer.sc") {
 
       // Running the first time should move all of the files
       {
-        val stdout = cameraphone("--noVerbose", "--deviceRootDir", src, "--dst", dst)
+        val stdout = cameraphone(src, dst)("--noVerbose", "--deviceRootDir", src, "--dst", dst)
         stdout shouldBe empty
 
         (src / "DCIM" / "Camera").toDirectory.files shouldBe empty
@@ -83,7 +84,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase("/file_renamer.sc") {
 
       // Running the second time should create a new default destination
       {
-        val stdout = cameraphone("--noVerbose", "--deviceRootDir", src, "--dst", dst)
+        val stdout = cameraphone(src, dst)("--noVerbose", "--deviceRootDir", src, "--dst", dst)
         stdout shouldBe empty
 
         (src / "DCIM" / "Camera").toDirectory.files shouldBe empty
@@ -108,15 +109,15 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase("/file_renamer.sc") {
 
       // Running the first time should move all of the files
       {
-        val stdout = screenshot("--plain", "--deviceRootDir", src, "--dst", dst)
-        stdout shouldBe """<TMP>/shots/src
+        val stdout = screenshot(src, dst)("--plain", "--deviceRootDir", src, "--dst", dst)
+        stdout shouldBe """<SRC>
                           |There are 3 files in <SRC>/Pictures/Screenshots.
                           |There are 1 files in <SRC>/DCIM/Screenshots.
                           |  jpg: 4
-                          |<TMP>/shots/dst/<YYYYMMDD> Screenshots/image1.jpg...
-                          |<TMP>/shots/dst/<YYYYMMDD> Screenshots/image2.jpg...
-                          |<TMP>/shots/dst/<YYYYMMDD> Screenshots/image3.jpg...
-                          |<TMP>/shots/dst/<YYYYMMDD> Screenshots/image4.jpg...
+                          |<DST>/<YYYYMMDD> Screenshots/image1.jpg...
+                          |<DST>/<YYYYMMDD> Screenshots/image2.jpg...
+                          |<DST>/<YYYYMMDD> Screenshots/image3.jpg...
+                          |<DST>/<YYYYMMDD> Screenshots/image4.jpg...
                           |""".stripMargin
 
         (src / "Pictures" / "Screenshots").toDirectory.files shouldBe empty
@@ -136,7 +137,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase("/file_renamer.sc") {
       // Set up a scenario
       val (src, dst) = createSrcDst("specificDst")
 
-      val stdout = cameraphone("--noVerbose", "--deviceRootDir", src, "--dst", dst, "--dstSub", "Copied")
+      val stdout = cameraphone(src, dst)("--noVerbose", "--deviceRootDir", src, "--dst", dst, "--dstSub", "Copied")
       stdout shouldBe empty
 
       (src / "DCIM" / "Camera").toDirectory.files shouldBe empty
@@ -151,7 +152,7 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase("/file_renamer.sc") {
       // Set up a scenario
       val (src, dst) = createSrcDst("specificSrc")
 
-      val stdout = cameraphone(
+      val stdout = cameraphone(src, dst)(
         "--noVerbose",
         "--deviceRootDir",
         src,
@@ -191,8 +192,8 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase("/file_renamer.sc") {
     it("should move files") {
       // Running the first time tests a dry run
       {
-        val stdout = monthify("--dryRun", "--plain", "--src", src, "--dst", dst, "--prefix", "back")
-        stdout shouldBe """Destination: <TMP>/monthify/dst
+        val stdout = monthify(src, dst)("--dryRun", "--plain", "--src", src, "--dst", dst, "--prefix", "back")
+        stdout shouldBe """Destination: <DST>
           |  back202401: Moving files (4)....
           |  back202402: Moving files (1).
           |""".stripMargin
@@ -204,8 +205,8 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase("/file_renamer.sc") {
 
       // Running the first time should move all of the files
       {
-        val stdout = monthify("--src", src, "--dst", dst, "--prefix", "back")
-        stdout shouldBe s"""${Ansi.bold("Destination: ")}<TMP>/monthify/dst
+        val stdout = monthify(src, dst)("--src", src, "--dst", dst, "--prefix", "back")
+        stdout shouldBe s"""${Ansi.bold("Destination: ")}<DST>
           |  ${Ansi.ok("back202401", bold = true)}: Moving files (4)....
           |  ${Ansi.ok("back202402", bold = true)}: Moving files (1).
           |""".stripMargin
@@ -245,13 +246,13 @@ class FileRenamerSpec extends AmmoniteScriptSpecBase("/file_renamer.sc") {
     )
 
     it("should suggest moving payslip files") {
-      val stdout = payslip("--plain", "--srcPath", src, "--dstPath", dst)
+      val stdout = payslip(src, dst)("--plain", "--srcPath", src, "--dstPath", dst)
       stdout shouldBe
-        """mv "<TMP>/payslip/src/03-2021_bulletin_de_paie.pdf" "<TMP>/payslip/dst/202103Payslip.pdf"
-          |mv "<TMP>/payslip/src/04-2021_bulletin_de_paie.pdf" "<TMP>/payslip/dst/202104Payslip.pdf"
-          |mv "<TMP>/payslip/src/202105Payslip.pdf" "<TMP>/payslip/dst/052021Payslip.pdf"
-          |mv "<TMP>/payslip/src/Bulletins 01_2021.pdf" "<TMP>/payslip/dst/202101Payslip.pdf"
-          |mv "<TMP>/payslip/src/Bulletins 02_2021.pdf" "<TMP>/payslip/dst/202102Payslip.pdf"
+        """mv "<SRC>/03-2021_bulletin_de_paie.pdf" "<DST>/202103Payslip.pdf"
+          |mv "<SRC>/04-2021_bulletin_de_paie.pdf" "<DST>/202104Payslip.pdf"
+          |mv "<SRC>/202105Payslip.pdf" "<DST>/052021Payslip.pdf"
+          |mv "<SRC>/Bulletins 01_2021.pdf" "<DST>/202101Payslip.pdf"
+          |mv "<SRC>/Bulletins 02_2021.pdf" "<DST>/202102Payslip.pdf"
           |""".stripMargin
 
       dst.files shouldBe empty
