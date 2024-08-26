@@ -10,7 +10,7 @@ import scala.io.AnsiColor.{BOLD, RESET}
 import scala.jdk.CollectionConverters.PropertiesHasAsScala
 
 /** Test the asf_validator.sc script. */
-class AsfValidatorSpec extends AmmoniteScriptSpecBase("/asf_validator.sc") {
+class AsfValidatorScriptSpec extends AmmoniteScriptSpecBase("/asf_validator.sc") {
 
   describe(s"Running $ScriptName help") {
 

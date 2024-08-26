@@ -5,7 +5,7 @@ import scala.io.AnsiColor.{BOLD, RESET}
 import scala.reflect.io.File
 
 /** Test the git_checker.sc script. */
-class GitCheckerSpec extends AmmoniteScriptSpecBase("/git_checker.sc") {
+class GitCheckerScriptSpec extends AmmoniteScriptSpecBase("/git_checker.sc") {
 
   describe(s"Running $ScriptName help") {
     it("should print a useful message") {
