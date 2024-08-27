@@ -57,7 +57,10 @@ class AsfValidatorScriptSpec extends AmmoniteScriptSpecBase("/asf_validator.sc")
         "svnRcRevision",
         "svnUrl",
         "top",
-        "version"
+        "version",
+        "voteRequestUrl",
+        "voteResponse",
+        "voteResponseUrl"
       )
 
       env("buildBaseDir") should startWith("/tmp/validate-flink")
@@ -86,16 +89,17 @@ class AsfValidatorScriptSpec extends AmmoniteScriptSpecBase("/asf_validator.sc")
     }
 
     it("should print the environment with custom values from a config file") {
-      val cfgFile = Tmp / "config.properties"
-      cfgFile.toFile.writeAll("top=iceberg\n", "svnUrl=https://dist.apache.org/repos/dist/release/iceberg/\n")
+      val propsFile = Tmp / "config.properties"
+      propsFile.toFile.writeAll("top=iceberg\n", "svnUrl=https://dist.apache.org/repos/dist/release/iceberg/\n")
 
-      val env = extractEnvFromHelp("--cfgFile", cfgFile.toString)
+      val env = extractEnvFromHelp("--propsFile", propsFile.toString)
       env("top") shouldBe "iceberg"
       env("svnDir") should endWith("working/apache/asf-svn/iceberg-dev-dist")
       env("svnUrl") shouldBe "https://dist.apache.org/repos/dist/release/iceberg/"
 
       // The key from the command line is prioritized, then the file, then the default
-      val env2 = extractEnvFromHelp("--cfgFile", cfgFile.toString, "--top", "pekko")
+
+      val env2 = extractEnvFromHelp("--propsFile", propsFile.toString, "--top", "pekko")
       env2("top") shouldBe "pekko"
       env2("svnDir") should endWith("working/apache/asf-svn/pekko-dev-dist")
       env2("svnUrl") shouldBe "https://dist.apache.org/repos/dist/release/iceberg/"
