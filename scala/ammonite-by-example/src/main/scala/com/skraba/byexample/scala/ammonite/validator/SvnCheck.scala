@@ -14,8 +14,6 @@ import scala.xml.XML
   */
 case class SvnCheck(asf: AsfReleaseCfg, out: AnsiConsole) {
 
-  /** Evaluate the default value once. */
-
   def check(check: Validator = Validator()): Validator = {
     out.vPrintln(asf.properties(out))
 
