@@ -14,6 +14,7 @@ local_import_util.load("ammonite-by-example")
 @
 import com.skraba.byexample.scala.ammonite.ConsoleCfg
 import com.skraba.byexample.scala.ammonite.validator.AsfReleaseCfg
+import com.skraba.byexample.scala.ammonite.validator.SvnCheck
 
 // ==========================================================================
 // Top level variables available to the script
@@ -32,39 +33,27 @@ def help(asf: AsfReleaseCfg, out: ConsoleCfg): Unit = {
     out.helpHeader(
       cli,
       "Validating a release for the ASF",
-      "help" -> "Help, usage and release validation resources."
+      "help" -> "Help, usage and release validation resources.",
+      "svn" -> "Updating, downloading and checking the SVN repository."
     )
   )
 
   // Usage examples
   println(out.helpUse(cli, "help", "[--verbose]"))
+  println(out.helpUse(cli, "svn", "[--verbose]"))
   println()
 
   println(asf.properties(out));
 }
 
-/** Print out some useful information about the environment variables used to validate ASF releases.
+/** SVN management for the release: checking out, updating and fetching information.
   *
+  * @param asf
+  *   All of the parameters necessary to run the release.
   * @param out
-  *   Colour configuration for the output
+  *   Colour configuration for the output.
   */
 @main
 def svn(asf: AsfReleaseCfg, out: ConsoleCfg): Unit = {
-  out.vPrintln(asf.properties(out))
-  if (!os.exists(asf.SvnDir.get)) {
-    out.vPrintln(
-      out.warn("Creating subversion directory:", bold = true) + out.warn(
-        asf.SvnDir
-      )
-    )
-    os.makeDir.all(asf.SvnDir.get / os.up)
-    val cmd =
-      os.proc("svn", "checkout", asf.SvnUrl.get, asf.SvnBaseDir.get)
-        .call(asf.SvnBaseDir.get / os.up)
-    println(cmd.out.lines().mkString("\n"))
-  }
-  println(
-    os.proc("svn", "update").call(asf.SvnBaseDir.get).out.lines().mkString("\n")
-  )
-  println(os.proc("svn", "info").call(asf.SvnDir.get).out.lines().mkString("\n"))
+  SvnCheck(asf, out).check()
 }
