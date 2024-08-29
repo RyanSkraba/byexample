@@ -11,41 +11,49 @@ import scala.reflect.io.File
 
 /** A single word in the cheatsheet
   * @param cn
-  *   The symbol for the word
+  *   The symbol for the word.
   * @param pinyin
-  *   The representation of the word in pinyin
+  *   The representation of the word in pinyin.
   * @param en
-  *   The meaning of the word in english
+  *   The meaning of the word in english.
   * @param info
   *   All of the downloaded columns.
   */
-case class Vocab(
-    cn: String,
-    pinyin: String,
-    en: String,
-    info: Array[String] = Array.empty
-) {
+case class Vocab(cn: String, pinyin: String, en: String, info: Array[String] = Array.empty) {
   lazy val section: String = info(1)
   lazy val lesson: String = info(2)
 }
 
 object Vocab {
-  def apply(in: String): Vocab = {
-    val tokens: Array[String] = in.split(raw"\s*:\s*")
+
+  /** Alternative constructor from a single string to be split into the fields.
+    * @param in
+    *   The input string.
+    * @param splitter
+    *   The regex token specifier used for splitting.
+    */
+  def apply(in: String, splitter: String): Vocab = {
+    val tokens: Array[String] = in.split(splitter)
     Vocab(
-      tokens(0),
-      Cheatsheet.toneNumbered(tokens(1)),
-      tokens(2),
-      tokens.drop(3)
+      cn = tokens(0).trim,
+      pinyin = Cheatsheet.toneNumbered(tokens(1)).trim,
+      en = tokens(2).trim,
+      info = tokens.drop(3).map(_.trim)
     )
   }
+
+  /** Alternative constructor from a single string to be split by ":" into the fields
+    * @param in
+    *   The input string.
+    */
+  def apply(in: String): Vocab = apply(in, ":")
 }
 
 /** A group of related worlds in the cheatsheet
   * @param words
-  *   The list of related words
+  *   The list of related words.
   * @param title
-  *   A title for these words (or None to omit)
+  *   A title for these words (or None to omit).
   * @param offset
   *   A helpful offset for laying out the words in relation to the upper-left document corner, or the upper-left of the
   *   last laid out group of words.
@@ -59,20 +67,16 @@ case class VocabGroup(
     out: Config = Config()
 ) {
 
-  /** Draws the vocab group, with the title on top moving down one line for each vocab.
-    */
+  /** Draws the vocab group, with the title on top moving down one line for each vocab. */
   def toSvg: Tag = {
-    g(
-      (title.map(out.title).toSeq ++ words.map(out.vocab)).zipWithIndex.map { case (tag, y) =>
-        tag(Svg.attrTranslate(0, y * out.lineHeight))
-      }
-    )
+    g((title.map(out.title).toSeq ++ words.map(out.vocab)).zipWithIndex.map { case (tag, y) =>
+      tag(Svg.attrTranslate(0, y * out.lineHeight))
+    })
   }
 
 }
 
 /** A vocabulary cheat sheet for duolingo chinese lessons.
-  *
   * @param vocab
   *   the list of words to include in the cheat sheet.
   * @param out
@@ -86,19 +90,14 @@ case class Cheatsheet(vocab: Seq[Vocab], out: Config = Config()) {
   def toSvg: Tag = {
     // Group the words according to their lesson
     val byLesson: List[List[Vocab]] = vocab.foldRight[List[List[Vocab]]](Nil) {
-      case (v, head :: tail) if head.headOption.map(_.lesson).contains(v.lesson) =>
-        (v :: head) :: tail
-      case (v, xs) => (v :: Nil) :: xs
+      case (v, head :: tail) if head.headOption.map(_.lesson).contains(v.lesson) => (v :: head) :: tail
+      case (v, xs)                                                               => (v :: Nil) :: xs
     }
 
     // Set the words in a group vertically, and the lessons horizontally.
     val groupTags: Seq[Tag] = byLesson.zipWithIndex.map { case (vs, x) =>
-      val vocabTags = vs
-        .map(out.vocab)
-        .zipWithIndex
-        .map { case (tag, y) =>
-          tag(Svg.attrTranslate(0, y * out.lineHeight))
-        }
+      val vocabTags =
+        vs.map(out.vocab).zipWithIndex.map { case (tag, y) => tag(Svg.attrTranslate(0, y * out.lineHeight)) }
       g(vocabTags: _*)(Svg.attrTranslate(x * 150, 0))
     }
     g(groupTags: _*)
@@ -108,18 +107,12 @@ case class Cheatsheet(vocab: Seq[Vocab], out: Config = Config()) {
 
 object Cheatsheet {
 
-  /** Memo of vowels to tone markings. The first is the bare vowel, followed by the four tones.
-    */
-  private[this] val ToneVowels: Seq[String] =
-    Seq("aāáǎà", "eēéěè", "iīíǐì", "oōóǒò", "uūúǔù", "ü..ǚǜ")
+  /** Memo of vowels to tone markings. The first is the bare vowel, followed by the four tones. */
+  private[this] val ToneVowels: Seq[String] = Seq("aāáǎà", "eēéěè", "iīíǐì", "oōóǒò", "uūúǔù", "ü..ǚǜ")
 
   /** Memo map from tone-marked vowel to its bare character and tone. */
   private[this] lazy val Tones: Map[Char, (Char, Int)] = {
-    for (
-      s <- ToneVowels;
-      (c, i) <- s.zipWithIndex if i > 0 && c != '.'
-    )
-      yield (c, (s(0), i))
+    for (s <- ToneVowels; (c, i) <- s.zipWithIndex if i > 0 && c != '.') yield (c, (s(0), i))
   }.toMap
 
   /** A cheatsheet autoloaded with all the words and the default config. This may make a call out to a remote resource.
@@ -149,11 +142,9 @@ object Cheatsheet {
       columnDx: Double = 100
   ) {
 
-    private[this] val pinyinTxt =
-      text.right(-cnDx / 2, 0)(attr("xml:space") := "preserve")
+    private[this] val pinyinTxt = text.right(-cnDx / 2, 0)(attr("xml:space") := "preserve")
     private[this] val cnTxt = text.center(0, 0)
     private[this] val enTxt = text.left(cnDx / 2, 0)
-
     private[this] val titleTxt = text.copy(weight = "bold")
 
     def filledTspan(in: String, tones: Seq[Int]): Seq[Tag] = {
@@ -168,14 +159,10 @@ object Cheatsheet {
       spans
         .zip(tones)
         .zipWithIndex
-        .map { case ((txt, tone), i) =>
-          tspan(Attrs.fill := s"#${toneHex(tone)}", txt)
-        }
+        .map { case ((txt, tone), _) => tspan(Attrs.fill := s"#${toneHex(tone)}", txt) }
     }
 
-    def title(title: String): Tag = {
-      titleTxt.center(0, 0)(title)
-    }
+    def title(title: String): Tag = { titleTxt.center(0, 0)(title) }
 
     def vocab(v: Vocab): Tag = {
       val tones = Cheatsheet.tones(v.pinyin)
@@ -205,9 +192,7 @@ object Cheatsheet {
   /** @return the tones found in the pinyin syllables */
   def tones(pinyin: String): Seq[Int] = {
     // Luckily, the pinyin syllables are all split into separate words.
-    pinyin.split("\\s+").map {
-      _.find(Tones.contains).map(Tones(_)._2).getOrElse(0)
-    }
+    pinyin.split("\\s+").map { _.find(Tones.contains).map(Tones(_)._2).getOrElse(0) }
   }
 
   /** @return
@@ -241,5 +226,4 @@ object Cheatsheet {
       }
       .split('\n')
   }
-
 }
