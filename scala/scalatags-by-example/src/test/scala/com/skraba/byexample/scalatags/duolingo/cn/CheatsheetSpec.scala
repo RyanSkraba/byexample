@@ -13,13 +13,18 @@ class CheatsheetSpec extends AnyFunSpecLike with Matchers {
       Cheatsheet.tones("de yī líng wǔ èr") shouldBe Seq(0, 1, 2, 3, 4)
     }
 
-    it("should translate numbered pinyin") {
-      Cheatsheet.toneNumbered(
-        "de yi1 li2ng wu3 e4r"
-      ) shouldBe "de yī líng wǔ èr"
-      Cheatsheet.toneNumbered(
-        "de yi¹ li²ng wu³ e⁴r"
-      ) shouldBe "de yī líng wǔ èr"
+    it("should translate numbered pinyin to accented pinyin") {
+      Cheatsheet.toAccented("de yi1 li2ng wu3 e4r") shouldBe "de yī líng wǔ èr"
+      Cheatsheet.toAccented("de yi¹ li²ng wu³ e⁴r") shouldBe "de yī líng wǔ èr"
+      Cheatsheet.toAccented("DE YI1 LI2NG WU3 E4R") shouldBe "DE YĪ LÍNG WǓ ÈR"
+      Cheatsheet.toAccented("DE YI¹ LI²NG WU³ E⁴R") shouldBe "DE YĪ LÍNG WǓ ÈR"
+    }
+
+    it("should translate accented pinyin to numbered pinyin") {
+      Cheatsheet.toNumbered("de yī líng wǔ èr") shouldBe "de yi1 li2ng wu3 e4r"
+      Cheatsheet.toNumbered("de yī líng wǔ èr", superscript = true) shouldBe "de yi¹ li²ng wu³ e⁴r"
+      Cheatsheet.toNumbered("DE YĪ LÍNG WǓ ÈR") shouldBe "DE YI1 LI2NG WU3 E4R"
+      Cheatsheet.toNumbered("DE YĪ LÍNG WǓ ÈR", superscript = true) shouldBe "DE YI¹ LI²NG WU³ E⁴R"
     }
   }
 

@@ -36,7 +36,7 @@ object Vocab {
     val tokens: Array[String] = in.split(splitter)
     Vocab(
       cn = tokens(0).trim,
-      pinyin = Cheatsheet.toneNumbered(tokens(1)).trim,
+      pinyin = Cheatsheet.toAccented(tokens(1)).trim,
       en = tokens(2).trim,
       info = tokens.drop(3).map(_.trim)
     )
@@ -112,8 +112,9 @@ object Cheatsheet {
 
   /** Memo map from tone-marked vowel to its bare character and tone. */
   private[this] lazy val Tones: Map[Char, (Char, Int)] = {
-    for (s <- ToneVowels; (c, i) <- s.zipWithIndex if i > 0 && c != '.') yield (c, (s(0), i))
-  }.toMap
+    for (s <- ToneVowels; (c, i) <- s.zipWithIndex if i > 0 && c != '.')
+      yield Seq(c -> (s(0), i), c.toUpper -> (s(0).toUpper, i))
+  }.flatten.toMap
 
   /** A cheatsheet autoloaded with all the words and the default config. This may make a call out to a remote resource.
     */
@@ -198,14 +199,21 @@ object Cheatsheet {
   /** @return
     *   convert all pinyin text with numbered vowels converted into unicode accented characters
     */
-  def toneNumbered(pinyin: String): String = {
-    // Move exponents to plain numbers
-    val unexponented: String = "⁰¹²³⁴".zipWithIndex.foldLeft(pinyin) { case (acc: String, (c: Char, i: Int)) =>
-      acc.replace(c.toString, i.toString)
-    }
-    Tones.foldLeft(unexponented) { case (acc, (accented, (bare, tone))) =>
+  def toAccented(pinyin: String): String = {
+    // Move superscripts to plain numbers
+    val unsuperscripted: String =
+      pinyin.replace("⁰", "0").replace("¹", "1").replace("²", "2").replace("³", "3").replace("⁴", "4")
+    Tones.foldLeft(unsuperscripted) { case (acc, (accented, (bare, tone))) =>
       acc.replace(s"$bare$tone", accented.toString)
     }
+  }
+
+  def toNumbered(pinyin: String, superscript: Boolean = false): String = {
+    val numbered = Tones.foldLeft(pinyin) { case (acc, (accented, (bare, tone))) =>
+      acc.replace(accented.toString, s"$bare$tone")
+    }
+    if (!superscript) numbered.replace("⁰", "0").replace("¹", "1").replace("²", "2").replace("³", "3").replace("⁴", "4")
+    else numbered.replace("0", "⁰").replace("1", "¹").replace("2", "²").replace("3", "³").replace("4", "⁴")
   }
 
   /** @return
