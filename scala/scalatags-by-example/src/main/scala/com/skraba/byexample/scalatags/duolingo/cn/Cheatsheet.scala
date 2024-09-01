@@ -36,7 +36,7 @@ object Vocab {
     val tokens: Array[String] = in.split(splitter)
     Vocab(
       cn = tokens(0).trim,
-      pinyin = Cheatsheet.toAccented(tokens(1)).trim,
+      pinyin = Pinyin.toAccented(tokens(1)).trim,
       en = tokens(2).trim,
       info = tokens.drop(3).map(_.trim)
     )
@@ -107,15 +107,6 @@ case class Cheatsheet(vocab: Seq[Vocab], out: Config = Config()) {
 
 object Cheatsheet {
 
-  /** Memo of vowels to tone markings. The first is the bare vowel, followed by the four tones. */
-  private[this] val ToneVowels: Seq[String] = Seq("aāáǎà", "eēéěè", "iīíǐì", "oōóǒò", "uūúǔù", "ü..ǚǜ")
-
-  /** Memo map from tone-marked vowel to its bare character and tone. */
-  private[this] lazy val Tones: Map[Char, (Char, Int)] = {
-    for (s <- ToneVowels; (c, i) <- s.zipWithIndex if i > 0 && c != '.')
-      yield Seq(c -> (s(0), i), c.toUpper -> (s(0).toUpper, i))
-  }.flatten.toMap
-
   /** A cheatsheet autoloaded with all the words and the default config. This may make a call out to a remote resource.
     */
   lazy val All: Cheatsheet = all()
@@ -166,7 +157,7 @@ object Cheatsheet {
     def title(title: String): Tag = { titleTxt.center(0, 0)(title) }
 
     def vocab(v: Vocab): Tag = {
-      val tones = Cheatsheet.tones(v.pinyin)
+      val tones = Pinyin.tones(v.pinyin)
       g(
         cnTxt(filledTspan(v.cn, tones)),
         pinyinTxt(filledTspan(v.pinyin, tones)),
@@ -188,32 +179,6 @@ object Cheatsheet {
     Cheatsheet(
       allWords.tail.map(info => Vocab(info(cn).trim, info(pinyin).trim, info(en).trim, info))
     )
-  }
-
-  /** @return the tones found in the pinyin syllables */
-  def tones(pinyin: String): Seq[Int] = {
-    // Luckily, the pinyin syllables are all split into separate words.
-    pinyin.split("\\s+").map { _.find(Tones.contains).map(Tones(_)._2).getOrElse(0) }
-  }
-
-  /** @return
-    *   convert all pinyin text with numbered vowels converted into unicode accented characters
-    */
-  def toAccented(pinyin: String): String = {
-    // Move superscripts to plain numbers
-    val unsuperscripted: String =
-      pinyin.replace("⁰", "0").replace("¹", "1").replace("²", "2").replace("³", "3").replace("⁴", "4")
-    Tones.foldLeft(unsuperscripted) { case (acc, (accented, (bare, tone))) =>
-      acc.replace(s"$bare$tone", accented.toString)
-    }
-  }
-
-  def toNumbered(pinyin: String, superscript: Boolean = false): String = {
-    val numbered = Tones.foldLeft(pinyin) { case (acc, (accented, (bare, tone))) =>
-      acc.replace(accented.toString, s"$bare$tone")
-    }
-    if (!superscript) numbered.replace("⁰", "0").replace("¹", "1").replace("²", "2").replace("³", "3").replace("⁴", "4")
-    else numbered.replace("0", "⁰").replace("1", "¹").replace("2", "²").replace("3", "³").replace("4", "⁴")
   }
 
   /** @return

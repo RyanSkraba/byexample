@@ -7,8 +7,8 @@ class LessonsSpec extends AnyFunSpecLike with Matchers {
 
   def stringify(v: Vocab, toLower: Boolean): String = {
     val pinyin =
-      if (toLower) Cheatsheet.toNumbered(v.pinyin, superscript = true).toLowerCase
-      else Cheatsheet.toNumbered(v.pinyin, superscript = true)
+      if (toLower) Pinyin.toNumbered(v.pinyin, superscript = true).toLowerCase
+      else Pinyin.toNumbered(v.pinyin, superscript = true)
     s"""Vocab("${v.cn}:$pinyin:${v.en}")"""
   }
 
