@@ -26,4 +26,12 @@ class PinyinSpec extends AnyFunSpecLike with Matchers {
       Pinyin.toNumbered("DE YĪ LÍNG WǓ ÈR", superscript = true) shouldBe "DE YI¹ LI²NG WU³ E⁴R"
     }
   }
+
+  describe("The pinyin map") {
+    it("should have the expected size") {
+      Pinyin.PinyinMap.values should have size 409
+      Pinyin.PinyinMap.keys.map(_._1).toSet should have size 22
+      Pinyin.PinyinMap.keys.map(_._2).toSet should have size 35
+    }
+  }
 }
