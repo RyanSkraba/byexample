@@ -107,30 +107,20 @@ object Pinyin {
     }
   }
 
+  /** Converts pinyin text with accented characters to numbered pinyin.
+    *
+    * @param pinyin
+    *   the pinyin text to convert
+    * @param superscript
+    *   if true, use superscript numbers for tones
+    * @return
+    *   the pinyin text with numbered tones
+    */
   def toNumbered(pinyin: String, superscript: Boolean = false): String = {
     val numbered = Tones.foldLeft(pinyin) { case (acc, (accented, (bare, tone))) =>
       acc.replace(accented.toString, s"$bare$tone")
     }
     if (!superscript) numbered.replace("⁰", "0").replace("¹", "1").replace("²", "2").replace("³", "3").replace("⁴", "4")
     else numbered.replace("0", "⁰").replace("1", "¹").replace("2", "²").replace("3", "³").replace("4", "⁴")
-  }
-
-  /** @return
-    *   The TSV contents of the Duolingo classes.
-    */
-  private[this] def contents(): Seq[String] = {
-    val cached = File("/tmp/duolingo-chinese-words-anki-deck.tsv")
-    cached
-      .safeSlurp()
-      .getOrElse {
-        val html = Source.fromURL(
-          "https://raw.githubusercontent.com/RyanSkraba/anki-deck-for-duolingo-chinese/master/words.tsv"
-        )
-        // There a minor adjustment to make with one line!
-        val raw = html.mkString.replace("\"\n", "\"")
-        cached.writeAll(raw)
-        raw
-      }
-      .split('\n')
   }
 }
