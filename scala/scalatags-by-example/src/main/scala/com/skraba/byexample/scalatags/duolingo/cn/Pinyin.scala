@@ -71,7 +71,17 @@ object Pinyin {
   lazy private[this] val PinyinTable: Array[Array[String]] =
     PinyinTableMarkdown.split('\n').map(_.split('|').map(_.trim)).filterNot(_.head.contains("-"))
 
-  lazy val PinyinMap: Map[(String, String), String] = {
+  /** The initial sounds that are available in pinyin (including "" for none). */
+  lazy val Initials: Seq[String] = PinyinTable(0).tail
+
+  /** The final sounds that are available in pinyin. */
+  lazy val Finals: Seq[String] = PinyinTable.tail.map(_.head)
+
+  /** Valid pinyin words formed from initial and final sounds, including 'er'. */
+  lazy val Valid: Set[String] = PinyinTable.tail.flatMap(_.tail).toSet.filter(_.nonEmpty) + "er"
+
+  /** A map of initial and final sounds in pinyin, mapped to their combination if any. */
+  lazy val FinalInitialMap: Map[(String, String), String] = {
     for (
       r <- PinyinTable.indices if r != 0; c <- PinyinTable(r).indices if c != 0; cell = PinyinTable(r)(c)
       if cell.nonEmpty

@@ -29,9 +29,12 @@ class PinyinSpec extends AnyFunSpecLike with Matchers {
 
   describe("The pinyin map") {
     it("should have the expected size") {
-      Pinyin.PinyinMap.values should have size 409
-      Pinyin.PinyinMap.keys.map(_._1).toSet should have size 22
-      Pinyin.PinyinMap.keys.map(_._2).toSet should have size 35
+      Pinyin.FinalInitialMap.values should have size 409
+      Pinyin.FinalInitialMap.keys.map(_._1).toSet should have size 22
+      Pinyin.FinalInitialMap.keys.map(_._2).toSet should have size 35
+      Pinyin.Initials should have size 22
+      Pinyin.Finals should have size 35
+      Pinyin.Valid should have size 410
     }
   }
 }
