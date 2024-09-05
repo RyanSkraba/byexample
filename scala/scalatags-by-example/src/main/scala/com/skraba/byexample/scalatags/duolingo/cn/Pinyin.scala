@@ -123,4 +123,38 @@ object Pinyin {
     if (!superscript) numbered.replace("⁰", "0").replace("¹", "1").replace("²", "2").replace("³", "3").replace("⁴", "4")
     else numbered.replace("0", "⁰").replace("1", "¹").replace("2", "²").replace("3", "³").replace("4", "⁴")
   }
+
+  def split(input: String): Seq[String] = {
+    // Use the numbered form by default and clean up any whitespace
+    val in = toNumbered(input).replaceAll("\\s+", " ").trim
+    if (in.isEmpty) return Seq.empty
+
+    /** Checks that the substring is a valid word, ignoring tone numbers and counting single spaces as a valid word. */
+    def isValid(ss: String): Boolean =
+      ss == " " || ss.nonEmpty && ss.head.isLetter && Valid.contains(ss.filterNot(_.isDigit).toLowerCase)
+
+    // Every key in the accumulator corresponds to an index in the input string.  The value associated with the key as
+    // a tuple means that we can split the input cleanly into pinyin words up-to and including that index (exclusive).
+    // The value is the start character that ends at that index.
+    val splittables = in.indices.map(_ + 1).foldLeft(Seq(0 -> Int.MinValue)) { case (acc, end) =>
+      acc
+        .find { case (i, _) => isValid(in.substring(i, end)) }
+        .map(end -> _._1)
+        .map(acc :+ _)
+        .getOrElse(acc)
+    }
+
+    // Fast fail if we didn't end on the length of the string
+    if (!splittables.lastOption.map(_._1).contains(in.length)) return Seq.empty
+
+    // Reconstruct the split words
+    var result = Seq[String]()
+    var end = in.length
+    while (end > 0) {
+      val start = splittables.find(_._1 == end).get._2
+      result = in.substring(start, end) +: result
+      end = start
+    }
+    result
+  }
 }

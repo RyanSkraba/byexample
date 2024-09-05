@@ -25,6 +25,27 @@ class PinyinSpec extends AnyFunSpecLike with Matchers {
       Pinyin.toNumbered("DE YĪ LÍNG WǓ ÈR") shouldBe "DE YI1 LI2NG WU3 E4R"
       Pinyin.toNumbered("DE YĪ LÍNG WǓ ÈR", superscript = true) shouldBe "DE YI¹ LI²NG WU³ E⁴R"
     }
+
+    it("should split words into valid pinyin") {
+      Pinyin.split("pi²ngguo³") shouldBe Seq("pi2ng", "guo3")
+      Pinyin.split("píngguǒ") shouldBe Seq("pi2ng", "guo3")
+      Pinyin.split("pingguo") shouldBe Seq("ping", "guo")
+      Pinyin.split("guo") shouldBe Seq("guo")
+      Pinyin.split("gu o") shouldBe Seq("gu", " ", "o")
+      Pinyin.split("mier") shouldBe Seq("mi", "er")
+      Pinyin.split("ayi") shouldBe Seq("a", "yi")
+      Pinyin.split("a yi") shouldBe Seq("a", " ", "yi")
+      Pinyin.split("a yi") shouldBe Seq("a", " ", "yi")
+      Pinyin.split("eryi") shouldBe Seq("er", "yi")
+
+      Pinyin.split("ao") shouldBe Seq("ao")
+    }
+
+    it("should ignore case when splitting words into valid pinyin") {
+      Pinyin.split("Pi²ngguo³") shouldBe Seq("Pi2ng", "guo3")
+      Pinyin.split("Píngguǒ") shouldBe Seq("Pi2ng", "guo3")
+      Pinyin.split("Pingguo") shouldBe Seq("Ping", "guo")
+    }
   }
 
   describe("The pinyin map") {
