@@ -11,7 +11,8 @@ import scala.reflect.io.File
 
 /** Helpers to manage Pinyin text
   *
-  * https://pinyin.info/rules/initials_finals.html
+  *   - https://pinyin.info/rules/initials_finals.html The table of sounds to syllables.
+  *   - https://pinyin.info/rules/where.html Where to place tone markers.
   */
 object Pinyin {
 
@@ -79,6 +80,9 @@ object Pinyin {
 
   /** Valid pinyin words formed from initial and final sounds, including 'er'. */
   lazy val Valid: Set[String] = PinyinTable.tail.flatMap(_.tail).toSet.filter(_.nonEmpty) + "er"
+
+  /** The longest valid pinyin syllable. */
+  lazy val LongestValid: Int = Valid.map(_.length).max
 
   /** A map of initial and final sounds in pinyin, mapped to their combination if any. */
   lazy val FinalInitialMap: Map[(String, String), String] = {
