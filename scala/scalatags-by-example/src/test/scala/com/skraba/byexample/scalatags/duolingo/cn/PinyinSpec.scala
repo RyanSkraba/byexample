@@ -30,15 +30,26 @@ class PinyinSpec extends AnyFunSpecLike with Matchers {
       Pinyin.split("pi²ngguo³") shouldBe Seq("pi2ng", "guo3")
       Pinyin.split("píngguǒ") shouldBe Seq("pi2ng", "guo3")
       Pinyin.split("pingguo") shouldBe Seq("ping", "guo")
+
+      // Single words that could also be two syllables
       Pinyin.split("guo") shouldBe Seq("guo")
       Pinyin.split("gu o") shouldBe Seq("gu", " ", "o")
-      Pinyin.split("mier") shouldBe Seq("mi", "er")
+
+      // Some tiny words
+      Pinyin.split("ao") shouldBe Seq("ao")
+      Pinyin.split("oa") shouldBe Seq("o", "a")
+      Pinyin.split("yia") shouldBe Seq("yi", "a")
       Pinyin.split("ayi") shouldBe Seq("a", "yi")
       Pinyin.split("a yi") shouldBe Seq("a", " ", "yi")
-      Pinyin.split("a yi") shouldBe Seq("a", " ", "yi")
+      Pinyin.split("yi a") shouldBe Seq("yi", " ", "a")
+
+      Pinyin.split("mier") shouldBe Seq("mi", "er")
       Pinyin.split("eryi") shouldBe Seq("er", "yi")
 
-      Pinyin.split("ao") shouldBe Seq("ao")
+      // Some longs words
+      Pinyin.split("zhuangchuangshuang") shouldBe Seq("zhuang", "chuang", "shuang")
+      Pinyin.split("zhuangashuang") shouldBe Seq("zhuan", "ga", "shuang")
+      Pinyin.split("zhuang ashuang") shouldBe Seq("zhuang", " ", "a", "shuang")
     }
 
     it("should ignore case when splitting words into valid pinyin") {

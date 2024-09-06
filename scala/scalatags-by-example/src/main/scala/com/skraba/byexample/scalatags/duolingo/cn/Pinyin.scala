@@ -142,7 +142,7 @@ object Pinyin {
     // The value is the start character that ends at that index.
     val splittables = in.indices.map(_ + 1).foldLeft(Seq(0 -> Int.MinValue)) { case (acc, end) =>
       acc
-        .find { case (i, _) => isValid(in.substring(i, end)) }
+        .find { case (i, _) => end - i <= LongestValid && isValid(in.substring(i, end)) }
         .map(end -> _._1)
         .map(acc :+ _)
         .getOrElse(acc)
