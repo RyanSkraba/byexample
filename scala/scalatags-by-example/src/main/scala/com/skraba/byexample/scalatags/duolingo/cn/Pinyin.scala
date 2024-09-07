@@ -131,11 +131,13 @@ object Pinyin {
   def split(input: String): Seq[String] = {
     // Use the numbered form by default and clean up any whitespace
     val in = toNumbered(input).replaceAll("\\s+", " ").trim
+    // Check if the input has any spaces and presplit the strings if it does
+    if (in.contains(" ")) return in.split(" ").map(split).flatMap(_ :+ " ").dropRight(1)
     if (in.isEmpty) return Seq.empty
 
     /** Checks that the substring is a valid word, ignoring tone numbers and counting single spaces as a valid word. */
     def isValid(ss: String): Boolean =
-      ss == " " || ss.nonEmpty && ss.head.isLetter && Valid.contains(ss.filterNot(_.isDigit).toLowerCase)
+      ss.nonEmpty && ss.head.isLetter && Valid.contains(ss.filterNot(_.isDigit).toLowerCase)
 
     // Every key in the accumulator corresponds to an index in the input string.  The value associated with the key as
     // a tuple means that we can split the input cleanly into pinyin words up-to and including that index (exclusive).
