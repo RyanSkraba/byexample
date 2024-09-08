@@ -34,19 +34,22 @@ class PinyinSpec extends AnyFunSpecLike with Matchers {
       // Single words that could also be two syllables
       Pinyin.split("guo") shouldBe Seq("guo")
       Pinyin.split("gu o") shouldBe Seq("gu", " ", "o")
+      Pinyin.split("gúó") shouldBe Seq("gu2", "o2")
 
       // Some tiny words
+      Pinyin.split("ae") shouldBe Seq("a", "e")
+      Pinyin.split("ea") shouldBe Seq("e", "a")
       Pinyin.split("ao") shouldBe Seq("ao")
       Pinyin.split("oa") shouldBe Seq("o", "a")
-      Pinyin.split("yia") shouldBe Seq("yi", "a")
       Pinyin.split("ayi") shouldBe Seq("a", "yi")
+      Pinyin.split("yia") shouldBe Seq("yi", "a")
       Pinyin.split("a yi") shouldBe Seq("a", " ", "yi")
       Pinyin.split("yi a") shouldBe Seq("yi", " ", "a")
 
       Pinyin.split("mier") shouldBe Seq("mi", "er")
       Pinyin.split("eryi") shouldBe Seq("er", "yi")
 
-      // Some longs words
+      // Some long words
       Pinyin.split("zhuangchuangshuang") shouldBe Seq("zhuang", "chuang", "shuang")
       Pinyin.split("zhuangashuang") shouldBe Seq("zhuan", "ga", "shuang")
       Pinyin.split("zhuang ashuang") shouldBe Seq("zhuang", " ", "a", "shuang")

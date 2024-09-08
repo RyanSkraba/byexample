@@ -99,6 +99,10 @@ object Pinyin {
     pinyin.split("\\s+").map { _.find(Tones.contains).map(Tones(_)._2).getOrElse(0) }
   }
 
+  /** Checks that the substring is a syllable containing no more than one tone marker. */
+  def isSyllable(ss: String): Boolean =
+    ss.headOption.exists(_.isLetter) && Valid.contains(ss.filterNot(_.isDigit).toLowerCase) && ss.count(_.isDigit) <= 1
+
   /** @return
     *   convert all pinyin text with numbered vowels converted into unicode accented characters
     */
@@ -135,16 +139,12 @@ object Pinyin {
     if (in.contains(" ")) return in.split(" ").map(split).flatMap(_ :+ " ").dropRight(1)
     if (in.isEmpty) return Seq.empty
 
-    /** Checks that the substring is a valid word, ignoring tone numbers and counting single spaces as a valid word. */
-    def isValid(ss: String): Boolean =
-      ss.nonEmpty && ss.head.isLetter && Valid.contains(ss.filterNot(_.isDigit).toLowerCase)
-
     // Every key in the accumulator corresponds to an index in the input string.  The value associated with the key as
     // a tuple means that we can split the input cleanly into pinyin words up-to and including that index (exclusive).
     // The value is the start character that ends at that index.
     val splittables = in.indices.map(_ + 1).foldLeft(Seq(0 -> Int.MinValue)) { case (acc, end) =>
       acc
-        .find { case (i, _) => end - i <= LongestValid && isValid(in.substring(i, end)) }
+        .find { case (i, _) => end - i <= LongestValid && isSyllable(in.substring(i, end)) }
         .map(end -> _._1)
         .map(acc :+ _)
         .getOrElse(acc)
