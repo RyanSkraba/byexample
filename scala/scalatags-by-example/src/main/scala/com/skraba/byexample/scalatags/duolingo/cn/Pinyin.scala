@@ -158,7 +158,8 @@ object Pinyin {
     var end = in.length
     while (end > 0) {
       val start = splittables.find(_._1 == end).get._2
-      result = in.substring(start, end) +: result
+      val (tone, bare) = in.substring(start, end).partition(_.isDigit)
+      result = (bare + tone) +: result
       end = start
     }
     result

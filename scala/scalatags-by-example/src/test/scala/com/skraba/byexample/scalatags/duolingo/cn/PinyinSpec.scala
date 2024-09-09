@@ -27,8 +27,8 @@ class PinyinSpec extends AnyFunSpecLike with Matchers {
     }
 
     it("should split words into valid pinyin") {
-      Pinyin.split("pi²ngguo³") shouldBe Seq("pi2ng", "guo3")
-      Pinyin.split("píngguǒ") shouldBe Seq("pi2ng", "guo3")
+      Pinyin.split("pi²ngguo³") shouldBe Seq("ping2", "guo3")
+      Pinyin.split("píngguǒ") shouldBe Seq("ping2", "guo3")
       Pinyin.split("pingguo") shouldBe Seq("ping", "guo")
 
       // Single words that could also be two syllables
@@ -56,8 +56,8 @@ class PinyinSpec extends AnyFunSpecLike with Matchers {
     }
 
     it("should ignore case when splitting words into valid pinyin") {
-      Pinyin.split("Pi²ngguo³") shouldBe Seq("Pi2ng", "guo3")
-      Pinyin.split("Píngguǒ") shouldBe Seq("Pi2ng", "guo3")
+      Pinyin.split("Pi²ngguo³") shouldBe Seq("Ping2", "guo3")
+      Pinyin.split("Píngguǒ") shouldBe Seq("Ping2", "guo3")
       Pinyin.split("Pingguo") shouldBe Seq("Ping", "guo")
     }
   }
