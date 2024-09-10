@@ -124,17 +124,21 @@ object Pinyin {
     * @return
     *   the pinyin text with numbered tones
     */
-  def toNumbered(pinyin: String, superscript: Boolean = false): String = {
-    val numbered = Tones.foldLeft(pinyin) { case (acc, (accented, (bare, tone))) =>
-      acc.replace(accented.toString, s"$bare$tone")
-    }
-    if (!superscript) numbered.replace("⁰", "0").replace("¹", "1").replace("²", "2").replace("³", "3").replace("⁴", "4")
+  def toNumbered(pinyin: String, internalize: Boolean = false, superscript: Boolean = false): String = {
+    val numbered =
+      if (!internalize) split(pinyin).mkString
+      else
+        Tones.foldLeft(pinyin) { case (acc, (accented, (bare, tone))) =>
+          acc.replace(accented.toString, s"$bare$tone")
+        }
+    if (!superscript)
+      numbered.replace("⁰", "0").replace("¹", "1").replace("²", "2").replace("³", "3").replace("⁴", "4")
     else numbered.replace("0", "⁰").replace("1", "¹").replace("2", "²").replace("3", "³").replace("4", "⁴")
   }
 
   def split(input: String): Seq[String] = {
     // Use the numbered form by default and clean up any whitespace
-    val in = toNumbered(input).replaceAll("\\s+", " ").trim
+    val in = toNumbered(input, internalize = true).replaceAll("\\s+", " ").trim
     // Check if the input has any spaces and presplit the strings if it does
     if (in.contains(" ")) return in.split(" ").map(split).flatMap(_ :+ " ").dropRight(1)
     if (in.isEmpty) return Seq.empty

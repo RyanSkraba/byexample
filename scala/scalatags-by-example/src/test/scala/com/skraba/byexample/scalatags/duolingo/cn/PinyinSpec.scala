@@ -12,18 +12,32 @@ class PinyinSpec extends AnyFunSpecLike with Matchers {
       Pinyin.tones("de yī líng wǔ èr") shouldBe Seq(0, 1, 2, 3, 4)
     }
 
-    it("should translate numbered pinyin to accented pinyin") {
+    ignore("should translate pinyin with tone markers to accented pinyin") {
+      Pinyin.toAccented("de yi1 ling2 wu3 er4") shouldBe "de yī líng wǔ èr"
+      Pinyin.toAccented("de yi¹ ling² wu³ er⁴") shouldBe "de yī líng wǔ èr"
+      Pinyin.toAccented("DE YI1 LING2 WU3 ER4") shouldBe "DE YĪ LÍNG WǓ ÈR"
+      Pinyin.toAccented("DE YI¹ LING² WU³ ER⁴") shouldBe "DE YĪ LÍNG WǓ ÈR"
+    }
+
+    it("should translate pinyin with internalized vowel markers to accented pinyin") {
       Pinyin.toAccented("de yi1 li2ng wu3 e4r") shouldBe "de yī líng wǔ èr"
       Pinyin.toAccented("de yi¹ li²ng wu³ e⁴r") shouldBe "de yī líng wǔ èr"
       Pinyin.toAccented("DE YI1 LI2NG WU3 E4R") shouldBe "DE YĪ LÍNG WǓ ÈR"
       Pinyin.toAccented("DE YI¹ LI²NG WU³ E⁴R") shouldBe "DE YĪ LÍNG WǓ ÈR"
     }
 
-    it("should translate accented pinyin to numbered pinyin") {
-      Pinyin.toNumbered("de yī líng wǔ èr") shouldBe "de yi1 li2ng wu3 e4r"
-      Pinyin.toNumbered("de yī líng wǔ èr", superscript = true) shouldBe "de yi¹ li²ng wu³ e⁴r"
-      Pinyin.toNumbered("DE YĪ LÍNG WǓ ÈR") shouldBe "DE YI1 LI2NG WU3 E4R"
-      Pinyin.toNumbered("DE YĪ LÍNG WǓ ÈR", superscript = true) shouldBe "DE YI¹ LI²NG WU³ E⁴R"
+    it("should translate accented pinyin to pinyin with internalized vowel markers") {
+      Pinyin.toNumbered("de yī líng wǔ èr", internalize = true) shouldBe "de yi1 li2ng wu3 e4r"
+      Pinyin.toNumbered("de yī líng wǔ èr", internalize = true, superscript = true) shouldBe "de yi¹ li²ng wu³ e⁴r"
+      Pinyin.toNumbered("DE YĪ LÍNG WǓ ÈR", internalize = true) shouldBe "DE YI1 LI2NG WU3 E4R"
+      Pinyin.toNumbered("DE YĪ LÍNG WǓ ÈR", internalize = true, superscript = true) shouldBe "DE YI¹ LI²NG WU³ E⁴R"
+    }
+
+    it("should translate accented pinyin to pinyin tone markers") {
+      Pinyin.toNumbered("de yī líng wǔ èr") shouldBe "de yi1 ling2 wu3 er4"
+      Pinyin.toNumbered("de yī líng wǔ èr", superscript = true) shouldBe "de yi¹ ling² wu³ er⁴"
+      Pinyin.toNumbered("DE YĪ LÍNG WǓ ÈR") shouldBe "DE YI1 LING2 WU3 ER4"
+      Pinyin.toNumbered("DE YĪ LÍNG WǓ ÈR", superscript = true) shouldBe "DE YI¹ LING² WU³ ER⁴"
     }
 
     it("should split words into valid pinyin") {
