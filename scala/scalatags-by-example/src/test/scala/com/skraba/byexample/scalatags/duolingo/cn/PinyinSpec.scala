@@ -10,6 +10,7 @@ class PinyinSpec extends AnyFunSpecLike with Matchers {
   describe("Pinyin helpers") {
     it("should detect tones") {
       Pinyin.tones("de yī líng wǔ èr") shouldBe Seq(0, 1, 2, 3, 4)
+      Pinyin.tones("deyīlíngwǔèr") shouldBe Seq(0, 1, 2, 3, 4)
     }
 
     ignore("should translate pinyin with tone markers to accented pinyin") {
@@ -17,6 +18,10 @@ class PinyinSpec extends AnyFunSpecLike with Matchers {
       Pinyin.toAccented("de yi¹ ling² wu³ er⁴") shouldBe "de yī líng wǔ èr"
       Pinyin.toAccented("DE YI1 LING2 WU3 ER4") shouldBe "DE YĪ LÍNG WǓ ÈR"
       Pinyin.toAccented("DE YI¹ LING² WU³ ER⁴") shouldBe "DE YĪ LÍNG WǓ ÈR"
+      Pinyin.toAccented("deyi1ling2wu3er4") shouldBe "deyīlíngwǔèr"
+      Pinyin.toAccented("deyi¹ling²wu³er⁴") shouldBe "deyīlíngwǔèr"
+      Pinyin.toAccented("DEYI1LING2WU3ER4") shouldBe "DEYĪLÍNGWǓÈR"
+      Pinyin.toAccented("DEYI¹LING²WU³ER⁴") shouldBe "DEYĪLÍNGWǓÈR"
     }
 
     it("should translate pinyin with internalized vowel markers to accented pinyin") {
@@ -24,6 +29,10 @@ class PinyinSpec extends AnyFunSpecLike with Matchers {
       Pinyin.toAccented("de yi¹ li²ng wu³ e⁴r") shouldBe "de yī líng wǔ èr"
       Pinyin.toAccented("DE YI1 LI2NG WU3 E4R") shouldBe "DE YĪ LÍNG WǓ ÈR"
       Pinyin.toAccented("DE YI¹ LI²NG WU³ E⁴R") shouldBe "DE YĪ LÍNG WǓ ÈR"
+      Pinyin.toAccented("deyi1li2ngwu3e4r") shouldBe "deyīlíngwǔèr"
+      Pinyin.toAccented("deyi¹li²ngwu³e⁴r") shouldBe "deyīlíngwǔèr"
+      Pinyin.toAccented("DEYI1LI2NGWU3E4R") shouldBe "DEYĪLÍNGWǓÈR"
+      Pinyin.toAccented("DEYI¹LI²NGWU³E⁴R") shouldBe "DEYĪLÍNGWǓÈR"
     }
 
     it("should translate accented pinyin to pinyin with internalized vowel markers") {
@@ -31,6 +40,10 @@ class PinyinSpec extends AnyFunSpecLike with Matchers {
       Pinyin.toNumbered("de yī líng wǔ èr", internalize = true, superscript = true) shouldBe "de yi¹ li²ng wu³ e⁴r"
       Pinyin.toNumbered("DE YĪ LÍNG WǓ ÈR", internalize = true) shouldBe "DE YI1 LI2NG WU3 E4R"
       Pinyin.toNumbered("DE YĪ LÍNG WǓ ÈR", internalize = true, superscript = true) shouldBe "DE YI¹ LI²NG WU³ E⁴R"
+      Pinyin.toNumbered("deyīlíngwǔèr", internalize = true) shouldBe "deyi1li2ngwu3e4r"
+      Pinyin.toNumbered("deyīlíngwǔèr", internalize = true, superscript = true) shouldBe "deyi¹li²ngwu³e⁴r"
+      Pinyin.toNumbered("DEYĪLÍNGWǓÈR", internalize = true) shouldBe "DEYI1LI2NGWU3E4R"
+      Pinyin.toNumbered("DEYĪLÍNGWǓÈR", internalize = true, superscript = true) shouldBe "DEYI¹LI²NGWU³E⁴R"
     }
 
     it("should translate accented pinyin to pinyin tone markers") {
@@ -38,6 +51,10 @@ class PinyinSpec extends AnyFunSpecLike with Matchers {
       Pinyin.toNumbered("de yī líng wǔ èr", superscript = true) shouldBe "de yi¹ ling² wu³ er⁴"
       Pinyin.toNumbered("DE YĪ LÍNG WǓ ÈR") shouldBe "DE YI1 LING2 WU3 ER4"
       Pinyin.toNumbered("DE YĪ LÍNG WǓ ÈR", superscript = true) shouldBe "DE YI¹ LING² WU³ ER⁴"
+      Pinyin.toNumbered("deyīlíngwǔèr") shouldBe "deyi1ling2wu3er4"
+      Pinyin.toNumbered("deyīlíngwǔèr", superscript = true) shouldBe "deyi¹ling²wu³er⁴"
+      Pinyin.toNumbered("DEYĪLÍNGWǓÈR") shouldBe "DEYI1LING2WU3ER4"
+      Pinyin.toNumbered("DEYĪLÍNGWǓÈR", superscript = true) shouldBe "DEYI¹LING²WU³ER⁴"
     }
 
     it("should split words into valid pinyin") {

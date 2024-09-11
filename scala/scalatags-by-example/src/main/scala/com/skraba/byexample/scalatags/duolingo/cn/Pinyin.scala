@@ -94,10 +94,8 @@ object Pinyin {
   }.toMap
 
   /** @return the tones found in the pinyin syllables */
-  def tones(pinyin: String): Seq[Int] = {
-    // Luckily, the pinyin syllables are all split into separate words.
-    pinyin.split("\\s+").map { _.find(Tones.contains).map(Tones(_)._2).getOrElse(0) }
-  }
+  def tones(pinyin: String): Seq[Int] =
+    split(pinyin).filterNot(_.trim.isEmpty).map { _.lastOption.find(_.isDigit).map(_ - '0').getOrElse(0) }
 
   /** Checks that the substring is a syllable containing no more than one tone marker. */
   def isSyllable(ss: String): Boolean =
