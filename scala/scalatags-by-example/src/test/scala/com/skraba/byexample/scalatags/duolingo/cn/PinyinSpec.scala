@@ -8,53 +8,71 @@ import org.scalatest.matchers.should.Matchers
 class PinyinSpec extends AnyFunSpecLike with Matchers {
 
   describe("Pinyin helpers") {
+
     it("should detect tones") {
-      Pinyin.tones("de yī líng wǔ èr") shouldBe Seq(0, 1, 2, 3, 4)
-      Pinyin.tones("deyīlíngwǔèr") shouldBe Seq(0, 1, 2, 3, 4)
+      Pinyin.tones("Běijīng Dàxué de") shouldBe Seq(3, 1, 4, 2, 0)
+      Pinyin.tones("běi jīng dà xué de") shouldBe Seq(3, 1, 4, 2, 0)
+      Pinyin.tones("běijīngdàxuéde") shouldBe Seq(3, 1, 4, 2, 0)
     }
 
     ignore("should translate pinyin with tone markers to accented pinyin") {
-      Pinyin.toAccented("de yi1 ling2 wu3 er4") shouldBe "de yī líng wǔ èr"
-      Pinyin.toAccented("de yi¹ ling² wu³ er⁴") shouldBe "de yī líng wǔ èr"
-      Pinyin.toAccented("DE YI1 LING2 WU3 ER4") shouldBe "DE YĪ LÍNG WǓ ÈR"
-      Pinyin.toAccented("DE YI¹ LING² WU³ ER⁴") shouldBe "DE YĪ LÍNG WǓ ÈR"
-      Pinyin.toAccented("deyi1ling2wu3er4") shouldBe "deyīlíngwǔèr"
-      Pinyin.toAccented("deyi¹ling²wu³er⁴") shouldBe "deyīlíngwǔèr"
-      Pinyin.toAccented("DEYI1LING2WU3ER4") shouldBe "DEYĪLÍNGWǓÈR"
-      Pinyin.toAccented("DEYI¹LING²WU³ER⁴") shouldBe "DEYĪLÍNGWǓÈR"
+      Pinyin.toAccented("Bei3jing1 Da4xue2 de") shouldBe "Běijīng Dàxué de"
+      Pinyin.toAccented("Bei³jing¹ Da⁴xue² de") shouldBe "Běijīng Dàxué de"
+      Pinyin.toAccented("bei3jing1 da4xue2 de") shouldBe "běijīng dàxué de"
+      Pinyin.toAccented("bei³jing¹ da⁴xue² de") shouldBe "běijīng dàxué de"
+      Pinyin.toAccented("BEI3JING1 DA4XUE2 DE") shouldBe "BĚIJĪNG DÀXUÉ DE"
+      Pinyin.toAccented("BEI³JING¹ DA⁴XUE² DE") shouldBe "BĚIJĪNG DÀXUÉ DE"
+      Pinyin.toAccented("Bei3jing1Da4xue2de") shouldBe "BěijīngDàxuéde"
+      Pinyin.toAccented("Bei³jing¹Da⁴xue²de") shouldBe "BěijīngDàxuéde"
+      Pinyin.toAccented("bei3jing1da4xue2de") shouldBe "běijīngdàxuéde"
+      Pinyin.toAccented("bei³jing¹da⁴xue²de") shouldBe "běijīngdàxuéde"
+      Pinyin.toAccented("BEI3JING1DA4XUE2DE") shouldBe "BĚIJĪNGDÀXUÉDE"
+      Pinyin.toAccented("BEI³JING¹DA⁴XUE²DE") shouldBe "BĚIJĪNGDÀXUÉDE"
     }
 
     it("should translate pinyin with internalized vowel markers to accented pinyin") {
-      Pinyin.toAccented("de yi1 li2ng wu3 e4r") shouldBe "de yī líng wǔ èr"
-      Pinyin.toAccented("de yi¹ li²ng wu³ e⁴r") shouldBe "de yī líng wǔ èr"
-      Pinyin.toAccented("DE YI1 LI2NG WU3 E4R") shouldBe "DE YĪ LÍNG WǓ ÈR"
-      Pinyin.toAccented("DE YI¹ LI²NG WU³ E⁴R") shouldBe "DE YĪ LÍNG WǓ ÈR"
-      Pinyin.toAccented("deyi1li2ngwu3e4r") shouldBe "deyīlíngwǔèr"
-      Pinyin.toAccented("deyi¹li²ngwu³e⁴r") shouldBe "deyīlíngwǔèr"
-      Pinyin.toAccented("DEYI1LI2NGWU3E4R") shouldBe "DEYĪLÍNGWǓÈR"
-      Pinyin.toAccented("DEYI¹LI²NGWU³E⁴R") shouldBe "DEYĪLÍNGWǓÈR"
+      Pinyin.toAccented("Be3iji1ng Da4xue2 de") shouldBe "Běijīng Dàxué de"
+      Pinyin.toAccented("Be³iji¹ng Da⁴xue² de") shouldBe "Běijīng Dàxué de"
+      Pinyin.toAccented("be3iji1ng da4xue2 de") shouldBe "běijīng dàxué de"
+      Pinyin.toAccented("be³iji¹ng da⁴xue² de") shouldBe "běijīng dàxué de"
+      Pinyin.toAccented("BE3IJI1NG DA4XUE2 DE") shouldBe "BĚIJĪNG DÀXUÉ DE"
+      Pinyin.toAccented("BE³IJI¹NG DA⁴XUE² DE") shouldBe "BĚIJĪNG DÀXUÉ DE"
+      Pinyin.toAccented("Be3iji1ngDa4xue2de") shouldBe "BěijīngDàxuéde"
+      Pinyin.toAccented("Be³iji¹ngDa⁴xue²de") shouldBe "BěijīngDàxuéde"
+      Pinyin.toAccented("be3iji1ngda4xue2de") shouldBe "běijīngdàxuéde"
+      Pinyin.toAccented("be³iji¹ngda⁴xue²de") shouldBe "běijīngdàxuéde"
+      Pinyin.toAccented("BE3IJI1NGDA4XUE2DE") shouldBe "BĚIJĪNGDÀXUÉDE"
+      Pinyin.toAccented("BE³IJI¹NGDA⁴XUE²DE") shouldBe "BĚIJĪNGDÀXUÉDE"
     }
 
     it("should translate accented pinyin to pinyin with internalized vowel markers") {
-      Pinyin.toNumbered("de yī líng wǔ èr", internalize = true) shouldBe "de yi1 li2ng wu3 e4r"
-      Pinyin.toNumbered("de yī líng wǔ èr", internalize = true, superscript = true) shouldBe "de yi¹ li²ng wu³ e⁴r"
-      Pinyin.toNumbered("DE YĪ LÍNG WǓ ÈR", internalize = true) shouldBe "DE YI1 LI2NG WU3 E4R"
-      Pinyin.toNumbered("DE YĪ LÍNG WǓ ÈR", internalize = true, superscript = true) shouldBe "DE YI¹ LI²NG WU³ E⁴R"
-      Pinyin.toNumbered("deyīlíngwǔèr", internalize = true) shouldBe "deyi1li2ngwu3e4r"
-      Pinyin.toNumbered("deyīlíngwǔèr", internalize = true, superscript = true) shouldBe "deyi¹li²ngwu³e⁴r"
-      Pinyin.toNumbered("DEYĪLÍNGWǓÈR", internalize = true) shouldBe "DEYI1LI2NGWU3E4R"
-      Pinyin.toNumbered("DEYĪLÍNGWǓÈR", internalize = true, superscript = true) shouldBe "DEYI¹LI²NGWU³E⁴R"
+      Pinyin.toNumbered("Běijīng Dàxué de", internalize = true) shouldBe "Be3iji1ng Da4xue2 de"
+      Pinyin.toNumbered("Běijīng Dàxué de", superscript = true, internalize = true) shouldBe "Be³iji¹ng Da⁴xue² de"
+      Pinyin.toNumbered("běijīng dàxué de", internalize = true) shouldBe "be3iji1ng da4xue2 de"
+      Pinyin.toNumbered("běijīng dàxué de", superscript = true, internalize = true) shouldBe "be³iji¹ng da⁴xue² de"
+      Pinyin.toNumbered("BĚIJĪNG DÀXUÉ DE", internalize = true) shouldBe "BE3IJI1NG DA4XUE2 DE"
+      Pinyin.toNumbered("BĚIJĪNG DÀXUÉ DE", superscript = true, internalize = true) shouldBe "BE³IJI¹NG DA⁴XUE² DE"
+      Pinyin.toNumbered("BěijīngDàxuéde", internalize = true) shouldBe "Be3iji1ngDa4xue2de"
+      Pinyin.toNumbered("BěijīngDàxuéde", superscript = true, internalize = true) shouldBe "Be³iji¹ngDa⁴xue²de"
+      Pinyin.toNumbered("běijīngdàxuéde", internalize = true) shouldBe "be3iji1ngda4xue2de"
+      Pinyin.toNumbered("běijīngdàxuéde", superscript = true, internalize = true) shouldBe "be³iji¹ngda⁴xue²de"
+      Pinyin.toNumbered("BĚIJĪNGDÀXUÉDE", internalize = true) shouldBe "BE3IJI1NGDA4XUE2DE"
+      Pinyin.toNumbered("BĚIJĪNGDÀXUÉDE", superscript = true, internalize = true) shouldBe "BE³IJI¹NGDA⁴XUE²DE"
     }
 
     it("should translate accented pinyin to pinyin tone markers") {
-      Pinyin.toNumbered("de yī líng wǔ èr") shouldBe "de yi1 ling2 wu3 er4"
-      Pinyin.toNumbered("de yī líng wǔ èr", superscript = true) shouldBe "de yi¹ ling² wu³ er⁴"
-      Pinyin.toNumbered("DE YĪ LÍNG WǓ ÈR") shouldBe "DE YI1 LING2 WU3 ER4"
-      Pinyin.toNumbered("DE YĪ LÍNG WǓ ÈR", superscript = true) shouldBe "DE YI¹ LING² WU³ ER⁴"
-      Pinyin.toNumbered("deyīlíngwǔèr") shouldBe "deyi1ling2wu3er4"
-      Pinyin.toNumbered("deyīlíngwǔèr", superscript = true) shouldBe "deyi¹ling²wu³er⁴"
-      Pinyin.toNumbered("DEYĪLÍNGWǓÈR") shouldBe "DEYI1LING2WU3ER4"
-      Pinyin.toNumbered("DEYĪLÍNGWǓÈR", superscript = true) shouldBe "DEYI¹LING²WU³ER⁴"
+      Pinyin.toNumbered("Běijīng Dàxué de") shouldBe "Bei3jing1 Da4xue2 de"
+      Pinyin.toNumbered("Běijīng Dàxué de", superscript = true) shouldBe "Bei³jing¹ Da⁴xue² de"
+      Pinyin.toNumbered("běijīng dàxué de") shouldBe "bei3jing1 da4xue2 de"
+      Pinyin.toNumbered("běijīng dàxué de", superscript = true) shouldBe "bei³jing¹ da⁴xue² de"
+      Pinyin.toNumbered("BĚIJĪNG DÀXUÉ DE") shouldBe "BEI3JING1 DA4XUE2 DE"
+      Pinyin.toNumbered("BĚIJĪNG DÀXUÉ DE", superscript = true) shouldBe "BEI³JING¹ DA⁴XUE² DE"
+      Pinyin.toNumbered("BěijīngDàxuéde") shouldBe "Bei3jing1Da4xue2de"
+      Pinyin.toNumbered("BěijīngDàxuéde", superscript = true) shouldBe "Bei³jing¹Da⁴xue²de"
+      Pinyin.toNumbered("běijīngdàxuéde") shouldBe "bei3jing1da4xue2de"
+      Pinyin.toNumbered("běijīngdàxuéde", superscript = true) shouldBe "bei³jing¹da⁴xue²de"
+      Pinyin.toNumbered("BĚIJĪNGDÀXUÉDE") shouldBe "BEI3JING1DA4XUE2DE"
+      Pinyin.toNumbered("BĚIJĪNGDÀXUÉDE", superscript = true) shouldBe "BEI³JING¹DA⁴XUE²DE"
     }
 
     it("should split words into valid pinyin") {
