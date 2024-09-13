@@ -99,7 +99,8 @@ object Pinyin {
 
   /** Checks that the substring is a syllable containing no more than one tone marker. */
   def isSyllable(ss: String): Boolean =
-    ss.headOption.exists(_.isLetter) && Valid.contains(ss.filterNot(_.isDigit).toLowerCase) && ss.count(_.isDigit) <= 1
+    ss.length <= LongestValid && ss.headOption.exists(_.isLetter) &&
+      Valid.contains(ss.filterNot(_.isDigit).toLowerCase) && ss.count(_.isDigit) <= 1
 
   /** @return
     *   convert all pinyin text with numbered vowels converted into unicode accented characters
@@ -138,8 +139,9 @@ object Pinyin {
     // Use the numbered form by default and clean up any whitespace
     val in = toNumbered(input, internalize = true).replaceAll("\\s+", " ").trim
     // Check if the input has any spaces and presplit the strings if it does
-    if (in.contains(" ")) return in.split(" ").map(split).flatMap(_ :+ " ").dropRight(1)
+    if (in.contains(" ")) return in.split(' ').map(split).flatMap(_ :+ " ").dropRight(1)
     if (in.isEmpty) return Seq.empty
+    if (isSyllable(in)) return Seq({ val (tone, bare) = in.partition(_.isDigit); bare + tone })
 
     // Every key in the accumulator corresponds to an index in the input string.  The value associated with the key as
     // a tuple means that we can split the input cleanly into pinyin words up-to and including that index (exclusive).
