@@ -15,7 +15,24 @@ class PinyinSpec extends AnyFunSpecLike with Matchers {
       Pinyin.tones("běijīngdàxuéde") shouldBe Seq(3, 1, 4, 2, 0)
     }
 
-    ignore("should translate pinyin with tone markers to accented pinyin") {
+    it("should correctly mark all single vowels from tones") {
+      Pinyin.toAccented("la le li mo lu lü") shouldBe "la le li mo lu lü"
+      Pinyin.toAccented("la0 le0 li0 mo0 lu0 lü0") shouldBe "la le li mo lu lü"
+      Pinyin.toAccented("la1 le1 li1 mo1 lu1 lü1") shouldBe "lā lē lī mō lū l."
+      Pinyin.toAccented("la2 le2 li2 mo2 lu2 lü2") shouldBe "lá lé lí mó lú l."
+      Pinyin.toAccented("la3 le3 li3 mo3 lu3 lü3") shouldBe "lǎ lě lǐ mǒ lǔ lǚ"
+      Pinyin.toAccented("la4 le4 li4 mo4 lu4 lü4") shouldBe "là lè lì mò lù lǜ"
+      Pinyin.toAccented("la5 le5 li5 mo5 lu5 lü5") shouldBe "la le li mo lu lü"
+      Pinyin.toAccented("LA LE LI MO LU LÜ") shouldBe "LA LE LI MO LU LÜ"
+      Pinyin.toAccented("LA0 LE0 LI0 MO0 LU0 LÜ0") shouldBe "LA LE LI MO LU LÜ"
+      Pinyin.toAccented("LA1 LE1 LI1 MO1 LU1 LÜ1") shouldBe "LĀ LĒ LĪ MŌ LŪ L."
+      Pinyin.toAccented("LA2 LE2 LI2 MO2 LU2 LÜ2") shouldBe "LÁ LÉ LÍ MÓ LÚ L."
+      Pinyin.toAccented("LA3 LE3 LI3 MO3 LU3 LÜ3") shouldBe "LǍ LĚ LǏ MǑ LǓ LǙ"
+      Pinyin.toAccented("LA4 LE4 LI4 MO4 LU4 LÜ4") shouldBe "LÀ LÈ LÌ MÒ LÙ LǛ"
+      Pinyin.toAccented("LA5 LE5 LI5 MO5 LU5 LÜ5") shouldBe "LA LE LI MO LU LÜ"
+    }
+
+    it("should translate pinyin with tone markers to accented pinyin") {
       Pinyin.toAccented("Bei3jing1 Da4xue2 de") shouldBe "Běijīng Dàxué de"
       Pinyin.toAccented("Bei³jing¹ Da⁴xue² de") shouldBe "Běijīng Dàxué de"
       Pinyin.toAccented("bei3jing1 da4xue2 de") shouldBe "běijīng dàxué de"

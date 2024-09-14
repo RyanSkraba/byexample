@@ -1,14 +1,5 @@
 package com.skraba.byexample.scalatags.duolingo.cn
 
-import com.skraba.byexample.scalatags.Svg
-import com.skraba.byexample.scalatags.Svg.Attrs
-import com.skraba.byexample.scalatags.duolingo.cn.Cheatsheet._
-import scalatags.Text.implicits._
-import scalatags.Text.svgTags._
-
-import scala.io.Source
-import scala.reflect.io.File
-
 /** Helpers to manage Pinyin text
   *
   *   - https://pinyin.info/rules/initials_finals.html The table of sounds to syllables.
@@ -106,12 +97,31 @@ object Pinyin {
     *   convert all pinyin text with numbered vowels converted into unicode accented characters
     */
   def toAccented(pinyin: String): String = {
-    // Move superscripts to plain numbers
-    val unsuperscripted: String =
-      pinyin.replace("⁰", "0").replace("¹", "1").replace("²", "2").replace("³", "3").replace("⁴", "4")
-    Tones.foldLeft(unsuperscripted) { case (acc, (accented, (bare, tone))) =>
-      acc.replace(s"$bare$tone", accented.toString)
-    }
+    // Normalize the input by splitting
+    split(pinyin).map {
+      case " "                                                      => " "
+      case syllable if syllable.last == '5' || syllable.last == '0' => syllable.init
+      case syllable if syllable.last.isDigit && syllable.contains('a') =>
+        syllable.init.replace('a', ToneVowels.head(syllable.last - '0'))
+      case syllable if syllable.last.isDigit && syllable.contains('e') =>
+        syllable.init.replace('e', ToneVowels(1)(syllable.last - '0'))
+      case syllable if syllable.last.isDigit && syllable.contains('A') =>
+        syllable.init.replace('A', ToneVowels.head(syllable.last - '0').toUpper)
+      case syllable if syllable.last.isDigit && syllable.contains('E') =>
+        syllable.init.replace('E', ToneVowels(1)(syllable.last - '0').toUpper)
+      case syllable if syllable.last.isDigit && (syllable.toLowerCase.contains("ou")) =>
+        syllable.init
+          .replace('o', ToneVowels(3)(syllable.last - '0'))
+          .replace('O', ToneVowels(3)(syllable.last - '0').toUpper)
+      case syllable if syllable.last.isDigit =>
+        val lastVowel = ToneVowels.map { s => syllable.init.toLowerCase.lastIndexOf(s.head) }.zipWithIndex.maxBy(_._1)
+        val accentedLastVowel = ToneVowels(lastVowel._2)(syllable.last - '0')
+        if (syllable(lastVowel._1).isUpper)
+          syllable.init.updated(lastVowel._1, accentedLastVowel.toUpper)
+        else
+          syllable.init.updated(lastVowel._1, accentedLastVowel)
+      case syllable => syllable
+    }.mkString
   }
 
   /** Converts pinyin text with accented characters to numbered pinyin.
