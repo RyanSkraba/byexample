@@ -91,11 +91,38 @@ class PinyinSpec extends AnyFunSpecLike with Matchers {
       Pinyin.toNumbered("BĚIJĪNGDÀXUÉDE") shouldBe "BEI3JING1DA4XUE2DE"
       Pinyin.toNumbered("BĚIJĪNGDÀXUÉDE", superscript = true) shouldBe "BEI³JING¹DA⁴XUE²DE"
     }
+  }
+
+  describe("Splitting pinyin") {
+    it("should return an empty array when there are two markers") {
+      Pinyin.split("pi²ng2") shouldBe empty
+      Pinyin.split("pi2ng2") shouldBe empty
+      Pinyin.split("píng²") shouldBe empty
+      Pinyin.split("píng2") shouldBe empty
+    }
+
+    it("should return the tone-marked syllables on single words") {
+      Pinyin.split("pi²ng") shouldBe Seq("ping2")
+      Pinyin.split("pi2ng") shouldBe Seq("ping2")
+      Pinyin.split("ping²") shouldBe Seq("ping2")
+      Pinyin.split("ping2") shouldBe Seq("ping2")
+      Pinyin.split("píng") shouldBe Seq("ping2")
+    }
 
     it("should split words into valid pinyin") {
       Pinyin.split("pi²ngguo³") shouldBe Seq("ping2", "guo3")
+      Pinyin.split("pi2ngguo3") shouldBe Seq("ping2", "guo3")
+      Pinyin.split("ping²guo³") shouldBe Seq("ping2", "guo3")
+      Pinyin.split("ping2guo3") shouldBe Seq("ping2", "guo3")
       Pinyin.split("píngguǒ") shouldBe Seq("ping2", "guo3")
+
+      // Unmarked words are split and remain unmarked
       Pinyin.split("pingguo") shouldBe Seq("ping", "guo")
+
+      // These are actually incorrectly marked but should still be split correctly and fixed
+      Pinyin.split("pin2ggu3o") shouldBe Seq("ping2", "guo3")
+      Pinyin.split("p2ingg3uo") shouldBe Seq("ping2", "guo3")
+      Pinyin.split("pínggǔo") shouldBe Seq("ping2", "guo3")
 
       // Single words that could also be two syllables
       Pinyin.split("guo") shouldBe Seq("guo")
