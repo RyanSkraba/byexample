@@ -94,11 +94,13 @@ class PinyinSpec extends AnyFunSpecLike with Matchers {
   }
 
   describe("Splitting pinyin") {
-    it("should return an empty array when there are two markers") {
-      Pinyin.split("pi²ng2") shouldBe empty
-      Pinyin.split("pi2ng2") shouldBe empty
-      Pinyin.split("píng²") shouldBe empty
-      Pinyin.split("píng2") shouldBe empty
+    it("should throw an error when there are two markers") {
+      intercept[IllegalArgumentException] { Pinyin.split("pi²ng² guo3") }.getMessage shouldBe "Invalid: pi2ng2"
+      intercept[IllegalArgumentException] { Pinyin.split("pi²ng²") }.getMessage shouldBe "Invalid: pi2ng2"
+      intercept[IllegalArgumentException] { Pinyin.split("pi²ng2") }.getMessage shouldBe "Invalid: pi2ng2"
+      intercept[IllegalArgumentException] { Pinyin.split("pi2ng2") }.getMessage shouldBe "Invalid: pi2ng2"
+      intercept[IllegalArgumentException] { Pinyin.split("píng²") }.getMessage shouldBe "Invalid: pi2ng2"
+      intercept[IllegalArgumentException] { Pinyin.split("píng2") }.getMessage shouldBe "Invalid: pi2ng2"
     }
 
     it("should return the tone-marked syllables on single words") {

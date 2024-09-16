@@ -165,7 +165,8 @@ object Pinyin {
     }
 
     // Fast fail if we didn't end on the length of the string
-    if (!splittables.lastOption.map(_._1).contains(in.length)) return Seq.empty
+    if (!splittables.lastOption.map(_._1).contains(in.length))
+      throw new IllegalArgumentException(s"Invalid: $in")
 
     // Reconstruct the split words
     var result = Seq[String]()
