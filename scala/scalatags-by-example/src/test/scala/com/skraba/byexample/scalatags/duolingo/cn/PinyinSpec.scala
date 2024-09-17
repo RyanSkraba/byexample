@@ -164,7 +164,7 @@ class PinyinSpec extends AnyFunSpecLike with Matchers {
       Pinyin.FinalInitialMap.keys.map(_._2).toSet should have size 35
       Pinyin.Initials should have size 22
       Pinyin.Finals should have size 35
-      Pinyin.Valid should have size 410
+      Pinyin.Valid should have size 414
       Pinyin.LongestValid shouldBe 6
     }
   }

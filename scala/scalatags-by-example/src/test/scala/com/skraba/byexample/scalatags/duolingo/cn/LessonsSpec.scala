@@ -25,7 +25,7 @@ class LessonsSpec extends AnyFunSpecLike with Matchers {
       val phrase1 = Lessons.Health2.phrases.head
       phrase1.cn shouldBe "我今天生病了"
       phrase1.pinyin shouldBe "Wǒ jīntiān shěngbìng le"
-      phrase1.en shouldBe "I am sick today."
+      phrase1.en shouldBe "I am sick today"
     }
 
     it("can be stringified for cleanup") {

@@ -1,6 +1,6 @@
 package com.skraba.byexample.scalatags.duolingo.cn
 
-/** Helpers to manage Pinyin text
+/** Helpers to manage Pinyin text.
   *
   *   - https://pinyin.info/rules/initials_finals.html The table of sounds to syllables.
   *   - https://pinyin.info/rules/where.html Where to place tone markers.
@@ -11,9 +11,14 @@ object Pinyin {
   private[this] val ToneVowels: Seq[String] = Seq("aāáǎà", "eēéěè", "iīíǐì", "oōóǒò", "uūúǔù", "ü..ǚǜ")
 
   /** Memo map from tone-marked vowel to its bare character and tone. */
-  private[this] lazy val Tones: Map[Char, (Char, Int)] = {
+  private[this] lazy val AccentToBareAndTone: Map[Char, (Char, Int)] = {
     for (s <- ToneVowels; (c, i) <- s.zipWithIndex if i > 0 && c != '.')
       yield Seq(c -> (s(0), i), c.toUpper -> (s(0).toUpper, i))
+  }.flatten.toMap
+
+  /** Memo map from a character to all of it's accents (from [[ToneVowels]] */
+  private[this] lazy val BareToAccents: Map[Char, String] = {
+    for (s <- ToneVowels) yield Seq(s(0) -> s, s(0).toUpper -> s.toUpperCase)
   }.flatten.toMap
 
   /** A table of valid initial and final sound combinations in Mandarin as their pinyin equivalents. The top row are the
@@ -69,8 +74,10 @@ object Pinyin {
   /** The final sounds that are available in pinyin. */
   lazy val Finals: Seq[String] = PinyinTable.tail.map(_.head)
 
+  // TODO: rule for adding R to a syllable?
   /** Valid pinyin words formed from initial and final sounds, including 'er'. */
-  lazy val Valid: Set[String] = PinyinTable.tail.flatMap(_.tail).toSet.filter(_.nonEmpty) + "er"
+  lazy val Valid: Set[String] =
+    PinyinTable.tail.flatMap(_.tail).toSet.filter(_.nonEmpty) + "er" + "nar" + "zher" + "huir" + "dianr"
 
   /** The longest valid pinyin syllable. */
   lazy val LongestValid: Int = Valid.map(_.length).max
@@ -102,24 +109,20 @@ object Pinyin {
       case " "                                                      => " "
       case syllable if syllable.last == '5' || syllable.last == '0' => syllable.init
       case syllable if syllable.last.isDigit && syllable.contains('a') =>
-        syllable.init.replace('a', ToneVowels.head(syllable.last - '0'))
+        syllable.init.replace('a', BareToAccents('a')(syllable.last - '0'))
       case syllable if syllable.last.isDigit && syllable.contains('e') =>
-        syllable.init.replace('e', ToneVowels(1)(syllable.last - '0'))
+        syllable.init.replace('e', BareToAccents('e')(syllable.last - '0'))
       case syllable if syllable.last.isDigit && syllable.contains('A') =>
-        syllable.init.replace('A', ToneVowels.head(syllable.last - '0').toUpper)
+        syllable.init.replace('A', BareToAccents('A')(syllable.last - '0'))
       case syllable if syllable.last.isDigit && syllable.contains('E') =>
-        syllable.init.replace('E', ToneVowels(1)(syllable.last - '0').toUpper)
+        syllable.init.replace('E', BareToAccents('E')(syllable.last - '0'))
       case syllable if syllable.last.isDigit && (syllable.toLowerCase.contains("ou")) =>
         syllable.init
-          .replace('o', ToneVowels(3)(syllable.last - '0'))
-          .replace('O', ToneVowels(3)(syllable.last - '0').toUpper)
+          .replace('o', BareToAccents('o')(syllable.last - '0'))
+          .replace('O', BareToAccents('O')(syllable.last - '0'))
       case syllable if syllable.last.isDigit =>
-        val lastVowel = ToneVowels.map { s => syllable.init.toLowerCase.lastIndexOf(s.head) }.zipWithIndex.maxBy(_._1)
-        val accentedLastVowel = ToneVowels(lastVowel._2)(syllable.last - '0')
-        if (syllable(lastVowel._1).isUpper)
-          syllable.init.updated(lastVowel._1, accentedLastVowel.toUpper)
-        else
-          syllable.init.updated(lastVowel._1, accentedLastVowel)
+        val lastVowel = BareToAccents.keys.map { vwl => (vwl, syllable.init.lastIndexOf(vwl)) }.maxBy(_._2)._1
+        syllable.init.replace(lastVowel, BareToAccents(lastVowel)(syllable.last - '0'))
       case syllable => syllable
     }.mkString
   }
@@ -137,7 +140,7 @@ object Pinyin {
     val numbered =
       if (!internalize) split(pinyin).mkString
       else
-        Tones.foldLeft(pinyin) { case (acc, (accented, (bare, tone))) =>
+        AccentToBareAndTone.foldLeft(pinyin) { case (acc, (accented, (bare, tone))) =>
           acc.replace(accented.toString, s"$bare$tone")
         }
     if (!superscript)
