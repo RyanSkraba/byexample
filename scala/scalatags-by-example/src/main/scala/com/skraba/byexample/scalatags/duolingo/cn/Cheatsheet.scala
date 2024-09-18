@@ -9,37 +9,42 @@ import scalatags.Text.svgTags._
 import scala.io.Source
 import scala.reflect.io.File
 
-/** A single word in the cheatsheet
+/** A single word or phrase in the cheatsheet
   * @param cn
   *   The symbol for the word.
   * @param pinyin
   *   The representation of the word in pinyin.
   * @param en
   *   The meaning of the word in english.
+  * @param section
+  *   The section number for the lesson.
+  * @param lesson
+  *   The lesson name
   * @param info
-  *   All of the downloaded columns.
+  *   Any additional information for the word.
   */
-case class Vocab(cn: String, pinyin: String, en: String, info: Array[String] = Array.empty) {
-  lazy val section: String = info(1)
-  lazy val lesson: String = info(2)
-}
+case class Vocab(cn: String, pinyin: String, en: String, section: String = "", lesson: String = "")(
+    info: Array[String] = Array.empty
+)
 
 object Vocab {
 
   /** Alternative constructor from a single string to be split into the fields.
+    *
     * @param in
     *   The input string.
     * @param splitter
     *   The regex token specifier used for splitting.
     */
   def apply(in: String, splitter: String): Vocab = {
-    val tokens: Array[String] = in.split(splitter)
+    val tokens: Array[String] = in.split(splitter).map(_.trim)
     Vocab(
-      cn = tokens(0).trim,
-      pinyin = Pinyin.toAccented(tokens(1)).trim,
-      en = tokens(2).trim,
-      info = tokens.drop(3).map(_.trim)
-    )
+      cn = tokens(0),
+      pinyin = Pinyin.toAccented(tokens(1)),
+      en = tokens(2),
+      section = tokens.lift(3).getOrElse(""),
+      lesson = tokens.lift(4).getOrElse("")
+    )(info = tokens.drop(5))
   }
 
   /** Alternative constructor from a single string to be split by ":" into the fields
@@ -175,9 +180,19 @@ object Cheatsheet {
     val cn = allWords.head.indexOf("Simplified Chinese")
     val pinyin = allWords.head.indexOf("Selected Pinyin")
     val en = allWords.head.indexOf("Simple English Definition")
+    val section = allWords.head.indexOf("DL Section")
+    val lesson = allWords.head.indexOf("DL Lesson")
 
     Cheatsheet(
-      allWords.tail.map(info => Vocab(info(cn).trim, info(pinyin).trim, info(en).trim, info))
+      allWords.tail.map(info =>
+        Vocab(
+          cn = info(cn).trim,
+          pinyin = info(pinyin).trim,
+          en = info(en).trim,
+          section = info(section).trim,
+          lesson = info(lesson).trim
+        )(info = info)
+      )
     )
   }
 
@@ -189,9 +204,8 @@ object Cheatsheet {
     cached
       .safeSlurp()
       .getOrElse {
-        val html = Source.fromURL(
-          "https://raw.githubusercontent.com/RyanSkraba/anki-deck-for-duolingo-chinese/master/words.tsv"
-        )
+        val html =
+          Source.fromURL("https://raw.githubusercontent.com/RyanSkraba/anki-deck-for-duolingo-chinese/master/words.tsv")
         // There a minor adjustment to make with one line!
         val raw = html.mkString.replace("\"\n", "\"")
         cached.writeAll(raw)
