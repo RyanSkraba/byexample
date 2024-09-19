@@ -12,8 +12,8 @@ class LessonsSpec extends AnyFunSpecLike with Matchers {
     s"""Vocab("${v.cn}:$pinyin:${v.en}")"""
   }
 
-  def stringify(l: Lessons, toLower: Boolean, sortByEn: Boolean): String = {
-    val phrases = if (sortByEn) l.phrases.sortBy(_.en) else l.phrases
+  def stringify(l: Lesson, toLower: Boolean, sortByEn: Boolean): String = {
+    val phrases = if (sortByEn) l.vocab.sortBy(_.en) else l.vocab
     s"""Lessons("${l.name}",
        |  ${phrases.sortBy(_.en).map(stringify(_, toLower)).mkString(",\n  ")}
        |)
@@ -22,14 +22,14 @@ class LessonsSpec extends AnyFunSpecLike with Matchers {
 
   describe("Phrases in a lesson") {
     it("should detect tones") {
-      val phrase1 = Lessons.Health2.phrases.head
+      val phrase1 = Lesson.Health2.vocab.head
       phrase1.cn shouldBe "我今天生病了"
       phrase1.pinyin shouldBe "Wǒ jīntiān shěngbìng le"
       phrase1.en shouldBe "I am sick today"
     }
 
     it("can be stringified for cleanup") {
-      stringify(Lessons.FruitsAndVegetables, toLower = true, sortByEn = true) shouldBe
+      stringify(Lesson.FruitsAndVegetables, toLower = true, sortByEn = true) shouldBe
         """Lessons("Fruits and Vegetables",
           |  Vocab("苹果:ping²guo³:apple"),
           |  Vocab("香蕉:xiang¹jiao¹:banana"),

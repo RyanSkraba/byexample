@@ -16,7 +16,7 @@ class CheatsheetSpec extends AnyFunSpecLike with Matchers {
       val words = Seq()
 
       val vg =
-        VocabGroup(
+        SvgLessonGroup(
           "你,好,再,见,再见".split(",").toSeq.map(vs.apply),
           Some("Lesson 1")
         )

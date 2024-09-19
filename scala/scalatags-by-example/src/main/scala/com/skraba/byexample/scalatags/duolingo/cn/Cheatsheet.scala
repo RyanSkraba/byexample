@@ -9,51 +9,6 @@ import scalatags.Text.svgTags._
 import scala.io.Source
 import scala.reflect.io.File
 
-/** A single word or phrase in the cheatsheet
-  * @param cn
-  *   The symbol for the word.
-  * @param pinyin
-  *   The representation of the word in pinyin.
-  * @param en
-  *   The meaning of the word in english.
-  * @param section
-  *   The section number for the lesson.
-  * @param lesson
-  *   The lesson name
-  * @param info
-  *   Any additional information for the word.
-  */
-case class Vocab(cn: String, pinyin: String, en: String, section: String = "", lesson: String = "")(
-    info: Array[String] = Array.empty
-)
-
-object Vocab {
-
-  /** Alternative constructor from a single string to be split into the fields.
-    *
-    * @param in
-    *   The input string.
-    * @param splitter
-    *   The regex token specifier used for splitting.
-    */
-  def apply(in: String, splitter: String): Vocab = {
-    val tokens: Array[String] = in.split(splitter).map(_.trim)
-    Vocab(
-      cn = tokens(0),
-      pinyin = Pinyin.toAccented(tokens(1)),
-      en = tokens(2),
-      section = tokens.lift(3).getOrElse(""),
-      lesson = tokens.lift(4).getOrElse("")
-    )(info = tokens.drop(5))
-  }
-
-  /** Alternative constructor from a single string to be split by ":" into the fields
-    * @param in
-    *   The input string.
-    */
-  def apply(in: String): Vocab = apply(in, ":")
-}
-
 /** A group of related worlds in the cheatsheet
   * @param words
   *   The list of related words.
@@ -65,11 +20,11 @@ object Vocab {
   * @param out
   *   Configuration for drawing the sheet.
   */
-case class VocabGroup(
+case class SvgLessonGroup(
     words: Seq[Vocab],
     title: Option[String] = None,
     offset: Option[(Double, Double)] = None,
-    out: Config = Config()
+    out: SvgLayoutCfg = SvgLayoutCfg()
 ) {
 
   /** Draws the vocab group, with the title on top moving down one line for each vocab. */
@@ -87,7 +42,7 @@ case class VocabGroup(
   * @param out
   *   Configuration for drawing the sheet.
   */
-case class Cheatsheet(vocab: Seq[Vocab], out: Config = Config()) {
+case class Cheatsheet(vocab: Seq[Vocab], out: SvgLayoutCfg = SvgLayoutCfg()) {
 
   /** Draws the cheatsheet. The first column of words is centered at 0, 0, and the entire page will likely need to be
     * translated.
@@ -130,7 +85,7 @@ object Cheatsheet {
     * @param columnDx
     *   If more than one column, then the distance between the columns.
     */
-  case class Config(
+  case class SvgLayoutCfg(
       toneHex: Seq[String] = Seq("000000", "6a245c", "498c13", "3543a6", "c8361e"),
       text: Svg.Text = Svg.Text(family = "Noto Sans SC"),
       cnDx: Double = 40,
