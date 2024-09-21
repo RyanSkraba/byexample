@@ -1,6 +1,7 @@
 package com.skraba.byexample.scalatags.duolingo.cn
 
 import com.skraba.byexample.scalatags.ScalatagsGoSpec.{withScalatagsGo, withScalatagsGoMatch}
+import com.skraba.byexample.scalatags.duolingo.cn.CheatsheetSpec.assumeCheatsheetNetwork
 import org.docopt.DocoptExitException
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
@@ -14,14 +15,13 @@ class DuolingoCnCheatsheetTaskSpec extends AnyFunSpecLike with Matchers {
   describe("ScalatagsGo cheatsheet valid commands") {
 
     it("should print help with --help") {
-      val t = intercept[DocoptExitException] {
-        withScalatagsGo(DuolingoCnCheatsheetTask.Cmd, "--help")
-      }
+      val t = intercept[DocoptExitException] { withScalatagsGo(DuolingoCnCheatsheetTask.Cmd, "--help") }
       t.getExitCode shouldBe 0
       t.getMessage shouldBe DuolingoCnCheatsheetTask.Doc
     }
 
     it("should print an SVG document when run without arguments ") {
+      assumeCheatsheetNetwork()
       withScalatagsGoMatch(DuolingoCnCheatsheetTask.Cmd) { case (stdout, stderr) =>
         stderr shouldBe ""
         val svg = XML.loadString(stdout)
@@ -33,6 +33,7 @@ class DuolingoCnCheatsheetTaskSpec extends AnyFunSpecLike with Matchers {
     }
 
     it("should filter on lessons") {
+      assumeCheatsheetNetwork()
       withScalatagsGoMatch(DuolingoCnCheatsheetTask.Cmd, "--section=3") { case (stdout, stderr) =>
         stderr shouldBe ""
         val svg = XML.loadString(stdout)
@@ -44,6 +45,7 @@ class DuolingoCnCheatsheetTaskSpec extends AnyFunSpecLike with Matchers {
     }
 
     it("should filter on individual words") {
+      assumeCheatsheetNetwork()
       withScalatagsGoMatch(DuolingoCnCheatsheetTask.Cmd, "--word=一二三") { case (stdout, stderr) =>
         stderr shouldBe ""
         val svg = XML.loadString(stdout)
