@@ -21,7 +21,7 @@
     <!-- Launcher class -->
     <exec.mainClass>com.skraba.byexample.scalatags.ScalatagsGo</exec.mainClass>
     <!-- other project dependency versions as properties -->
-    <scalatags.version>0.11.1</scalatags.version>
+    <scalatags.version>0.13.1</scalatags.version>
     <!-- Experimental for XML parsing SVG
     <scala.module.xml.version>2.1.0</scala.module.xml.version>
     -->
