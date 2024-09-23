@@ -14,8 +14,7 @@ class OsLibSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
   /** A temporary directory for playing with files. */
   val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
 
-  /** A helper method used to ensure that commands exist before runnign on the
-    */
+  /** A helper method used to ensure that commands exist before running on the as a process */
   def commandExists(cmds: String*): Unit = cmds.foreach(cmd =>
     assume(
       os.proc("which", cmd).call(os.pwd, check = false).exitCode == 0
