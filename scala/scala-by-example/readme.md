@@ -56,4 +56,12 @@ By default, all of the slow tests (tagged with `org.scalatest.tags.Slow`) are ex
 mvn package -Dplugin.maven.scalatest.exclude=
 ```
 
+Or by updating the default property in your `pom.xml`: 
+
+```xml
+<properties>
+  <plugin.maven.scalatest.exclude>org.scalatest.tags.Slow</plugin.maven.scalatest.exclude>
+</properties>
+```
+
 In an IDE like IntelliJ, set the **Program arguments** in the Run/Debug Configuration to `-l org.scalatest.tags.Slow` to exclude slow tests.
