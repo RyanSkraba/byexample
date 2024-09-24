@@ -11,8 +11,6 @@ import scala.reflect.io.{Directory, File}
   */
 class CountdownTaskSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterAll {
 
-  val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
-
   /** A resource in this maven project, discoverable on the classpath. */
   val TemplateFile: File = {
     val uri = Thread
@@ -22,14 +20,13 @@ class CountdownTaskSpec extends AnyFunSpecLike with Matchers with BeforeAndAfter
     if (uri.getProtocol == "file") Some(File(uri.getFile)) else None
   }.getOrElse(fail("Can't find template resource 'timer.svg'"))
 
-  /** And delete it after the tests. */
+  /** A local temporary directory for test file storage. */
+  val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
+
+  /** Delete temporary resources after the script. */
   override protected def afterAll(): Unit =
-    try {
-      Tmp.deleteRecursively()
-    } catch {
-      case ex: Exception =>
-        ex.printStackTrace()
-    }
+    try { Tmp.deleteRecursively() }
+    catch { case ex: Exception => ex.printStackTrace() }
 
   describe("CountdownTaskSpec simple test") {
     it("should run") {

@@ -14,21 +14,19 @@ import scala.reflect.io._
   */
 class SvgSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterAll {
 
-  /** Temporary directory root for all tests. */
-  val TempFolder: Path = Directory.makeTemp("SvgSpec")
+  /** A local temporary directory for test file storage. */
+  val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
+
+  /** Delete temporary resources after the script. */
   override protected def afterAll(): Unit =
-    try {
-      TempFolder.deleteRecursively()
-    } catch {
-      case ex: Exception =>
-        ex.printStackTrace()
-    }
+    try { Tmp.deleteRecursively() }
+    catch { case ex: Exception => ex.printStackTrace() }
 
   describe("Writing to a file") {
 
     it("should write an svg tag unwrapped") {
       val svgContents = svg(Attrs.width := 100)
-      val dst = TempFolder / File("svg_toFile_unwrapped.svg")
+      val dst = Tmp / File("svg_toFile_unwrapped.svg")
       Svg.toFile(dst, svgContents, 99, 99);
       dst.jfile should exist
       val dstContents = dst.safeSlurp()
@@ -37,7 +35,7 @@ class SvgSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterAll {
 
     it("should wrap a group tag") {
       val svgContents = g(Attrs.width := 100)
-      val dst = TempFolder / File("svg_toFile_wrapped.svg")
+      val dst = Tmp / File("svg_toFile_wrapped.svg")
       Svg.toFile(dst, svgContents, 99, 99);
       val dstContents = dst.safeSlurp()
       dstContents.value shouldBe

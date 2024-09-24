@@ -9,8 +9,13 @@ import scala.reflect.io.{Directory, File}
 /** Unit tests for [[BuildFailureReportTask]] */
 class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFailureReportTask)) {
 
-  /** A temporary directory for playing with files. */
+  /** A local temporary directory for test file storage. */
   val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
+
+  /** Delete temporary resources after the script. */
+  override protected def afterAll(): Unit =
+    try { Tmp.deleteRecursively() }
+    catch { case ex: Exception => ex.printStackTrace() }
 
   describe(s"${Cli.Cli} $TaskCmd command line") {
     itShouldThrowOnHelpAndVersionFlags()

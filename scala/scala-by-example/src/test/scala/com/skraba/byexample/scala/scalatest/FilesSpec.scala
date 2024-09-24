@@ -14,7 +14,7 @@ import scala.util.Properties
   */
 class FilesSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 
-  /** Create a temporary directory to use for all tests. This will be automatically cleaned up. */
+  /** A local temporary directory for test file storage. */
   val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
 
   /** Create a temporary directory that will be shared and not deleted between runs. Be careful, this can have
@@ -25,7 +25,7 @@ class FilesSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
   /** If this is not None, retain the last [[Tmp]] here. */
   val SaveLastTmp: Option[Directory] = Some(CachedTmp / "last").map(_.toDirectory)
 
-  /** And delete it after the tests. */
+  /** Delete temporary resources after the script. */
   override protected def afterAll(): Unit =
     try {
       // Optionally save the last temp directory
@@ -40,10 +40,7 @@ class FilesSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
       })
       // Delete the temporary directory
       Tmp.deleteRecursively()
-    } catch {
-      case ex: Exception =>
-        ex.printStackTrace()
-    }
+    } catch { case ex: Exception => ex.printStackTrace() }
 
   /** A resource in this maven project, discoverable on the classpath. */
   val SrcTestResource: Option[File] = {

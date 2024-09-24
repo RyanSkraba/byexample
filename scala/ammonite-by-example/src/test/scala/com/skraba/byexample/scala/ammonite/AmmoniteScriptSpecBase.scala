@@ -25,28 +25,24 @@ abstract class AmmoniteScriptSpecBase(ScriptPath: File) extends AnyFunSpecLike w
   /** The filename of the script being run. */
   lazy val ScriptName: String = ScriptPath.name
 
-  /** A temporary directory for playing with files. */
-  val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
-
   /** A default AnsiConsole for testing output. */
   val Ansi: AnsiConsole = AnsiConsole()
 
-  /** Either create a new home directory reused across this suite, or use the common one.
-    */
+  /** A local temporary directory for test file storage. */
+  val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
+
+  /** Either create a new home directory reused across this suite, or use the common one. */
   val HomeFolder: Path =
     if (ReuseAmmoniteHome) ReusableAmmoniteHome
     else Tmp / "ammonite.home"
 
-  /** And delete temporary resources after the script. */
+  /** Delete temporary resources after the script. */
   override protected def afterAll(): Unit =
     try {
       Tmp.deleteRecursively()
       if (!ReuseAmmoniteHome && HomeFolder.exists)
         HomeFolder.deleteRecursively()
-    } catch {
-      case ex: Exception =>
-        ex.printStackTrace()
-    }
+    } catch { case ex: Exception => ex.printStackTrace() }
 
   /** Creates a scenario in the temporary directory with some items, by default:
     *

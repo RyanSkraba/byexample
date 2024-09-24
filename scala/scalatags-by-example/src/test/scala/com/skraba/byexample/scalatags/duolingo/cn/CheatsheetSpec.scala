@@ -3,13 +3,21 @@ package com.skraba.byexample.scalatags.duolingo.cn
 import com.skraba.byexample.scalatags.Svg
 import com.skraba.byexample.scalatags.duolingo.cn.CheatsheetSpec.assumeCheatsheetNetwork
 import org.scalactic.{Prettifier, source}
-import org.scalatest.{Assertion, Assertions}
+import org.scalatest.{Assertion, Assertions, BeforeAndAfterAll}
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-import scala.reflect.io.File
+import scala.reflect.io.{Directory, File}
 
-class CheatsheetSpec extends AnyFunSpecLike with Matchers {
+class CheatsheetSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
+
+  /** A local temporary directory for test file storage. */
+  val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
+
+  /** Delete temporary resources after the script. */
+  override protected def afterAll(): Unit =
+    try { Tmp.deleteRecursively() }
+    catch { case ex: Exception => ex.printStackTrace() }
 
   describe("A VocabGroup") {
 
@@ -17,13 +25,13 @@ class CheatsheetSpec extends AnyFunSpecLike with Matchers {
       assumeCheatsheetNetwork()
       val vs: Map[String, Vocab] = Cheatsheet.All.vocab.map(v => (v.cn, v)).toMap
       val vg = SvgLessonGroup("你,好,再,见,再见".split(",").toSeq.map(vs.apply), Some("Lesson 1"))
-      Svg.toFile(File("/tmp/duolingo.lesson1.svg"), vg.toSvg(Svg.attrTranslate(50, 10)), 200, 1000)
+      Svg.toFile(Tmp / File("duolingo.lesson1.svg"), vg.toSvg(Svg.attrTranslate(50, 10)), 200, 1000)
     }
 
     it("writes a pretty image") {
       assumeCheatsheetNetwork()
       val s = Cheatsheet(vocab = Cheatsheet.All.vocab.filter(_.cn.nonEmpty))
-      Svg.toFile(File("/tmp/duolingo.all.svg"), s.toSvg(Svg.attrTranslate(50, 10)), 200, 1000)
+      Svg.toFile(Tmp / File("duolingo.all.svg"), s.toSvg(Svg.attrTranslate(50, 10)), 200, 1000)
     }
 
     it("should only include numbers") {
@@ -31,7 +39,7 @@ class CheatsheetSpec extends AnyFunSpecLike with Matchers {
       assumeCheatsheetNetwork()
       val lesson = Cheatsheet.All.vocab.filter(v => v.lesson == "Numbers").map(v => (v.cn(0), v)).toMap
       val cheat = Cheatsheet(vocab = "零一二三四五六七八九十百元".map(lesson.apply)).toSvg()(Svg.attrTranslate(50, 10))
-      Svg.toFile(File("/tmp/duolingo.numbers.svg"), cheat, 200, 150)
+      Svg.toFile(Tmp / File("duolingo.numbers.svg"), cheat, 200, 150)
     }
   }
 

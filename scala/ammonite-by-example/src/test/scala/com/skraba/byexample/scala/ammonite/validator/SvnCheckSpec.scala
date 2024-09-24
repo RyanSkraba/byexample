@@ -8,16 +8,12 @@ import scala.reflect.io.Directory
 /** Test the [[SvnCheck]]. */
 class SvnCheckSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterAll {
 
-  /** A temporary directory for playing with files. */
+  /** A local temporary directory for test file storage. */
   val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
 
-  /** And delete temporary resources after the script. */
+  /** Delete temporary resources after the script. */
   override protected def afterAll(): Unit =
-    try {
-      Tmp.deleteRecursively()
-    } catch {
-      case ex: Exception =>
-        ex.printStackTrace()
-    }
+    try { Tmp.deleteRecursively() }
+    catch { case ex: Exception => ex.printStackTrace() }
 
 }

@@ -19,25 +19,21 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
   /** The path containing ammonite scripts. */
   val ScriptPath: Path = find("/ammonite_example.sc")
 
-  /** A temporary directory for playing with files. */
+  /** A local temporary directory for test file storage. */
   val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
 
-  /** Either create a new home directory reused across this suite, or use the common one.
-    */
+  /** Either create a new home directory reused across this suite, or use the common one. */
   val HomeFolder: Path =
     if (ReuseAmmoniteHome) ReusableAmmoniteHome
     else Tmp / "ammonite.home"
 
-  /** And delete temporary resources after the script. */
+  /** Delete temporary resources after the script. */
   override protected def afterAll(): Unit =
     try {
       Tmp.deleteRecursively()
       if (!ReuseAmmoniteHome && HomeFolder.exists)
         HomeFolder.deleteRecursively()
-    } catch {
-      case ex: Exception =>
-        ex.printStackTrace()
-    }
+    } catch { case ex: Exception => ex.printStackTrace() }
 
   /** A standalone helper method for running one specific script (in this case ammonite_example.sc).
     *
