@@ -47,14 +47,19 @@ object Vocab {
 
 /** A lesson is a collection of vocabulary words and/or phrases.
   *
-  * @param name
+  * @param title
   *   The name of the lesson.
   * @param vocab
   *   The vocabularies in the lesson.
   */
-case class Lesson(name: String, vocab: Vocab*)
+case class Lesson(title: Option[String], vocab: Vocab*)
 
 object Lesson {
+
+  def apply(title: String, vocab: Vocab*): Lesson = Lesson(Some(title), vocab: _*)
+
+  def apply(vocab: Vocab*): Lesson = Lesson(None, vocab: _*)
+
   val Health2: Lesson = Lesson(
     "Health 2",
     Vocab("我今天生病了:Wo³ ji¹ntia¹n she³ngbi⁴ng le:I am sick today"),

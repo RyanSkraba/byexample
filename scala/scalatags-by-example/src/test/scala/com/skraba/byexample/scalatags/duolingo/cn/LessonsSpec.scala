@@ -14,7 +14,7 @@ class LessonsSpec extends AnyFunSpecLike with Matchers {
 
   def stringify(l: Lesson, toLower: Boolean, sortByEn: Boolean): String = {
     val phrases = if (sortByEn) l.vocab.sortBy(_.en) else l.vocab
-    s"""Lessons("${l.name}",
+    s"""Lessons("${l.title.get}",
        |  ${phrases.sortBy(_.en).map(stringify(_, toLower)).mkString(",\n  ")}
        |)
        |""".stripMargin

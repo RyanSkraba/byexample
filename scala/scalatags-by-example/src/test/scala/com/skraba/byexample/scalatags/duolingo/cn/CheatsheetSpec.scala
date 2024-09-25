@@ -21,24 +21,26 @@ class CheatsheetSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers
 
   describe("A VocabGroup") {
 
+    val allVocab: Map[String, Vocab] = Cheatsheet.All.vocab.map(v => (v.cn, v)).toMap
+
     it("should write a pretty group of words") {
       assumeCheatsheetNetwork()
-      val vs: Map[String, Vocab] = Cheatsheet.All.vocab.map(v => (v.cn, v)).toMap
-      val vg = SvgLessonGroup("你,好,再,见,再见".split(",").toSeq.map(vs.apply), Some("Lesson 1"))
-      Svg.toFile(Tmp / File("duolingo.lesson1.svg"), vg.toSvg(Svg.attrTranslate(50, 10)), 200, 1000)
+      val vs: Seq[Vocab] = "你,好,再,见,再见".split(",").toSeq.map(allVocab.apply)
+      val slg = SvgLessonGroup(Lesson("Lesson1", vs: _*))
+      Svg.toFile(Tmp / File("duolingo.lesson1.svg"), slg.toSvg(Svg.attrTranslate(50, 10)), 200, 1000)
     }
 
     it("writes a pretty image") {
       assumeCheatsheetNetwork()
-      val s = Cheatsheet(vocab = Cheatsheet.All.vocab.filter(_.cn.nonEmpty))
-      Svg.toFile(Tmp / File("duolingo.all.svg"), s.toSvg(Svg.attrTranslate(50, 10)), 200, 1000)
+      val cs = Cheatsheet(vocab = Cheatsheet.All.vocab.filter(_.cn.nonEmpty))
+      Svg.toFile(Tmp / File("duolingo.all.svg"), cs.toSvg(Svg.attrTranslate(50, 10)), 200, 1000)
     }
 
     it("should only include numbers") {
       // Just get the vocabulary we're interested in.
       assumeCheatsheetNetwork()
-      val lesson = Cheatsheet.All.vocab.filter(v => v.lesson == "Numbers").map(v => (v.cn(0), v)).toMap
-      val cheat = Cheatsheet(vocab = "零一二三四五六七八九十百元".map(lesson.apply)).toSvg()(Svg.attrTranslate(50, 10))
+      val cheat =
+        Cheatsheet(vocab = "零一二三四五六七八九十百元".map(_.toString).map(allVocab.apply)).toSvg()(Svg.attrTranslate(50, 10))
       Svg.toFile(Tmp / File("duolingo.numbers.svg"), cheat, 200, 150)
     }
   }

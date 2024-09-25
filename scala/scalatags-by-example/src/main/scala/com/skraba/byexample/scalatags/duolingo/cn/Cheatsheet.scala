@@ -10,10 +10,8 @@ import scala.io.Source
 import scala.reflect.io.File
 
 /** A group of related worlds in the cheatsheet
-  * @param words
-  *   The list of related words.
-  * @param title
-  *   A title for these words (or None to omit).
+  * @param lesson
+  *   The list of related words to put in the spreadsheet.
   * @param offset
   *   A helpful offset for laying out the words in relation to the upper-left document corner, or the upper-left of the
   *   last laid out group of words.
@@ -21,15 +19,14 @@ import scala.reflect.io.File
   *   Configuration for drawing the sheet.
   */
 case class SvgLessonGroup(
-    words: Seq[Vocab],
-    title: Option[String] = None,
+    lesson: Lesson,
     offset: Option[(Double, Double)] = None,
     out: SvgLayoutCfg = SvgLayoutCfg()
 ) {
 
   /** Draws the vocab group, with the title on top moving down one line for each vocab. */
   def toSvg: Tag = {
-    g((title.map(out.title).toSeq ++ words.map(out.vocab)).zipWithIndex.map { case (tag, y) =>
+    g((lesson.title.map(out.title).toSeq ++ lesson.vocab.map(out.vocab)).zipWithIndex.map { case (tag, y) =>
       tag(Svg.attrTranslate(0, y * out.lineHeight))
     })
   }
