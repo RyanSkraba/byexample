@@ -3,7 +3,7 @@ package com.skraba.byexample.scalatags.duolingo.cn
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-class LessonsSpec extends AnyFunSpecLike with Matchers {
+class LessonSpec extends AnyFunSpecLike with Matchers {
 
   def stringify(v: Vocab, toLower: Boolean): String = {
     val pinyin =
@@ -14,8 +14,8 @@ class LessonsSpec extends AnyFunSpecLike with Matchers {
 
   def stringify(l: Lesson, toLower: Boolean, sortByEn: Boolean): String = {
     val phrases = if (sortByEn) l.vocab.sortBy(_.en) else l.vocab
-    s"""Lessons("${l.title.get}",
-       |  ${phrases.sortBy(_.en).map(stringify(_, toLower)).mkString(",\n  ")}
+    s"""Lesson("${l.title.get}",
+       |  ${phrases.map(stringify(_, toLower)).mkString(",\n  ")}
        |)
        |""".stripMargin
   }

@@ -90,4 +90,28 @@ object Lesson {
     Vocab("西红柿:xi¹ho²ngshi⁴:tomato"),
     Vocab("西瓜:xi¹gua¹:watermelon")
   )
+
+  val Colours: Lesson = Lesson(
+    "Colours",
+    Vocab("红色:hong²se⁴:red"),
+    Vocab("橙色:cheng²se⁴:orange"),
+    Vocab("黄色:huang²se⁴:yellow"),
+    Vocab("绿色:lü⁴se⁴:green"),
+    Vocab("蓝色:lan²se⁴:blue"),
+    Vocab("靛蓝色:dian⁴lan²se⁴:indigo"),
+    Vocab("紫色:zi³se⁴:purple"),
+    Vocab("棕色:zong¹se⁴:brown"),
+    Vocab("米色:mi³se⁴:beige"),
+    Vocab("栗色:li⁴se⁴:maroon"),
+    Vocab("酒红色:jiu³hong²se⁴:burgundy"),
+    Vocab("青色:qing¹se⁴:cyan"),
+    Vocab("粉红色:fen³hong²se⁴:pink"),
+    Vocab("灰色:hui¹se⁴:gray"),
+    Vocab("深绿色:shen¹lü⁴se⁴:dark green"),
+    Vocab("浅蓝色:qian³lan²se⁴:light blue"),
+    Vocab("黑色:hei¹se⁴:black"),
+    Vocab("白色:bai²se⁴:white"),
+    Vocab("金色:jin¹se⁴:gold"),
+    Vocab("银色:yin²se⁴:silver")
+  )
 }
