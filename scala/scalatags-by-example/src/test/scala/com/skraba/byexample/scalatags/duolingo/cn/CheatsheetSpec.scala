@@ -43,6 +43,22 @@ class CheatsheetSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers
         Cheatsheet(vocab = "零一二三四五六七八九十百元".map(_.toString).map(allVocab.apply)).toSvg()(Svg.attrTranslate(50, 10))
       Svg.toFile(Tmp / File("duolingo.numbers.svg"), cheat, 200, 150)
     }
+
+    it("should print lessons") {
+      assumeCheatsheetNetwork()
+      Svg.toFile(
+        Tmp / File("fruits.vegetables.svg"),
+        SvgLessonGroup(Lesson.FruitsAndVegetables).toSvg(Svg.attrTranslate(50, 10)),
+        200,
+        1000
+      )
+      Svg.toFile(
+        Tmp / File("colours.svg"),
+        SvgLessonGroup(Lesson.Colours).toSvg(Svg.attrTranslate(50, 10)),
+        200,
+        1000
+      )
+    }
   }
 
 }
