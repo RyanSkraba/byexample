@@ -24,8 +24,7 @@ object DuolingoCnCheatsheetTask {
 
   val Cmd = "cheatsheet"
 
-  val Description =
-    "Generate a simple vocabulary sheet for Duolingo Chinese lessons."
+  val Description = "Generate a simple vocabulary sheet for Duolingo Chinese lessons."
 
   def go(opts: java.util.Map[String, AnyRef]): Unit = {
 
@@ -34,12 +33,8 @@ object DuolingoCnCheatsheetTask {
     def filterOnLesson(l: Any): Vocab => Boolean = _.lesson == l
 
     val vocab: Seq[Vocab] = Cheatsheet.All.vocab
-      .filter(
-        Option(opts.get("--section")).map(filterOnSection).getOrElse(_ => true)
-      )
-      .filter(
-        Option(opts.get("--lesson")).map(filterOnLesson).getOrElse(_ => true)
-      )
+      .filter(Option(opts.get("--section")).map(filterOnSection).getOrElse(_ => true))
+      .filter(Option(opts.get("--lesson")).map(filterOnLesson).getOrElse(_ => true))
 
     // If the --words filter is in use, then it might contain commas
     val words = Option(opts.get("--words"))
@@ -49,8 +44,7 @@ object DuolingoCnCheatsheetTask {
         case _                                => Array()
       }
       .map(words => {
-        val byCn: Map[String, Vocab] =
-          vocab.map(v => v.cn -> v).toMap
+        val byCn: Map[String, Vocab] = vocab.map(v => v.cn -> v).toMap
         words.flatMap(byCn.get).toSeq
       })
       .getOrElse(vocab)
