@@ -30,7 +30,7 @@ class LessonSpec extends AnyFunSpecLike with Matchers {
 
     it("can be stringified for cleanup") {
       stringify(Lesson.FruitsAndVegetables, toLower = true, sortByEn = true) shouldBe
-        """Lessons("Fruits and Vegetables",
+        """Lesson("Fruits and Vegetables",
           |  Vocab("苹果:ping²guo³:apple"),
           |  Vocab("香蕉:xiang¹jiao¹:banana"),
           |  Vocab("花椰菜:hua¹ye²cai⁴:broccoli"),
