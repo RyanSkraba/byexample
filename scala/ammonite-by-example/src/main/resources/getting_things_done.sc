@@ -177,6 +177,7 @@ def help(out: ConsoleCfg): Unit = {
       "clean" -> "Beautify the status document",
       "edit" -> "Open the status document in a editor (Visual Code)",
       "addWeek" -> "Add a new week to the status document",
+      "link" -> "Add a new link and task for this week",
       "pr" -> "Add a PR review to this week",
       "stat" -> "Add or update a weekly statistic",
       "statsDaily" -> "Update a list of configured statistics (if any)",
@@ -270,6 +271,40 @@ def addWeek(
     gtdUpdated,
     Some(
       s"feat(status): $verb new week ${gtdUpdated.topWeek.map(_.title).getOrElse("")}"
+    )
+  )
+}
+
+// ==========================================================================
+// link
+
+@arg(doc = "Add a new link to this week.")
+@main
+def link(
+    @arg(doc = "The http(s): link to add to the weekly status")
+    linkUrl: String,
+    @arg(doc = "The text corresponding to the link")
+    linkText: String
+): Unit = {
+  // Read the existing document.
+  val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
+
+  val token = GettingThingsDone.Pattern.format(Instant.now()).replaceAll("-", "") + "-"
+
+  val linkRef: String = gtd.topWeek
+    .flatMap(weekly => {
+      val linkRefs: Seq[String] = weekly.mds.collect { case LinkRef(ref, _, _) if ref.startsWith(token) => ref }
+      linkRefs.map(_.substring(token.length).toInt).maxOption.map(m => s"$token${m + 1}")
+    })
+    .getOrElse(s"${token}1")
+  val gtdWithLink = gtd.updateTopWeek(weekly => weekly.copyMds(weekly.mds :+ LinkRef(linkRef, linkUrl, linkText)))
+
+  val gtdUpdated = gtdWithLink.addTopWeekToDo("TODO", s"[$linkText][$linkRef]", MaybeToDo)
+
+  writeGtd(
+    gtdUpdated,
+    Some(
+      s"feat(status): Add '$linkText' to the weekly status"
     )
   )
 }
