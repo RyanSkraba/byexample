@@ -18,8 +18,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
   val defaultNextWeekStart: String = nextWeekStart(None)
 
   /** The default day of the week. */
-  val todayDayOfWeek: String =
-    LocalDate.now.getDayOfWeek.toString.take(3).toLowerCase.capitalize
+  val todayDayOfWeek: String = LocalDate.now.getDayOfWeek.toString.take(3).toLowerCase.capitalize
 
   /** A function to prepend a comment with a given text to the contents of the header.
     */

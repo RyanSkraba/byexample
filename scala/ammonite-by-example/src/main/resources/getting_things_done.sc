@@ -284,7 +284,8 @@ def link(
     @arg(doc = "The http(s): link to add to the weekly status")
     linkUrl: String,
     @arg(doc = "The text corresponding to the link")
-    linkText: String
+    linkText: String,
+    out: ConsoleCfg
 ): Unit = {
   // Read the existing document.
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
