@@ -40,6 +40,7 @@ object CountdownTask {
     |  --version      Show version.
     |  TEMPLATE       The template file to use
     |  --dstDir=DIR   The destination directory, relative to the template
+    |  --anim=DIR     The type of animation to use [default: SplitCircle]
     |  --frameRate=N  The number of frames per second to use [default: 30]
     |  --warmup=N     The seconds to generate before the countdown [default: 2]
     |  --duration=N   The number of seconds for the countdown [default: 300]
@@ -81,6 +82,7 @@ object CountdownTask {
   case class Video(
       src: File,
       dstDir: Directory,
+      animation: Animation,
       frameRate: Int = 30,
       warmup: Double = 2,
       duration: Double = 5 * 60,
@@ -103,7 +105,7 @@ object CountdownTask {
     private lazy val execCache = collection.mutable.Map[String, File]()
 
     private def execInkscape(f: Int, src: String, dst: String): Unit = {
-      Seq("inkscape", "-w", "1920", "-h", "1080", src, "--export-filename", dst).!!
+      Seq("inkscape", "-w", dx.toString, "-h", dy.toString, src, "--export-filename", dst).!!
       if ((f + 1) % frameRate == 0) {
         if (f / frameRate % 10 == 0) print(f / frameRate)
         else print("x")
@@ -137,7 +139,7 @@ object CountdownTask {
         val dstSvg: File = (dstDir / (fileBase + "." + src.extension)).toFile
 
         // Always write the file contents
-        val contents = Frame(this, f).contents()
+        val contents = Frame(this, f, animation).contents()
         dstSvg.writeAll(contents)
 
         // If the destination video is being written, do the png conversion
@@ -171,6 +173,56 @@ object CountdownTask {
         }
       )
     }
+  }
+
+  sealed trait Animation {
+    def progressPath(fraction: Double): String
+  }
+  object Animation {
+    case object SplitCircle extends Animation {
+
+      /** The center and size of the progress pie. */
+      val (cx, cy, r) = (0, 0, 50)
+
+      def progressPath(fraction: Double): String = {
+        val degrees = math.Pi * fraction
+        // The starting and ending point of the progress pie.  These lie along a circle.
+        val (drx, dry) = (r * math.cos(degrees), r * math.sin(degrees))
+        val (p1x, p1y) = (cx - drx, cy - dry)
+        val (p2x, p2y) = (cx - drx, cy + dry)
+        // The path is a straight line from the center to the first point, then an arc to the farthest right point,
+        // then another arc continuing to the second point, then a straight line back to the center.
+        // Separating this into two arcs lets us guarantee that the arc size is always smaller than half the
+        // circumference, which simplifies the path.
+        s"M $cx $cy L $p1x, $p1y A $r, $r 0 0 1 ${cx + r} $cy A $r, $r 0 0 1 $p2x, $p2y L $cx $cy z"
+      }
+    }
+    case object Moon extends Animation {
+
+      /** The size of the page.
+        *
+        * m 417.91568,195.26441 h 406.1043 v 401.7376 z
+        */
+      val (x, y, dx, dy) = (-50d, -50d, 100d, 100d)
+
+      def progressPath(fraction: Double): String = {
+        val r = (dx min dy) / 2
+        /*
+        m 0,-300
+        v 100
+        h 100
+        a 25,50 0 0 1 0,-100
+        z
+         */
+        if (fraction < 0.5)
+          s"M $x $y v $dy h ${dx / 2} a ${r * (1 - 2 * fraction)},$r 0 0 1 0,${-dy}"
+        else
+          s"M $x $y v $dy h ${dx / 2} a ${r * (2 * fraction - 1)},$r 0 0 0 0,${-dy}"
+      }
+    }
+
+    def values: Set[Animation] = Set(SplitCircle, Moon)
+    def withName(s: String): Option[Animation] = values.find(_.toString == s)
   }
 
   /* Pretty failed experiment trying to rigorously parse XML :/
@@ -215,7 +267,7 @@ object CountdownTask {
     * @param frameNum
     *   This current frame number
     */
-  case class Frame(v: Video, frameNum: Int) {
+  case class Frame(v: Video, frameNum: Int, animation: Animation) {
 
     /** A relative time in seconds to the start of the actual timer (the warmup will be negative). */
     val time: Double = frameNum.toDouble / v.frameRate - v.warmup
@@ -230,30 +282,11 @@ object CountdownTask {
     val timeRemaining: String =
       f"${(v.duration - timeBounded).toInt / 60}%01d:${(v.duration - timeBounded).toInt % 60}%02d"
 
-    /** The center and size of the progress pie. */
-    val (cx, cy, r) = (v.dx / 2, v.dy / 2, 890 / 2)
-
     private val CountdownLayerRegex: Regex = raw"""(?s).*(<g.*?\bid="Countdown".*?>)""".r
     private val CountdownMildLayerRegex: Regex = raw"""(?s).*(<g.*?\bid="CountdownMild".*?>)""".r
     private val CountdownStrongLayerRegex: Regex = raw"""(?s).*(<g.*?\bid="CountdownStrong".*?>)""".r
 
     private val PathRegex: Regex = raw"""(?s).*(<path.*?\bid="progress".*?/>)""".r
-
-    /** @return
-      *   An SVG path representing the progress of the timer.
-      */
-    def progressPath(): String = {
-      val degrees = math.Pi * fraction
-      // The starting and ending point of the progress pie.  These lie along a circle.
-      val (drx, dry) = (r * math.cos(degrees), r * math.sin(degrees))
-      val (p1x, p1y) = (cx - drx, cy - dry)
-      val (p2x, p2y) = (cx - drx, cy + dry)
-      // The path is a straight line from the center to the first point, then an arc to the farthest right point,
-      // then another arc continuing to the second point, then a straight line back to the center.
-      // Separating this into two arcs lets us guarantee that the arc size is always smaller than half the
-      // circumference, which simplifies the path.
-      s"M $cx $cy L $p1x, $p1y A $r, $r 0 0 1 ${cx + r} $cy A $r, $r 0 0 1 $p2x, $p2y L $cx $cy z"
-    }
 
     private def modifyLayer(in: String, re: Regex, opacity: Double): String = {
       val m = re.findFirstMatchIn(in).get
@@ -284,7 +317,9 @@ object CountdownTask {
       // Find the path representing the progress of the talk and use the match to replace the path
       val withProgress = {
         val m = PathRegex.findFirstMatchIn(withTime).get
-        "" + m.before(1) + m.group(1).replaceAll(raw"""(?s)\bd=".*?"""", s"""d="${progressPath()}"""") + m.after(1)
+        "" + m.before(1) + m
+          .group(1)
+          .replaceAll(raw"""(?s)\bd=".*?"""", s"""d="${animation.progressPath(fraction)}"""") + m.after(1)
       }
 
       // Style the text according to the warnings
@@ -318,6 +353,7 @@ object CountdownTask {
         .map(Directory.apply(_))
         .getOrElse((template.parent / "target").toDirectory)
     }
+    val animation = Animation.withName(opts.get("--anim").asInstanceOf[String]).getOrElse(Animation.SplitCircle)
     val frameRate = opts.get("--frameRate").asInstanceOf[String].toInt
     val warmup = opts.get("--warmup").asInstanceOf[String].toDouble
     val duration = opts.get("--duration").asInstanceOf[String].toDouble
@@ -331,6 +367,7 @@ object CountdownTask {
     Video(
       src = template,
       dstDir = dstDir,
+      animation = animation,
       frameRate = frameRate,
       warmup = warmup,
       duration = duration,
