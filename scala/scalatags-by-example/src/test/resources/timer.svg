@@ -5199,7 +5199,7 @@
      sodipodi:insensitive="true"><path
        id="progress"
        style="display:inline;fill:#f9f9f9;fill-opacity:0.435899;stroke-width:0.628391"
-       d="M -50,0 A 50,50 0 0 1 2.0898123,-49.952411 50.095315,50 0 0 1 50,2.9852338e-7 50.095315,50 0 0 1 2.0898123,49.952412 50.095315,50 0 0 1 -50,4.357787 L -0.09531123,2.9852339e-7 Z"
+       d="M 0 0 L -48.907380036690284, -10.395584540887965 A 50, 50 0 0 1 50 0 A 50, 50 0 0 1 -48.907380036690284, 10.395584540887965 L 0 0 z"
        transform="translate(960,540) scale(8.9)" /></g><g
      inkscape:groupmode="layer"
      id="CountdownStrong"

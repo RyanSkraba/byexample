@@ -175,15 +175,22 @@ object CountdownTask {
     }
   }
 
+  /** The type of progress animation that should be applied. */
   sealed trait Animation {
     def progressPath(fraction: Double): String
   }
+
   object Animation {
+
+    /** The size of the path to be adjusted. We are assuming that it's in a 100px wide square centered on 0,0.
+      * Transformations can be applied in the SVG to place it elsewhere in the image.
+      */
+    val (cx, cy, r) = (0, 0, 50)
+
+    /** Returns a path that is a circle opening on the right (like a pacman facing left) and gradually disappears to the
+      * left.
+      */
     case object SplitCircle extends Animation {
-
-      /** The center and size of the progress pie. */
-      val (cx, cy, r) = (0, 0, 50)
-
       def progressPath(fraction: Double): String = {
         val degrees = math.Pi * fraction
         // The starting and ending point of the progress pie.  These lie along a circle.
@@ -197,27 +204,14 @@ object CountdownTask {
         s"M $cx $cy L $p1x, $p1y A $r, $r 0 0 1 ${cx + r} $cy A $r, $r 0 0 1 $p2x, $p2y L $cx $cy z"
       }
     }
+
+    /** Returns a path that can be used to apply an moon-phases effect to a circle. */
     case object Moon extends Animation {
-
-      /** The size of the page.
-        *
-        * m 417.91568,195.26441 h 406.1043 v 401.7376 z
-        */
-      val (x, y, dx, dy) = (-50d, -50d, 100d, 100d)
-
       def progressPath(fraction: Double): String = {
-        val r = (dx min dy) / 2
-        /*
-        m 0,-300
-        v 100
-        h 100
-        a 25,50 0 0 1 0,-100
-        z
-         */
         if (fraction < 0.5)
-          s"M $x $y v $dy h ${dx / 2} a ${r * (1 - 2 * fraction)},$r 0 0 1 0,${-dy}"
+          s"M ${-cx} ${-cy} v ${r * 2} h $r a ${r * (1 - 2 * fraction)},$r 0 0 1 0,${-r * 2} z"
         else
-          s"M $x $y v $dy h ${dx / 2} a ${r * (2 * fraction - 1)},$r 0 0 0 0,${-dy}"
+          s"M ${-cx} ${-cy} v ${r * 2} h $r a ${r * (2 * fraction - 1)},$r 0 0 0 0,${-r * 2} z"
       }
     }
 
