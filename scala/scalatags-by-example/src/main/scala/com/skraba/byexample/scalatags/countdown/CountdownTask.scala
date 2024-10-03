@@ -116,6 +116,7 @@ object CountdownTask {
       println(".")
       Seq(
         "ffmpeg",
+        "-y",
         "-framerate",
         frameRate.toString,
         "-pattern_type",
@@ -133,7 +134,16 @@ object CountdownTask {
       ).!!
     }
 
-    def write(dstVideo: Option[File], dstClean: Boolean = false): Unit = {
+    /** Generates SVG files for every frame of the animation.
+      * @param dstVideo
+      *   The destination video file (or none if only SVG files should be generated).
+      * @param overwritePng
+      *   When true, image files are generated and any existing image files are overwritten. When false, if an image
+      *   file is necessary and already exists, it is used directly.
+      * @param dstClean
+      *   When true, removes all of the the SVG and PNG files in the directory.
+      */
+    def write(dstVideo: Option[File], overwritePng: Boolean = true, dstClean: Boolean = false): Unit = {
       for (f <- 0 to framesTotal) {
         val fileBase = src.stripExtension + f".${f / frameRate}%05d.${f % frameRate}%05d"
         val dstSvg: File = (dstDir / (fileBase + "." + src.extension)).toFile
@@ -143,20 +153,23 @@ object CountdownTask {
         dstSvg.writeAll(contents)
 
         // If the destination video is being written, do the png conversion
-        if (dstVideo.nonEmpty) {
+        if (dstVideo.nonEmpty || overwritePng) {
           val dst = (dstDir / (fileBase + ".png")).toFile
-          // See if this frame already has an identical file
-          val cached = execCache.getOrElseUpdate(
-            contents, {
-              // If it doesn't, then use Inkscape to create it.
-              execInkscape(f, dstSvg.toString, dst.toString)
-              dst
+
+          if (overwritePng || !dst.exists) {
+            // See if this frame already has an identical file
+            val cached = execCache.getOrElseUpdate(
+              contents, {
+                // If it doesn't, then use Inkscape to create it.
+                execInkscape(f, dstSvg.toString, dst.toString)
+                dst
+              }
+            )
+            if (cached != dst) {
+              // If the frame does exist already, then just make a copy.
+              print("o")
+              Files.copy(cached.jfile.toPath, dst.jfile.toPath, StandardCopyOption.REPLACE_EXISTING)
             }
-          )
-          if (cached != dst) {
-            // If the frame does exist already, then just make a copy.
-            print("o")
-            Files.copy(cached.jfile.toPath, dst.jfile.toPath, StandardCopyOption.REPLACE_EXISTING)
           }
         }
       }
@@ -368,7 +381,7 @@ object CountdownTask {
       warningMild = mild,
       warningStrong = strong,
       cooldown = cooldown
-    ).write(dstVideo)
+    ).write(dstVideo, overwritePng = false)
   }
 
   val Task: ScalatagsGo.Task = ScalatagsGo.Task(Doc, Cmd, Description, go)
