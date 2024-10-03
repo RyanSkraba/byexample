@@ -222,9 +222,9 @@ object CountdownTask {
     case object Moon extends Animation {
       def progressPath(fraction: Double): String = {
         if (fraction < 0.5)
-          s"M ${-cx} ${-cy} v ${r * 2} h $r a ${r * (1 - 2 * fraction)},$r 0 0 1 0,${-r * 2} z"
+          s"M ${cx - r} ${cy - r} v ${r * 2} h $r a ${r * (1 - 2 * fraction)},$r 0 0 1 0,${-r * 2} z"
         else
-          s"M ${-cx} ${-cy} v ${r * 2} h $r a ${r * (2 * fraction - 1)},$r 0 0 0 0,${-r * 2} z"
+          s"M ${cx - r} ${cy - r} v ${r * 2} h $r a ${r * (2 * fraction - 1)},$r 0 0 0 0,${-r * 2} z"
       }
     }
 
