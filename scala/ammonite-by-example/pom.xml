@@ -32,11 +32,6 @@
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-library</artifactId>
     </dependency>
-    <dependency>
-      <groupId>com.lihaoyi</groupId>
-      <artifactId>os-lib_${scala.binary.version}</artifactId>
-      <version>0.9.3</version>
-    </dependency>
 
     <!-- Used for reading CSV files in asf_video.sc -->
     <dependency>

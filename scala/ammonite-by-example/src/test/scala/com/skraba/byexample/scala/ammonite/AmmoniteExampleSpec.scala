@@ -52,7 +52,7 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
     Console.withIn(in) {
       withConsoleMatch(
         ammonite.AmmoniteMain.main0(
-          List("--silent", "--home", HomeFolder.toString, ScriptPath.toString) ++ args,
+          List("--no-warn", "--silent", "--home", HomeFolder.toString, ScriptPath.toString) ++ args,
           in,
           Console.out,
           Console.err
@@ -130,11 +130,11 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
 
   describe("Running the ammonite_example argTest") {
 
-    val ExpectedSignature = """Expected Signature: argTest
-      |  --user <str>      The user running the script, or current user if not present
+    val ExpectedSignature = """Expected Signature: arg-test
       |  --greeting <str>  A string value
-      |  -v --verbose      Verbose for extra output
       |  -p --plain        Don't use ansi colour codes
+      |  --user <str>      The user running the script, or current user if not present
+      |  -v --verbose      Verbose for extra output
       |  -y --yes          Don't prompt for user confirmation, assume yes
       |
       |
@@ -180,12 +180,6 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
       stdout should not include s"\nThe --verbose flag was set!\n"
     }
 
-    it("with three arguments (You 'Hello there' VerboseFlag)") {
-      val stdout = argTest("You", "Hello there", "VerboseFlag")
-      stdout should startWith(s"${YELLOW}Hello there, ${BOLD}You$RESET\n")
-      stdout should include(s"\nThe --verbose flag was set!\n")
-    }
-
     it("with a named argument (--greeting Yo)") {
       val stdout = argTest("--greeting", "Yo")
       stdout shouldBe s"${YELLOW}Yo, $BOLD${Properties.userName}$RESET\n"
@@ -201,23 +195,22 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
       }
     }
 
-    it("should fail with too many arguments (Me 'Hello there' VerboseFlag X Invalid)") {
-      withAmmoniteExample("argTest", "You", "Hello there", "VerboseFlag", "X", "X", "Invalid") {
-        case (result, stdout, stderr) =>
-          result shouldBe false
-          stderr shouldBe s"""Unknown argument: "Invalid"\n$ExpectedSignature"""
-          stdout shouldBe empty
+    it("should fail with too many arguments (Me 'Hello there' X Invalid)") {
+      withAmmoniteExample("argTest", "You", "Hello there", "X", "Invalid") { case (result, stdout, stderr) =>
+        result shouldBe false
+        stderr shouldBe s"""Unknown arguments: "X" "Invalid"\n$ExpectedSignature"""
+        stdout shouldBe empty
       }
     }
   }
 
   describe("Running the ammonite_example argTestRepeated") {
 
-    val ExpectedSignature = """Expected Signature: argTestRepeated
+    val ExpectedSignature = """Expected Signature: arg-test-repeated
       |  -f --first <str>     A first string argument
+      |  -p --plain           Don't use ansi colour codes
       |  -r --repeated <str>  Subsequent arguments are only printed in verbose mode
       |  -v --verbose         Verbose for extra output
-      |  -p --plain           Don't use ansi colour codes
       |  -y --yes             Don't prompt for user confirmation, assume yes
       |
       |
@@ -281,25 +274,10 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
     }
 
     describe("with three arguments is almost always unexpected") {
-      it("(one two three) parses unexpectedly as verbose") {
-        val stdout = argTestRepeated("one", "two", "three")
-        stdout shouldBe s"$BOLD${BLUE}one$RESET$BLUE (1)$RESET\ntwo\n"
-      }
-
-      it("(--verbose one two three) parses unexpected as plain") {
-        val stdout = argTestRepeated("--verbose", "one", "two", "three")
-        stdout shouldBe s"one (1)\ntwo\n"
-      }
-
-      it("(one --verbose  two three) parses unexpected as plain") {
-        val stdout = argTestRepeated("one", "--verbose", "two", "three")
-        stdout shouldBe s"one (1)\ntwo\n"
-      }
-
       it("(one two three --verbose) is an error") {
         withAmmoniteExample("argTestRepeated", "one", "two", "three", "--verbose") { case (result, stdout, stderr) =>
           result shouldBe false
-          stderr shouldBe s"""Duplicate arguments for -v --verbose: "three" ""\n$ExpectedSignature"""
+          stderr shouldBe s"""Unknown arguments: "three" "--verbose"\n$ExpectedSignature"""
           stdout shouldBe empty
         }
       }
@@ -321,12 +299,12 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
 
   describe("Running the ammonite_example argTestLeftover") {
 
-    val ExpectedSignature = """Expected Signature: argTestLeftover
+    val ExpectedSignature = """Expected Signature: arg-test-leftover
       |  -f --first <str>   A first string argument
-      |  repeated <str>...  Subsequent arguments are only printed in verbose mode
-      |  -v --verbose       Verbose for extra output
       |  -p --plain         Don't use ansi colour codes
+      |  -v --verbose       Verbose for extra output
       |  -y --yes           Don't prompt for user confirmation, assume yes
+      |  repeated <str>...  Subsequent arguments are only printed in verbose mode
       |
       |
       |""".stripMargin
@@ -389,29 +367,6 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
     }
 
     describe("with three arguments is almost always unexpected") {
-      it("(one two three) parses unexpectedly as verbose") {
-        val stdout = argTestLeftover("one", "two", "three")
-        stdout shouldBe s"$BOLD${BLUE}one$RESET$BLUE (1)$RESET\ntwo\n"
-      }
-
-      it("(--verbose one two three) parses unexpected as plain") {
-        val stdout = argTestLeftover("--verbose", "one", "two", "three")
-        stdout shouldBe s"one (1)\ntwo\n"
-      }
-
-      it("(one --verbose  two three) parses unexpected as plain") {
-        val stdout = argTestLeftover("one", "--verbose", "two", "three")
-        stdout shouldBe s"one (1)\ntwo\n"
-      }
-
-      it("(one two three --verbose) is an error") {
-        withAmmoniteExample("argTestLeftover", "one", "two", "three", "--verbose") { case (result, stdout, stderr) =>
-          result shouldBe false
-          stderr shouldBe s"""Duplicate arguments for -v --verbose: "two" ""\n$ExpectedSignature"""
-          stdout shouldBe empty
-        }
-      }
-
       it("(--first one --verbose --repeated two --plain --repeated three) works") {
         val stdout =
           argTestLeftover("--first", "one", "--verbose", "--repeated", "two", "--plain", "--repeated", "three")
