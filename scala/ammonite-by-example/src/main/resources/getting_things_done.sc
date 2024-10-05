@@ -293,9 +293,9 @@ def link(
   val token = GettingThingsDone.Pattern.format(Instant.now()).replaceAll("-", "") + "-"
 
   val linkRef: String = gtd.topWeek
-    .flatMap(weekly => {
-      val linkRefs: Seq[String] = weekly.mds.collect { case LinkRef(ref, _, _) if ref.startsWith(token) => ref }
-      linkRefs.map(_.substring(token.length).toInt).maxOption.map(m => s"$token${m + 1}")
+    .map(weekly => {
+      val linkRefs: Set[String] = weekly.mds.collect { case LinkRef(ref, _, _) if ref.startsWith(token) => ref }.toSet
+      LazyList.from(1).map(i => s"$token$i").filterNot(linkRefs).head
     })
     .getOrElse(s"${token}1")
   val gtdWithLink = gtd.updateTopWeek(weekly => weekly.copyMds(weekly.mds :+ LinkRef(linkRef, linkUrl, linkText)))
