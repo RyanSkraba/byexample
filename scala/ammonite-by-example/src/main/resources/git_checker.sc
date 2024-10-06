@@ -216,7 +216,7 @@ def ghContrib(
   val contributions = requests.post(
     url = "https://api.github.com/graphql",
     headers = Seq(
-      ("Authorization", s"Bearer ${token.out.lines.head.trim}"),
+      ("Authorization", s"Bearer ${token.out.lines().head.trim}"),
       ("Content-Type", "application/json")
     ),
     data = s"""{"query":"query($$userName:String!) {
@@ -295,14 +295,16 @@ def rewriteDate(
 
     // Otherwise try and parse the command using a variety of formatters.
     case _ =>
-      val attempts = Formatters.toStream.map(fmt => {
-        val attempt = Try { LocalDateTime.parse(cmd, fmt._2) }
-        out.vPrintln(
-          if (attempt.isSuccess) s"${GREEN}Succeeded parsing ${fmt._1}\n"
-          else s"${RED}Failure trying ${fmt._1}"
-        )
-        attempt
-      })
+      val attempts = Formatters
+        .to(LazyList)
+        .map(fmt => {
+          val attempt = Try { LocalDateTime.parse(cmd, fmt._2) }
+          out.vPrintln(
+            if (attempt.isSuccess) s"${GREEN}Succeeded parsing ${fmt._1}\n"
+            else s"${RED}Failure trying ${fmt._1}"
+          )
+          attempt
+        })
       attempts.find(_.isSuccess).map(_.get).getOrElse { attempts.head.get }
   })
 
@@ -389,7 +391,7 @@ def rewriteDate(
             "GPG_FAKED_DATE" -> fakedDate
           )
         ).out
-          .lines
+          .lines()
           .mkString
       )
     }
