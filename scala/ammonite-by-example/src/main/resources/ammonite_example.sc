@@ -199,7 +199,7 @@ def sysExec(path: Option[os.Path], out: ConsoleCfg): Unit = {
   ) match {
     case Success(result) if result.exitCode == 0 =>
       println(out.ok(s"Successful (${result.exitCode})", bold = true))
-      result.out.lines.map(_.replace("\"", "")).foreach(println)
+      result.out.lines().map(_.replace("\"", "")).foreach(println)
     case Success(result) =>
       println(out.ok(s"Successful (${result.exitCode})"))
     case Failure(ex) =>
@@ -289,7 +289,7 @@ def gitJsonDecorated(
     os.proc("git", "--no-pager", "log", "--pretty=format:\"%ad\"", "--date=short")
       .call(os.Path(prj))
       .out
-      .lines
+      .lines()
       .map(_.replace("\"", ""))
   }
 
@@ -299,9 +299,9 @@ def gitJsonDecorated(
       minDate: Long = byDate.keySet.min
   ): Unit =
     git(repo)
-      .map(LocalDate.parse(_, YyyyMmDd).toEpochDay)
+      .map(LocalDate.parse(_, YyyyMmDd).toEpochDay())
       .filter(_ > minDate)
-      .foreach(day => byDate += (day -> byDate.get(day).map(_ + s" $tag").getOrElse(tag)))
+      .foreach(day => byDate += (day -> byDate.get(day).map(_.toString + s" $tag").getOrElse(tag)))
 
   spec.map(_.split(":")).foreach { case Array(tag, repo) => augment(tag, repo) }
   println(calendarize(byDate, "**0**").build())

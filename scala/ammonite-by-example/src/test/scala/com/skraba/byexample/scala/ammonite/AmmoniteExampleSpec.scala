@@ -52,7 +52,7 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
     Console.withIn(in) {
       withConsoleMatch(
         ammonite.AmmoniteMain.main0(
-          List("--no-warn", "--silent", "--home", HomeFolder.toString, ScriptPath.toString) ++ args,
+          List("--silent", "--home", HomeFolder.toString, ScriptPath.toString) ++ args,
           in,
           Console.out,
           Console.err

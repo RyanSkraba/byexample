@@ -100,7 +100,7 @@ object Commit {
     os.proc("git", "log", "-1", commit, "--pretty=format:%aI")
       .call(repo)
       .out
-      .lines
+      .lines()
       .last
       .trim,
     DateTimeFormatter.ISO_OFFSET_DATE_TIME

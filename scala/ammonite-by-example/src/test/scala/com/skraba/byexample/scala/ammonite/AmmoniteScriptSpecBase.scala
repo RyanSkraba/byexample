@@ -89,10 +89,8 @@ abstract class AmmoniteScriptSpecBase(ScriptPath: File) extends AnyFunSpecLike w
   ): U = Streamable.closing(new ByteArrayInputStream(Array.empty[Byte])) { in =>
     Console.withIn(in) {
       withConsoleMatch(
-        // TODO: Why do we need to put --no-warn in all places?  Can we find and fix the deprecations somehow?
-        // TODO: Check this in all places where --no-warn is used.
         ammonite.AmmoniteMain.main0(
-          List("--no-warn", "--silent", "--home", HomeFolder.toString, ScriptPath.toString) ++ args.map(_.toString),
+          List("--silent", "--home", HomeFolder.toString, ScriptPath.toString) ++ args.map(_.toString),
           in,
           Console.out,
           Console.err
@@ -237,7 +235,7 @@ object AmmoniteScriptSpecBase {
     Console.withIn(in) {
       withConsoleMatch(
         ammonite.AmmoniteMain.main0(
-          List("--no-warn", "--silent", "--home", tmp.toString) ++ args,
+          List("--silent", "--home", tmp.toString) ++ args,
           in,
           Console.out,
           Console.err
