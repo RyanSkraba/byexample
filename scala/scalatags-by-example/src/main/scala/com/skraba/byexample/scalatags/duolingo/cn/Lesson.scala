@@ -114,4 +114,5 @@ object Lesson {
     Vocab("金色:jin¹se⁴:gold"),
     Vocab("银色:yin²se⁴:silver")
   )
+
 }
