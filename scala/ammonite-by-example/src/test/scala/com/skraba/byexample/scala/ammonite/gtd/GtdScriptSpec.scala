@@ -90,7 +90,13 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
           |""".stripMargin)
 
       val (stdout, gtd) = link("http://example.com", "Example link", "--plain")
-      // TODO: check STDOUT
+      stdout shouldBe """Commit:
+                        |  git -C <TMP> add link.md &&
+                        |      git -C <TMP> difftool --staged
+                        |  git -C <TMP> add link.md &&
+                        |      git -C <TMP> commit -m "feat(status): Add 'Example link' to the weekly status"
+                        |
+                        |""".stripMargin
 
       gtd shouldBe
         """Weekly Status

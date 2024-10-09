@@ -73,6 +73,7 @@ val TextToToDoStates: Map[String, GettingThingsDone.ToDoState] =
   */
 private def writeGtd(
     gtd: GettingThingsDone,
+    out: ConsoleCfg,
     gitStatus: Option[String] = None,
     compressTable: Boolean = false
 ): Unit = {
@@ -82,12 +83,13 @@ private def writeGtd(
   val after = if (compressTable) asText.replaceAll(" +( \\|)", "$1") else asText
 
   os.write.over(StatusFile, after)
+
   gitStatus
-    .map(msg => s"""${GREEN}Commit:$RESET
+    .map(msg => s"""${out.green("Commit:")}
          |  git -C $StatusRepo add ${StatusFile.relativeTo(StatusRepo)} &&
          |      git -C $StatusRepo difftool --staged
          |  git -C $StatusRepo add ${StatusFile.relativeTo(StatusRepo)} &&
-         |      git -C $StatusRepo commit -m $BOLD"$msg"$RESET
+         |      git -C $StatusRepo commit -m ${out.bold(s"\"$msg\"")}
          |""".stripMargin)
     .foreach(println)
 
@@ -213,11 +215,13 @@ def help(out: ConsoleCfg): Unit = {
 @main
 def clean(
     @arg(doc = "Write the document with less whitespace")
-    compress: Flag
+    compress: Flag,
+    out: ConsoleCfg
 ): Unit = {
   // Read and overwrite the existing document without making any changes.
   writeGtd(
     GettingThingsDone(os.read(StatusFile), ProjectParserCfg),
+    out,
     Some("feat(status): Beautify the document"),
     compressTable = compress.value
   )
@@ -242,9 +246,9 @@ def edit(): Unit = {
 @arg(doc = "Adds new weeks to the status document, up to the current date.")
 @main
 def addWeek(
-    out: ConsoleCfg,
     @arg(doc = "If set, just add one single new week instead of to the current date")
-    single: Flag
+    single: Flag,
+    out: ConsoleCfg
 ): Unit = {
   // Read the existing document.
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
@@ -269,6 +273,7 @@ def addWeek(
   }
   writeGtd(
     gtdUpdated,
+    out,
     Some(
       s"feat(status): $verb new week ${gtdUpdated.topWeek.map(_.title).getOrElse("")}"
     )
@@ -304,6 +309,7 @@ def link(
 
   writeGtd(
     gtdUpdated,
+    out,
     Some(
       s"feat(status): Add '$linkText' to the weekly status"
     )
@@ -325,7 +331,8 @@ def pr(
     @arg(doc = "A short description for the PR")
     description: String,
     @arg(doc = "The status of the work on the PR")
-    status: String = "TOREVIEW"
+    status: String = "TOREVIEW",
+    out: ConsoleCfg
 ): Unit = {
   // Read the existing document.
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
@@ -361,6 +368,7 @@ def pr(
 
   writeGtd(
     gtdUpdated,
+    out,
     Some(
       s"feat(status): PR ${fullJira.orElse(fullPr).getOrElse("")} $description"
     )
@@ -378,13 +386,14 @@ def stat(
     @arg(doc = "The new value to put in the row")
     cell: String,
     @arg(doc = "The column to update or None for today")
-    date: Option[String] = None
+    date: Option[String] = None,
+    out: ConsoleCfg
 ): Unit = {
   // Read the existing document.
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
   // TODO: If date is in a YYYY-MM-DD format, then to the correct date
   val gtdUpdated = gtd.updateTopWeekStats(rowStat, cell, date)
-  writeGtd(gtdUpdated, Some(s"feat(status): Update $rowStat"))
+  writeGtd(gtdUpdated, out, Some(s"feat(status): Update $rowStat"))
 }
 
 // ==========================================================================
@@ -393,6 +402,7 @@ def stat(
 @arg(doc = "Update many statistics for today.")
 @main
 def statsToday(
+    out: ConsoleCfg,
     @arg(doc = "Key/value list of statistics to be updated")
     stats: String*
 ): Unit = {
@@ -411,6 +421,7 @@ def statsToday(
   }
   writeGtd(
     gtdUpdated,
+    out,
     Some(s"feat(status): Update ${stats.grouped(2).map(_.head).mkString(",")}")
   )
 }
@@ -423,7 +434,7 @@ def statsToday(
 def statsDaily(out: ConsoleCfg): Unit = {
 
   // Ensure we are on the current week to add today's stats.
-  addWeek(out, Flag(false))
+  addWeek(Flag(false), out)
 
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
 
@@ -462,7 +473,7 @@ def statsDaily(out: ConsoleCfg): Unit = {
   }
 
   // Add them as daily statistics
-  args.foreach(statsToday(_: _*))
+  args.foreach(statsToday(out, _: _*))
 }
 
 /** Given an optional parameter, calculates the date range that corresponds to that month.
