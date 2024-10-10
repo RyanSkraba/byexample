@@ -290,12 +290,14 @@ def link(
     linkUrl: String,
     @arg(doc = "The text corresponding to the link")
     linkText: String,
+    @arg(doc = "The prefix for the link reference, which will have a -NN appended")
+    linkRefPrefix: Option[String] = None,
     out: ConsoleCfg
 ): Unit = {
   // Read the existing document.
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
 
-  val token = GettingThingsDone.Pattern.format(Instant.now()).replaceAll("-", "") + "-"
+  val token = linkRefPrefix.getOrElse(GettingThingsDone.Pattern.format(Instant.now()).replaceAll("-", "")) + "-"
 
   val linkRef: String = gtd.topWeek
     .map(weekly => {

@@ -134,6 +134,7 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
 
       // Rewrite the file but throw away one of the link references
       Output.writeAll(Output.lines().filter(!_.contains("example.org")).mkString("\n"))
+      link("http://example.fr/custom", "Custom", "19000101")
       val (_, gtd3) = link("http://example.fr/fourth", "Fourth")
       // The new link reference is inserted in the right place
       gtd3 shouldBe
@@ -148,8 +149,10 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
           || 🔶TODO | [Example link][<TODAY>-1] |
           || 🔶TODO | [Second][<TODAY>-2]       |
           || 🔶TODO | [Third][<TODAY>-3]        |
+          || 🔶TODO | [Custom][19000101-1]       |
           || 🔶TODO | [Fourth][<TODAY>-2]       |
           |
+          |[19000101-1]: http://example.fr/custom "Custom"
           |[<TODAY>-1]: http://example.com "Example link"
           |[<TODAY>-2]: http://example.fr/fourth "Fourth"
           |[<TODAY>-3]: http://example.net/third "Third"
