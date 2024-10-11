@@ -684,8 +684,6 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            !
            !* See this [example][20220214-1].
            !
-           ![20220214-1]: http://example.com/
-           !
            !2022-02-14
            !------------------------------------------------------------------------------
            !

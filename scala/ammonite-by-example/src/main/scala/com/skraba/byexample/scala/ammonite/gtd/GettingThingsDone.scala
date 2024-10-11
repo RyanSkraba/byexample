@@ -260,6 +260,8 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
                   case (Some(TableRow(Seq(taskText, _*))), row) if row > 0 && ToDoState(taskText).complete =>
                     Seq.empty
                 })
+              // Remove any top level link references.
+              case (Some(_: LinkRef), _) => Seq.empty
             }
         }
         .getOrElse(Header(2, nextWeekStart(None)))
