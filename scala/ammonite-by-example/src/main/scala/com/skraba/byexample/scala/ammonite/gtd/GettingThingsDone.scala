@@ -1,11 +1,10 @@
 package com.skraba.byexample.scala.ammonite.gtd
 
 import com.skraba.byexample.scala.ammonite.gtd.GettingThingsDone._
-import com.skraba.byexample.scala.markd.{Comment, _}
+import com.skraba.byexample.scala.markd._
 
 import java.time.format.DateTimeFormatter
 import java.time.{DayOfWeek, LocalDate, ZoneId, ZoneOffset}
-import java.util.Locale
 import scala.util.Try
 import scala.util.matching.Regex
 
@@ -72,19 +71,12 @@ import scala.util.matching.Regex
 case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
 
   /** The top heading (H1) section containing all of the weekly statuses. */
-  lazy val weeklies: Option[Header] = {
-    h0.mds.collectFirst {
-      case weeklies @ Header(title, 1, _) if title.startsWith(H1Weeklies) =>
-        weeklies
-    }
-  }
+  lazy val weeklies: Option[Header] =
+    h0.mds.collectFirst { case weeklies @ Header(title, 1, _) if title.startsWith(H1Weeklies) => weeklies }
 
   /** The last weekly status. */
-  lazy val topWeek: Option[Header] = {
-    weeklies.flatMap(_.mds.collectFirst { case weekly @ Header(title, 2, _) =>
-      weekly
-    })
-  }
+  lazy val topWeek: Option[Header] =
+    weeklies.flatMap(_.mds.collectFirst { case weekly @ Header(title, 2, _) => weekly })
 
   /** Helper function to update only the weekly statuses section of the document, adding the top-level section if
     * necessary. All of the weekly statuses should be contained in returned section.
@@ -96,8 +88,7 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
     */
   def updateWeeklies(fn: Header => Header): GettingThingsDone =
     copy(h0 = h0.mapFirstIn(ifNotFound = Header(1, H1Weeklies)) {
-      case weeklies @ Header(title, 1, _) if title.startsWith(H1Weeklies) =>
-        fn(weeklies)
+      case weeklies @ Header(title, 1, _) if title.startsWith(H1Weeklies) => fn(weeklies)
     })
 
   /** Helper function to update or add a top-level section (Header 1) that exactly matches the given name. If it isn't
@@ -110,9 +101,7 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
     *   The entire document with the function applied to that top-level section.
     */
   def updateHeader1(name: String)(fn: Header => Header): GettingThingsDone =
-    copy(h0 = h0.mapFirstIn(ifNotFound = Header(1, name)) { case h1 @ Header(`name`, 1, _) =>
-      fn(h1)
-    })
+    copy(h0 = h0.mapFirstIn(ifNotFound = Header(1, name)) { case h1 @ Header(`name`, 1, _) => fn(h1) })
 
   /** Helper function to update only the last week section of the statuses document, adding one if necessary.
     *
@@ -124,8 +113,7 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
   def updateTopWeek(fn: Header => Header): GettingThingsDone =
     updateWeeklies { weeklies =>
       weeklies.mapFirstIn(ifNotFound = Seq(Header(2, GettingThingsDone.nextWeekStart(None)))) {
-        case topWeek @ Header(_, 2, _) =>
-          fn(topWeek)
+        case topWeek @ Header(_, 2, _) => fn(topWeek)
       }
     }
 
@@ -139,24 +127,18 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
     * @return
     *   This document with the statistics updated.
     */
-  def updateTopWeekStats(
-      rowHead: String,
-      cell: String,
-      col: Option[String] = None
-  ): GettingThingsDone = updateTopWeek { weekly =>
-    import java.time.LocalDate
-    weekly.mapFirstIn(
-      replace = true,
-      ifNotFound = TableStatsEmpty +: weekly.mds
-    ) {
-      // Matches the table with the given name.
-      case tbl: Table if tbl.title == TableStats =>
-        col match {
-          case Some(dow) => tbl.updated(dow, rowHead, cell)
-          case None =>
-            tbl.updated(LocalDate.now.getDayOfWeek.getValue, rowHead, cell)
-        }
-    }
+  def updateTopWeekStats(rowHead: String, cell: String, col: Option[String] = None): GettingThingsDone = updateTopWeek {
+    weekly =>
+      import java.time.LocalDate
+      weekly.mapFirstIn(replace = true, ifNotFound = TableStatsEmpty +: weekly.mds) {
+        // Matches the table with the given name.
+        case tbl: Table if tbl.title == TableStats =>
+          col match {
+            case Some(dow) => tbl.updated(dow, rowHead, cell)
+            case None =>
+              tbl.updated(LocalDate.now.getDayOfWeek.getValue, rowHead, cell)
+          }
+      }
   }
 
   /** Add a To Do task in the top week.
@@ -169,11 +151,7 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
     * @return
     *   This document with the To Do table updated.
     */
-  def addTopWeekToDo(
-      category: String,
-      notes: String,
-      state: ToDoState = NoToDoState
-  ): GettingThingsDone =
+  def addTopWeekToDo(category: String, notes: String, state: ToDoState = NoToDoState): GettingThingsDone =
     updateTopWeekToDo(Int.MaxValue, Some(category), Some(notes), Some(state))
 
   /** Add or updates a To Do task in the top week.
@@ -193,42 +171,36 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
       category: Option[String] = None,
       notes: Option[String] = None,
       state: Option[ToDoState] = None
-  ): GettingThingsDone = updateTopWeek { weekly =>
-    weekly.mapFirstIn(
-      replace = true,
-      ifNotFound = TableToDoEmpty +: weekly.mds
-    ) {
-      // Matches the table with the given name.
-      case tbl: Table if tbl.title == TableToDo =>
-        // Insert a new row if prepending to the top
-        val tblToUpdate =
-          if (row >= 0) tbl
-          else tbl.copyMds(tbl.mds.patch(1, Seq(TableRow(Seq.empty)), 0))
+  ): GettingThingsDone =
+    updateTopWeek { weekly =>
+      weekly.mapFirstIn(replace = true, ifNotFound = TableToDoEmpty +: weekly.mds) {
+        // Matches the table with the given name.
+        case tbl: Table if tbl.title == TableToDo =>
+          // Insert a new row if prepending to the top
+          val tblToUpdate =
+            if (row >= 0) tbl
+            else tbl.copyMds(tbl.mds.patch(1, Seq(TableRow(Seq.empty)), 0))
 
-        // Find the actual row to be updated
-        val nRow = {
-          if (row == Int.MaxValue || row + 1 > tbl.mds.size) tbl.mds.size
-          else if (row < 0) 1
-          else row + 1
-        }
+          // Find the actual row to be updated
+          val nRow = {
+            if (row == Int.MaxValue || row + 1 > tbl.mds.size) tbl.mds.size
+            else if (row < 0) 1
+            else row + 1
+          }
 
-        // Extract the state and category from the first row column
-        val (oldState, oldCategory, oldNotes) = (tbl.mds.lift(nRow) match {
-          case Some(TableRow(Seq(cat, n, _*))) =>
-            (for (state <- AllStates if cat.startsWith(state.txt))
-              yield (state, cat.drop(state.txt.length), n)).headOption
-          case _ => None
-        }).getOrElse(NoToDoState, "", "")
+          // Extract the state and category from the first row column
+          val (oldState, oldCategory, oldNotes) = (tbl.mds.lift(nRow) match {
+            case Some(TableRow(Seq(cat, n, _*))) =>
+              (for (state <- AllStates if cat.startsWith(state.txt))
+                yield (state, cat.drop(state.txt.length), n)).headOption
+            case _ => None
+          }).getOrElse(NoToDoState, "", "")
 
-        tblToUpdate
-          .updated(
-            0,
-            nRow,
-            state.getOrElse(oldState).txt + category.getOrElse(oldCategory)
-          )
-          .updated(1, nRow, notes.getOrElse(oldNotes))
+          tblToUpdate
+            .updated(0, nRow, state.getOrElse(oldState).txt + category.getOrElse(oldCategory))
+            .updated(1, nRow, notes.getOrElse(oldNotes))
+      }
     }
-  }
 
   /** Add new weeks to the top of the weeklies section. Tasks and stats are rolled over, cleaned and pruned correctly.
     *
@@ -241,51 +213,37 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
   def addWeek(upTo: Option[String]): GettingThingsDone = {
 
     /** Create the new head week from the last week, if any is present. */
-    def createHead(oldWeek: Option[Header]): Header = {
+    def createHead(oldWeek: Option[Header]): Header =
       oldWeek
-        .map { week =>
-          // if there was a last week
-          week
-            .copy(title = nextWeekStart(Some(week.title)))
-            .replaceIn() {
-              // Copy the Stats table, but empty out any values in the rows.
-              case (Some(tb: Table), _) if tb.title == TableStats =>
-                Seq(tb.replaceIn() {
-                  case (Some(TableRow(cells)), row) if row > 0 && cells.size > 1 =>
-                    Seq(TableRow.from(cells.head))
-                })
-              // Copy the To Do table, but remove any done elements.
-              case (Some(tb: Table), _) if tb.title == TableToDo =>
-                Seq(tb.replaceIn() {
-                  case (Some(TableRow(Seq(taskText, _*))), row) if row > 0 && ToDoState(taskText).complete =>
-                    Seq.empty
-                })
-              // Remove any top level link references.
-              case (Some(_: LinkRef), _) => Seq.empty
-            }
+        .map { week => // if there was a last week
+          week.copy(title = nextWeekStart(Some(week.title))).replaceIn() {
+            // Copy the Stats table, but empty out any values in the rows.
+            case (Some(tb: Table), _) if tb.title == TableStats =>
+              Seq(tb.replaceIn() {
+                case (Some(TableRow(cells)), row) if row > 0 && cells.size > 1 => Seq(TableRow.from(cells.head))
+              })
+            // Copy the To Do table, but remove any done elements.
+            case (Some(tb: Table), _) if tb.title == TableToDo =>
+              Seq(tb.replaceIn() {
+                case (Some(TableRow(Seq(taskText, _*))), row) if row > 0 && ToDoState(taskText).complete => Seq.empty
+              })
+            // Remove any top level link references.
+            case (Some(_: LinkRef), _) => Seq.empty
+          }
         }
         .getOrElse(Header(2, nextWeekStart(None)))
-    }
 
     /** Create the new head week from the last week, if any is present. */
-    def updateLastHead(oldWeek: Header): Header = {
+    def updateLastHead(oldWeek: Header): Header =
       oldWeek
         .replaceIn() {
           // Copy the To Do table, but update all maybe tasks.
           case (Some(tb: Table), _) if tb.title == TableToDo =>
             Seq(tb.replaceIn() {
               case (Some(TableRow(cells @ Seq(taskText, _*))), row) if row > 0 && taskText.startsWith(MaybeToDo.txt) =>
-                Seq(
-                  TableRow(
-                    cells.updated(
-                      0,
-                      taskText.replace(MaybeToDo.txt, LaterToDo.txt)
-                    )
-                  )
-                )
+                Seq(TableRow(cells.updated(0, taskText.replace(MaybeToDo.txt, LaterToDo.txt))))
             })
         }
-    }
 
     if (upTo.nonEmpty) {
       LazyList
@@ -297,15 +255,9 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
 
       // Add the new head week to the weekly statuses.
       updateWeeklies { weeklies =>
-        val headWeek = createHead(weeklies.mds.collectFirst { case h2 @ Header(_, 2, _) =>
-          h2
-        })
-        weeklies.flatMapFirstIn(
-          ifNotFound = headWeek +: weeklies.mds,
-          replace = true
-        ) {
-          case h2 @ Header(_, 2, _) if h2 != headWeek =>
-            Seq(headWeek, updateLastHead(h2))
+        val headWeek = createHead(weeklies.mds.collectFirst { case h2 @ Header(_, 2, _) => h2 })
+        weeklies.flatMapFirstIn(ifNotFound = headWeek +: weeklies.mds, replace = true) {
+          case h2 @ Header(_, 2, _) if h2 != headWeek => Seq(headWeek, updateLastHead(h2))
         }
       }
         // Ensure that at least the week was added
@@ -334,17 +286,14 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
     weeklies.toSeq
       .flatMap(_.mds.collect { case weekly @ Header(title, 2, _) =>
         // If the title is a parseable date
-        Try {
-          LocalDate.parse(title.substring(0, 10), Pattern)
-        }.toOption.toSeq
+        Try { LocalDate.parse(title.substring(0, 10), Pattern) }.toOption.toSeq
           .flatMap { startOfWeek: LocalDate =>
             // Then find the Stats table in the weekly report
             weekly.mds
               .collectFirst {
                 case tbl: Table if tbl.title == TableStats =>
                   // if the name is specified only use that one row.
-                  val rows =
-                    if (name.isEmpty) tbl.mds.drop(1) else Seq(tbl(name))
+                  val rows = if (name.isEmpty) tbl.mds.drop(1) else Seq(tbl(name))
                   rows.flatMap { row =>
                     row.cells.drop(1).zipWithIndex.collect {
                       case (value, i) if value.nonEmpty =>
@@ -383,62 +332,40 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
     // A regex to extract a category into the state prefix (non-word), the
     // category text (word, usually alphanumeric plus underscore) and optionally
     // a day of week indicator.
-    val catRegex: Regex =
-      "^((\\W*)(.*?)((?<=\\W)(?i)(mon|tue|wed|thu|fri|sat|sun))?)$$".r
+    val catRegex: Regex = "^((\\W*)(.*?)((?<=\\W)(?i)(mon|tue|wed|thu|fri|sat|sun))?)$$".r
 
     // The day of the week mapped to the offset from Monday
-    val dateToIndex: Map[String, Int] = DayOfWeek
-      .values()
-      .map(dow => dow.toString.take(3).toLowerCase -> dow.ordinal())
-      .toMap
+    val dateToIndex: Map[String, Int] =
+      DayOfWeek.values().map(dow => dow.toString.take(3).toLowerCase -> dow.ordinal()).toMap
 
     // Scan through all of the weekly reports to find To Do tasks
     weeklies.toSeq
-      .flatMap(_.mds.collect { case weekly @ Header(title, 2, _) =>
-        // If the title is a parseable date
-        Try {
-          LocalDate.parse(title.substring(0, 10), Pattern)
-        }.toOption.toSeq
-          .flatMap { startOfWeek: LocalDate =>
-            weekly.mds
-              .collectFirst {
-                case tbl: Table if tbl.title == TableToDo =>
-                  tbl.mds.drop(1).map(_.cells.toList).flatMap {
-                    case catRegex(all, _, category, _, dow) :: tail =>
-                      Some(
-                        (
-                          startOfWeek.plusDays(
-                            Option(dow)
-                              .map(_.toLowerCase)
-                              .flatMap(dateToIndex.get)
-                              .map(_.toLong)
-                              .getOrElse(0)
-                          ),
-                          ToDoState(all),
-                          category.trim,
-                          tail.headOption.getOrElse("")
-                        )
+      .flatMap(_.mds.collect { case weekly @ Header(title, 2, _) => // If the title is a parseable date
+        Try { LocalDate.parse(title.substring(0, 10), Pattern) }.toOption.toSeq.flatMap { startOfWeek: LocalDate =>
+          weekly.mds
+            .collectFirst {
+              case tbl: Table if tbl.title == TableToDo =>
+                tbl.mds.drop(1).map(_.cells.toList).flatMap {
+                  case catRegex(all, _, category, _, dow) :: tail =>
+                    Some(
+                      (
+                        startOfWeek
+                          .plusDays(Option(dow).map(_.toLowerCase).flatMap(dateToIndex.get).map(_.toLong).getOrElse(0)),
+                        ToDoState(all),
+                        category.trim,
+                        tail.headOption.getOrElse("")
                       )
-                    case category :: tail =>
-                      Some(
-                        (
-                          startOfWeek,
-                          ToDoState(category),
-                          category,
-                          tail.headOption.getOrElse("")
-                        )
-                      )
-                    case _ => None
-                  }
-              }
-              .getOrElse(Nil)
-              // Filter by the dates if any are specified
-              .filter { case (d, _, _, _) => from.forall(_.compareTo(d) <= 0) }
-              .filter { case (d, _, _, _) => to.forall(_.compareTo(d) >= 0) }
-              .filter { case (_, state, _, _) =>
-                completed.isEmpty || completed.contains(state.complete)
-              }
-          }
+                    )
+                  case category :: tail =>
+                    Some((startOfWeek, ToDoState(category), category, tail.headOption.getOrElse("")))
+                  case _ => None
+                }
+            }
+            .getOrElse(Nil) // Filter by the dates if any are specified
+            .filter { case (d, _, _, _) => from.forall(_.compareTo(d) <= 0) }
+            .filter { case (d, _, _, _) => to.forall(_.compareTo(d) >= 0) }
+            .filter { case (_, state, _, _) => completed.isEmpty || completed.contains(state.complete) }
+        }
       })
       .flatten
       .sortBy(_._1.toEpochDay)
@@ -448,9 +375,7 @@ case class GettingThingsDone(h0: Header, cfg: Option[Header]) {
 object GettingThingsDone {
 
   /** A date pattern */
-  val Pattern: DateTimeFormatter = DateTimeFormatter
-    .ofPattern("yyyy-MM-dd")
-    .withZone(ZoneId.from(ZoneOffset.UTC))
+  val Pattern: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.from(ZoneOffset.UTC))
 
   /** The name of the statistics table, the value found in the upper left column.
     */
@@ -461,31 +386,17 @@ object GettingThingsDone {
 
   /** The structure of an empty Stats table, used to collect weekly statistics.
     */
-  lazy val TableStatsEmpty: Table = Table.from(
-    Seq.fill(8)(Align.LEFT),
-    TableRow.from(
-      TableStats,
-      "Mon",
-      "Tue",
-      "Wed",
-      "Thu",
-      "Fri",
-      "Sat",
-      "Sun"
-    )
-  )
+  lazy val TableStatsEmpty: Table =
+    Table.from(Seq.fill(8)(Align.LEFT), TableRow.from(TableStats, "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))
 
   /** The structure of an empty To Do table, used to collect stats. */
-  lazy val TableToDoEmpty: Table = Table.from(
-    Seq(Align.LEFT, Align.LEFT),
-    TableRow.from(TableToDo, "Notes " + AllStates.map(_.txt).mkString)
-  )
+  lazy val TableToDoEmpty: Table =
+    Table.from(Seq(Align.LEFT, Align.LEFT), TableRow.from(TableToDo, "Notes " + AllStates.map(_.txt).mkString))
 
   /** The header with the weekly statuses. */
   val H1Weeklies: String = "Weekly Status"
 
-  /** A tag for a configuration comment, which can be found anywhere in the document
-    */
+  /** A tag for a configuration comment, which can be found anywhere in the document */
   val CommentConfig: String = "Getting Things Done configuration"
 
   /** Create an instance from a markdown string.
@@ -497,10 +408,9 @@ object GettingThingsDone {
     * @return
     *   A [[GettingThingsDone]] based on the model
     */
-  def apply(
-      content: String,
-      cfg: ParserCfg = new ParserCfg()
-  ): GettingThingsDone = GettingThingsDone(Header.parse(content, cfg))
+  def apply(content: String, cfg: ParserCfg = new ParserCfg()): GettingThingsDone = GettingThingsDone(
+    Header.parse(content, cfg)
+  )
 
   /** Create an instance from a single Header markdown element.
     *
@@ -537,54 +447,23 @@ object GettingThingsDone {
   def apply(): GettingThingsDone = {
     // Create an example table in a document
     val tableToDoExample = GettingThingsDone("")
-      .addTopWeekToDo(
-        "Tech",
-        "**Did the thing** and some notes",
-        state = DoneToDo
-      )
-      .addTopWeekToDo(
-        "Finance",
-        "**Thing was did** Done by someone else, or worked around",
-        state = DoneSimpleToDo
-      )
-      .addTopWeekToDo(
-        "Health",
-        "**Ready to take** or paused, or to think about",
-        state = MaybeToDo
-      )
-      .addTopWeekToDo(
-        "Personal",
-        "**Won't do** and here's why",
-        state = StoppedToDo
-      )
-      .addTopWeekToDo(
-        "Personal",
-        "**Read Getting Things Done Chapter 4/12** Moved to later",
-        state = LaterToDo
-      )
-      .addTopWeekToDo(
-        "Proj",
-        "**[PROJ-1234]**:[org/proj#4321] Fix all the things `WAITING`",
-        state = WaitingToDo
-      )
-      .addTopWeekToDo(
-        "Pro",
-        "**Another task** With some [details][YYYYMMDD-1] "
-      )
+      .addTopWeekToDo("Tech", "**Did the thing** and some notes", state = DoneToDo)
+      .addTopWeekToDo("Finance", "**Thing was did** Done by someone else, or worked around", state = DoneSimpleToDo)
+      .addTopWeekToDo("Health", "**Ready to take** or paused, or to think about", state = MaybeToDo)
+      .addTopWeekToDo("Personal", "**Won't do** and here's why", state = StoppedToDo)
+      .addTopWeekToDo("Personal", "**Read Getting Things Done Chapter 4/12** Moved to later", state = LaterToDo)
+      .addTopWeekToDo("Proj", "**[PROJ-1234]**:[org/proj#4321] Fix all the things `WAITING`", state = WaitingToDo)
+      .addTopWeekToDo("Pro", "**Another task** With some [details][YYYYMMDD-1] ")
 
     // Extract the Table as text.
     val tableToDoExampleComment = tableToDoExample.h0.mds
-      .collectFirst { case Header(_, _, Seq(Header(_, _, Seq(tb @ Table(_, _))))) =>
-        tb
-      }
+      .collectFirst { case Header(_, _, Seq(Header(_, _, Seq(tb @ Table(_, _))))) => tb }
       .map("\n" + _.build().toString)
       .map(Comment)
 
-    GettingThingsDone(
-      Header(0, "", Header(1, H1Weeklies, tableToDoExampleComment.get))
-    ).updateTopWeekStats("pushups", "").updateTopWeek { weekly =>
-      weekly.copyMds(weekly.mds :+ Paragraph("* Something I did this week"))
-    }
+    GettingThingsDone(Header(0, "", Header(1, H1Weeklies, tableToDoExampleComment.get)))
+      .updateTopWeekStats("pushups", "")
+      .updateTopWeek { weekly => weekly.copyMds(weekly.mds :+ Paragraph("* Something I did this week")) }
   }
 
   /** An optional state useful for tasks in a "To Do" table. A state can be deduced from a task by the prefix of the
@@ -621,41 +500,22 @@ object GettingThingsDone {
   /** The task wasn't done, but pushed to the next week. */
   case object LaterToDo extends ToDoState("⤴️")
   val AllStates: Seq[ToDoState] =
-    Seq(
-      DoneToDo,
-      DoneSimpleToDo,
-      MaybeToDo,
-      StoppedToDo,
-      LaterToDo,
-      WaitingToDo,
-      NoToDoState
-    )
+    Seq(DoneToDo, DoneSimpleToDo, MaybeToDo, StoppedToDo, LaterToDo, WaitingToDo, NoToDoState)
 
   object ToDoState {
-    def apply(category: String): ToDoState =
-      AllStates.find(tds => category.startsWith(tds.txt)).getOrElse(NoToDoState)
+    def apply(category: String): ToDoState = AllStates.find(tds => category.startsWith(tds.txt)).getOrElse(NoToDoState)
   }
 
   /** Calculate either next Monday or the monday 7 days after the Date in the String.
     */
-  def nextWeekStart(
-      date: Option[String],
-      dow: DayOfWeek = DayOfWeek.MONDAY
-  ): String = {
+  def nextWeekStart(date: Option[String], dow: DayOfWeek = DayOfWeek.MONDAY): String = {
     // Use the time classes to find the next date.
     import java.time.LocalDate._
-    ofEpochDay(
-      nextWeekStartByEpoch(
-        date.map(ptn => parse(ptn.substring(0, 10), Pattern).toEpochDay),
-        dow
-      )
-    ).format(Pattern)
+    ofEpochDay(nextWeekStartByEpoch(date.map(ptn => parse(ptn.substring(0, 10), Pattern).toEpochDay), dow))
+      .format(Pattern)
   }
 
-  def nextWeekStartByEpoch(
-      epoch: Option[Long] = None,
-      dow: DayOfWeek = DayOfWeek.MONDAY
-  ): Long = {
+  def nextWeekStartByEpoch(epoch: Option[Long] = None, dow: DayOfWeek = DayOfWeek.MONDAY): Long = {
     // Use the time classes to find the next date.
     import java.time.LocalDate
     import java.time.temporal.TemporalAdjusters
