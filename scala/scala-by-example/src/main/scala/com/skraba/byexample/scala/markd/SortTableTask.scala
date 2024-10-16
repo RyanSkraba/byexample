@@ -43,9 +43,7 @@ object SortTableTask extends DocoptCliGo.Task {
         val sorted = md.replaceRecursively({
           case tbl: Table if tbl.title == table =>
             tbl.copy(mds =
-              tbl.mds.head +: tbl.mds.tail.sortWith((a, b) =>
-                a != tbl.mds.head || a.cells(sortBy).compareTo(b.cells(sortBy)) < 0
-              )
+              tbl.mds.head +: tbl.mds.tail.sortWith((a, b) => a.cells(sortBy).compareTo(b.cells(sortBy)) < 0)
             )
         })
         f.writeAll(sorted.build().toString)
