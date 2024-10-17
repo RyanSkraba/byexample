@@ -70,5 +70,19 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
             !""".stripMargin('!')
       }
     }
+
+    it("should ignore sorting on an out of bounds numeric column") {
+      withGoMatching(TaskCmd, Simple / "basic.md", "To Sort", "--sortBy", "99") { case (stdout, stderr) =>
+        stderr shouldBe empty
+        stdout shouldBe empty
+        File(Simple / "basic.md").slurp() shouldBe
+          """| To Sort | A | B |
+            !|---------|---|---|
+            !| 2       | 3 | 1 |
+            !| 1       | 1 | 2 |
+            !| 3       | 2 | 3 |
+            !""".stripMargin('!')
+      }
+    }
   }
 }
