@@ -24,63 +24,134 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
 
   describe("When parsing a very simple file") {
     val Simple = (Tmp / "simple").createDirectory()
-    File(Simple / "basic.md").writeAll("""To Sort | A | B
-        |---|---|---
-        |3 | 2 | 3
-        |2 | 3 | 1
-        |1 | 1 | 2
-        |""".stripMargin)
+    val BasicTable = """To Sort | A | B
+          !---|----|---
+          !z  | 10 | a
+          !y  | 8  | b
+          !y  | 6  | 10
+          !x  | 7  | c
+          !x  | 7  | d
+          !w  | 1  | 1
+          !""".stripMargin('!')
 
     it("should sort on the first column by default") {
-      withGoMatching(TaskCmd, Simple / "basic.md", "To Sort") { case (stdout, stderr) =>
+      val in = File(Simple / "basic.md")
+      in.writeAll(BasicTable)
+      withGoMatching(TaskCmd, in, "To Sort") { case (stdout, stderr) =>
         stderr shouldBe empty
         stdout shouldBe empty
-        File(Simple / "basic.md").slurp() shouldBe
-          """| To Sort | A | B |
-            !|---------|---|---|
-            !| 1       | 1 | 2 |
-            !| 2       | 3 | 1 |
-            !| 3       | 2 | 3 |
+        in.slurp() shouldBe
+          """| To Sort | A  | B  |
+            !|---------|----|----|
+            !| w       | 1  | 1  |
+            !| x       | 7  | c  |
+            !| x       | 7  | d  |
+            !| y       | 8  | b  |
+            !| y       | 6  | 10 |
+            !| z       | 10 | a  |
             !""".stripMargin('!')
       }
     }
 
     it("should sort on other columns") {
-      withGoMatching(TaskCmd, Simple / "basic.md", "To Sort", "--sortBy", "1") { case (stdout, stderr) =>
+      val in = File(Simple / "basic1.md")
+      in.writeAll(BasicTable)
+      withGoMatching(TaskCmd, in, "To Sort", "--sortBy", "1") { case (stdout, stderr) =>
         stderr shouldBe empty
         stdout shouldBe empty
-        File(Simple / "basic.md").slurp() shouldBe
-          """| To Sort | A | B |
-            !|---------|---|---|
-            !| 1       | 1 | 2 |
-            !| 3       | 2 | 3 |
-            !| 2       | 3 | 1 |
+        in.slurp() shouldBe
+          """| To Sort | A  | B  |
+            !|---------|----|----|
+            !| w       | 1  | 1  |
+            !| z       | 10 | a  |
+            !| y       | 6  | 10 |
+            !| x       | 7  | c  |
+            !| x       | 7  | d  |
+            !| y       | 8  | b  |
             !""".stripMargin('!')
       }
 
-      withGoMatching(TaskCmd, Simple / "basic.md", "To Sort", "--sortBy", "2") { case (stdout, stderr) =>
+      withGoMatching(TaskCmd, in, "To Sort", "--sortBy", "2") { case (stdout, stderr) =>
         stderr shouldBe empty
         stdout shouldBe empty
-        File(Simple / "basic.md").slurp() shouldBe
-          """| To Sort | A | B |
-            !|---------|---|---|
-            !| 2       | 3 | 1 |
-            !| 1       | 1 | 2 |
-            !| 3       | 2 | 3 |
+        in.slurp() shouldBe
+          """| To Sort | A  | B  |
+            !|---------|----|----|
+            !| w       | 1  | 1  |
+            !| y       | 6  | 10 |
+            !| z       | 10 | a  |
+            !| y       | 8  | b  |
+            !| x       | 7  | c  |
+            !| x       | 7  | d  |
+            !""".stripMargin('!')
+      }
+    }
+
+    it("should sort on other columns by name") {
+      val in = File(Simple / "basicA.md")
+      in.writeAll(BasicTable)
+      withGoMatching(TaskCmd, in, "To Sort", "--sortBy", "A") { case (stdout, stderr) =>
+        stderr shouldBe empty
+        stdout shouldBe empty
+        in.slurp() shouldBe
+          """| To Sort | A  | B  |
+            !|---------|----|----|
+            !| w       | 1  | 1  |
+            !| z       | 10 | a  |
+            !| y       | 6  | 10 |
+            !| x       | 7  | c  |
+            !| x       | 7  | d  |
+            !| y       | 8  | b  |
+            !""".stripMargin('!')
+      }
+
+      withGoMatching(TaskCmd, in, "To Sort", "--sortBy", "B") { case (stdout, stderr) =>
+        stderr shouldBe empty
+        stdout shouldBe empty
+        in.slurp() shouldBe
+          """| To Sort | A  | B  |
+            !|---------|----|----|
+            !| w       | 1  | 1  |
+            !| y       | 6  | 10 |
+            !| z       | 10 | a  |
+            !| y       | 8  | b  |
+            !| x       | 7  | c  |
+            !| x       | 7  | d  |
+            !""".stripMargin('!')
+      }
+
+      withGoMatching(TaskCmd, in, "To Sort", "--sortBy", "To Sort") { case (stdout, stderr) =>
+        stderr shouldBe empty
+        stdout shouldBe empty
+        in.slurp() shouldBe
+          """| To Sort | A  | B  |
+            !|---------|----|----|
+            !| w       | 1  | 1  |
+            !| x       | 7  | c  |
+            !| x       | 7  | d  |
+            !| y       | 6  | 10 |
+            !| y       | 8  | b  |
+            !| z       | 10 | a  |
             !""".stripMargin('!')
       }
     }
 
     it("should ignore sorting on an out of bounds numeric column") {
-      withGoMatching(TaskCmd, Simple / "basic.md", "To Sort", "--sortBy", "99") { case (stdout, stderr) =>
+      val in = File(Simple / "basic99.md")
+      in.writeAll(BasicTable)
+      File(Simple / "basic99.md").writeAll(BasicTable)
+      withGoMatching(TaskCmd, Simple / "basic99.md", "To Sort", "--sortBy", "99") { case (stdout, stderr) =>
         stderr shouldBe empty
         stdout shouldBe empty
         File(Simple / "basic.md").slurp() shouldBe
-          """| To Sort | A | B |
-            !|---------|---|---|
-            !| 2       | 3 | 1 |
-            !| 1       | 1 | 2 |
-            !| 3       | 2 | 3 |
+          """| To Sort | A  | B  |
+            !|---------|----|----|
+            !| w       | 1  | 1  |
+            !| x       | 7  | c  |
+            !| x       | 7  | d  |
+            !| y       | 8  | b  |
+            !| y       | 6  | 10 |
+            !| z       | 10 | a  |
             !""".stripMargin('!')
       }
     }

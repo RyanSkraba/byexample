@@ -3,6 +3,7 @@ package com.skraba.byexample.scala.markd
 import com.skraba.docoptcli.DocoptCliGo
 
 import scala.jdk.CollectionConverters._
+import scala.util.Try
 
 /** Command-line driver for sorting a table in a Markdown file.
   */
@@ -23,7 +24,7 @@ object SortTableTask extends DocoptCliGo.Task {
       |  --version       Show version.
       |  FILE            File(s) to beautify.
       |  TABLE           The contents in the upper left cell of the table.
-      |  --sortBy=COLS   The column number to sort by [Default: 0].
+      |  --sortBy=COLS   The column name or number to sort by [Default: 0].
       |""".stripMargin.trim
 
   // TODO(rskraba): Sort by multiple columns separated by ,
@@ -35,13 +36,24 @@ object SortTableTask extends DocoptCliGo.Task {
 
     val file: String = opts.get("FILE").asInstanceOf[String]
     val table: String = opts.get("TABLE").asInstanceOf[String]
-    val sortBy: Int = opts.get("--sortBy").asInstanceOf[String].toInt
+
+    val sortByCol: Seq[String] = opts.get("--sortBy").asInstanceOf[String].split(",").toSeq
 
     MarkdGo.processMd(Seq(file)) { f =>
       {
         val md = Header.parse(f.slurp())
         val sorted = md.replaceRecursively({
           case tbl: Table if tbl.title == table =>
+            // Use the header in the first matching table to convert the columns into numbers
+            val sortByColNum: Seq[Int] =
+              sortByCol.map(col => {
+                tbl.mds.head.cells.indexWhere(_ == col) match {
+                  case -1 => Try(col.toInt).getOrElse(0)
+                  case n  => n
+                }
+              })
+            // Just sort by the first discovered column for now
+            val sortBy = sortByColNum.headOption.getOrElse(0)
             tbl.copy(mds = tbl.mds.head +: tbl.mds.tail.sortWith((a, b) => a(sortBy).compareTo(b(sortBy)) < 0))
         })
         f.writeAll(sorted.build().toString)
