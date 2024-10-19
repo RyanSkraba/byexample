@@ -24,15 +24,25 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
 
   describe("When parsing a very simple file") {
     val Simple = (Tmp / "simple").createDirectory()
-    val BasicTable = """To Sort | A | B
-          !---|----|---
-          !z  | 10 | a
-          !y  | 8  | b
-          !y  | 6  | 10
-          !x  | 7  | c
-          !x  | 7  | d
-          !w  | 1  | 1
+    val BasicTable = """To Sort | A | B | Original
+          !---|----|---|---|
+          !z  | 10 | a | 0 |
+          !y  | 8  | b | 1 |
+          !y  | 6  | 10| 2 |
+          !x  | 7  | c | 3 |
+          !x  | 7  | d | 4 |
+          !w  | 1  | 1 | 5 |
           !""".stripMargin('!')
+
+    def extractColumn(in: String, extract: String = "Original", title: String = "To Sort"): Seq[Any] =
+      Header
+        .parse(in)
+        .collectFirstRecursive({
+          case tbl: Table if tbl.title == title =>
+            val original = tbl.mds.head.cells.indexOf(extract)
+            tbl.mds.tail.map(_(original max 0)).map(c => c.toIntOption.getOrElse(c))
+        })
+        .getOrElse(Seq.empty)
 
     it("should sort on the first column by default") {
       val in = File(Simple / "basic.md")
@@ -41,98 +51,67 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
         stderr shouldBe empty
         stdout shouldBe empty
         in.slurp() shouldBe
-          """| To Sort | A  | B  |
-            !|---------|----|----|
-            !| w       | 1  | 1  |
-            !| x       | 7  | c  |
-            !| x       | 7  | d  |
-            !| y       | 8  | b  |
-            !| y       | 6  | 10 |
-            !| z       | 10 | a  |
+          """| To Sort | A  | B  | Original |
+            !|---------|----|----|----------|
+            !| w       | 1  | 1  | 5        |
+            !| x       | 7  | c  | 3        |
+            !| x       | 7  | d  | 4        |
+            !| y       | 8  | b  | 1        |
+            !| y       | 6  | 10 | 2        |
+            !| z       | 10 | a  | 0        |
             !""".stripMargin('!')
       }
     }
 
-    it("should sort on other columns") {
-      val in = File(Simple / "basic1.md")
+    describe("when sorting on a single column") {
+      val in = File(Simple / "basic1col.md")
       in.writeAll(BasicTable)
-      withGoMatching(TaskCmd, in, "To Sort", "--sortBy", "1") { case (stdout, stderr) =>
-        stderr shouldBe empty
-        stdout shouldBe empty
-        in.slurp() shouldBe
-          """| To Sort | A  | B  |
-            !|---------|----|----|
-            !| w       | 1  | 1  |
-            !| z       | 10 | a  |
-            !| y       | 6  | 10 |
-            !| x       | 7  | c  |
-            !| x       | 7  | d  |
-            !| y       | 8  | b  |
-            !""".stripMargin('!')
+
+      for (col <- Seq("1", "A")) {
+        it(s"should sort by column $col") {
+          withGoMatching(TaskCmd, in, "To Sort", "--sortBy", col) { case (stdout, stderr) =>
+            stderr shouldBe empty
+            stdout shouldBe empty
+            val sorted = in.slurp()
+            extractColumn(sorted, "A") shouldBe Seq(1, 10, 6, 7, 7, 8)
+            extractColumn(sorted) shouldBe Seq(5, 0, 2, 3, 4, 1)
+          }
+        }
       }
 
-      withGoMatching(TaskCmd, in, "To Sort", "--sortBy", "2") { case (stdout, stderr) =>
-        stderr shouldBe empty
-        stdout shouldBe empty
-        in.slurp() shouldBe
-          """| To Sort | A  | B  |
-            !|---------|----|----|
-            !| w       | 1  | 1  |
-            !| y       | 6  | 10 |
-            !| z       | 10 | a  |
-            !| y       | 8  | b  |
-            !| x       | 7  | c  |
-            !| x       | 7  | d  |
-            !""".stripMargin('!')
-      }
-    }
-
-    it("should sort on other columns by name") {
-      val in = File(Simple / "basicA.md")
-      in.writeAll(BasicTable)
-      withGoMatching(TaskCmd, in, "To Sort", "--sortBy", "A") { case (stdout, stderr) =>
-        stderr shouldBe empty
-        stdout shouldBe empty
-        in.slurp() shouldBe
-          """| To Sort | A  | B  |
-            !|---------|----|----|
-            !| w       | 1  | 1  |
-            !| z       | 10 | a  |
-            !| y       | 6  | 10 |
-            !| x       | 7  | c  |
-            !| x       | 7  | d  |
-            !| y       | 8  | b  |
-            !""".stripMargin('!')
+      for (col <- Seq("2", "B")) {
+        it(s"should sort by column $col") {
+          withGoMatching(TaskCmd, in, "To Sort", "--sortBy", col) { case (stdout, stderr) =>
+            stderr shouldBe empty
+            stdout shouldBe empty
+            val sorted = in.slurp()
+            extractColumn(sorted, "B") shouldBe Seq(1, 10, "a", "b", "c", "d")
+            extractColumn(sorted) shouldBe Seq(5, 2, 0, 1, 3, 4)
+          }
+        }
       }
 
-      withGoMatching(TaskCmd, in, "To Sort", "--sortBy", "B") { case (stdout, stderr) =>
-        stderr shouldBe empty
-        stdout shouldBe empty
-        in.slurp() shouldBe
-          """| To Sort | A  | B  |
-            !|---------|----|----|
-            !| w       | 1  | 1  |
-            !| y       | 6  | 10 |
-            !| z       | 10 | a  |
-            !| y       | 8  | b  |
-            !| x       | 7  | c  |
-            !| x       | 7  | d  |
-            !""".stripMargin('!')
+      for (col <- Seq("0", "To Sort")) {
+        it(s"should sort by column $col") {
+          withGoMatching(TaskCmd, in, "To Sort", "--sortBy", col) { case (stdout, stderr) =>
+            stderr shouldBe empty
+            stdout shouldBe empty
+            val sorted = in.slurp()
+            extractColumn(sorted, "To Sort") shouldBe Seq("w", "x", "x", "y", "y", "z")
+            extractColumn(sorted) shouldBe Seq(5, 3, 4, 2, 1, 0)
+          }
+        }
       }
 
-      withGoMatching(TaskCmd, in, "To Sort", "--sortBy", "To Sort") { case (stdout, stderr) =>
-        stderr shouldBe empty
-        stdout shouldBe empty
-        in.slurp() shouldBe
-          """| To Sort | A  | B  |
-            !|---------|----|----|
-            !| w       | 1  | 1  |
-            !| x       | 7  | c  |
-            !| x       | 7  | d  |
-            !| y       | 6  | 10 |
-            !| y       | 8  | b  |
-            !| z       | 10 | a  |
-            !""".stripMargin('!')
+      for (col <- Seq("3", "Original")) {
+        it(s"should sort by column $col") {
+          withGoMatching(TaskCmd, in, "To Sort", "--sortBy", col) { case (stdout, stderr) =>
+            stderr shouldBe empty
+            stdout shouldBe empty
+            val sorted = in.slurp()
+            extractColumn(sorted) shouldBe Seq(0, 1, 2, 3, 4, 5)
+          }
+        }
       }
     }
 
@@ -143,16 +122,8 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
       withGoMatching(TaskCmd, Simple / "basic99.md", "To Sort", "--sortBy", "99") { case (stdout, stderr) =>
         stderr shouldBe empty
         stdout shouldBe empty
-        File(Simple / "basic.md").slurp() shouldBe
-          """| To Sort | A  | B  |
-            !|---------|----|----|
-            !| w       | 1  | 1  |
-            !| x       | 7  | c  |
-            !| x       | 7  | d  |
-            !| y       | 8  | b  |
-            !| y       | 6  | 10 |
-            !| z       | 10 | a  |
-            !""".stripMargin('!')
+        val sorted = in.slurp()
+        extractColumn(sorted) shouldBe Seq(0, 1, 2, 3, 4, 5)
       }
     }
   }
