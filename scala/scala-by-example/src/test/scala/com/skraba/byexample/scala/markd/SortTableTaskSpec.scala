@@ -25,15 +25,16 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
   describe("When parsing a very simple file") {
     val Simple = (Tmp / "simple").createDirectory()
     val BasicTable = """To Sort | A | B | Original
-          !---|----|---|---|
-          !z  | 10 | a | 0 |
-          !y  | 8  | b | 1 |
-          !y  | 6  | 10| 2 |
-          !x  | 7  | c | 3 |
-          !x  | 7  | d | 4 |
-          !w  | 1  | 1 | 5 |
-          !""".stripMargin('!')
+                       !---|----|---|---|
+                       !z  | 10 | a | 0 |
+                       !y  | 8  | b | 1 |
+                       !y  | 6  | 10| 2 |
+                       !x  | 7  | c | 3 |
+                       !x  | 7  | d | 4 |
+                       !w  | 1  | 1 | 5 |
+                       !""".stripMargin('!')
 
+    /** Helper to extract a column from a matching table. */
     def extractColumn(in: String, extract: String = "Original", title: String = "To Sort"): Seq[Any] =
       Header
         .parse(in)
@@ -52,14 +53,14 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
         stdout shouldBe empty
         in.slurp() shouldBe
           """| To Sort | A  | B  | Original |
-            !|---------|----|----|----------|
-            !| w       | 1  | 1  | 5        |
-            !| x       | 7  | c  | 3        |
-            !| x       | 7  | d  | 4        |
-            !| y       | 8  | b  | 1        |
-            !| y       | 6  | 10 | 2        |
-            !| z       | 10 | a  | 0        |
-            !""".stripMargin('!')
+             !|---------|----|----|----------|
+             !| w       | 1  | 1  | 5        |
+             !| x       | 7  | c  | 3        |
+             !| x       | 7  | d  | 4        |
+             !| y       | 8  | b  | 1        |
+             !| y       | 6  | 10 | 2        |
+             !| z       | 10 | a  | 0        |
+             !""".stripMargin('!')
       }
     }
 
@@ -113,17 +114,16 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
           }
         }
       }
-    }
 
-    it("should ignore sorting on an out of bounds numeric column") {
-      val in = File(Simple / "basic99.md")
-      in.writeAll(BasicTable)
-      File(Simple / "basic99.md").writeAll(BasicTable)
-      withGoMatching(TaskCmd, Simple / "basic99.md", "To Sort", "--sortBy", "99") { case (stdout, stderr) =>
-        stderr shouldBe empty
-        stdout shouldBe empty
-        val sorted = in.slurp()
-        extractColumn(sorted) shouldBe Seq(0, 1, 2, 3, 4, 5)
+      for (col <- Seq("99", "Unknown", "-1")) {
+        it(s"should ignore sort by column $col") {
+          withGoMatching(TaskCmd, in, "To Sort", "--sortBy", col) { case (stdout, stderr) =>
+            stderr shouldBe empty
+            stdout shouldBe empty
+            val sorted = in.slurp()
+            extractColumn(sorted) shouldBe Seq(0, 1, 2, 3, 4, 5)
+          }
+        }
       }
     }
   }

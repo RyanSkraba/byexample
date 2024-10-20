@@ -28,7 +28,6 @@ object SortTableTask extends DocoptCliGo.Task {
       |""".stripMargin.trim
 
   // TODO(rskraba): Sort by multiple columns separated by ,
-  // TODO(rskraba): Sort by column names or numbers separated by ,
   // TODO(rskraba): Sort ascending or descending
   // TODO(rskraba): Different sorts (alphabet, numeric)
 
@@ -46,14 +45,14 @@ object SortTableTask extends DocoptCliGo.Task {
           case tbl: Table if tbl.title == table =>
             // Use the header in the first matching table to convert the columns into numbers
             val sortByColNum: Seq[Int] =
-              sortByCol.map(col => {
+              sortByCol.flatMap(col => {
                 tbl.mds.head.cells.indexWhere(_ == col) match {
-                  case -1 => Try(col.toInt).getOrElse(0)
-                  case n  => n
+                  case -1 => col.toIntOption
+                  case n  => Some(n)
                 }
               })
             // Just sort by the first discovered column for now
-            val sortBy = sortByColNum.headOption.getOrElse(0)
+            val sortBy = sortByColNum.headOption.getOrElse(Int.MaxValue)
             tbl.copy(mds = tbl.mds.head +: tbl.mds.tail.sortWith((a, b) => a(sortBy).compareTo(b(sortBy)) < 0))
         })
         f.writeAll(sorted.build().toString)
