@@ -115,13 +115,30 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
         }
       }
 
-      for (col <- Seq("99", "Unknown", "-1")) {
-        it(s"should ignore sort by column $col") {
-          withGoMatching(TaskCmd, in, "To Sort", "--sortBy", col) { case (stdout, stderr) =>
-            stderr shouldBe empty
-            stdout shouldBe empty
-            val sorted = in.slurp()
-            extractColumn(sorted) shouldBe Seq(0, 1, 2, 3, 4, 5)
+      describe("when specifying a missing column") {
+        for (col <- Seq("99", "Unknown", "-1")) {
+          it(s"should ignore sort by column $col") {
+            withGoMatching(TaskCmd, in, "To Sort", "--sortBy", col) { case (stdout, stderr) =>
+              stderr shouldBe empty
+              stdout shouldBe empty
+              val sorted = in.slurp()
+              extractColumn(sorted) shouldBe Seq(0, 1, 2, 3, 4, 5)
+            }
+          }
+        }
+      }
+
+      describe("when specifying a missing column with a fail option") {
+        for (col <- Seq("99", "Unknown", "-1")) {
+          it(s"should fail sorting by column $col") {
+            interceptGoIAEx(
+              TaskCmd,
+              in,
+              "To Sort",
+              "--sortBy",
+              col,
+              "--failOnMissing"
+            ).getMessage shouldBe s"Column names or numbers not found in table 'To Sort': '$col'"
           }
         }
       }

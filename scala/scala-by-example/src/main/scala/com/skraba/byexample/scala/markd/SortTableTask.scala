@@ -17,14 +17,15 @@ object SortTableTask extends DocoptCliGo.Task {
     """Find a table in the markdown file and sort it.
       |
       |Usage:
-      |  MarkdGo sortTable FILE TABLE [--sortBy=COLS]
+      |  MarkdGo sortTable FILE TABLE [--sortBy=COLS] [--failOnMissing]
       |
       |Options:
-      |  -h --help       Show this screen.
-      |  --version       Show version.
-      |  FILE            File(s) to beautify.
-      |  TABLE           The contents in the upper left cell of the table.
-      |  --sortBy=COLS   The column name or number to sort by [Default: 0].
+      |  -h --help        Show this screen.
+      |  --version        Show version.
+      |  FILE             File(s) to beautify.
+      |  TABLE            The contents in the upper left cell of the table.
+      |  --sortBy=COLS    The column name or number to sort by [Default: 0].
+      |  --failOnMissing  Fail if the table or column is not found.
       |""".stripMargin.trim
 
   // TODO(rskraba): Sort by multiple columns separated by ,
@@ -35,7 +36,7 @@ object SortTableTask extends DocoptCliGo.Task {
 
     val file: String = opts.get("FILE").asInstanceOf[String]
     val table: String = opts.get("TABLE").asInstanceOf[String]
-
+    val failOnMissing: Boolean = opts.get("--failOnMissing").toString.toBoolean
     val sortByCol: Seq[String] = opts.get("--sortBy").asInstanceOf[String].split(",").toSeq
 
     MarkdGo.processMd(Seq(file)) { f =>
@@ -45,12 +46,21 @@ object SortTableTask extends DocoptCliGo.Task {
           case tbl: Table if tbl.title == table =>
             // Use the header in the first matching table to convert the columns into numbers
             val sortByColNum: Seq[Int] =
-              sortByCol.flatMap(col => {
+              sortByCol.map(col => {
                 tbl.mds.head.cells.indexWhere(_ == col) match {
-                  case -1 => col.toIntOption
-                  case n  => Some(n)
+                  case -1 => col.toIntOption.getOrElse(-1)
+                  case n  => n
                 }
               })
+
+            if (failOnMissing) {
+              val invalidIndex = sortByColNum.indexWhere(!tbl.mds.head.cells.indices.contains(_))
+              if (invalidIndex != -1)
+                throw new IllegalArgumentException(
+                  s"Column names or numbers not found in table '$table': '${sortByCol(invalidIndex)}'"
+                )
+            }
+
             // Just sort by the first discovered column for now
             val sortBy = sortByColNum.headOption.getOrElse(Int.MaxValue)
             tbl.copy(mds = tbl.mds.head +: tbl.mds.tail.sortWith((a, b) => a(sortBy).compareTo(b(sortBy)) < 0))
