@@ -142,6 +142,19 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
           }
         }
       }
+
+      it(s"should ignore when specifying a missing table") {
+        withGoMatching(TaskCmd, in, "Missing") { case (stdout, stderr) =>
+          stderr shouldBe empty
+          stdout shouldBe empty
+          val sorted = in.slurp()
+          extractColumn(sorted) shouldBe Seq(0, 1, 2, 3, 4, 5)
+        }
+      }
+
+      it(s"should fail when specifying a missing table and --failOnMissing") {
+        interceptGoIAEx(TaskCmd, in, "Missing", "--failOnMissing").getMessage shouldBe s"Table not found: 'Missing'"
+      }
     }
   }
 }

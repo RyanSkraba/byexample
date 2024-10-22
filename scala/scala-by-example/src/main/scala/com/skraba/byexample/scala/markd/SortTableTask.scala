@@ -42,8 +42,10 @@ object SortTableTask extends DocoptCliGo.Task {
     MarkdGo.processMd(Seq(file)) { f =>
       {
         val md = Header.parse(f.slurp())
+        var found = false
         val sorted = md.replaceRecursively({
           case tbl: Table if tbl.title == table =>
+            found = true
             // Use the header in the first matching table to convert the columns into numbers
             val sortByColNum: Seq[Int] =
               sortByCol.map(col => {
@@ -65,6 +67,10 @@ object SortTableTask extends DocoptCliGo.Task {
             val sortBy = sortByColNum.headOption.getOrElse(Int.MaxValue)
             tbl.copy(mds = tbl.mds.head +: tbl.mds.tail.sortWith((a, b) => a(sortBy).compareTo(b(sortBy)) < 0))
         })
+
+        if (failOnMissing && !found)
+          throw new IllegalArgumentException(s"Table not found: '$table'")
+
         f.writeAll(sorted.build().toString)
       }
     }
