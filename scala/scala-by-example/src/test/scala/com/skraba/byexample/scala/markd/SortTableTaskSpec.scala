@@ -114,34 +114,69 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
           }
         }
       }
+    }
 
-      describe("when specifying a missing column") {
-        for (col <- Seq("99", "Unknown", "-1")) {
-          it(s"should ignore sort by column $col") {
-            withGoMatching(TaskCmd, in, "To Sort", "--sortBy", col) { case (stdout, stderr) =>
-              stderr shouldBe empty
-              stdout shouldBe empty
-              val sorted = in.slurp()
-              extractColumn(sorted) shouldBe Seq(0, 1, 2, 3, 4, 5)
-            }
+    describe("when sorting on multiple columns") {
+      val in = File(Simple / "basic2col.md")
+      in.writeAll(BasicTable)
+
+      for (col <- Seq("0,1", "To Sort,A", "99,0,1", "0,99,1", "0,1,99")) {
+        it(s"should sort by column $col") {
+          withGoMatching(TaskCmd, in, "To Sort", "--sortBy", col) { case (stdout, stderr) =>
+            stderr shouldBe empty
+            stdout shouldBe empty
+            val sorted = in.slurp()
+            extractColumn(sorted, "To Sort") shouldBe Seq("w", "x", "x", "y", "y", "z")
+            extractColumn(sorted, "A") shouldBe Seq(1, 7, 7, 6, 8, 10)
+            extractColumn(sorted) shouldBe Seq(5, 3, 4, 2, 1, 0)
           }
         }
       }
 
-      describe("when specifying a missing column with a fail option") {
-        for (col <- Seq("99", "Unknown", "-1")) {
-          it(s"should fail sorting by column $col") {
-            interceptGoIAEx(
-              TaskCmd,
-              in,
-              "To Sort",
-              "--sortBy",
-              col,
-              "--failOnMissing"
-            ).getMessage shouldBe s"Column names or numbers not found in table 'To Sort': '$col'"
-          }
+      it(s"should sort by column 0,2") {
+        withGoMatching(TaskCmd, in, "To Sort", "--sortBy", "0,2") { case (stdout, stderr) =>
+          stderr shouldBe empty
+          stdout shouldBe empty
+          val sorted = in.slurp()
+          extractColumn(sorted, "To Sort") shouldBe Seq("w", "x", "x", "y", "y", "z")
+          extractColumn(sorted, "B") shouldBe Seq(1, "c", "d", 10, "b", "a")
+          extractColumn(sorted) shouldBe Seq(5, 3, 4, 2, 1, 0)
         }
       }
+
+      it(s"should sort by column 0,3") {
+        withGoMatching(TaskCmd, in, "To Sort", "--sortBy", "0,2") { case (stdout, stderr) =>
+          stderr shouldBe empty
+          stdout shouldBe empty
+          val sorted = in.slurp()
+          extractColumn(sorted, "To Sort") shouldBe Seq("w", "x", "x", "y", "y", "z")
+          extractColumn(sorted) shouldBe Seq(5, 3, 4, 2, 1, 0)
+        }
+      }
+
+      it(s"should sort by column 0,1,2,3") {
+        withGoMatching(TaskCmd, in, "To Sort", "--sortBy", "0,1,2,3") { case (stdout, stderr) =>
+          stderr shouldBe empty
+          stdout shouldBe empty
+          val sorted = in.slurp()
+          extractColumn(sorted, "To Sort") shouldBe Seq("w", "x", "x", "y", "y", "z")
+          extractColumn(sorted) shouldBe Seq(5, 3, 4, 2, 1, 0)
+        }
+      }
+
+      it(s"should sort by column 3,2,1,0") {
+        withGoMatching(TaskCmd, in, "To Sort", "--sortBy", "3,2,1,0") { case (stdout, stderr) =>
+          stderr shouldBe empty
+          stdout shouldBe empty
+          val sorted = in.slurp()
+          extractColumn(sorted) shouldBe Seq(0, 1, 2, 3, 4, 5)
+        }
+      }
+    }
+
+    describe("when sorting a missing table") {
+      val in = File(Simple / "basic_check_missing.md")
+      in.writeAll(BasicTable)
 
       it(s"should ignore when specifying a missing table") {
         withGoMatching(TaskCmd, in, "Missing") { case (stdout, stderr) =>

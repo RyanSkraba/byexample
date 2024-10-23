@@ -63,9 +63,11 @@ object SortTableTask extends DocoptCliGo.Task {
                 )
             }
 
-            // Just sort by the first discovered column for now
-            val sortBy = sortByColNum.headOption.getOrElse(Int.MaxValue)
-            tbl.copy(mds = tbl.mds.head +: tbl.mds.tail.sortWith((a, b) => a(sortBy).compareTo(b(sortBy)) < 0))
+            sortByColNum.foldRight(tbl)((col, tbl) => {
+              if (col < 0) tbl
+              else
+                tbl.copy(mds = tbl.mds.head +: tbl.mds.tail.sortWith { case (a, b) => a(col).compareTo(b(col)) < 0 })
+            })
         })
 
         if (failOnMissing && !found)
