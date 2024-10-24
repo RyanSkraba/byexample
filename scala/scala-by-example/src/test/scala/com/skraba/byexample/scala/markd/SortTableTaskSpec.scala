@@ -145,12 +145,12 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
       }
 
       it(s"should sort by column 0,3") {
-        withGoMatching(TaskCmd, in, "To Sort", "--sortBy", "0,2") { case (stdout, stderr) =>
+        withGoMatching(TaskCmd, in, "To Sort", "--sortBy", "0,3") { case (stdout, stderr) =>
           stderr shouldBe empty
           stdout shouldBe empty
           val sorted = in.slurp()
           extractColumn(sorted, "To Sort") shouldBe Seq("w", "x", "x", "y", "y", "z")
-          extractColumn(sorted) shouldBe Seq(5, 3, 4, 2, 1, 0)
+          extractColumn(sorted) shouldBe Seq(5, 3, 4, 1, 2, 0)
         }
       }
 
