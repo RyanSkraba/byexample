@@ -121,8 +121,9 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
       in.writeAll(BasicTable)
 
       for (col <- Seq("0,1", "To Sort,A", "99,0,1", "0,99,1", "0,1,99")) {
+        val sortBys = col.split(",").flatMap(Seq("--sortBy", _)).toSeq
         it(s"should sort by column $col") {
-          withGoMatching(TaskCmd, in, "To Sort", "--sortBy", col) { case (stdout, stderr) =>
+          withGoMatching(Seq(TaskCmd, in, "To Sort") ++ sortBys: _*) { case (stdout, stderr) =>
             stderr shouldBe empty
             stdout shouldBe empty
             val sorted = in.slurp()
@@ -134,7 +135,7 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
       }
 
       it(s"should sort by column 0,2") {
-        withGoMatching(TaskCmd, in, "To Sort", "--sortBy", "0,2") { case (stdout, stderr) =>
+        withGoMatching(TaskCmd, in, "To Sort", "--sortBy", "0", "--sortBy", "2") { case (stdout, stderr) =>
           stderr shouldBe empty
           stdout shouldBe empty
           val sorted = in.slurp()
@@ -145,7 +146,7 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
       }
 
       it(s"should sort by column 0,3") {
-        withGoMatching(TaskCmd, in, "To Sort", "--sortBy", "0,3") { case (stdout, stderr) =>
+        withGoMatching(TaskCmd, in, "To Sort", "--sortBy", "0", "--sortBy", "3") { case (stdout, stderr) =>
           stderr shouldBe empty
           stdout shouldBe empty
           val sorted = in.slurp()
@@ -155,21 +156,23 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
       }
 
       it(s"should sort by column 0,1,2,3") {
-        withGoMatching(TaskCmd, in, "To Sort", "--sortBy", "0,1,2,3") { case (stdout, stderr) =>
-          stderr shouldBe empty
-          stdout shouldBe empty
-          val sorted = in.slurp()
-          extractColumn(sorted, "To Sort") shouldBe Seq("w", "x", "x", "y", "y", "z")
-          extractColumn(sorted) shouldBe Seq(5, 3, 4, 2, 1, 0)
+        withGoMatching(TaskCmd, in, "To Sort", "--sortBy", "0", "--sortBy", "1", "--sortBy", "2", "--sortBy", "3") {
+          case (stdout, stderr) =>
+            stderr shouldBe empty
+            stdout shouldBe empty
+            val sorted = in.slurp()
+            extractColumn(sorted, "To Sort") shouldBe Seq("w", "x", "x", "y", "y", "z")
+            extractColumn(sorted) shouldBe Seq(5, 3, 4, 2, 1, 0)
         }
       }
 
       it(s"should sort by column 3,2,1,0") {
-        withGoMatching(TaskCmd, in, "To Sort", "--sortBy", "3,2,1,0") { case (stdout, stderr) =>
-          stderr shouldBe empty
-          stdout shouldBe empty
-          val sorted = in.slurp()
-          extractColumn(sorted) shouldBe Seq(0, 1, 2, 3, 4, 5)
+        withGoMatching(TaskCmd, in, "To Sort", "--sortBy", "3", "--sortBy", "2", "--sortBy", "1", "--sortBy", "0") {
+          case (stdout, stderr) =>
+            stderr shouldBe empty
+            stdout shouldBe empty
+            val sorted = in.slurp()
+            extractColumn(sorted) shouldBe Seq(0, 1, 2, 3, 4, 5)
         }
       }
     }

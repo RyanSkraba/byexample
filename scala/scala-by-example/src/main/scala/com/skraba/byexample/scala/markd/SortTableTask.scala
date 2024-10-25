@@ -3,7 +3,6 @@ package com.skraba.byexample.scala.markd
 import com.skraba.docoptcli.DocoptCliGo
 
 import scala.jdk.CollectionConverters._
-import scala.util.Try
 
 /** Command-line driver for sorting a table in a Markdown file.
   */
@@ -17,18 +16,19 @@ object SortTableTask extends DocoptCliGo.Task {
     """Find a table in the markdown file and sort it.
       |
       |Usage:
-      |  MarkdGo sortTable FILE TABLE [--sortBy=COLS] [--failOnMissing]
+      |  MarkdGo sortTable FILE TABLE [--sortBy=COL]... [--failOnMissing]
       |
       |Options:
       |  -h --help        Show this screen.
       |  --version        Show version.
       |  FILE             File(s) to beautify.
       |  TABLE            The contents in the upper left cell of the table.
-      |  --sortBy=COLS    The column name or number to sort by [Default: 0].
+      |  --sortBy=COL     A column name or number to sort by.  This option can
+      |                   be repeated to sort by multiple columns.
+      |                   [Default: 0].
       |  --failOnMissing  Fail if the table or column is not found.
       |""".stripMargin.trim
 
-  // TODO(rskraba): Sort by multiple columns separated by ,
   // TODO(rskraba): Sort ascending or descending
   // TODO(rskraba): Different sorts (alphabet, numeric)
 
@@ -37,7 +37,7 @@ object SortTableTask extends DocoptCliGo.Task {
     val file: String = opts.get("FILE").asInstanceOf[String]
     val table: String = opts.get("TABLE").asInstanceOf[String]
     val failOnMissing: Boolean = opts.get("--failOnMissing").toString.toBoolean
-    val sortByCol: Seq[String] = opts.get("--sortBy").asInstanceOf[String].split(",").toSeq
+    val sortByCol: Seq[String] = opts.get("--sortBy").asInstanceOf[java.util.List[String]].asScala.toSeq
 
     MarkdGo.processMd(Seq(file)) { f =>
       {
