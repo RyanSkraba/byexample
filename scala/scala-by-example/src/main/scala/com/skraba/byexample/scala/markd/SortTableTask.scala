@@ -29,15 +29,32 @@ object SortTableTask extends DocoptCliGo.Task {
       |  --failOnMissing  Fail if the table or column is not found.
       |""".stripMargin.trim
 
-  // TODO(rskraba): Sort ascending or descending
   // TODO(rskraba): Different sorts (alphabet, numeric)
+
+  case class SortBy(col: String, ascending: Boolean) {
+
+    /** Find the index of the column in the table, by priority searching by name and falling back to number.
+      * @param tbl
+      *   The table to look for the column in.
+      * @return
+      *   The index of the column in the table or -1 if it can't be found.
+      */
+    def find(tbl: Table): Int =
+      tbl.mds.head.cells.indexWhere(_ == col) match {
+        case -1 => col.toIntOption.getOrElse(-1)
+        case n  => n
+      }
+  }
 
   def go(opts: java.util.Map[String, AnyRef]): Unit = {
 
     val file: String = opts.get("FILE").asInstanceOf[String]
     val table: String = opts.get("TABLE").asInstanceOf[String]
     val failOnMissing: Boolean = opts.get("--failOnMissing").toString.toBoolean
-    val sortByCol: Seq[String] = opts.get("--sortBy").asInstanceOf[java.util.List[String]].asScala.toSeq
+
+    // TODO(rskraba): Sort ascending or descending
+    val sortBys: Seq[SortBy] =
+      opts.get("--sortBy").asInstanceOf[java.util.List[String]].asScala.toSeq.map(arg => SortBy(arg, ascending = true))
 
     MarkdGo.processMd(Seq(file)) { f =>
       {
@@ -46,27 +63,17 @@ object SortTableTask extends DocoptCliGo.Task {
         val sorted = md.replaceRecursively({
           case tbl: Table if tbl.title == table =>
             found = true
-            // Use the header in the first matching table to convert the columns into numbers
-            val sortByColNum: Seq[Int] =
-              sortByCol.map(col => {
-                tbl.mds.head.cells.indexWhere(_ == col) match {
-                  case -1 => col.toIntOption.getOrElse(-1)
-                  case n  => n
-                }
-              })
 
-            if (failOnMissing) {
-              val invalidIndex = sortByColNum.indexWhere(!tbl.mds.head.cells.indices.contains(_))
-              if (invalidIndex != -1)
-                throw new IllegalArgumentException(
-                  s"Column names or numbers not found in table '$table': '${sortByCol(invalidIndex)}'"
-                )
-            }
-
-            sortByColNum.foldRight(tbl)((col, tbl) => {
-              if (col < 0) tbl
+            // Apply all of the sorts in order starting from the last
+            sortBys.foldRight(tbl)((sortBy, tbl) => {
+              val col = sortBy.find(tbl)
+              if (col < 0 && failOnMissing)
+                throw new IllegalArgumentException(s"Column not found in table '$table': '${sortBy.col}'")
+              else if (col < 0) tbl
               else
-                tbl.copy(mds = tbl.mds.head +: tbl.mds.tail.sortWith { case (a, b) => a(col).compareTo(b(col)) < 0 })
+                tbl.copy(mds = tbl.mds.head +: tbl.mds.tail.sortWith { case (a, b) =>
+                  (if (sortBy.ascending) 1 else -1) * a(col).compareTo(b(col)) < 0
+                })
             })
         })
 
