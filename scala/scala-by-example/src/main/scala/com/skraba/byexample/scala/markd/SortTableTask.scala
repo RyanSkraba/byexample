@@ -29,21 +29,42 @@ object SortTableTask extends DocoptCliGo.Task {
       |  --failOnMissing  Fail if the table or column is not found.
       |""".stripMargin.trim
 
-  // TODO(rskraba): Different sorts (alphabet, numeric)
-
+  /** Specifies a way to sort a table by column
+    * @param col
+    *   A named column in the table or a number.
+    * @param ascending
+    *   true if the sort is ascending, false if descending.
+    */
   case class SortBy(col: String, ascending: Boolean) {
 
-    /** Find the index of the column in the table, by priority searching by name and falling back to number.
-      * @param tbl
-      *   The table to look for the column in.
-      * @return
-      *   The index of the column in the table or -1 if it can't be found.
-      */
-    def find(tbl: Table): Int =
-      tbl.mds.head.cells.indexWhere(_ == col) match {
+    def sort(tbl: Table, failOnMissing: Boolean): Table = {
+      // Find the index of the column to sort by, looking at the headers and matching a name first.
+      val colNum = tbl.mds.head.cells.indexWhere(_ == col) match {
         case -1 => col.toIntOption.getOrElse(-1)
         case n  => n
       }
+
+      if (colNum < 0 && failOnMissing)
+        throw new IllegalArgumentException(s"Column not found in table '${tbl.title}': '$col'")
+      else if (colNum < 0) tbl // Ignore if not failing.
+      else
+        tbl.copy(mds = tbl.mds.head +: tbl.mds.tail.sortWith { case (a, b) =>
+          (if (ascending) 1 else -1) * a(colNum).compareTo(b(colNum)) < 0
+        })
+    }
+  }
+
+  object SortBy {
+    // TODO(rskraba): Different sorts (alphabet, numeric)
+    def apply(delimiter: String)(arg: String): SortBy = {
+      arg.lastIndexOf(delimiter) match {
+        case -1 => SortBy(arg, ascending = true)
+        case index =>
+          val specifier = arg.substring(index + 1)
+          val ascending = specifier.toLowerCase() != "desc"
+          SortBy(arg.substring(0, index), ascending = ascending)
+      }
+    }
   }
 
   def go(opts: java.util.Map[String, AnyRef]): Unit = {
@@ -52,9 +73,8 @@ object SortTableTask extends DocoptCliGo.Task {
     val table: String = opts.get("TABLE").asInstanceOf[String]
     val failOnMissing: Boolean = opts.get("--failOnMissing").toString.toBoolean
 
-    // TODO(rskraba): Sort ascending or descending
     val sortBys: Seq[SortBy] =
-      opts.get("--sortBy").asInstanceOf[java.util.List[String]].asScala.toSeq.map(arg => SortBy(arg, ascending = true))
+      opts.get("--sortBy").asInstanceOf[java.util.List[String]].asScala.toSeq.map(SortBy.apply(":"))
 
     MarkdGo.processMd(Seq(file)) { f =>
       {
@@ -63,18 +83,8 @@ object SortTableTask extends DocoptCliGo.Task {
         val sorted = md.replaceRecursively({
           case tbl: Table if tbl.title == table =>
             found = true
-
-            // Apply all of the sorts in order starting from the last
-            sortBys.foldRight(tbl)((sortBy, tbl) => {
-              val col = sortBy.find(tbl)
-              if (col < 0 && failOnMissing)
-                throw new IllegalArgumentException(s"Column not found in table '$table': '${sortBy.col}'")
-              else if (col < 0) tbl
-              else
-                tbl.copy(mds = tbl.mds.head +: tbl.mds.tail.sortWith { case (a, b) =>
-                  (if (sortBy.ascending) 1 else -1) * a(col).compareTo(b(col)) < 0
-                })
-            })
+            // Apply the sorts in order starting from the last
+            sortBys.foldRight(tbl)((sortBy, tbl) => sortBy.sort(tbl, failOnMissing))
         })
 
         if (failOnMissing && !found)
