@@ -3,6 +3,7 @@ package com.skraba.byexample.scala.markd
 import com.skraba.docoptcli.DocoptCliGo
 
 import scala.jdk.CollectionConverters._
+import scala.math.Ordered.orderingToOrdered
 
 /** Command-line driver for sorting a table in a Markdown file.
   */
@@ -34,8 +35,10 @@ object SortTableTask extends DocoptCliGo.Task {
     *   A named column in the table or a number.
     * @param ascending
     *   true if the sort is ascending, false if descending.
+    * @param numeric
+    *   true if the sort should be as a number, false if as a string.
     */
-  case class SortBy(col: String, ascending: Boolean) {
+  case class SortBy(col: String, ascending: Boolean, numeric: Boolean) {
 
     def sort(tbl: Table, failOnMissing: Boolean): Table = {
       // Find the index of the column to sort by, looking at the headers and matching a name first.
@@ -49,20 +52,24 @@ object SortTableTask extends DocoptCliGo.Task {
       else if (colNum < 0) tbl // Ignore if not failing.
       else
         tbl.copy(mds = tbl.mds.head +: tbl.mds.tail.sortWith { case (a, b) =>
-          (if (ascending) 1 else -1) * a(colNum).compareTo(b(colNum)) < 0
+          val cmp =
+            if (numeric) a(colNum).toIntOption.compareTo(b(colNum).toIntOption)
+            else a(colNum).compareTo(b(colNum))
+          if (ascending) cmp < 0 else cmp > 0
         })
     }
   }
 
   object SortBy {
-    // TODO(rskraba): Different sorts (alphabet, numeric)
+    // TODO(rskraba): Improve the handling of a specifier
     def apply(delimiter: String)(arg: String): SortBy = {
       arg.lastIndexOf(delimiter) match {
-        case -1 => SortBy(arg, ascending = true)
+        case -1 => SortBy(arg, ascending = true, numeric = false)
         case index =>
           val specifier = arg.substring(index + 1)
           val ascending = specifier.toLowerCase() != "desc"
-          SortBy(arg.substring(0, index), ascending = ascending)
+          val numeric = specifier.toLowerCase() == "num"
+          SortBy(col = arg.substring(0, index), ascending = ascending, numeric = numeric)
       }
     }
   }
