@@ -88,7 +88,7 @@ object SortTableTask extends DocoptCliGo.Task {
         val md = Header.parse(f.slurp())
         var found = false
         val sorted = md.replaceRecursively({
-          case tbl: Table if tbl.title == table =>
+          case tbl: Table if tbl.title == table && !found =>
             found = true
             // Apply the sorts in order starting from the last
             sortBys.foldRight(tbl)((sortBy, tbl) => sortBy.sort(tbl, failOnMissing))

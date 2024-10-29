@@ -22,6 +22,17 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
     itShouldThrowOnMissingOptValue(Seq("--sortBy"))
   }
 
+  /** Helper to extract a column from a matching table. */
+  def extractColumn(in: String, extract: String = "Original", title: String = "To Sort"): Seq[Any] =
+    Header
+      .parse(in)
+      .collectFirstRecursive({
+        case tbl: Table if tbl.title == title =>
+          val original = tbl.mds.head.cells.indexOf(extract)
+          tbl.mds.tail.map(_(original max 0)).map(c => c.toIntOption.getOrElse(c))
+      })
+      .getOrElse(Seq.empty)
+
   describe("When parsing a very simple file") {
     val Simple = (Tmp / "simple").createDirectory()
     val BasicTable = """To Sort | A | B | Original
@@ -33,17 +44,6 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
                        !x  | 7  | d | 4 |
                        !w  | 1  | 1 | 5 |
                        !""".stripMargin('!')
-
-    /** Helper to extract a column from a matching table. */
-    def extractColumn(in: String, extract: String = "Original", title: String = "To Sort"): Seq[Any] =
-      Header
-        .parse(in)
-        .collectFirstRecursive({
-          case tbl: Table if tbl.title == title =>
-            val original = tbl.mds.head.cells.indexOf(extract)
-            tbl.mds.tail.map(_(original max 0)).map(c => c.toIntOption.getOrElse(c))
-        })
-        .getOrElse(Seq.empty)
 
     it("should sort on the first column by default") {
       val in = File(Simple / "basic.md")
@@ -215,4 +215,58 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
       }
     }
   }
+
+  describe("When several tables are in a file") {
+    val in = File(Tmp / "multifile.md")
+    in.writeAll("""
+        |A  | B
+        |---|---
+        |2  | 1
+        |1  | 2
+        |
+        |X  |Y
+        |---|---
+        |2  | 1
+        |1  | 2
+        |
+        |A  | B
+        |---|---
+        |20 | 10
+        |10 | 20
+        |
+        |A   | B
+        |----|---
+        |200 | 100
+        |100 | 200
+        |""".stripMargin)
+
+    it(s"should ignore when specifying a missing table") {
+      withGoMatching(TaskCmd, in, "A") { case (stdout, stderr) =>
+        stderr shouldBe empty
+        stdout shouldBe empty
+        in.slurp() shouldBe
+          """| A | B |
+             !|---|---|
+             !| 1 | 2 |
+             !| 2 | 1 |
+             !
+             !| X | Y |
+             !|---|---|
+             !| 2 | 1 |
+             !| 1 | 2 |
+             !
+             !| A  | B  |
+             !|----|----|
+             !| 20 | 10 |
+             !| 10 | 20 |
+             !
+             !| A   | B   |
+             !|-----|-----|
+             !| 200 | 100 |
+             !| 100 | 200 |
+             !""".stripMargin('!')
+      }
+    }
+  }
+
 }
