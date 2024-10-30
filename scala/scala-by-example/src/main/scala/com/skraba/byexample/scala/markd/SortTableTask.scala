@@ -23,11 +23,16 @@ object SortTableTask extends DocoptCliGo.Task {
       |  -h --help        Show this screen.
       |  --version        Show version.
       |  FILE             File(s) to beautify.
-      |  TABLE            The contents in the upper left cell of the table.
-      |  --sortBy=COL     A column name or number to sort by.  This option can
-      |                   be repeated to sort by multiple columns.
-      |                   [Default: 0].
+      |  TABLE            The title of the table to sort, which is the first cell in
+      |                   the first row. All tables with this title will e sorted, but
+      |                   you can pick the Nth table by using a specifier such as
+      |                   "TABLE:2".
+      |  --sortBy=COL     A column name or number to sort by. This option can be
+      |                   repeated to sort by multiple columns. [Default: 0].
       |  --failOnMissing  Fail if the table or column is not found.
+      |
+      |Tables and columns are zero-indexed.  MyTable:2 will sort the third table,
+      | and sorting on column 0 sorts on the first column.
       |""".stripMargin.trim
 
   /** Specifies a way to sort a table by column
@@ -77,25 +82,32 @@ object SortTableTask extends DocoptCliGo.Task {
   def go(opts: java.util.Map[String, AnyRef]): Unit = {
 
     val file: String = opts.get("FILE").asInstanceOf[String]
-    val table: String = opts.get("TABLE").asInstanceOf[String]
+    val tableArg: String = opts.get("TABLE").asInstanceOf[String]
     val failOnMissing: Boolean = opts.get("--failOnMissing").toString.toBoolean
-
     val sortBys: Seq[SortBy] =
       opts.get("--sortBy").asInstanceOf[java.util.List[String]].asScala.toSeq.map(SortBy.apply(":"))
+
+    val (table, tableNum) = tableArg.lastIndexOf(":") match {
+      case -1    => (tableArg, None)
+      case index => (tableArg.substring(0, index), tableArg.substring(index + 1).toIntOption)
+    }
+    // TODO: Fail on missing table when  tableNum is unreadable
 
     MarkdGo.processMd(Seq(file)) { f =>
       {
         val md = Header.parse(f.slurp())
-        var found = false
+        var count = 0
         val sorted = md.replaceRecursively({
-          case tbl: Table if tbl.title == table && !found =>
-            found = true
+          case tbl: Table if tbl.title == table && (tableNum.isEmpty || tableNum.contains(count)) =>
+            count = count + 1
             // Apply the sorts in order starting from the last
             sortBys.foldRight(tbl)((sortBy, tbl) => sortBy.sort(tbl, failOnMissing))
         })
 
-        if (failOnMissing && !found)
+        if (failOnMissing && count == 0)
           throw new IllegalArgumentException(s"Table not found: '$table'")
+
+        // TODO: Fail on missing table when count is < tableNum
 
         f.writeAll(sorted.build().toString)
       }
