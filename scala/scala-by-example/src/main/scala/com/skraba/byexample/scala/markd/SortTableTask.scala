@@ -4,6 +4,7 @@ import com.skraba.docoptcli.DocoptCliGo
 
 import scala.jdk.CollectionConverters._
 import scala.math.Ordered.orderingToOrdered
+import scala.util.Try
 
 /** Command-line driver for sorting a table in a Markdown file.
   */
@@ -88,10 +89,13 @@ object SortTableTask extends DocoptCliGo.Task {
       opts.get("--sortBy").asInstanceOf[java.util.List[String]].asScala.toSeq.map(SortBy.apply(":"))
 
     val (table, tableNum) = tableArg.lastIndexOf(":") match {
-      case -1    => (tableArg, None)
+      case -1 => (tableArg, None)
+      case index if failOnMissing =>
+        Try {
+          (tableArg.substring(0, index), tableArg.substring(index + 1).toIntOption)
+        }.getOrElse(throw new IllegalArgumentException(s"Bad table index: '$tableArg'"))
       case index => (tableArg.substring(0, index), tableArg.substring(index + 1).toIntOption)
     }
-    // TODO: Fail on missing table when  tableNum is unreadable
 
     MarkdGo.processMd(Seq(file)) { f =>
       {
@@ -102,10 +106,13 @@ object SortTableTask extends DocoptCliGo.Task {
             count = count + 1
             // Apply the sorts in order starting from the last
             sortBys.foldRight(tbl)((sortBy, tbl) => sortBy.sort(tbl, failOnMissing))
+          case tbl: Table if tbl.title == table && !tableNum.contains(count) =>
+            count = count + 1
+            tbl
         })
 
         if (failOnMissing && count == 0)
-          throw new IllegalArgumentException(s"Table not found: '$table'")
+          throw new IllegalArgumentException(s"Table not found: '$tableArg'")
 
         // TODO: Fail on missing table when count is < tableNum
 

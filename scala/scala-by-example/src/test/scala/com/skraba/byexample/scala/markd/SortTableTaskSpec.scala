@@ -217,27 +217,27 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
   }
 
   describe("When several tables are in a file") {
-    val MultiTable = """
-        !| A | B |
-        !|---|---|
-        !| 2 | 1 |
-        !| 1 | 2 |
-        !
-        !| X | Y |
-        !|---|---|
-        !| 2 | 1 |
-        !| 1 | 2 |
-        !
-        !| A  | B  |
-        !|----|----|
-        !| 20 | 10 |
-        !| 10 | 20 |
-        !
-        !| A   | B   |
-        !|-----|-----|
-        !| 200 | 100 |
-        !| 100 | 200 |
-        !""".stripMargin('!')
+    val MultiTable =
+      """!| A | B |
+         !|---|---|
+         !| 2 | 1 |
+         !| 1 | 2 |
+         !
+         !| X | Y |
+         !|---|---|
+         !| 2 | 1 |
+         !| 1 | 2 |
+         !
+         !| A  | B  |
+         !|----|----|
+         !| 20 | 10 |
+         !| 10 | 20 |
+         !
+         !| A   | B   |
+         !|-----|-----|
+         !| 200 | 100 |
+         !| 100 | 200 |
+         !""".stripMargin('!')
 
     it(s"should sort all the tables") {
       val in = File(Tmp / "multi.md")
@@ -298,6 +298,65 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
             !""".stripMargin('!')
       }
     }
-  }
 
+    it(s"should sort the second table") {
+      val in = File(Tmp / "multi.md")
+      in.writeAll(MultiTable)
+      withGoMatching(TaskCmd, in, "A:1", "--failOnMissing") { case (stdout, stderr) =>
+        stderr shouldBe empty
+        stdout shouldBe empty
+        in.slurp() shouldBe
+          """!| A | B |
+            !|---|---|
+            !| 2 | 1 |
+            !| 1 | 2 |
+            !
+            !| X | Y |
+            !|---|---|
+            !| 2 | 1 |
+            !| 1 | 2 |
+            !
+            !| A  | B  |
+            !|----|----|
+            !| 10 | 20 |
+            !| 20 | 10 |
+            !
+            !| A   | B   |
+            !|-----|-----|
+            !| 200 | 100 |
+            !| 100 | 200 |
+            !""".stripMargin('!')
+      }
+    }
+
+    it(s"should sort the third table") {
+      val in = File(Tmp / "multi.md")
+      in.writeAll(MultiTable)
+      withGoMatching(TaskCmd, in, "A:2", "--failOnMissing") { case (stdout, stderr) =>
+        stderr shouldBe empty
+        stdout shouldBe empty
+        in.slurp() shouldBe
+          """!| A | B |
+              !|---|---|
+              !| 2 | 1 |
+              !| 1 | 2 |
+              !
+              !| X | Y |
+              !|---|---|
+              !| 2 | 1 |
+              !| 1 | 2 |
+              !
+              !| A  | B  |
+              !|----|----|
+              !| 20 | 10 |
+              !| 10 | 20 |
+              !
+              !| A   | B   |
+              !|-----|-----|
+              !| 100 | 200 |
+              !| 200 | 100 |
+              !""".stripMargin('!')
+      }
+    }
+  }
 }
