@@ -97,6 +97,10 @@ object SortTableTask extends DocoptCliGo.Task {
       case index => (tableArg.substring(0, index), tableArg.substring(index + 1).toIntOption)
     }
 
+    // Fail fast if the table is not found.
+    if (failOnMissing && tableNum.exists(_ < 0))
+      throw new IllegalArgumentException(s"Bad table index: '$tableArg'")
+
     MarkdGo.processMd(Seq(file)) { f =>
       {
         val md = Header.parse(f.slurp())
@@ -113,8 +117,8 @@ object SortTableTask extends DocoptCliGo.Task {
 
         if (failOnMissing && count == 0)
           throw new IllegalArgumentException(s"Table not found: '$tableArg'")
-
-        // TODO: Fail on missing table when count is < tableNum
+        if (failOnMissing && tableNum.exists(_ >= count))
+          throw new IllegalArgumentException(s"Bad table index: '$tableArg'")
 
         f.writeAll(sorted.build().toString)
       }

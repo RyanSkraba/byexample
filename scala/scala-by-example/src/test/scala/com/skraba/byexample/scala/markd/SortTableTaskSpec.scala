@@ -358,5 +358,14 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
               !""".stripMargin('!')
       }
     }
+
+    for (table <- Seq("A:3", "A:-1", "A:99")) {
+      it(s"should fail when specifying missing table number $table and --failOnMissing") {
+        val in = File(Tmp / "multi.md")
+        in.writeAll(MultiTable)
+        interceptGoIAEx(TaskCmd, in, table, "--failOnMissing").getMessage shouldBe s"Bad table index: '$table'"
+        in.slurp() shouldBe MultiTable
+      }
+    }
   }
 }
