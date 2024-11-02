@@ -93,13 +93,13 @@ object SortTableTask extends DocoptCliGo.Task {
       case index if failOnMissing =>
         Try {
           (tableArg.substring(0, index), tableArg.substring(index + 1).toIntOption)
-        }.getOrElse(throw new IllegalArgumentException(s"Bad table index: '$tableArg'"))
+        }.getOrElse(throw new IllegalArgumentException(s"Bad table specifier: '$tableArg'"))
       case index => (tableArg.substring(0, index), tableArg.substring(index + 1).toIntOption)
     }
 
     // Fail fast if the table is not found.
     if (failOnMissing && tableNum.exists(_ < 0))
-      throw new IllegalArgumentException(s"Bad table index: '$tableArg'")
+      throw new IllegalArgumentException(s"Bad table specifier: '$tableArg'")
 
     MarkdGo.processMd(Seq(file)) { f =>
       {
@@ -118,7 +118,7 @@ object SortTableTask extends DocoptCliGo.Task {
         if (failOnMissing && count == 0)
           throw new IllegalArgumentException(s"Table not found: '$tableArg'")
         if (failOnMissing && tableNum.exists(_ >= count))
-          throw new IllegalArgumentException(s"Bad table index: '$tableArg'")
+          throw new IllegalArgumentException(s"Bad table specifier: '$tableArg'")
 
         f.writeAll(sorted.build().toString)
       }
