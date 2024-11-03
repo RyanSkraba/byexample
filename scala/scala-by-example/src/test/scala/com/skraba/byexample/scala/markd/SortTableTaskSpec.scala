@@ -201,8 +201,12 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
       val in = File(Simple / "basic_check_missing.md")
       in.writeAll(BasicTable)
 
+      it(s"should fail when specifying a missing table") {
+        interceptGoIAEx(TaskCmd, in, "Missing").getMessage shouldBe s"Table not found: 'Missing'"
+      }
+
       it(s"should ignore when specifying a missing table") {
-        withGoMatching(TaskCmd, in, "Missing") { case (stdout, stderr) =>
+        withGoMatching(TaskCmd, in, "Missing", "--ignore") { case (stdout, stderr) =>
           stderr shouldBe empty
           stdout shouldBe empty
           val sorted = in.slurp()
@@ -210,9 +214,6 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
         }
       }
 
-      it(s"should fail when specifying a missing table and --failOnMissing") {
-        interceptGoIAEx(TaskCmd, in, "Missing", "--failOnMissing").getMessage shouldBe s"Table not found: 'Missing'"
-      }
     }
   }
 
@@ -272,7 +273,7 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
     it(s"should sort the first table") {
       val in = File(Tmp / "multi.md")
       in.writeAll(MultiTable)
-      withGoMatching(TaskCmd, in, "A:0", "--failOnMissing") { case (stdout, stderr) =>
+      withGoMatching(TaskCmd, in, "A:0") { case (stdout, stderr) =>
         stderr shouldBe empty
         stdout shouldBe empty
         in.slurp() shouldBe
@@ -302,7 +303,7 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
     it(s"should sort the second table") {
       val in = File(Tmp / "multi.md")
       in.writeAll(MultiTable)
-      withGoMatching(TaskCmd, in, "A:1", "--failOnMissing") { case (stdout, stderr) =>
+      withGoMatching(TaskCmd, in, "A:1") { case (stdout, stderr) =>
         stderr shouldBe empty
         stdout shouldBe empty
         in.slurp() shouldBe
@@ -332,7 +333,7 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
     it(s"should sort the third table") {
       val in = File(Tmp / "multi.md")
       in.writeAll(MultiTable)
-      withGoMatching(TaskCmd, in, "A:2", "--failOnMissing") { case (stdout, stderr) =>
+      withGoMatching(TaskCmd, in, "A:2") { case (stdout, stderr) =>
         stderr shouldBe empty
         stdout shouldBe empty
         in.slurp() shouldBe
@@ -360,21 +361,21 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
     }
 
     for (table <- Seq("A:3", "A:-1", "A:99")) {
-      it(s"should ignore when specifying missing table number $table and not --failOnMissing") {
+      it(s"should fail when specifying missing table number $table") {
         val in = File(Tmp / "multi.md")
         in.writeAll(MultiTable)
-        withGoMatching(TaskCmd, in, table) { case (stdout, stderr) =>
+        interceptGoIAEx(TaskCmd, in, table).getMessage shouldBe s"Bad table specifier: '$table'"
+        in.slurp() shouldBe MultiTable
+      }
+
+      it(s"should ignore when specifying missing table number $table") {
+        val in = File(Tmp / "multi.md")
+        in.writeAll(MultiTable)
+        withGoMatching(TaskCmd, in, table, "--ignore") { case (stdout, stderr) =>
           stderr shouldBe empty
           stdout shouldBe empty
           in.slurp() shouldBe MultiTable
         }
-      }
-
-      it(s"should fail when specifying missing table number $table and --failOnMissing") {
-        val in = File(Tmp / "multi.md")
-        in.writeAll(MultiTable)
-        interceptGoIAEx(TaskCmd, in, table, "--failOnMissing").getMessage shouldBe s"Bad table specifier: '$table'"
-        in.slurp() shouldBe MultiTable
       }
     }
   }

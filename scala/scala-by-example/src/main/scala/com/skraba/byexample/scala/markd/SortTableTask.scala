@@ -18,22 +18,21 @@ object SortTableTask extends DocoptCliGo.Task {
     """Find a table in the markdown file and sort it.
       |
       |Usage:
-      |  MarkdGo sortTable FILE TABLE [--sortBy=COL]... [--failOnMissing]
+      |  MarkdGo sortTable FILE TABLE [--sortBy=COL]... [--ignore]
       |
       |Options:
-      |  -h --help        Show this screen.
-      |  --version        Show version.
-      |  FILE             File(s) to beautify.
-      |  TABLE            The title of the table to sort, which is the first cell in
-      |                   the first row. All tables with this title will e sorted, but
-      |                   you can pick the Nth table by using a specifier such as
-      |                   "TABLE:2".
-      |  --sortBy=COL     A column name or number to sort by. This option can be
-      |                   repeated to sort by multiple columns. [Default: 0].
-      |  --failOnMissing  Fail if the table or column is not found.
+      |  -h --help     Show this screen.
+      |  --version     Show version.
+      |  FILE          File(s) to beautify.
+      |  TABLE         The title of the table to sort, which is the first cell in the
+      |                first row. All tables with this title will be sorted, but you
+      |                can pick the Nth table by using a specifier such as "TABLE:2".
+      |  --sortBy=COL  A column name or number to sort by. This option can be repeated
+      |                to sort by multiple columns. [Default: 0].
+      |  --ignore      Ignore missing tables or columns.
       |
       |Tables and columns are zero-indexed.  MyTable:2 will sort the third table,
-      | and sorting on column 0 sorts on the first column.
+      |and sorting on column 0 sorts on the first column.
       |""".stripMargin.trim
 
   /** Specifies a way to sort a table by column
@@ -46,14 +45,14 @@ object SortTableTask extends DocoptCliGo.Task {
     */
   case class SortBy(col: String, ascending: Boolean, numeric: Boolean) {
 
-    def sort(tbl: Table, failOnMissing: Boolean): Table = {
+    def sort(tbl: Table, ignore: Boolean): Table = {
       // Find the index of the column to sort by, looking at the headers and matching a name first.
       val colNum = tbl.mds.head.cells.indexWhere(_ == col) match {
         case -1 => col.toIntOption.getOrElse(-1)
         case n  => n
       }
 
-      if (colNum < 0 && failOnMissing)
+      if (colNum < 0 && !ignore)
         throw new IllegalArgumentException(s"Column not found in table '${tbl.title}': '$col'")
       else if (colNum < 0) tbl // Ignore if not failing.
       else
@@ -84,13 +83,13 @@ object SortTableTask extends DocoptCliGo.Task {
 
     val file: String = opts.get("FILE").asInstanceOf[String]
     val tableArg: String = opts.get("TABLE").asInstanceOf[String]
-    val failOnMissing: Boolean = opts.get("--failOnMissing").toString.toBoolean
+    val ignore: Boolean = opts.get("--ignore").toString.toBoolean
     val sortBys: Seq[SortBy] =
       opts.get("--sortBy").asInstanceOf[java.util.List[String]].asScala.toSeq.map(SortBy.apply(":"))
 
     val (table, tableNum) = tableArg.lastIndexOf(":") match {
       case -1 => (tableArg, None)
-      case index if failOnMissing =>
+      case index if !ignore =>
         Try {
           (tableArg.substring(0, index), tableArg.substring(index + 1).toIntOption)
         }.getOrElse(throw new IllegalArgumentException(s"Bad table specifier: '$tableArg'"))
@@ -98,7 +97,7 @@ object SortTableTask extends DocoptCliGo.Task {
     }
 
     // Fail fast if the table is not found.
-    if (failOnMissing && tableNum.exists(_ < 0))
+    if (!ignore && tableNum.exists(_ < 0))
       throw new IllegalArgumentException(s"Bad table specifier: '$tableArg'")
 
     MarkdGo.processMd(Seq(file)) { f =>
@@ -109,15 +108,15 @@ object SortTableTask extends DocoptCliGo.Task {
           case tbl: Table if tbl.title == table && (tableNum.isEmpty || tableNum.contains(count)) =>
             count = count + 1
             // Apply the sorts in order starting from the last
-            sortBys.foldRight(tbl)((sortBy, tbl) => sortBy.sort(tbl, failOnMissing))
+            sortBys.foldRight(tbl)((sortBy, tbl) => sortBy.sort(tbl, ignore))
           case tbl: Table if tbl.title == table && !tableNum.contains(count) =>
             count = count + 1
             tbl
         })
 
-        if (failOnMissing && count == 0)
+        if (!ignore && count == 0)
           throw new IllegalArgumentException(s"Table not found: '$tableArg'")
-        if (failOnMissing && tableNum.exists(_ >= count))
+        if (!ignore && tableNum.exists(_ >= count))
           throw new IllegalArgumentException(s"Bad table specifier: '$tableArg'")
 
         f.writeAll(sorted.build().toString)
