@@ -18,7 +18,7 @@ object SortTableTask extends DocoptCliGo.Task {
     """Find a table in the markdown file and sort it.
       |
       |Usage:
-      |  MarkdGo sortTable FILE TABLE [--sortBy=COL]... [--ignore]
+      |  MarkdGo sortTable FILE TABLE [--sortBy=COL]... [--ignore] [-]
       |
       |Options:
       |  -h --help     Show this screen.
@@ -30,6 +30,7 @@ object SortTableTask extends DocoptCliGo.Task {
       |  --sortBy=COL  A column name or number to sort by. This option can be repeated
       |                to sort by multiple columns. [Default: 0].
       |  --ignore      Ignore missing tables or columns.
+      |  -             If present, print to stdout instead of overwriting the file.
       |
       |Tables and columns are zero-indexed.  MyTable:2 will sort the third table,
       |and sorting on column 0 sorts on the first column.
@@ -86,6 +87,7 @@ object SortTableTask extends DocoptCliGo.Task {
     val ignore: Boolean = opts.get("--ignore").toString.toBoolean
     val sortBys: Seq[SortBy] =
       opts.get("--sortBy").asInstanceOf[java.util.List[String]].asScala.toSeq.map(SortBy.apply(":"))
+    val stdout: Boolean = opts.get("-").toString.toBoolean
 
     val (table, tableNum) = tableArg.lastIndexOf(":") match {
       case -1 => (tableArg, None)
@@ -119,7 +121,7 @@ object SortTableTask extends DocoptCliGo.Task {
         if (!ignore && tableNum.exists(_ >= count))
           throw new IllegalArgumentException(s"Bad table specifier: '$tableArg'")
 
-        f.writeAll(sorted.build().toString)
+        if (stdout) print(sorted.build()) else f.writeAll(sorted.build().toString)
       }
     }
   }
