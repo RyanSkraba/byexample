@@ -47,7 +47,7 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
   describe("When overwriting a very simple file") {
 
     it("should sort on the first column by default") {
-      val in = File("rewrite.md")
+      val in = File(Tmp / "rewrite.md")
       in.writeAll(Basic.slurp())
       withGoMatching(TaskCmd, in, "To Sort") { case (stdout, stderr) =>
         stderr shouldBe empty
