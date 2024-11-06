@@ -2,7 +2,6 @@ package com.skraba.byexample.scala.markd
 
 import com.skraba.docoptcli.DocoptCliGo
 import com.skraba.docoptcli.DocoptCliGo.Task
-import org.docopt.{Docopt, DocoptExitException}
 
 import scala.reflect.io.{Directory, File, Path}
 
@@ -31,10 +30,7 @@ object MarkdGo extends DocoptCliGo {
       case f: File if f.exists => Some(f)
       case d: Directory if d.exists =>
         d.walkFilter(p => p.isDirectory || """.*\.md$""".r.findFirstIn(p.name).isDefined).map(_.toFile)
-      case p =>
-        throw new InternalDocoptException(
-          s"The file ${p.name} doesn't exist."
-        )
+      case p => throw new InternalDocoptException(s"The file ${p.name} doesn't exist.")
     }
     .foreach(fn)
 }
