@@ -5,6 +5,7 @@ import com.skraba.docoptcli.DocoptCliGo
 import scala.jdk.CollectionConverters._
 import scala.math.Ordered.orderingToOrdered
 import scala.util.Try
+import scala.util.matching.Regex
 
 /** Command-line driver for sorting a table in a Markdown file.
   */
@@ -67,14 +68,21 @@ object SortTableTask extends DocoptCliGo.Task {
   }
 
   object SortBy {
-    // TODO(rskraba): Improve the handling of a specifier
+
+    val SortSpecifier: Regex = raw"^(?i)(|([asc]|/)|(?<desc>desc|\\))(?<num>|(num|#)|(alpha|a))$$".r
+
+    // TODO(rskraba): Add lower case, accentless sorting
     def apply(delimiter: String)(arg: String): SortBy = {
       arg.lastIndexOf(delimiter) match {
         case -1 => SortBy(arg, ascending = true, numeric = false)
         case index =>
           val specifier = arg.substring(index + 1)
-          val ascending = specifier.toLowerCase() != "desc"
-          val numeric = specifier.toLowerCase() == "num"
+          val (ascending, numeric) = specifier match {
+            case SortSpecifier(_, _, desc, _, num, _*) =>
+              (desc == null, num != null)
+            case _ =>
+              throw new IllegalArgumentException(s"Bad sort specifier: '$arg'")
+          }
           SortBy(col = arg.substring(0, index), ascending = ascending, numeric = numeric)
       }
     }
