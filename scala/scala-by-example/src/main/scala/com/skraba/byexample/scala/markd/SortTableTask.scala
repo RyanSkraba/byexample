@@ -69,7 +69,7 @@ object SortTableTask extends DocoptCliGo.Task {
 
   object SortBy {
 
-    val SortSpecifier: Regex = raw"^(?i)(|([asc]|/)|(?<desc>desc|\\))(?<num>|(num|#)|(alpha|a))$$".r
+    val SortSpecifier: Regex = raw"^(?i)(|(asc|/)|(?<desc>desc|\\))(?<num>|(num|#)|(alpha|a))$$".r
 
     // TODO(rskraba): Add lower case, accentless sorting
     def apply(delimiter: String)(arg: String): SortBy = {

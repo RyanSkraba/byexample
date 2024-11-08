@@ -85,21 +85,23 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
           }
         }
 
-        it(s"should sort by column $col descending") {
-          withGoMatching(TaskCmd, Basic, "To Sort", "--sortBy", col + ":desc", "-") { case (stdout, stderr) =>
-            stderr shouldBe empty
-            extractColumn(stdout, "A") shouldBe Seq(8, 7, 7, 6, 10, 1)
-            extractColumn(stdout) shouldBe Seq(1, 3, 4, 2, 0, 5)
+        for (specifier <- Seq("desc", "\\", "DescAlpha", "DESCa"))
+          it(s"should sort by column $col:$specifier descending") {
+            withGoMatching(TaskCmd, Basic, "To Sort", "--sortBy", s"$col:$specifier", "-") { case (stdout, stderr) =>
+              stderr shouldBe empty
+              extractColumn(stdout, "A") shouldBe Seq(8, 7, 7, 6, 10, 1)
+              extractColumn(stdout) shouldBe Seq(1, 3, 4, 2, 0, 5)
+            }
           }
-        }
 
-        it(s"should sort by column $col numerically") {
-          withGoMatching(TaskCmd, Basic, "To Sort", "--sortBy", col + ":num", "-") { case (stdout, stderr) =>
-            stderr shouldBe empty
-            extractColumn(stdout, "A") shouldBe Seq(1, 6, 7, 7, 8, 10)
-            extractColumn(stdout) shouldBe Seq(5, 2, 3, 4, 1, 0)
+        for (specifier <- Seq("num", "#", "/NUM", "AscNum"))
+          it(s"should sort by column $col:$specifier numerically") {
+            withGoMatching(TaskCmd, Basic, "To Sort", "--sortBy", s"$col:$specifier", "-") { case (stdout, stderr) =>
+              stderr shouldBe empty
+              extractColumn(stdout, "A") shouldBe Seq(1, 6, 7, 7, 8, 10)
+              extractColumn(stdout) shouldBe Seq(5, 2, 3, 4, 1, 0)
+            }
           }
-        }
       }
 
       for (col <- Seq("2", "B")) {
