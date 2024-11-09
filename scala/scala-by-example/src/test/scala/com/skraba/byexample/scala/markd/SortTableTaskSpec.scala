@@ -33,6 +33,11 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
       })
       .getOrElse(Seq.empty)
 
+  def generateTable(title: String, rows: Any*): Table = Table.from(
+    Seq.fill(1)(Align.LEFT),
+    TableRow.from(title) +: rows.map(_.toString).map(TableRow.from(_)): _*
+  )
+
   val Basic = File(Tmp / "basic.md")
   Basic.writeAll("""To Sort | A | B | Original
                    !---|----|---|---|
@@ -357,6 +362,20 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
           stderr shouldBe empty
           stdout shouldBe MultiTable
         }
+      }
+    }
+  }
+
+  describe("Alphabetical sorting") {
+    it("should ignore accents") {
+      val in = File(Tmp / "accents.md")
+      in.writeAll(
+        generateTable("To Sort", "Ä1", "À1", "Å0", "Ä0", "A0", "Ä1", "À1", "Ä0", "À1", "Á0", "Ä0").build().toString()
+      )
+
+      withGoMatching(TaskCmd, in, "To Sort", "-") { case (stdout, stderr) =>
+        stderr shouldBe empty
+        extractColumn(stdout, "To Sort") shouldBe Seq("Å0", "Ä0", "A0", "Ä0", "Á0", "Ä0", "Ä1", "À1", "Ä1", "À1", "À1")
       }
     }
   }

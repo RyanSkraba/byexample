@@ -2,6 +2,7 @@ package com.skraba.byexample.scala.markd
 
 import com.skraba.docoptcli.DocoptCliGo
 
+import java.text.Normalizer
 import scala.jdk.CollectionConverters._
 import scala.math.Ordered.orderingToOrdered
 import scala.util.Try
@@ -57,13 +58,24 @@ object SortTableTask extends DocoptCliGo.Task {
       if (colNum < 0 && !ignore)
         throw new IllegalArgumentException(s"Column not found in table '${tbl.title}': '$col'")
       else if (colNum < 0) tbl // Ignore if not failing.
-      else
-        tbl.copy(mds = tbl.mds.head +: tbl.mds.tail.sortWith { case (a, b) =>
-          val cmp =
-            if (numeric) a(colNum).toIntOption.compareTo(b(colNum).toIntOption)
-            else a(colNum).compareTo(b(colNum))
-          if (ascending) cmp < 0 else cmp > 0
-        })
+      else {
+        val rows: Seq[(Serializable, TableRow)] =
+          if (numeric)
+            tbl.mds.tail
+              .map(tr => tr(colNum).toLongOption -> tr)
+              .sortBy(_._1)(if (ascending) Ordering.Option[Long] else Ordering.Option[Long].reverse)
+          else
+            tbl.mds.tail
+              .map(tr =>
+                Normalizer
+                  .normalize(tr(colNum), Normalizer.Form.NFD)
+                  .replaceAll("\\p{InCombiningDiacriticalMarks}", "") ->
+                  tr
+              )
+              .sortBy(_._1)(if (ascending) Ordering.String else Ordering.String.reverse)
+
+        tbl.copy(mds = tbl.mds.head +: rows.map(_._2))
+      }
     }
   }
 
