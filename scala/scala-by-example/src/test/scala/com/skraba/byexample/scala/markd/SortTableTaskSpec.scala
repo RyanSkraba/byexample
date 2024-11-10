@@ -38,7 +38,7 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
     TableRow.from(title) +: rows.map(_.toString).map(TableRow.from(_)): _*
   )
 
-  val Basic = File(Tmp / "basic.md")
+  val Basic: File = File(Tmp / "basic.md")
   Basic.writeAll("""To Sort | A | B | Original
                    !---|----|---|---|
                    !z  | 10 | a | 0 |
