@@ -45,8 +45,10 @@ object SortTableTask extends DocoptCliGo.Task {
     *   true if the sort is ascending, false if descending.
     * @param numeric
     *   true if the sort should be as a number, false if as a string.
+    * @param ignoreCase
+    *   true if the sort should ignore case.
     */
-  case class SortBy(col: String, ascending: Boolean, numeric: Boolean) {
+  case class SortBy(col: String, ascending: Boolean, numeric: Boolean, ignoreCase: Boolean) {
 
     def sort(tbl: Table, ignore: Boolean): Table = {
       // Find the index of the column to sort by, looking at the headers and matching a name first.
@@ -60,11 +62,21 @@ object SortTableTask extends DocoptCliGo.Task {
       else if (colNum < 0) tbl // Ignore if not failing.
       else {
         val rows: Seq[(Serializable, TableRow)] =
-          if (numeric)
+          if (numeric) {
             tbl.mds.tail
               .map(tr => tr(colNum).toLongOption -> tr)
               .sortBy(_._1)(if (ascending) Ordering.Option[Long] else Ordering.Option[Long].reverse)
-          else
+          } else if (ignoreCase) {
+            tbl.mds.tail
+              .map(tr =>
+                Normalizer
+                  .normalize(tr(colNum), Normalizer.Form.NFD)
+                  .replaceAll("\\p{InCombiningDiacriticalMarks}", "")
+                  .toLowerCase ->
+                  tr
+              )
+              .sortBy(_._1)(if (ascending) Ordering.String else Ordering.String.reverse)
+          } else {
             tbl.mds.tail
               .map(tr =>
                 Normalizer
@@ -73,6 +85,7 @@ object SortTableTask extends DocoptCliGo.Task {
                   tr
               )
               .sortBy(_._1)(if (ascending) Ordering.String else Ordering.String.reverse)
+          }
 
         tbl.copy(mds = tbl.mds.head +: rows.map(_._2))
       }
@@ -81,20 +94,21 @@ object SortTableTask extends DocoptCliGo.Task {
 
   object SortBy {
 
-    val SortSpecifier: Regex = raw"^(?i)(|(asc|/)|(?<desc>desc|\\))(|(?<num>num|#)|(alpha|a))$$".r
+    val SortSpecifier: Regex =
+      raw"^(?i)(|(asc|/)|(?<desc>desc|\\))(|(?<num>num|#)|(alpha|a))(|(?<caseless>i))$$".r
 
     def apply(delimiter: String)(arg: String): SortBy = {
       arg.lastIndexOf(delimiter) match {
-        case -1 => SortBy(arg, ascending = true, numeric = false)
+        case -1 => SortBy(arg, ascending = true, numeric = false, ignoreCase = false)
         case index =>
           val specifier = arg.substring(index + 1)
-          val (ascending, numeric) = {
+          val (ascending, numeric, ignoreCase) = {
             SortSpecifier
               .findFirstMatchIn(specifier)
-              .map(m => (m.group("desc") == null, m.group("num") != null))
+              .map(m => (m.group("desc") == null, m.group("num") != null, m.group("caseless") != null))
               .getOrElse(throw new IllegalArgumentException(s"Bad sort specifier: '$arg'"))
           }
-          SortBy(col = arg.substring(0, index), ascending = ascending, numeric = numeric)
+          SortBy(col = arg.substring(0, index), ascending = ascending, numeric = numeric, ignoreCase = ignoreCase)
       }
     }
   }
