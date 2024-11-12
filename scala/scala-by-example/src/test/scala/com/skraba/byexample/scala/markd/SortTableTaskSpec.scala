@@ -23,7 +23,7 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
   }
 
   /** Helper to extract a column from a matching table. */
-  def extractColumn(in: String, extract: String = "Original", title: String = "To Sort"): Seq[Any] =
+  def extractColumns(in: String, extract: String = "Original", title: String = "To Sort"): Seq[Any] =
     Header
       .parse(in)
       .collectFirstRecursive({
@@ -32,6 +32,9 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
           tbl.mds.tail.map(_(original max 0)).map(c => c.toIntOption.getOrElse(c))
       })
       .getOrElse(Seq.empty)
+
+  def extractColumn(in: String, extract: String = "Original", title: String = "To Sort"): String =
+    extractColumns(in, extract, title).map(_.toString).mkString("|")
 
   def generateTable(title: String, rows: Any*): Table = Table.from(
     Seq.fill(1)(Align.LEFT),
@@ -77,8 +80,8 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
         it(s"should sort by column $col") {
           withGoMatching(TaskCmd, Basic, "To Sort", "--sortBy", col, "-") { case (stdout, stderr) =>
             stderr shouldBe empty
-            extractColumn(stdout, "To Sort") shouldBe Seq("X", "w", "x", "x", "y", "y", "z")
-            extractColumn(stdout) shouldBe Seq(6, 5, 3, 4, 1, 2, 0)
+            extractColumn(stdout, "To Sort") shouldBe "X|w|x|x|y|y|z"
+            extractColumn(stdout) shouldBe "6|5|3|4|1|2|0"
           }
         }
 
@@ -86,8 +89,8 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
           it(s"should sort by column $col:$specifier ignoring case") {
             withGoMatching(TaskCmd, Basic, "To Sort", "--sortBy", s"$col:$specifier", "-") { case (stdout, stderr) =>
               stderr shouldBe empty
-              extractColumn(stdout, "To Sort") shouldBe Seq("w", "x", "x", "X", "y", "y", "z")
-              extractColumn(stdout) shouldBe Seq(5, 3, 4, 6, 1, 2, 0)
+              extractColumn(stdout, "To Sort") shouldBe "w|x|x|X|y|y|z"
+              extractColumn(stdout) shouldBe "5|3|4|6|1|2|0"
             }
           }
       }
@@ -96,8 +99,8 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
         it(s"should sort by column $col") {
           withGoMatching(TaskCmd, Basic, "To Sort", "--sortBy", col, "-") { case (stdout, stderr) =>
             stderr shouldBe empty
-            extractColumn(stdout, "A") shouldBe Seq(1, 10, 6, 7, 7, 7, 8)
-            extractColumn(stdout) shouldBe Seq(5, 0, 2, 3, 4, 6, 1)
+            extractColumn(stdout, "A") shouldBe "1|10|6|7|7|7|8"
+            extractColumn(stdout) shouldBe "5|0|2|3|4|6|1"
           }
         }
 
@@ -105,8 +108,8 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
           it(s"should sort by column $col:$specifier descending") {
             withGoMatching(TaskCmd, Basic, "To Sort", "--sortBy", s"$col:$specifier", "-") { case (stdout, stderr) =>
               stderr shouldBe empty
-              extractColumn(stdout, "A") shouldBe Seq(8, 7, 7, 7, 6, 10, 1)
-              extractColumn(stdout) shouldBe Seq(1, 3, 4, 6, 2, 0, 5)
+              extractColumn(stdout, "A") shouldBe "8|7|7|7|6|10|1"
+              extractColumn(stdout) shouldBe "1|3|4|6|2|0|5"
             }
           }
 
@@ -114,8 +117,8 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
           it(s"should sort by column $col:$specifier numerically") {
             withGoMatching(TaskCmd, Basic, "To Sort", "--sortBy", s"$col:$specifier", "-") { case (stdout, stderr) =>
               stderr shouldBe empty
-              extractColumn(stdout, "A") shouldBe Seq(1, 6, 7, 7, 7, 8, 10)
-              extractColumn(stdout) shouldBe Seq(5, 2, 3, 4, 6, 1, 0)
+              extractColumn(stdout, "A") shouldBe "1|6|7|7|7|8|10"
+              extractColumn(stdout) shouldBe "5|2|3|4|6|1|0"
             }
           }
       }
@@ -124,8 +127,8 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
         it(s"should sort by column $col") {
           withGoMatching(TaskCmd, Basic, "To Sort", "--sortBy", col, "-") { case (stdout, stderr) =>
             stderr shouldBe empty
-            extractColumn(stdout, "B") shouldBe Seq(1, 10, "a", "b", "c", "c", "d")
-            extractColumn(stdout) shouldBe Seq(5, 2, 0, 1, 3, 6, 4)
+            extractColumn(stdout, "B") shouldBe "1|10|a|b|c|c|d"
+            extractColumn(stdout) shouldBe "5|2|0|1|3|6|4"
           }
         }
       }
@@ -134,7 +137,7 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
         it(s"should sort by column $col") {
           withGoMatching(TaskCmd, Basic, "To Sort", "--sortBy", col, "-") { case (stdout, stderr) =>
             stderr shouldBe empty
-            extractColumn(stdout) shouldBe Seq(0, 1, 2, 3, 4, 5, 6)
+            extractColumn(stdout) shouldBe "0|1|2|3|4|5|6"
           }
         }
       }
@@ -147,9 +150,9 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
         it(s"should sort by column $col") {
           withGoMatching(Seq(TaskCmd, Basic, "To Sort") ++ sortBys :+ "-": _*) { case (stdout, stderr) =>
             stderr shouldBe empty
-            extractColumn(stdout, "To Sort") shouldBe Seq("X", "w", "x", "x", "y", "y", "z")
-            extractColumn(stdout, "A") shouldBe Seq(7, 1, 7, 7, 6, 8, 10)
-            extractColumn(stdout) shouldBe Seq(6, 5, 3, 4, 2, 1, 0)
+            extractColumn(stdout, "To Sort") shouldBe "X|w|x|x|y|y|z"
+            extractColumn(stdout, "A") shouldBe "7|1|7|7|6|8|10"
+            extractColumn(stdout) shouldBe "6|5|3|4|2|1|0"
           }
         }
       }
@@ -157,17 +160,17 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
       it(s"should sort by column 0,2") {
         withGoMatching(TaskCmd, Basic, "To Sort", "--sortBy", "0", "--sortBy", "2", "-") { case (stdout, stderr) =>
           stderr shouldBe empty
-          extractColumn(stdout, "To Sort") shouldBe Seq("X", "w", "x", "x", "y", "y", "z")
-          extractColumn(stdout, "B") shouldBe Seq("c", 1, "c", "d", 10, "b", "a")
-          extractColumn(stdout) shouldBe Seq(6, 5, 3, 4, 2, 1, 0)
+          extractColumn(stdout, "To Sort") shouldBe "X|w|x|x|y|y|z"
+          extractColumn(stdout, "B") shouldBe "c|1|c|d|10|b|a"
+          extractColumn(stdout) shouldBe "6|5|3|4|2|1|0"
         }
       }
 
       it(s"should sort by column 0,3") {
         withGoMatching(TaskCmd, Basic, "To Sort", "--sortBy", "0", "--sortBy", "3", "-") { case (stdout, stderr) =>
           stderr shouldBe empty
-          extractColumn(stdout, "To Sort") shouldBe Seq("X", "w", "x", "x", "y", "y", "z")
-          extractColumn(stdout) shouldBe Seq(6, 5, 3, 4, 1, 2, 0)
+          extractColumn(stdout, "To Sort") shouldBe "X|w|x|x|y|y|z"
+          extractColumn(stdout) shouldBe "6|5|3|4|1|2|0"
         }
       }
 
@@ -187,8 +190,8 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
           "-"
         ) { case (stdout, stderr) =>
           stderr shouldBe empty
-          extractColumn(stdout, "To Sort") shouldBe Seq("X", "w", "x", "x", "y", "y", "z")
-          extractColumn(stdout) shouldBe Seq(6, 5, 3, 4, 2, 1, 0)
+          extractColumn(stdout, "To Sort") shouldBe "X|w|x|x|y|y|z"
+          extractColumn(stdout) shouldBe "6|5|3|4|2|1|0"
         }
       }
 
@@ -208,7 +211,7 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
           "-"
         ) { case (stdout, stderr) =>
           stderr shouldBe empty
-          extractColumn(stdout) shouldBe Seq(0, 1, 2, 3, 4, 5, 6)
+          extractColumn(stdout) shouldBe "0|1|2|3|4|5|6"
         }
       }
     }
@@ -222,7 +225,7 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
       it(s"should ignore when specifying a missing table") {
         withGoMatching(TaskCmd, Basic, "Missing", "--ignore", "-") { case (stdout, stderr) =>
           stderr shouldBe empty
-          extractColumn(stdout) shouldBe Seq(0, 1, 2, 3, 4, 5, 6)
+          extractColumn(stdout) shouldBe "0|1|2|3|4|5|6"
         }
       }
 
@@ -386,7 +389,19 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
 
       withGoMatching(TaskCmd, in, "To Sort", "-") { case (stdout, stderr) =>
         stderr shouldBe empty
-        extractColumn(stdout, "To Sort") shouldBe Seq("Å0", "Ä0", "A0", "Ä0", "Á0", "Ä0", "Ä1", "À1", "Ä1", "À1", "À1")
+        extractColumn(stdout, "To Sort") shouldBe "Å0|Ä0|A0|Ä0|Á0|Ä0|Ä1|À1|Ä1|À1|À1"
+      }
+    }
+
+    it("should take case into account") {
+      val in = File(Tmp / "accents.md")
+      in.writeAll(
+        generateTable("To Sort", "ä1", "à1", "Å0", "Ä0", "a0", "Ä1", "à1", "Ä0", "À1", "á0", "Ä0").build().toString()
+      )
+
+      withGoMatching(TaskCmd, in, "To Sort", "--sortBy", "0", "-") { case (stdout, stderr) =>
+        stderr shouldBe empty
+        extractColumn(stdout, "To Sort") shouldBe "Å0|Ä0|Ä0|Ä0|Ä1|À1|a0|á0|ä1|à1|à1"
       }
     }
 
@@ -398,8 +413,9 @@ class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
 
       withGoMatching(TaskCmd, in, "To Sort", "--sortBy", "0:i", "-") { case (stdout, stderr) =>
         stderr shouldBe empty
-        extractColumn(stdout, "To Sort") shouldBe Seq("Å0", "Ä0", "a0", "Ä0", "á0", "Ä0", "ä1", "à1", "Ä1", "à1", "À1")
+        extractColumn(stdout, "To Sort") shouldBe "Å0|Ä0|a0|Ä0|á0|Ä0|ä1|à1|Ä1|à1|À1"
       }
     }
+
   }
 }
