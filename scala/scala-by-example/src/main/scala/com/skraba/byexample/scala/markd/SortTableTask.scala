@@ -2,9 +2,7 @@ package com.skraba.byexample.scala.markd
 
 import com.skraba.docoptcli.DocoptCliGo
 
-import java.text.Normalizer
 import scala.jdk.CollectionConverters._
-import scala.math.Ordered.orderingToOrdered
 import scala.util.Try
 import scala.util.matching.Regex
 
@@ -61,29 +59,21 @@ object SortTableTask extends DocoptCliGo.Task {
         throw new IllegalArgumentException(s"Column not found in table '${tbl.title}': '$col'")
       else if (colNum < 0) tbl // Ignore if not failing.
       else {
-        val rows: Seq[(Serializable, TableRow)] =
+
+        import java.text.Normalizer._
+
+        val rows0 = tbl.mds.tail.map(tr => tr(colNum) -> tr)
+        val rows1 = if (!ignoreCase) rows0 else rows0.map { case (cell, tr) => cell.toLowerCase -> tr }
+        val rows =
           if (numeric) {
-            tbl.mds.tail
-              .map(tr => tr(colNum).toLongOption -> tr)
+            rows1
+              .map { case (cell, tr) => cell.toLongOption -> tr }
               .sortBy(_._1)(if (ascending) Ordering.Option[Long] else Ordering.Option[Long].reverse)
-          } else if (ignoreCase) {
-            tbl.mds.tail
-              .map(tr =>
-                Normalizer
-                  .normalize(tr(colNum), Normalizer.Form.NFD)
-                  .replaceAll("\\p{InCombiningDiacriticalMarks}", "")
-                  .toLowerCase ->
-                  tr
-              )
-              .sortBy(_._1)(if (ascending) Ordering.String else Ordering.String.reverse)
           } else {
-            tbl.mds.tail
-              .map(tr =>
-                Normalizer
-                  .normalize(tr(colNum), Normalizer.Form.NFD)
-                  .replaceAll("\\p{InCombiningDiacriticalMarks}", "") ->
-                  tr
-              )
+            rows1
+              .map { case (cell, tr) =>
+                normalize(cell, Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}", "") -> tr
+              }
               .sortBy(_._1)(if (ascending) Ordering.String else Ordering.String.reverse)
           }
 
