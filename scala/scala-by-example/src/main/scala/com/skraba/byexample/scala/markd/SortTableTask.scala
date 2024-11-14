@@ -18,19 +18,19 @@ object SortTableTask extends DocoptCliGo.Task {
     """Find a table in the markdown file and sort it.
       |
       |Usage:
-      |  MarkdGo sortTable FILE TABLE [--sortBy=COL]... [--ignore] [-]
+      |  MarkdGo sortTable FILE TABLE [COL...] [--ignore] [-]
       |
       |Options:
-      |  -h --help     Show this screen.
-      |  --version     Show version.
-      |  FILE          File(s) to beautify.
-      |  TABLE         The title of the table to sort, which is the first cell in the
-      |                first row. All tables with this title will be sorted, but you
-      |                can pick the Nth table by using a specifier such as "TABLE:2".
-      |  --sortBy=COL  A column name or number to sort by. This option can be repeated
-      |                to sort by multiple columns. [Default: 0].
-      |  --ignore      Ignore missing tables or columns.
-      |  -             If present, print to stdout instead of overwriting the file.
+      |  -h --help  Show this screen.
+      |  --version  Show version.
+      |  FILE       File(s) to beautify.
+      |  TABLE      The title of the table to sort, which is the first cell in the
+      |             first row. All tables with this title will be sorted, but you can
+      |             pick the Nth table by using a specifier such as "TABLE:2".
+      |  COL        A column name or number to sort by. This option can be repeated to
+      |             sort by multiple columns. [Default: 0].
+      |  --ignore   Ignore missing tables or columns.
+      |  -          If present, print to stdout instead of overwriting the file.
       |
       |Tables and columns are zero-indexed.  MyTable:2 will sort the third table,
       |and sorting on column 0 sorts on the first column.
@@ -108,9 +108,13 @@ object SortTableTask extends DocoptCliGo.Task {
     val file: String = opts.get("FILE").asInstanceOf[String]
     val tableArg: String = opts.get("TABLE").asInstanceOf[String]
     val ignore: Boolean = opts.get("--ignore").toString.toBoolean
-    val sortBys: Seq[SortBy] =
-      opts.get("--sortBy").asInstanceOf[java.util.List[String]].asScala.toSeq.map(SortBy.apply(":"))
-    val stdout: Boolean = opts.get("-").toString.toBoolean
+
+    val (stdout, sortByArgs) = {
+      val cols = opts.get("COL").asInstanceOf[java.util.List[String]].asScala.toSeq
+      if (cols.lastOption.contains("-")) (true, cols.init)
+      else (false, cols)
+    }
+    val sortBys: Seq[SortBy] = (if (sortByArgs.isEmpty) Seq("0") else sortByArgs).map(SortBy.apply(":"))
 
     val (table, tableNum) = tableArg.lastIndexOf(":") match {
       case -1 => (tableArg, None)
