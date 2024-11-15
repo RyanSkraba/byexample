@@ -450,21 +450,21 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       |
       |""".stripMargin.trim
 
-  def go(opts: java.util.Map[String, AnyRef]): Unit = {
+  def go(opts: TaskOptions): Unit = {
 
-    val files: String = opts.get("FILE").asInstanceOf[String]
+    val files: String = opts.x.get("FILE").asInstanceOf[String]
     // If --all is present, ignore the --day parameter to include ALL days.
     val filterDays: Int =
-      if (opts.get("--all").toString.toBoolean) Int.MaxValue
-      else Option(opts.get("--days")).map(_.toString.toInt).getOrElse(1)
-    val filterAfter: Option[String] = Option(opts.get("--after")).map(_.toString)
-    val filterUntil: Option[String] = Option(opts.get("--until")).map(_.toString)
-    val asMarkdownMsg: Boolean = opts.get("--markdown-msg").toString.toBoolean
-    val asHtml: Boolean = opts.get("--html").toString.toBoolean
+      if (opts.x.get("--all").toString.toBoolean) Int.MaxValue
+      else Option(opts.x.get("--days")).map(_.toString.toInt).getOrElse(1)
+    val filterAfter: Option[String] = Option(opts.x.get("--after")).map(_.toString)
+    val filterUntil: Option[String] = Option(opts.x.get("--until")).map(_.toString)
+    val asMarkdownMsg: Boolean = opts.x.get("--markdown-msg").toString.toBoolean
+    val asHtml: Boolean = opts.x.get("--html").toString.toBoolean
 
     // Whether to modify the document by adding any new failed build before processing.
-    val addFails: Option[String] = Option(opts.get("--add-fails")).map(_.toString)
-    val mainVersion: Option[String] = Option(opts.get("--main-version")).map(_.toString)
+    val addFails: Option[String] = Option(opts.x.get("--add-fails")).map(_.toString)
+    val mainVersion: Option[String] = Option(opts.x.get("--main-version")).map(_.toString)
 
     MarkdGo.processMd(Seq(files)) { f =>
       // Modify the file with new build failures on request

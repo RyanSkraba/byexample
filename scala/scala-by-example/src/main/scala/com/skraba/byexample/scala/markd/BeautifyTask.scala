@@ -25,10 +25,10 @@ object BeautifyTask extends DocoptCliGo.Task {
       |  FILE            File(s) to beautify.
       |""".stripMargin.trim
 
-  def go(opts: java.util.Map[String, AnyRef]): Unit = {
+  def go(opts: TaskOptions): Unit = {
 
-    val files: Seq[String] = opts.get("FILE").asInstanceOf[java.lang.Iterable[String]].asScala.toSeq
-    val cfg: ParserCfg = new ParserCfg(sortLinkRefs = opts.get("--sortLinkRefs").toString.toBoolean)
+    val files: Seq[String] = opts.x.get("FILE").asInstanceOf[java.lang.Iterable[String]].asScala.toSeq
+    val cfg: ParserCfg = new ParserCfg(sortLinkRefs = opts.x.get("--sortLinkRefs").toString.toBoolean)
 
     MarkdGo.processMd(files) { f =>
       {

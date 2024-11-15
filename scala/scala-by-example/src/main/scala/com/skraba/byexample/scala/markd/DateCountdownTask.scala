@@ -38,14 +38,9 @@ object DateCountdownTask extends DocoptCliGo.Task {
       |Other cells will not be modified.
       |""".stripMargin.trim
 
-  def go(opts: java.util.Map[String, AnyRef]): Unit = {
+  def go(opts: TaskOptions): Unit = {
 
-    val files: Seq[String] =
-      opts
-        .get("FILE")
-        .asInstanceOf[java.lang.Iterable[String]]
-        .asScala
-        .toSeq
+    val files: Seq[String] = opts.x.get("FILE").asInstanceOf[java.lang.Iterable[String]].asScala.toSeq
 
     MarkdGo.processMd(files) { f =>
       f.writeAll(
@@ -60,7 +55,7 @@ object DateCountdownTask extends DocoptCliGo.Task {
     }
   }
 
-  val YyyyMmDd = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+  val YyyyMmDd: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
   val TnumDateRegex: Regex =
     raw"(.*?)\b([*_(\[]*)T([-+]?[\d+X]+)?([*_)\]]*)\s+([*_(\[]*)(\d\d\d\d[-/]\d\d[-/]\d\d)([*_)\]]*)(.*)".r
@@ -120,9 +115,7 @@ object DateCountdownTask extends DocoptCliGo.Task {
     // For every single cell, if it has been parsed, then rewrite either the t number or the date according to the T0 value
     val mds = tbl.mds.zipWithIndex.map { row =>
       TableRow.from(row._1.cells.zipWithIndex.map {
-        case (cell, col)
-            if col < tbl.colSize && parsed
-              .isDefinedAt(row._2) && parsed(row._2).isDefinedAt(col) =>
+        case (cell, col) if col < tbl.colSize && parsed.isDefinedAt(row._2) && parsed(row._2).isDefinedAt(col) =>
           parsed(row._2)(col)
             .map { x =>
               val base = t0s(col).getOrElse(LocalDate.now)
@@ -131,18 +124,11 @@ object DateCountdownTask extends DocoptCliGo.Task {
               val (t, date) = if (x._1 == Long.MaxValue) {
                 val date = LocalDate.parse(x._7, YyyyMmDd)
                 (ChronoUnit.DAYS.between(base, date), date)
-              } else {
-                (x._1, base.plusDays(x._1))
-              }
+              } else { (x._1, base.plusDays(x._1)) }
 
-              val number =
-                if (t == 0) "T"
-                else if (t > 0) s"T+$t"
-                else s"T$t"
+              val number = if (t == 0) "T" else if (t > 0) s"T+$t" else s"T$t"
 
-              s"${x._2}${x._3}$number${x._5} ${x._6}${YyyyMmDd
-                  .format(date)}${x._8}${x._9}"
-
+              s"${x._2}${x._3}$number${x._5} ${x._6}${YyyyMmDd.format(date)}${x._8}${x._9}"
             }
             .getOrElse(cell)
         case (cell, _) => cell

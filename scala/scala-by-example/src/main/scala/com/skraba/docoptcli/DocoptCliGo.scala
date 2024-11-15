@@ -3,6 +3,7 @@ package com.skraba.docoptcli
 import com.skraba.docoptcli.DocoptCliGo.Task
 import org.docopt.{Docopt, DocoptExitException}
 
+import java.util
 import scala.jdk.CollectionConverters._
 
 /** A base class for a Docopt oriented command line script that can take multiple subcommands. */
@@ -81,11 +82,8 @@ trait DocoptCliGo {
       .getOrElse(throw new InternalDocoptException(s"Unknown command: $cmd"))
 
     try {
-      val opts = new Docopt(task.Doc)
-        .withVersion(Version)
-        .withExit(false)
-        .parse(args.toList.asJava)
-      task.go(opts)
+      val opts = new Docopt(task.Doc).withVersion(Version).withExit(false).parse(args.asJava)
+      task.go(new task.TaskOptions(opts))
     } catch {
       // This is only here to rewrap any internal docopt exception with the current docopt
       case ex: InternalDocoptException =>
@@ -129,6 +127,8 @@ object DocoptCliGo {
   /** A subcommand or task supported by this driver */
   abstract class Task() {
 
+    class TaskOptions(val x: java.util.Map[String, AnyRef]) {}
+
     /** The [[Docopt]] for the subcommand */
     val Doc: String
 
@@ -142,7 +142,7 @@ object DocoptCliGo {
       * @param opts
       *   the docopts already parsed
       */
-    def go(opts: java.util.Map[String, AnyRef]): Unit
+    def go(opts: TaskOptions): Unit
   }
 
 }

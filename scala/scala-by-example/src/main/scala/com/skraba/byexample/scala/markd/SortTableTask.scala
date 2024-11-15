@@ -103,14 +103,14 @@ object SortTableTask extends DocoptCliGo.Task {
     }
   }
 
-  def go(opts: java.util.Map[String, AnyRef]): Unit = {
+  def go(opts: TaskOptions): Unit = {
 
-    val file: String = opts.get("FILE").asInstanceOf[String]
-    val tableArg: String = opts.get("TABLE").asInstanceOf[String]
-    val ignore: Boolean = opts.get("--ignore").toString.toBoolean
+    val file: String = opts.x.get("FILE").asInstanceOf[String]
+    val tableArg: String = opts.x.get("TABLE").asInstanceOf[String]
+    val ignore: Boolean = opts.x.get("--ignore").toString.toBoolean
 
     val (stdout, sortByArgs) = {
-      val cols = opts.get("COL").asInstanceOf[java.util.List[String]].asScala.toSeq
+      val cols = opts.x.get("COL").asInstanceOf[java.util.List[String]].asScala.toSeq
       if (cols.lastOption.contains("-")) (true, cols.init)
       else (false, cols)
     }
