@@ -40,7 +40,7 @@ object DateCountdownTask extends DocoptCliGo.Task {
 
   def go(opts: TaskOptions): Unit = {
 
-    val files: Seq[String] = opts.x.get("FILE").asInstanceOf[java.lang.Iterable[String]].asScala.toSeq
+    val files: Iterable[String] = opts.getStrings("FILE")
 
     MarkdGo.processMd(files) { f =>
       f.writeAll(

@@ -24,7 +24,7 @@ object MarkdGo extends DocoptCliGo {
     * @param fn
     *   A method to call on each discovered file.
     */
-  def processMd(files: Seq[String])(fn: File => Unit): Unit = files
+  def processMd(files: Iterable[String])(fn: File => Unit): Unit = files
     .map(Path(_).toAbsolute)
     .flatMap {
       case f: File if f.exists => Some(f)

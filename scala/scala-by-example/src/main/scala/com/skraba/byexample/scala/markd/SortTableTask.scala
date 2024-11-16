@@ -105,16 +105,16 @@ object SortTableTask extends DocoptCliGo.Task {
 
   def go(opts: TaskOptions): Unit = {
 
-    val file: String = opts.x.get("FILE").asInstanceOf[String]
-    val tableArg: String = opts.x.get("TABLE").asInstanceOf[String]
-    val ignore: Boolean = opts.x.get("--ignore").toString.toBoolean
+    val file: String = opts.getString("FILE")
+    val tableArg: String = opts.getString("TABLE")
+    val ignore: Boolean = opts.getBoolean("--ignore")
 
     val (stdout, sortByArgs) = {
-      val cols = opts.x.get("COL").asInstanceOf[java.util.List[String]].asScala.toSeq
+      val cols = opts.getStrings("COL")
       if (cols.lastOption.contains("-")) (true, cols.init)
       else (false, cols)
     }
-    val sortBys: Seq[SortBy] = (if (sortByArgs.isEmpty) Seq("0") else sortByArgs).map(SortBy.apply(":"))
+    val sortBys: Iterable[SortBy] = (if (sortByArgs.isEmpty) Seq("0") else sortByArgs).map(SortBy.apply(":"))
 
     val (table, tableNum) = tableArg.lastIndexOf(":") match {
       case -1 => (tableArg, None)
