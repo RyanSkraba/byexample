@@ -56,7 +56,7 @@ By default, all of the slow tests (tagged with `org.scalatest.tags.Slow`) are ex
 mvn package -Dplugin.maven.scalatest.exclude=
 ```
 
-Or by updating the default property in your `pom.xml`: 
+Or by updating the default property in your `pom.xml`:
 
 ```xml
 <properties>
