@@ -44,19 +44,54 @@ val StatusFile: os.Path = sys.props
   .getOrElse(StatusRepo / "todo" / "status.md")
 
 /** Store projects in a configurable JSON object. */
-private[this] val ProjectsJson: String = sys.env
-  .getOrElse(
-    s"${StatusTag}_PROJECTS",
-    """{ "avro": {"ghRepo": "apache/avro", "jira": "AVRO"},
-      |  "beam": {"ghRepo": "apache/avro", "jira": "BEAM"},
-      |  "flink": {"ghRepo": "apache/flink", "jira": "FLINK"},
-      |  "flink-web": {"ghRepo": "apache/flink-web", "jira": "FLINK"},
-      |  "parquet-mr": {"ghRepo": "apache/parquet-mr", "jira": "PARQUET"},
-      |  "spark": {"ghRepo": "apache/spark", "jira": "SPARK"}
-      |}""".stripMargin
-  )
-val Projects: ujson.Obj = ujson.read(ProjectsJson).obj
-// TODO: replace the contents with project-specific info
+//private[this] val ProjectsJson: String = sys.env
+//  .getOrElse(
+//    s"${StatusTag}_PROJECTS",
+//    """{ "avro": {"ghRepo": "apache/avro", "jira": "AVRO"},
+//      |  "beam": {"ghRepo": "apache/avro", "jira": "BEAM"},
+//      |  "flink": {"ghRepo": "apache/flink", "jira": "FLINK"},
+//      |  "flink-web": {"ghRepo": "apache/flink-web", "jira": "FLINK"},
+//      |  "parquet-mr": {"ghRepo": "apache/parquet-mr", "jira": "PARQUET"},
+//      |  "spark": {"ghRepo": "apache/spark", "jira": "SPARK"}
+//      |}""".stripMargin
+//  )
+
+// TODO: Read config from the config block instead.
+case class ProjectConfig(
+    tag: String,
+    title: String,
+    issueRef: String,
+    issueLink: String,
+    prRef: String,
+    prLink: String
+) {
+  def replace(tmpl: String, in: String): String = if (tmpl.contains("%s")) tmpl.format(in) else tmpl + in
+}
+
+def asfProject(tag: String): ProjectConfig = ProjectConfig(
+  tag = tag,
+  title = tag.toLowerCase.capitalize,
+  issueRef = s"${tag.toUpperCase}-",
+  issueLink = s"https://issues.apache.org/jira/browse/${tag.toLowerCase}-",
+  prRef = s"apache/${tag.toLowerCase}#",
+  prLink = s" https://github.com/apache/${tag.toUpperCase}/pull/"
+)
+
+val Projects =
+  Map[String, ProjectConfig](
+    "avro" -> asfProject("avro"),
+    "beam" -> asfProject("beam"),
+    "flink" -> asfProject("flink"),
+    "flink-web" -> {
+      val flink = asfProject("flink")
+      asfProject("flink-web").copy(issueRef = flink.issueRef, issueLink = flink.issueLink)
+    },
+    "parquet" -> {
+      val parquetMr = asfProject("parquet-mr")
+      asfProject("parquet-mr").copy(prRef = parquetMr.prRef, prLink = parquetMr.prLink)
+    },
+    "spark" -> asfProject("spark")
+  );
 
 /** Some text that maps to to do task states */
 val TextToToDoStates: Map[String, GettingThingsDone.ToDoState] =
@@ -121,43 +156,39 @@ private def writeGtd(
 object ProjectParserCfg extends ParserCfg {
 
   /** Regex used to find Jira-style link references. */
-  val JiraLinkRefRegex: Regex = "^(\\S+)-(\\d+)$$".r
+  val JiraLinkRefRegex: Regex = "^(\\S+-)(\\d+)$$".r
 
   /** Regex used to find GitHub PR-style link references. */
-  val GitHubLinkRefRegex: Regex = "^([^/]+/[^/]+)#(\\d+)$$".r
+  val GitHubLinkRefRegex: Regex = "^([^/]+/[^/]+#)(\\d+)$$".r
 
   /** Group JIRA together by the project. */
   override def linkSorter(): PartialFunction[LinkRef, (String, LinkRef)] = {
-    case LinkRef(JiraLinkRefRegex(prj, num), url, title) if Projects.value.contains(prj.toLowerCase) =>
-      (
-        f"0 ${prj.toUpperCase}-0 $num%9s",
-        LinkRef(
-          s"${prj.toUpperCase}-$num",
-          Some(
-            url.getOrElse(
-              s"https://issues.apache.org/jira/browse/${prj.toUpperCase}-$num"
+    case l @ LinkRef(JiraLinkRefRegex(tag, num), url, title) =>
+      Projects.find(_._2.issueRef == tag) match {
+        case Some((_, prj)) =>
+          (
+            f"0 ${prj.tag}-0 $num%9s",
+            LinkRef(
+              l.ref,
+              Some(url.getOrElse(prj.replace(prj.issueLink, num))),
+              title
             )
-          ),
-          title
-        )
-      )
-    case l @ LinkRef(JiraLinkRefRegex(prj, num), _, _) =>
-      (f"1 ${prj.toUpperCase}-0 $num%9s", l)
-    case LinkRef(GitHubLinkRefRegex(prj, num), url, title) if Projects.value.contains(prj.toLowerCase) =>
-      (
-        f"0 ${prj.toUpperCase}-1 $num%9s",
-        LinkRef(
-          s"${prj.toLowerCase}#$num",
-          Some(
-            url.getOrElse(
-              s"https://github.com/apache/${prj.toLowerCase}/pull/$num"
+          )
+        case None => (f"1 ${tag.toUpperCase}-0 $num%9s", l)
+      }
+    case l @ LinkRef(GitHubLinkRefRegex(tag, num), url, title) =>
+      Projects.find(_._2.prRef == tag) match {
+        case Some((_, prj)) =>
+          (
+            f"0 ${prj.tag}-1 $num%9s",
+            LinkRef(
+              l.ref,
+              Some(url.getOrElse(prj.replace(prj.prLink, num))),
+              title
             )
-          ),
-          title
-        )
-      )
-    case l @ LinkRef(GitHubLinkRefRegex(prj, num), _, _) =>
-      (f"1 ${prj.toUpperCase}-1 $num%9s", l)
+          )
+        case None => (f"1 ${tag.toUpperCase}-1 $num%9s", l)
+      }
     case l =>
       // All non matching links are sent to the bottom
       (s"2 ${l.ref}", l)
@@ -175,7 +206,7 @@ def help(out: ConsoleCfg): Unit = {
   println(
     out.helpHeader(
       cli,
-      "Let's get things done!",
+      s"Let's get things done!\n(${out.msg(StatusTag)}:${out.msg(StatusFile)})",
       "clean" -> "Beautify the status document",
       "edit" -> "Open the status document in a editor (Visual Code)",
       "addWeek" -> "Add a new week to the status document",
@@ -192,17 +223,8 @@ def help(out: ConsoleCfg): Unit = {
   // Usage examples
   println(out.helpUse(cli, "clean"))
   println(out.helpUse(cli, "addWeek"))
-  println(
-    out.helpUse(
-      cli,
-      "pr",
-      "avro",
-      "9876",
-      "1234",
-      "\"Implemented a thing\"",
-      "REVIEWED"
-    )
-  )
+  println(out.helpUse(cli, "pr", "avro", "9876", "1234", "\"Implemented a thing\"", "REVIEWED"))
+  println(out.helpUse(cli, "link", "http://example.com", "Example link"))
   println(out.helpUse(cli, "stat", "unread", "448", "[Wed]"))
   println(out.helpUse(cli, "week", "[2021-03-08]"))
   println()
@@ -309,13 +331,7 @@ def link(
 
   val gtdUpdated = gtdWithLink.addTopWeekToDo("TODO", s"[$linkText][$linkRef]", MaybeToDo)
 
-  writeGtd(
-    gtdUpdated,
-    out,
-    Some(
-      s"feat(status): Add '$linkText' to the weekly status"
-    )
-  )
+  writeGtd(gtdUpdated, out, Some(s"feat(status): Add '$linkText' to the weekly status"))
 }
 
 // ==========================================================================
@@ -325,11 +341,11 @@ def link(
 @main
 def pr(
     @arg(doc = "The tag for the project")
-    prj: String,
+    tag: String,
     @arg(doc = "The PR number being worked on")
     prNum: String,
     @arg(doc = "The corresponding JIRA number being worked on")
-    jira: String,
+    issueNum: String,
     @arg(doc = "A short description for the PR")
     description: String,
     @arg(doc = "The status of the work on the PR")
@@ -339,13 +355,13 @@ def pr(
   // Read the existing document.
   val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
 
+  // Use the project configuration for the tag, or create a default one for ASF projects
+  val prj = Projects.get(tag).getOrElse(asfProject(tag))
+
   // The reference and task snippets to add to the file.
-  val fullJira =
-    if (jira != "0" && jira != "") Some(s"${prj.toUpperCase}-$jira") else None
-  val fullPr =
-    if (prNum != "0" && prNum != "") Some(s"apache/${prj.toLowerCase}#$prNum")
-    else None
-  val task = (fullJira, fullPr) match {
+  val fullIssue = if (issueNum != "0" && issueNum != "") Some(prj.replace(prj.issueRef, issueNum)) else None
+  val fullPr = if (prNum != "0" && prNum != "") Some(prj.replace(prj.prRef, prNum)) else None
+  val task = (fullIssue, fullPr) match {
     case (Some(refJira), Some(refPr)) => s"**[$refJira]**:[$refPr]"
     case (Some(refJira), None)        => s"**[$refJira]**"
     case (None, Some(refPr))          => s"[$refPr]"
@@ -353,28 +369,21 @@ def pr(
   }
 
   val gtdWithLinks = gtd.updateHeader1("References") { refSection =>
-    // Add the two JIRA to the weekly status section.  Their URLs will be filled in
-    // automatically on cleanup.
+    // Add the link references to the reference section.
     refSection.copyMds(
-      fullJira.map(LinkRef(_, None, Some(description))).toSeq ++
-        fullPr.map(LinkRef(_, None, Some(description))) ++ refSection.mds
+      fullIssue.map(LinkRef(_, prj.replace(prj.prLink, prNum.toString), description)).toSeq ++
+        fullPr.map(LinkRef(_, prj.replace(prj.prLink, prNum.toString), description)) ++
+        refSection.mds
     )
   }
 
-  val gtdUpdated =
-    gtdWithLinks.addTopWeekToDo(
-      prj.toLowerCase.capitalize,
-      s"$task $description `$status`",
-      TextToToDoStates.getOrElse(status, MaybeToDo)
-    )
-
-  writeGtd(
-    gtdUpdated,
-    out,
-    Some(
-      s"feat(status): PR ${fullJira.orElse(fullPr).getOrElse("")} $description"
-    )
+  val gtdUpdated = gtdWithLinks.addTopWeekToDo(
+    prj.title,
+    s"$task $description `$status`",
+    TextToToDoStates.getOrElse(status, MaybeToDo)
   )
+
+  writeGtd(gtdUpdated, out, Some(s"feat(status): PR ${fullIssue.orElse(fullPr).getOrElse("")} $description"))
 }
 
 // ==========================================================================
