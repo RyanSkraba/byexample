@@ -26,8 +26,7 @@ import com.skraba.byexample.scala.markd._
 // Top level variables available to the script
 
 /** A tag used to distinguish between documents. */
-val StatusTag: String =
-  sys.props.get("GTD_TAG").orElse(sys.env.get("GTD_TAG")).getOrElse("GTD")
+val StatusTag: String = sys.props.get("GTD_TAG").orElse(sys.env.get("GTD_TAG")).getOrElse("GTD")
 
 /** Git root directory for the status file. */
 val StatusRepo: os.Path = sys.props
@@ -43,21 +42,25 @@ val StatusFile: os.Path = sys.props
   .map(os.Path(_))
   .getOrElse(StatusRepo / "todo" / "status.md")
 
-/** Store projects in a configurable JSON object. */
-//private[this] val ProjectsJson: String = sys.env
-//  .getOrElse(
-//    s"${StatusTag}_PROJECTS",
-//    """{ "avro": {"ghRepo": "apache/avro", "jira": "AVRO"},
-//      |  "beam": {"ghRepo": "apache/avro", "jira": "BEAM"},
-//      |  "flink": {"ghRepo": "apache/flink", "jira": "FLINK"},
-//      |  "flink-web": {"ghRepo": "apache/flink-web", "jira": "FLINK"},
-//      |  "parquet-mr": {"ghRepo": "apache/parquet-mr", "jira": "PARQUET"},
-//      |  "spark": {"ghRepo": "apache/spark", "jira": "SPARK"}
-//      |}""".stripMargin
-//  )
+lazy val StatusContents = os.read(StatusFile)
 
-// TODO: Read config from the config block instead.
-case class ProjectConfig(
+lazy val Gtd = GettingThingsDone(StatusContents, ProjectParserCfg)
+
+/** Configuration for a project (usually) that can be assigned tasks.
+  * @param tag
+  *   The short key to refer to the project.
+  * @param title
+  *   The title of the project to use in the weekly To Do.
+  * @param issueRef
+  *   The text to use for an reference to an issue on this project.
+  * @param issueLink
+  *   The URL to use for an issue on this project.
+  * @param prRef
+  *   The text to use for a reference to a PR on this project.
+  * @param prLink
+  *   The URL to use for a PR on this project.
+  */
+case class PrjTask(
     tag: String,
     title: String,
     issueRef: String,
@@ -65,33 +68,79 @@ case class ProjectConfig(
     prRef: String,
     prLink: String
 ) {
-  def replace(tmpl: String, in: String): String = if (tmpl.contains("%s")) tmpl.format(in) else tmpl + in
+  private def replace(tmpl: String, in: String): String = if (tmpl.contains("%s")) tmpl.format(in) else tmpl + in
+  def issueRefOf(in: String) = replace(issueRef, in)
+  def issueLinkOf(in: String) = replace(issueLink, in)
+  def prRefOf(in: String) = replace(prRef, in)
+  def prLinkOf(in: String) = replace(prLink, in)
 }
 
-def asfProject(tag: String): ProjectConfig = ProjectConfig(
-  tag = tag,
-  title = tag.toLowerCase.capitalize,
-  issueRef = s"${tag.toUpperCase}-",
-  issueLink = s"https://issues.apache.org/jira/browse/${tag.toLowerCase}-",
-  prRef = s"apache/${tag.toLowerCase}#",
-  prLink = s" https://github.com/apache/${tag.toUpperCase}/pull/"
-)
+object PrjTask {
 
-val Projects =
-  Map[String, ProjectConfig](
-    "avro" -> asfProject("avro"),
-    "beam" -> asfProject("beam"),
-    "flink" -> asfProject("flink"),
-    "flink-web" -> {
-      val flink = asfProject("flink")
-      asfProject("flink-web").copy(issueRef = flink.issueRef, issueLink = flink.issueLink)
-    },
-    "parquet" -> {
-      val parquetMr = asfProject("parquet-mr")
-      asfProject("parquet-mr").copy(prRef = parquetMr.prRef, prLink = parquetMr.prLink)
-    },
-    "spark" -> asfProject("spark")
-  );
+  /** Logical defaults for a root ASF project. */
+  def asf(tag: String): PrjTask = asf(tag, tag.toUpperCase, tag.toLowerCase)
+  def asf(tag: String, jira: String, repo: String): PrjTask = PrjTask(
+    tag = tag,
+    title = tag.toLowerCase.capitalize,
+    issueRef = s"${tag}-",
+    issueLink = s"https://issues.apache.org/jira/browse/${tag}-",
+    prRef = s"apache/$repo#",
+    prLink = s" https://github.com/apache/$repo/pull/"
+  )
+}
+
+lazy val Projects = Seq(
+  PrjTask.asf("avro"),
+  PrjTask.asf("beam"),
+  PrjTask.asf("flink"),
+  PrjTask.asf("flink-web", "FLINK", "flink-web"),
+  PrjTask.asf("parquet", "PARQUET", "parquet-mr"),
+  PrjTask.asf("spark")
+).map(p => p.tag -> p).toMap
+
+/** The configuration for the parser.
+  */
+object ProjectParserCfg extends ParserCfg {
+
+  /** Regex used to find Jira-style link references. */
+  val JiraLinkRefRegex: Regex = "^(\\S+-)(\\d+)$$".r
+
+  /** Regex used to find GitHub PR-style link references. */
+  val GitHubLinkRefRegex: Regex = "^([^/]+/[^/]+#)(\\d+)$$".r
+
+  /** Group JIRA together by the project. */
+  override def linkSorter(): PartialFunction[LinkRef, (String, LinkRef)] = {
+    case l @ LinkRef(JiraLinkRefRegex(tag, num), url, title) =>
+      Projects.find(_._2.issueRef == tag) match {
+        case Some((_, prj)) =>
+          (
+            f"0 ${prj.tag}-0 $num%9s",
+            LinkRef(
+              l.ref,
+              Some(url.getOrElse(prj.issueLinkOf(num))),
+              title
+            )
+          )
+        case None => (f"1 ${tag.toUpperCase}-0 $num%9s", l)
+      }
+    case l @ LinkRef(GitHubLinkRefRegex(tag, num), url, title) =>
+      Projects.find(_._2.prRef == tag) match {
+        case Some((_, prj)) =>
+          (
+            f"0 ${prj.tag}-1 $num%9s",
+            LinkRef(
+              l.ref,
+              Some(url.getOrElse(prj.prLinkOf(num))),
+              title
+            )
+          )
+        case None => (f"1 ${tag.toUpperCase}-1 $num%9s", l)
+      }
+    case l =>
+      // All non matching links are sent to the bottom
+      (s"2 ${l.ref}", l)
+  }
+}
 
 /** Some text that maps to to do task states */
 val TextToToDoStates: Map[String, GettingThingsDone.ToDoState] =
@@ -112,8 +161,6 @@ private def writeGtd(
     gitStatus: Option[String] = None,
     compressTable: Boolean = false
 ): Unit = {
-  val before = os.read(StatusFile)
-
   val asText = ProjectParserCfg.clean(gtd.h0).build().toString
   val after = if (compressTable) asText.replaceAll(" +( \\|)", "$1") else asText
 
@@ -131,7 +178,7 @@ private def writeGtd(
   // Some debugging for when an emoji is overwritten unexpectedly
   val written = os.read(StatusFile)
   if (written.contains("??")) {
-    if (before.contains("??"))
+    if (StatusContents.contains("??"))
       println(s"""${RED_B}Warning:$RESET
            |  The file already contained the characters ??""".stripMargin)
 
@@ -150,48 +197,6 @@ private def writeGtd(
       s"""${RED_B}Warning:$RESET
          |  The file was written with an unexpected ?? replacement""".stripMargin
     )
-  }
-}
-
-object ProjectParserCfg extends ParserCfg {
-
-  /** Regex used to find Jira-style link references. */
-  val JiraLinkRefRegex: Regex = "^(\\S+-)(\\d+)$$".r
-
-  /** Regex used to find GitHub PR-style link references. */
-  val GitHubLinkRefRegex: Regex = "^([^/]+/[^/]+#)(\\d+)$$".r
-
-  /** Group JIRA together by the project. */
-  override def linkSorter(): PartialFunction[LinkRef, (String, LinkRef)] = {
-    case l @ LinkRef(JiraLinkRefRegex(tag, num), url, title) =>
-      Projects.find(_._2.issueRef == tag) match {
-        case Some((_, prj)) =>
-          (
-            f"0 ${prj.tag}-0 $num%9s",
-            LinkRef(
-              l.ref,
-              Some(url.getOrElse(prj.replace(prj.issueLink, num))),
-              title
-            )
-          )
-        case None => (f"1 ${tag.toUpperCase}-0 $num%9s", l)
-      }
-    case l @ LinkRef(GitHubLinkRefRegex(tag, num), url, title) =>
-      Projects.find(_._2.prRef == tag) match {
-        case Some((_, prj)) =>
-          (
-            f"0 ${prj.tag}-1 $num%9s",
-            LinkRef(
-              l.ref,
-              Some(url.getOrElse(prj.replace(prj.prLink, num))),
-              title
-            )
-          )
-        case None => (f"1 ${tag.toUpperCase}-1 $num%9s", l)
-      }
-    case l =>
-      // All non matching links are sent to the bottom
-      (s"2 ${l.ref}", l)
   }
 }
 
@@ -242,7 +247,7 @@ def clean(
 ): Unit = {
   // Read and overwrite the existing document without making any changes.
   writeGtd(
-    GettingThingsDone(os.read(StatusFile), ProjectParserCfg),
+    GettingThingsDone(StatusContents, ProjectParserCfg),
     out,
     Some("feat(status): Beautify the document"),
     compressTable = compress.value
@@ -272,27 +277,21 @@ def addWeek(
     single: Flag,
     out: ConsoleCfg
 ): Unit = {
-  // Read the existing document.
-  val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
   val gtdUpdated = if (!single.value) {
     val token = GettingThingsDone.Pattern.format(Instant.now())
     out.vPrintln(s"Updating the top week up to $token")
-    gtd.addWeek(Some(token))
+    Gtd.addWeek(Some(token))
   } else {
     // Simply add one week to the document.
-    gtd.addWeek(None)
+    Gtd.addWeek(None)
   }
-  val verb = if (gtd == gtdUpdated) {
+  val verb = if (Gtd == gtdUpdated) {
     println(
-      out.ok(
-        s"No weeks were added:",
-        s"current top week is '${gtd.topWeek.map(_.title).getOrElse("Unknown")}'"
-      )
+      out.ok(s"No weeks were added:", s"current top week is '${Gtd.topWeek.map(_.title).getOrElse("Unknown")}'")
     )
     "Update"
-  } else {
-    "Add"
-  }
+  } else "Add"
+
   writeGtd(
     gtdUpdated,
     out,
@@ -316,18 +315,15 @@ def link(
     linkRefPrefix: Option[String] = None,
     out: ConsoleCfg
 ): Unit = {
-  // Read the existing document.
-  val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
-
   val token = linkRefPrefix.getOrElse(GettingThingsDone.Pattern.format(Instant.now()).replaceAll("-", "")) + "-"
 
-  val linkRef: String = gtd.topWeek
+  val linkRef: String = Gtd.topWeek
     .map(weekly => {
       val linkRefs: Set[String] = weekly.mds.collect { case LinkRef(ref, _, _) if ref.startsWith(token) => ref }.toSet
       LazyList.from(1).map(i => s"$token$i").filterNot(linkRefs).head
     })
     .getOrElse(s"${token}1")
-  val gtdWithLink = gtd.updateTopWeek(weekly => weekly.copyMds(weekly.mds :+ LinkRef(linkRef, linkUrl, linkText)))
+  val gtdWithLink = Gtd.updateTopWeek(weekly => weekly.copyMds(weekly.mds :+ LinkRef(linkRef, linkUrl, linkText)))
 
   val gtdUpdated = gtdWithLink.addTopWeekToDo("TODO", s"[$linkText][$linkRef]", MaybeToDo)
 
@@ -352,15 +348,12 @@ def pr(
     status: String = "TOREVIEW",
     out: ConsoleCfg
 ): Unit = {
-  // Read the existing document.
-  val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
-
   // Use the project configuration for the tag, or create a default one for ASF projects
-  val prj = Projects.get(tag).getOrElse(asfProject(tag))
+  val prj = Projects.get(tag).getOrElse(PrjTask.asf(tag))
 
   // The reference and task snippets to add to the file.
-  val fullIssue = if (issueNum != "0" && issueNum != "") Some(prj.replace(prj.issueRef, issueNum)) else None
-  val fullPr = if (prNum != "0" && prNum != "") Some(prj.replace(prj.prRef, prNum)) else None
+  val fullIssue = if (issueNum != "0" && issueNum != "") Some(prj.issueRefOf(issueNum)) else None
+  val fullPr = if (prNum != "0" && prNum != "") Some(prj.prRefOf(prNum)) else None
   val task = (fullIssue, fullPr) match {
     case (Some(refJira), Some(refPr)) => s"**[$refJira]**:[$refPr]"
     case (Some(refJira), None)        => s"**[$refJira]**"
@@ -368,11 +361,11 @@ def pr(
     case (None, None)                 => ""
   }
 
-  val gtdWithLinks = gtd.updateHeader1("References") { refSection =>
+  val gtdWithLinks = Gtd.updateHeader1("References") { refSection =>
     // Add the link references to the reference section.
     refSection.copyMds(
-      fullIssue.map(LinkRef(_, prj.replace(prj.prLink, prNum.toString), description)).toSeq ++
-        fullPr.map(LinkRef(_, prj.replace(prj.prLink, prNum.toString), description)) ++
+      fullIssue.map(LinkRef(_, prj.issueLinkOf(prNum.toString), description)).toSeq ++
+        fullPr.map(LinkRef(_, prj.prLinkOf(prNum.toString), description)) ++
         refSection.mds
     )
   }
@@ -400,10 +393,8 @@ def stat(
     date: Option[String] = None,
     out: ConsoleCfg
 ): Unit = {
-  // Read the existing document.
-  val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
   // TODO: If date is in a YYYY-MM-DD format, then to the correct date
-  val gtdUpdated = gtd.updateTopWeekStats(rowStat, cell, date)
+  val gtdUpdated = Gtd.updateTopWeekStats(rowStat, cell, date)
   writeGtd(gtdUpdated, out, Some(s"feat(status): Update $rowStat"))
 }
 
@@ -426,8 +417,7 @@ def statsToday(
   }
 
   // Read the existing document.
-  val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
-  val gtdUpdated = groupedStats.foldLeft(gtd) { (acc: GettingThingsDone, list: Seq[String]) =>
+  val gtdUpdated = groupedStats.foldLeft(Gtd) { (acc: GettingThingsDone, list: Seq[String]) =>
     acc.updateTopWeekStats(list.head, list.tail.headOption.getOrElse(""))
   }
   writeGtd(
@@ -447,10 +437,8 @@ def statsDaily(out: ConsoleCfg): Unit = {
   // Ensure we are on the current week to add today's stats.
   addWeek(Flag(false), out)
 
-  val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
-
   // Get the daily stats configuration
-  val cfgStats: Option[Table] = gtd.cfg.flatMap(_.collectFirstRecursive {
+  val cfgStats: Option[Table] = Gtd.cfg.flatMap(_.collectFirstRecursive {
     case tbl: Table if tbl.title == TableStats =>
       tbl
   })
@@ -534,12 +522,9 @@ def statExtract(
     )
     month: Option[Int] = None
 ): Unit = {
-  // Read the existing document.
-  val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
-
   // If a specific month was set, then extract for that month only.
   val (from: Option[LocalDate], to: Option[LocalDate]) = getMonth(month)
-  val stats = gtd.extractStats(name = rowStat, from = from, to = to)
+  val stats = Gtd.extractStats(name = rowStat, from = from, to = to)
 
   if (csv.value) {
     if (rowStat.isEmpty) {
