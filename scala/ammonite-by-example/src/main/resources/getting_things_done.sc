@@ -78,40 +78,50 @@ case class PrjTask(
 object PrjTask {
 
   /** Logical defaults for a root ASF project. */
-  def asf(tag: String): PrjTask = asf(tag, tag.toUpperCase, tag.toLowerCase)
-  def asf(tag: String, jira: String, repo: String): PrjTask = PrjTask(
+  def asf(tag: String): PrjTask = asf(tag, tag.toLowerCase.capitalize, tag.toUpperCase, tag.toLowerCase)
+  def asf(tag: String, title: String, jira: String, repo: String): PrjTask = PrjTask(
     tag = tag,
-    title = tag.toLowerCase.capitalize,
-    issueRef = s"${tag}-",
-    issueLink = s"https://issues.apache.org/jira/browse/${tag}-",
+    title = title,
+    issueRef = s"$jira-",
+    issueLink = s"https://issues.apache.org/jira/browse/$jira-",
     prRef = s"apache/$repo#",
     prLink = s" https://github.com/apache/$repo/pull/"
   )
 }
 
-lazy val Projects = Seq(
-  PrjTask.asf("avro"),
-  PrjTask.asf("beam"),
-  PrjTask.asf("flink"),
-  PrjTask.asf("flink-web", "FLINK", "flink-web"),
-  PrjTask.asf("parquet", "PARQUET", "parquet-mr"),
-  PrjTask.asf("spark")
-).map(p => p.tag -> p).toMap
+lazy val PrjTasks: Map[String, PrjTask] = GettingThingsDone(StatusContents).cfg
+  .flatMap(_.collectFirstRecursive {
+    case tbl: Table if tbl.title == "Projects" =>
+      for (row <- 1 until tbl.rowSize)
+        yield PrjTask(tbl(row, 0), tbl(row, 1), tbl(row, 2), tbl(row, 3), tbl(row, 4), tbl(row, 5))
+  })
+  .getOrElse(
+    // Defaults if there is no project configuration
+    Seq(
+      PrjTask.asf("avro"),
+      PrjTask.asf("beam"),
+      PrjTask.asf("flink"),
+      PrjTask.asf("flink-web", "Flink", "FLINK", "flink-web"),
+      PrjTask.asf("parquet", "Parquet", "PARQUET", "parquet-mr"),
+      PrjTask.asf("spark")
+    )
+  )
+  .map(p => p.tag -> p)
+  .toMap
 
-/** The configuration for the parser.
-  */
+/** The configuration for the parser. */
 object ProjectParserCfg extends ParserCfg {
 
   /** Regex used to find Jira-style link references. */
-  val JiraLinkRefRegex: Regex = "^(\\S+-)(\\d+)$$".r
+  val JiraLinkRefRegex: Regex = "^(\\S+-)(\\d+)$".r
 
   /** Regex used to find GitHub PR-style link references. */
-  val GitHubLinkRefRegex: Regex = "^([^/]+/[^/]+#)(\\d+)$$".r
+  val GitHubLinkRefRegex: Regex = "^([^/]+/[^/]+#)(\\d+)$".r
 
   /** Group JIRA together by the project. */
   override def linkSorter(): PartialFunction[LinkRef, (String, LinkRef)] = {
     case l @ LinkRef(JiraLinkRefRegex(tag, num), url, title) =>
-      Projects.find(_._2.issueRef == tag) match {
+      PrjTasks.find(_._2.issueRef == tag) match {
         case Some((_, prj)) =>
           (
             f"0 ${prj.tag}-0 $num%9s",
@@ -124,7 +134,7 @@ object ProjectParserCfg extends ParserCfg {
         case None => (f"1 ${tag.toUpperCase}-0 $num%9s", l)
       }
     case l @ LinkRef(GitHubLinkRefRegex(tag, num), url, title) =>
-      Projects.find(_._2.prRef == tag) match {
+      PrjTasks.find(_._2.prRef == tag) match {
         case Some((_, prj)) =>
           (
             f"0 ${prj.tag}-1 $num%9s",
@@ -229,7 +239,7 @@ def help(out: ConsoleCfg): Unit = {
   println(out.helpUse(cli, "clean"))
   println(out.helpUse(cli, "addWeek"))
   println(out.helpUse(cli, "pr", "avro", "9876", "1234", "\"Implemented a thing\"", "REVIEWED"))
-  println(out.helpUse(cli, "link", "http://example.com", "Example link"))
+  println(out.helpUse(cli, "link", "https://example.com", "Example link"))
   println(out.helpUse(cli, "stat", "unread", "448", "[Wed]"))
   println(out.helpUse(cli, "week", "[2021-03-08]"))
   println()
@@ -349,7 +359,7 @@ def pr(
     out: ConsoleCfg
 ): Unit = {
   // Use the project configuration for the tag, or create a default one for ASF projects
-  val prj = Projects.get(tag).getOrElse(PrjTask.asf(tag))
+  val prj = PrjTasks.get(tag).getOrElse(PrjTask.asf(tag))
 
   // The reference and task snippets to add to the file.
   val fullIssue = if (issueNum != "0" && issueNum != "") Some(prj.issueRefOf(issueNum)) else None
@@ -364,8 +374,8 @@ def pr(
   val gtdWithLinks = Gtd.updateHeader1("References") { refSection =>
     // Add the link references to the reference section.
     refSection.copyMds(
-      fullIssue.map(LinkRef(_, prj.issueLinkOf(prNum.toString), description)).toSeq ++
-        fullPr.map(LinkRef(_, prj.prLinkOf(prNum.toString), description)) ++
+      fullIssue.map(LinkRef(_, prj.issueLinkOf(issueNum), description)).toSeq ++
+        fullPr.map(LinkRef(_, prj.prLinkOf(prNum), description)) ++
         refSection.mds
     )
   }

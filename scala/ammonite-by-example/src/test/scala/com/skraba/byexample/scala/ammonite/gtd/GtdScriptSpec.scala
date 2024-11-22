@@ -1,6 +1,7 @@
 package com.skraba.byexample.scala.ammonite.gtd
 
 import com.skraba.byexample.scala.ammonite.AmmoniteScriptSpecBase
+
 import java.time.Instant
 import scala.Console._
 import scala.io.AnsiColor.{BOLD, RESET}
@@ -84,8 +85,7 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
 
     it("should create a doc with a link") {
       // Create a basic file with a known top date
-      val output = (Tmp / "link.md").toFile
-      output.writeAll("""# Weekly Status
+      Output.writeAll("""# Weekly Status
           |## 2023-01-01
           |""".stripMargin)
 
@@ -160,4 +160,83 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
     }
   }
 
+  describe(s"Running $ScriptName pr") {
+
+    val Output = (Tmp / "pr.md").toFile
+
+    def pr(args: String*): (String, String) = {
+      sys.props("GTD_TAG") = "BASIC"
+      sys.props("BASIC_STATUS_REPO") = Tmp.toString
+      sys.props("BASIC_STATUS_FILE") = Output.toString
+      val stdout = withTaskSuccess()("pr")(args: _*)
+      (stdout, Output.slurp().replaceAll(TodayLink, "<TODAY>"))
+    }
+
+    it("should create a doc with PRs") {
+      // Create a basic file with a known top date
+      val output = Output.toFile
+      output.writeAll("""# Weekly Status
+                        |## 2023-01-01
+                        |""".stripMargin)
+
+      val (stdout, _) = pr("avro", "1234", "4321", "Describe the PR", "STATUS", "--plain")
+      stdout shouldBe """Commit:
+                        |  git -C <TMP> add pr.md &&
+                        |      git -C <TMP> difftool --staged
+                        |  git -C <TMP> add pr.md &&
+                        |      git -C <TMP> commit -m "feat(status): PR AVRO-4321 Describe the PR"
+                        |
+                        |""".stripMargin
+
+      pr("beam", "123", "321", "Beam fixes", "TODO")
+      pr("beam", "0", "321", "Beam fixes 1", "TODO")
+      pr("beam", "", "321", "Beam fixes 2", "TODO")
+      pr("beam", "123", "0", "Beam fixes 3", "TODO")
+      pr("beam", "123", "", "Beam fixes 4", "TODO")
+      pr("parquet", "234", "432", "Parquet things", "TODO")
+      pr("flink", "345", "543", "Flink fixes", "DONE")
+      pr("flink", "8", "1111", "More flink fixes", "MERGED")
+      pr("flink", "11118", "9", "Even more flink fixes", "OPENED")
+      val (_, gtd) = pr("flink-web", "98", "89", "Another", "FIXED")
+      gtd shouldBe
+        """Weekly Status
+          |==============================================================================
+          |
+          |2023-01-01
+          |------------------------------------------------------------------------------
+          |
+          || To Do     | Notes 🟢🔵🔶🟥⤴️🕒                                                |
+          ||-----------|-------------------------------------------------------------------|
+          || 🔶Avro    | **[AVRO-4321]**:[apache/avro#1234] Describe the PR `STATUS`       |
+          || 🔶Beam    | **[BEAM-321]**:[apache/beam#123] Beam fixes `TODO`                |
+          || 🔶Beam    | **[BEAM-321]** Beam fixes 1 `TODO`                                |
+          || 🔶Beam    | **[BEAM-321]** Beam fixes 2 `TODO`                                |
+          || 🔶Beam    | [apache/beam#123] Beam fixes 3 `TODO`                             |
+          || 🔶Beam    | [apache/beam#123] Beam fixes 4 `TODO`                             |
+          || 🔶Parquet | **[PARQUET-432]**:[apache/parquet-mr#234] Parquet things `TODO`   |
+          || 🟢Flink   | **[FLINK-543]**:[apache/flink#345] Flink fixes `DONE`             |
+          || 🟢Flink   | **[FLINK-1111]**:[apache/flink#8] More flink fixes `MERGED`       |
+          || 🔶Flink   | **[FLINK-9]**:[apache/flink#11118] Even more flink fixes `OPENED` |
+          || 🟢Flink   | **[FLINK-89]**:[apache/flink-web#98] Another `FIXED`              |
+          |
+          |References
+          |==============================================================================
+          |
+          |[AVRO-4321]: https://issues.apache.org/jira/browse/AVRO-4321 "Describe the PR"
+          |[apache/avro#1234]: https://github.com/apache/avro/pull/1234 "Describe the PR"
+          |[BEAM-321]: https://issues.apache.org/jira/browse/BEAM-321 "Beam fixes"
+          |[apache/beam#123]: https://github.com/apache/beam/pull/123 "Beam fixes"
+          |[FLINK-9]: https://issues.apache.org/jira/browse/FLINK-9 "Even more flink fixes"
+          |[FLINK-89]: https://issues.apache.org/jira/browse/FLINK-89 "Another"
+          |[FLINK-543]: https://issues.apache.org/jira/browse/FLINK-543 "Flink fixes"
+          |[FLINK-1111]: https://issues.apache.org/jira/browse/FLINK-1111 "More flink fixes"
+          |[apache/flink#8]: https://github.com/apache/flink/pull/8 "More flink fixes"
+          |[apache/flink#345]: https://github.com/apache/flink/pull/345 "Flink fixes"
+          |[apache/flink#11118]: https://github.com/apache/flink/pull/11118 "Even more flink fixes"
+          |[apache/flink-web#98]: https://github.com/apache/flink-web/pull/98 "Another"
+          |[PARQUET-432]: https://issues.apache.org/jira/browse/PARQUET-432 "Parquet things"
+          |[apache/parquet-mr#234]: https://github.com/apache/parquet-mr/pull/234 "Parquet things"
+          |""".stripMargin
+    }
+  }
 }
