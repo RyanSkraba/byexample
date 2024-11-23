@@ -238,5 +238,104 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
           |[apache/parquet-mr#234]: https://github.com/apache/parquet-mr/pull/234 "Parquet things"
           |""".stripMargin
     }
+
+    it("should read PrjTask information from a doc") {
+      // Create a basic file with a known top date and an existing project configuration
+      val output = Output.toFile
+      output.writeAll("""# Weekly Status
+          |
+          |<!-- Getting Things Done configuration
+          |
+          || Projects | Title | Issue Reference | Issue Link | Pull Request Reference | Pull Request Link |
+          ||----------|-------|-----------------|------------|------------------------|-------------------|
+          || avro     | Avro  | AVRO-  | https://issues.apache.org/jira/browse/AVRO- | apache/avro# | https://github.com/apache/avro/pull/   |
+          || flink    | Flink | FLINK- | https://example.com/browse/FLINK-           | apache/flink-thing# | https://example.com/code/FLINK- |
+          || abcdef   | Alpha | ABC-   | https://example.com/browse/ABC-%s/details   | internal/%s/abc | https://example.com/alpha/beta/gamma/very-very-long-repo-name |
+          |-->
+          |## 2023-01-01
+          |# References
+          |[pre-existing]: https://example.com "Pre-existing"
+          |""".stripMargin)
+
+      val (stdout, _) = pr("avro", "1234", "4321", "Describe the PR", "STATUS", "--plain")
+      stdout shouldBe """Commit:
+                        |  git -C <TMP> add pr.md &&
+                        |      git -C <TMP> difftool --staged
+                        |  git -C <TMP> add pr.md &&
+                        |      git -C <TMP> commit -m "feat(status): PR AVRO-4321 Describe the PR"
+                        |
+                        |""".stripMargin
+
+      pr("abcdef", "111", "222", "My work", "OPENED")
+      pr("beam", "123", "321", "Beam fixes", "TODO")
+      pr("beam", "123", "321", "Beam fixes", "TODO")
+      pr("beam", "0", "321", "Beam fixes 1", "TODO")
+      pr("beam", "", "321", "Beam fixes 2", "TODO")
+      pr("beam", "123", "0", "Beam fixes 3", "TODO")
+      pr("beam", "123", "", "Beam fixes 4", "TODO")
+      pr("abcdef", "222", "333", "Another", "DONE")
+      pr("parquet", "234", "432", "Parquet things", "TODO")
+      pr("flink", "345", "543", "Flink fixes", "DONE")
+      pr("flink", "8", "1111", "More flink fixes", "MERGED")
+      pr("flink", "11118", "9", "Even more flink fixes", "OPENED")
+      val (_, gtd) = pr("flink-web", "98", "89", "Another", "FIXED")
+      gtd shouldBe
+        """Weekly Status
+          |==============================================================================
+          |
+          |<!-- Getting Things Done configuration
+          |
+          || Projects | Title | Issue Reference | Issue Link                                  | Pull Request Reference | Pull Request Link                                             |
+          ||----------|-------|-----------------|---------------------------------------------|------------------------|---------------------------------------------------------------|
+          || avro     | Avro  | AVRO-           | https://issues.apache.org/jira/browse/AVRO- | apache/avro#           | https://github.com/apache/avro/pull/                          |
+          || flink    | Flink | FLINK-          | https://example.com/browse/FLINK-           | apache/flink-thing#    | https://example.com/code/FLINK-                               |
+          || abcdef   | Alpha | ABC-            | https://example.com/browse/ABC-%s/details   | internal/%s/abc        | https://example.com/alpha/beta/gamma/very-very-long-repo-name |
+          |
+          |-->
+          |
+          |2023-01-01
+          |------------------------------------------------------------------------------
+          |
+          || To Do       | Notes 🟢🔵🔶🟥⤴️🕒                                                      |
+          ||-------------|-------------------------------------------------------------------------|
+          || 🔶Avro      | **[AVRO-4321]**:[apache/avro#1234] Describe the PR `STATUS`             |
+          || 🔶Alpha     | **[ABC-222]**:[internal/111/abc] My work `OPENED`                       |
+          || 🔶Beam      | **[BEAM-321]**:[apache/beam#123] Beam fixes `TODO`                      |
+          || 🔶Beam      | **[BEAM-321]**:[apache/beam#123] Beam fixes `TODO`                      |
+          || 🔶Beam      | **[BEAM-321]** Beam fixes 1 `TODO`                                      |
+          || 🔶Beam      | **[BEAM-321]** Beam fixes 2 `TODO`                                      |
+          || 🔶Beam      | [apache/beam#123] Beam fixes 3 `TODO`                                   |
+          || 🔶Beam      | [apache/beam#123] Beam fixes 4 `TODO`                                   |
+          || 🟢Alpha     | **[ABC-333]**:[internal/222/abc] Another `DONE`                         |
+          || 🔶Parquet   | **[PARQUET-432]**:[apache/parquet#234] Parquet things `TODO`            |
+          || 🟢Flink     | **[FLINK-543]**:[apache/flink-thing#345] Flink fixes `DONE`             |
+          || 🟢Flink     | **[FLINK-1111]**:[apache/flink-thing#8] More flink fixes `MERGED`       |
+          || 🔶Flink     | **[FLINK-9]**:[apache/flink-thing#11118] Even more flink fixes `OPENED` |
+          || 🟢Flink-web | **[FLINK-WEB-89]**:[apache/flink-web#98] Another `FIXED`                |
+          |
+          |References
+          |==============================================================================
+          |
+          |[ABC-222]: https://example.com/browse/ABC-222/details "My work"
+          |[ABC-333]: https://example.com/browse/ABC-333/details "Another"
+          |[AVRO-4321]: https://issues.apache.org/jira/browse/AVRO-4321 "Describe the PR"
+          |[apache/avro#1234]: https://github.com/apache/avro/pull/1234 "Describe the PR"
+          |[FLINK-9]: https://example.com/browse/FLINK-9 "Even more flink fixes"
+          |[FLINK-543]: https://example.com/browse/FLINK-543 "Flink fixes"
+          |[FLINK-1111]: https://example.com/browse/FLINK-1111 "More flink fixes"
+          |[apache/flink-thing#8]: https://example.com/code/FLINK-8 "More flink fixes"
+          |[apache/flink-thing#345]: https://example.com/code/FLINK-345 "Flink fixes"
+          |[apache/flink-thing#11118]: https://example.com/code/FLINK-11118 "Even more flink fixes"
+          |[apache/beam#123]: https://github.com/apache/beam/pull/123 "Beam fixes"
+          |[apache/flink-web#98]: https://github.com/apache/flink-web/pull/98 "Another"
+          |[apache/parquet#234]: https://github.com/apache/parquet/pull/234 "Parquet things"
+          |[BEAM-321]: https://issues.apache.org/jira/browse/BEAM-321 "Beam fixes"
+          |[FLINK-WEB-89]: https://issues.apache.org/jira/browse/FLINK-WEB-89 "Another"
+          |[PARQUET-432]: https://issues.apache.org/jira/browse/PARQUET-432 "Parquet things"
+          |[internal/111/abc]: https://example.com/alpha/beta/gamma/very-very-long-repo-name111 "My work"
+          |[internal/222/abc]: https://example.com/alpha/beta/gamma/very-very-long-repo-name222 "Another"
+          |[pre-existing]: https://example.com "Pre-existing"
+          |""".stripMargin
+    }
   }
 }

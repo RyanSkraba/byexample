@@ -93,7 +93,7 @@ lazy val PrjTasks: Map[String, PrjTask] = GettingThingsDone(StatusContents).cfg
   .flatMap(_.collectFirstRecursive {
     case tbl: Table if tbl.title == "Projects" =>
       for (row <- 1 until tbl.rowSize)
-        yield PrjTask(tbl(row, 0), tbl(row, 1), tbl(row, 2), tbl(row, 3), tbl(row, 4), tbl(row, 5))
+        yield PrjTask(tbl(0, row), tbl(1, row), tbl(2, row), tbl(3, row), tbl(4, row), tbl(5, row))
   })
   .getOrElse(
     // Defaults if there is no project configuration
@@ -125,11 +125,7 @@ object ProjectParserCfg extends ParserCfg {
         case Some((_, prj)) =>
           (
             f"0 ${prj.tag}-0 $num%9s",
-            LinkRef(
-              l.ref,
-              Some(url.getOrElse(prj.issueLinkOf(num))),
-              title
-            )
+            LinkRef(l.ref, Some(url.getOrElse(prj.issueLinkOf(num))), title)
           )
         case None => (f"1 ${tag.toUpperCase}-0 $num%9s", l)
       }
@@ -138,11 +134,7 @@ object ProjectParserCfg extends ParserCfg {
         case Some((_, prj)) =>
           (
             f"0 ${prj.tag}-1 $num%9s",
-            LinkRef(
-              l.ref,
-              Some(url.getOrElse(prj.prLinkOf(num))),
-              title
-            )
+            LinkRef(l.ref, Some(url.getOrElse(prj.prLinkOf(num))), title)
           )
         case None => (f"1 ${tag.toUpperCase}-1 $num%9s", l)
       }
