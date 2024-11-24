@@ -248,9 +248,9 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
           |
           || Projects | Title | Issue Reference | Issue Link | Pull Request Reference | Pull Request Link |
           ||----------|-------|-----------------|------------|------------------------|-------------------|
-          || avro     | Avro  | AVRO-  | https://issues.apache.org/jira/browse/AVRO- | apache/avro# | https://github.com/apache/avro/pull/   |
-          || flink    | Flink | FLINK- | https://example.com/browse/FLINK-           | apache/flink-thing# | https://example.com/code/FLINK- |
-          || abcdef   | Alpha | ABC-   | https://example.com/browse/ABC-%s/details   | internal/%s/abc | https://example.com/alpha/beta/gamma/very-very-long-repo-name |
+          || avro     |
+          || flink    |       |      | https://example.com/browse/FLINK-         | apache/flink-thing# | https://example.com/code/FLINK- |
+          || abcdef   | Alpha | ABC- | https://example.com/browse/ABC-%s/details | internal/%s/abc     | https://example.com/alpha/beta/gamma/very-very-long-repo-name |
           |-->
           |## 2023-01-01
           |# References
@@ -285,11 +285,11 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
           |
           |<!-- Getting Things Done configuration
           |
-          || Projects | Title | Issue Reference | Issue Link                                  | Pull Request Reference | Pull Request Link                                             |
-          ||----------|-------|-----------------|---------------------------------------------|------------------------|---------------------------------------------------------------|
-          || avro     | Avro  | AVRO-           | https://issues.apache.org/jira/browse/AVRO- | apache/avro#           | https://github.com/apache/avro/pull/                          |
-          || flink    | Flink | FLINK-          | https://example.com/browse/FLINK-           | apache/flink-thing#    | https://example.com/code/FLINK-                               |
-          || abcdef   | Alpha | ABC-            | https://example.com/browse/ABC-%s/details   | internal/%s/abc        | https://example.com/alpha/beta/gamma/very-very-long-repo-name |
+          || Projects | Title | Issue Reference | Issue Link                                | Pull Request Reference | Pull Request Link                                             |
+          ||----------|-------|-----------------|-------------------------------------------|------------------------|---------------------------------------------------------------|
+          || avro     |       |                 |                                           |                        |                                                               |
+          || flink    |       |                 | https://example.com/browse/FLINK-         | apache/flink-thing#    | https://example.com/code/FLINK-                               |
+          || abcdef   | Alpha | ABC-            | https://example.com/browse/ABC-%s/details | internal/%s/abc        | https://example.com/alpha/beta/gamma/very-very-long-repo-name |
           |
           |-->
           |

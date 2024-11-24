@@ -62,12 +62,19 @@ lazy val Gtd = GettingThingsDone(StatusContents, ProjectParserCfg)
   */
 case class PrjTask(
     tag: String,
-    title: String,
-    issueRef: String,
-    issueLink: String,
-    prRef: String,
-    prLink: String
+    titleOpt: Option[String],
+    issueRefOpt: Option[String],
+    issueLinkOpt: Option[String],
+    prRefOpt: Option[String],
+    prLinkOpt: Option[String]
 ) {
+
+  val title: String = titleOpt.getOrElse(tag.toLowerCase.capitalize)
+  val issueRef: String = issueRefOpt.getOrElse(tag.toUpperCase + "-")
+  val issueLink: String = issueLinkOpt.getOrElse(s"https://issues.apache.org/jira/browse/${tag.toUpperCase}-")
+  val prRef: String = prRefOpt.getOrElse(s"apache/${tag.toLowerCase}#")
+  val prLink: String = prLinkOpt.getOrElse(s"https://github.com/apache/${tag.toLowerCase}/pull/")
+
   private def replace(tmpl: String, in: String): String = if (tmpl.contains("%s")) tmpl.format(in) else tmpl + in
   def issueRefOf(in: String) = replace(issueRef, in)
   def issueLinkOf(in: String) = replace(issueLink, in)
@@ -77,15 +84,32 @@ case class PrjTask(
 
 object PrjTask {
 
+  def apply(
+      tag: String,
+      title: String,
+      issueRef: String,
+      issueLink: String,
+      prRef: String,
+      prLink: String
+  ): PrjTask =
+    PrjTask(
+      tag,
+      if (title.isEmpty) None else Some(title),
+      if (issueRef.isEmpty) None else Some(issueRef),
+      if (issueLink.isEmpty) None else Some(issueLink),
+      if (prRef.isEmpty) None else Some(prRef),
+      if (prLink.isEmpty) None else Some(prLink)
+    )
+
   /** Logical defaults for a root ASF project. */
-  def asf(tag: String): PrjTask = asf(tag, tag.toLowerCase.capitalize, tag.toUpperCase, tag.toLowerCase)
+  def asf(tag: String): PrjTask = PrjTask(tag, None, None, None, None, None)
   def asf(tag: String, title: String, jira: String, repo: String): PrjTask = PrjTask(
     tag = tag,
     title = title,
     issueRef = s"$jira-",
     issueLink = s"https://issues.apache.org/jira/browse/$jira-",
     prRef = s"apache/$repo#",
-    prLink = s" https://github.com/apache/$repo/pull/"
+    prLink = s"https://github.com/apache/$repo/pull/"
   )
 }
 
