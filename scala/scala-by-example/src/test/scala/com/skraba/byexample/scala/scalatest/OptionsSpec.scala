@@ -8,7 +8,7 @@ import org.scalatest.matchers.should.Matchers
   * Remember, strings, [[Option]] and [[Array]] are also collections.
   *
   * @see
-  *   [[http://www.scalatest.org/user_guide/using_matchers]]
+  *   [[https://www.scalatest.org/user_guide/using_matchers]]
   */
 class OptionsSpec extends AnyFunSpecLike with Matchers {
 

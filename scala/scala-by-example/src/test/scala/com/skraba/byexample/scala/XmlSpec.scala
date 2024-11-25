@@ -13,7 +13,7 @@ import scala.xml.transform.{RewriteRule, RuleTransformer}
   */
 class XmlSpec extends AnyFunSpecLike with Matchers {
 
-  val InkNs: String = "http://www.inkscape.org/namespaces/inkscape"
+  val InkNs: String = "https://www.inkscape.org/namespaces/inkscape"
 
   val ExampleSvg: Elem = XML.loadString(s"""<svg xmlns:inkscape="$InkNs" width="200" height="200">
     |  <g style="display:inline" inkscape:groupmode="layer" inkscape:label="Layer1">
@@ -136,17 +136,17 @@ class XmlSpec extends AnyFunSpecLike with Matchers {
     it("should find an Inkscape layer") {
       val outNode: Seq[Node] = findLayers(inNode)
       outNode.map(_.toString) shouldBe Seq(
-        s"""<g style="display:none" inkscape:groupmode="layer" inkscape:label="My Layer" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"/>"""
+        s"""<g style="display:none" inkscape:groupmode="layer" inkscape:label="My Layer" xmlns:inkscape="https://www.inkscape.org/namespaces/inkscape"/>"""
       )
     }
 
     it("should find multiple Inkscape layers") {
       val outNode: Seq[Node] = findLayers(ExampleSvg)
       outNode.map(_.toString) shouldBe Seq(
-        """<g style="display:inline" inkscape:groupmode="layer" inkscape:label="Layer1" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">
+        """<g style="display:inline" inkscape:groupmode="layer" inkscape:label="Layer1" xmlns:inkscape="https://www.inkscape.org/namespaces/inkscape">
           |    <rect x="10" y="10" width="180" height="180" fill="blue"/>
           |  </g>""".stripMargin,
-        """<g style="display:none" inkscape:groupmode="layer" inkscape:label="Layer2" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape">
+        """<g style="display:none" inkscape:groupmode="layer" inkscape:label="Layer2" xmlns:inkscape="https://www.inkscape.org/namespaces/inkscape">
           |    <line x1="0" y1="0" x2="200" y2="200" stroke="red"/>
           |    <circle cx="100" cy="100" r="50" fill="green"/>
           |  </g>""".stripMargin

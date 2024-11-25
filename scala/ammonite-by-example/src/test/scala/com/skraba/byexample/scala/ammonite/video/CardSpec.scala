@@ -80,7 +80,7 @@ class CardSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 object CardSpec {
 
   /** SVG containing the canada flag. */
-  val SvgFlag: String = """<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 9600 4800">
+  val SvgFlag: String = """<svg xmlns="https://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 9600 4800">
     | <!-- https://upload.wikimedia.org/wikipedia/commons/c/cf/Flag_of_Canada.svg -->
     |	<title>Flag of Canada</title>
     |	<path fill="#f00" d="m0 0h2400l99 99h4602l99-99h2400v4800h-2400l-99-99h-4602l-99 99H0z"/>
@@ -102,7 +102,7 @@ object CardSpec {
   def svg(t: Double, dx: Double = 1920, dy: Double = 1080, pixelDx: Double = 50): String = {
     val it = t.toLong
     val dt = if (it % 2 == 0) t - it else 1 + it - t
-    s"""<svg xmlns="http://www.w3.org/2000/svg" width="$dx" height="$dy" viewBox="0 0 $dx $dy">
+    s"""<svg xmlns="https://www.w3.org/2000/svg" width="$dx" height="$dy" viewBox="0 0 $dx $dy">
       |	<rect fill="#fee" width="$dx" height="$dy"/>
       |	<rect fill="#f00" x="${dt * (dx - pixelDx)}" y="${dt * (dy - pixelDx)}" width="10" height="10"/>
       |</svg>""".stripMargin

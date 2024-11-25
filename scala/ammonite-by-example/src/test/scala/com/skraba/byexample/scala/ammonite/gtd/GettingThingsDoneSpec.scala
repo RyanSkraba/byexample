@@ -671,7 +671,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            !
            !* See this [example][20220214-1].
            !
-           ![20220214-1]: http://example.com/
+           ![20220214-1]: https://example.com/
            !""".stripMargin('!'))
 
       val updated = gtd.addWeek(None)
@@ -689,7 +689,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            !
            !* See this [example][20220214-1].
            !
-           ![20220214-1]: http://example.com/
+           ![20220214-1]: https://example.com/
            !""".stripMargin('!')
     }
 

@@ -17,7 +17,7 @@ object Svg {
     */
   val Attrs: scalatags.Text.svgAttrs.type = scalatags.Text.svgAttrs
 
-  val XmlNs = attr("xmlns") := "http://www.w3.org/2000/svg"
+  val XmlNs = attr("xmlns") := "https://www.w3.org/2000/svg"
 
   /** The Apache2 license header [[https://www.apache.org/licenses/LICENSE-2.0#apply]]
     */
@@ -29,7 +29,7 @@ object Svg {
        |  (the "License"); you may not use this file except in compliance with
        |  the License.  You may obtain a copy of the License at
        |
-       |      http://www.apache.org/licenses/LICENSE-2.0
+       |      https://www.apache.org/licenses/LICENSE-2.0
        |
        |  Unless required by applicable law or agreed to in writing, software
        |  distributed under the License is distributed on an "AS IS" BASIS,

@@ -14,7 +14,7 @@ import scala.util.{Failure, Success, Try}
   * @see
   *   [[https://www.scalatest.org/user_guide/using_matchers#expectedExceptions]]
   * @see
-  *   [[http://danielwestheide.com/blog/2012/12/26/the-neophytes-guide-to-scala-part-6-error-handling-with-try.html]]
+  *   [[https://danielwestheide.com/blog/the-neophytes-guide-to-scala-part-6-error-handling-with-try/]]
   */
 class TrySpec extends AnyFunSpecLike with Matchers {
 

@@ -9,7 +9,7 @@ import scala.util.{Either, Failure, Success}
 /** Handling options with the [[Either]] class.
   *
   * @see
-  *   [[http://www.scalatest.org/user_guide/using_matchers]]
+  *   [[https://www.scalatest.org/user_guide/using_matchers]]
   */
 class EitherSpec extends AnyFunSpecLike with Matchers {
 

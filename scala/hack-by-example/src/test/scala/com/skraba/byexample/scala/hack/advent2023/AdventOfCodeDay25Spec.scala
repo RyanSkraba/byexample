@@ -28,7 +28,7 @@ class AdventOfCodeDay25Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         * optimal minimum.
         *
         * @see
-        *   http://en.wikipedia.org/wiki/Karger%27s_algorithm
+        *   [[https://en.wikipedia.org/wiki/Karger%27s_algorithm]]
         * @return
         *   the vertices on the left then right of the graph, along with the edges connecting them that makes a minimum
         *   cut.

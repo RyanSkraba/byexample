@@ -89,7 +89,7 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
           |## 2023-01-01
           |""".stripMargin)
 
-      val (stdout, gtd) = link("http://example.com", "Example link", "--plain")
+      val (stdout, gtd) = link("https://example.com", "Example link", "--plain")
       stdout shouldBe """Commit:
                         |  git -C <TMP> add link.md &&
                         |      git -C <TMP> difftool --staged
@@ -109,11 +109,11 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
           ||--------|----------------------------|
           || 🔶TODO | [Example link][<TODAY>-1] |
           |
-          |[<TODAY>-1]: http://example.com "Example link"
+          |[<TODAY>-1]: https://example.com "Example link"
           |""".stripMargin
 
-      link("http://example.org/second", "Second")
-      val (_, gtd2) = link("http://example.net/third", "Third")
+      link("https://example.org/second", "Second")
+      val (_, gtd2) = link("https://example.net/third", "Third")
       gtd2 shouldBe
         """Weekly Status
           |==============================================================================
@@ -127,15 +127,15 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
           || 🔶TODO | [Second][<TODAY>-2]       |
           || 🔶TODO | [Third][<TODAY>-3]        |
           |
-          |[<TODAY>-1]: http://example.com "Example link"
-          |[<TODAY>-2]: http://example.org/second "Second"
-          |[<TODAY>-3]: http://example.net/third "Third"
+          |[<TODAY>-1]: https://example.com "Example link"
+          |[<TODAY>-2]: https://example.org/second "Second"
+          |[<TODAY>-3]: https://example.net/third "Third"
           |""".stripMargin
 
       // Rewrite the file but throw away one of the link references
       Output.writeAll(Output.lines().filter(!_.contains("example.org")).mkString("\n"))
-      link("http://example.fr/custom", "Custom", "19000101")
-      val (_, gtd3) = link("http://example.fr/fourth", "Fourth")
+      link("https://example.fr/custom", "Custom", "19000101")
+      val (_, gtd3) = link("https://example.fr/fourth", "Fourth")
       // The new link reference is inserted in the right place
       gtd3 shouldBe
         """Weekly Status
@@ -152,10 +152,10 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
           || 🔶TODO | [Custom][19000101-1]       |
           || 🔶TODO | [Fourth][<TODAY>-2]       |
           |
-          |[19000101-1]: http://example.fr/custom "Custom"
-          |[<TODAY>-1]: http://example.com "Example link"
-          |[<TODAY>-2]: http://example.fr/fourth "Fourth"
-          |[<TODAY>-3]: http://example.net/third "Third"
+          |[19000101-1]: https://example.fr/custom "Custom"
+          |[<TODAY>-1]: https://example.com "Example link"
+          |[<TODAY>-2]: https://example.fr/fourth "Fourth"
+          |[<TODAY>-3]: https://example.net/third "Third"
           |""".stripMargin
     }
   }

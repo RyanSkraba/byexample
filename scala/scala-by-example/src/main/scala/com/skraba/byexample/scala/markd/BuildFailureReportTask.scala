@@ -430,19 +430,19 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
       |
       |  ## YYYY-MM-DD The date the failure was investigated
       |
-      |  ### 1.99 CI build description http://buildlink
+      |  ### 1.99 CI build description https://buildlink
       |
-      |  Job or step description http://joblink
+      |  Job or step description https://joblink
       |  ISSUE-1234 Issue description
       |
       |  ```
       |  Optional extra information in a code block of any size
       |  ```
       |
-      |  Job or step description http://joblink
+      |  Job or step description https://joblink
       |  ISSUE-1234 Issue description
       |
-      |  Job or step description http://joblink
+      |  Job or step description https://joblink
       |  ISSUE-1234 Issue description
       |
       |By default, only the last investigation date is reported (one day).  If --all

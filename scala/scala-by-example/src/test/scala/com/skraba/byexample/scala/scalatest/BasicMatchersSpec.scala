@@ -6,7 +6,7 @@ import org.scalatest.matchers.should.Matchers
 /** Basic matchers and assertions in the FunSpec style.
   *
   * @see
-  *   [[http://www.scalatest.org/user_guide/using_matchers]]
+  *   [[https://www.scalatest.org/user_guide/using_matchers]]
   */
 class BasicMatchersSpec extends AnyFunSpecLike with Matchers {
 

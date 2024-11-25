@@ -40,7 +40,7 @@ class SvgSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterAll {
       val dstContents = dst.safeSlurp()
       dstContents.value shouldBe
         """<?xml version="1.0"?>
-          |<svg width="99" height="99" viewBox="0 0 99 99" xmlns="http://www.w3.org/2000/svg">
+          |<svg width="99" height="99" viewBox="0 0 99 99" xmlns="https://www.w3.org/2000/svg">
           |<g width="100"></g></svg>""".stripMargin.replaceAll("\n", "")
     }
   }

@@ -50,10 +50,10 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
       parseBuildTitle(" abc ") shouldBe ("", "abc", "", "")
       parseBuildTitle(" abc def ") shouldBe ("", "abc def", "", "")
       parseBuildTitle("abc def ghi") shouldBe ("abc", "def ghi", "", "")
-      parseBuildTitle("http://link") shouldBe ("", "", "", "http://link")
-      parseBuildTitle("abc http://link") shouldBe ("abc", "", "", "http://link")
-      parseBuildTitle(" abc http://link") shouldBe ("", "abc", "", "http://link")
-      parseBuildTitle("abc def ghi http://link") shouldBe ("abc", "def ghi", "", "http://link")
+      parseBuildTitle("https://link") shouldBe ("", "", "", "https://link")
+      parseBuildTitle("abc https://link") shouldBe ("abc", "", "", "https://link")
+      parseBuildTitle(" abc https://link") shouldBe ("", "abc", "", "https://link")
+      parseBuildTitle("abc def ghi https://link") shouldBe ("abc", "def ghi", "", "https://link")
       parseBuildTitle("abc def ghi://link") shouldBe ("abc", "def ghi://link", "", "")
       parseBuildTitle("abc def ghi xhttp://link") shouldBe ("abc", "def ghi xhttp://link", "", "")
     }
@@ -64,10 +64,10 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
       parseBuildTitle(" abc (xyz)") shouldBe ("", "abc", "xyz", "")
       parseBuildTitle(" abc def (xyz)") shouldBe ("", "abc def", "xyz", "")
       parseBuildTitle("abc def ghi (xyz)") shouldBe ("abc", "def ghi", "xyz", "")
-      parseBuildTitle("(xyz) http://link") shouldBe ("", "", "xyz", "http://link")
-      parseBuildTitle("abc (xyz) http://link") shouldBe ("abc", "", "xyz", "http://link")
-      parseBuildTitle(" abc (xyz) http://link") shouldBe ("", "abc", "xyz", "http://link")
-      parseBuildTitle("abc def ghi (xyz) http://link") shouldBe ("abc", "def ghi", "xyz", "http://link")
+      parseBuildTitle("(xyz) https://link") shouldBe ("", "", "xyz", "https://link")
+      parseBuildTitle("abc (xyz) https://link") shouldBe ("abc", "", "xyz", "https://link")
+      parseBuildTitle(" abc (xyz) https://link") shouldBe ("", "abc", "xyz", "https://link")
+      parseBuildTitle("abc def ghi (xyz) https://link") shouldBe ("abc", "def ghi", "xyz", "https://link")
       parseBuildTitle("abc def (xyz) ghi://link") shouldBe ("abc", "def (xyz) ghi://link", "", "")
       parseBuildTitle("abc def ghi (xyz) xhttp://link") shouldBe ("abc", "def ghi (xyz) xhttp://link", "", "")
     }
@@ -193,13 +193,13 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
     val Content = "# Synthetic Build Failures\n" +
       (for (date <- 20 to 11 by -1)
         yield s"""## 2024-05-$date
-             |### 1.0.1 #A$date Nightly build http://link/buildA$date
+             |### 1.0.1 #A$date Nightly build https://link/buildA$date
              |A1 https://link/buildA$date/A1
              |BUG-1 Describe bug 1
              |
              |A2 https://link/buildA$date/A2
              |BUG-2 Describe bug 2
-             |### 1.1.2 #B$date Nightly build http://link/buildB$date
+             |### 1.1.2 #B$date Nightly build https://link/buildB$date
              |B1 https://link/buildB$date/B1
              |BUG-1 Describe bug 1
              |

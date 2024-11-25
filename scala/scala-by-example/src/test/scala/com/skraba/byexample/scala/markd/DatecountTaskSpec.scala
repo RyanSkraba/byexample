@@ -97,7 +97,7 @@ class DatecountTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(DateCountdownTask)
             !| T+7 (1999-01-01)
             !| T+8 [1999-01-01]
             !| T+9 [1999-01-01][l1]
-            !| T+10 **[1999-01-01](http://l2)**
+            !| T+10 **[1999-01-01](https://l2)**
             !| T+11 1999-01-01 Lots of other stuff
             !| Lots of other stuff T+12 1999-01-01
             !| *T+X* 2000-01-02
@@ -126,7 +126,7 @@ class DatecountTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(DateCountdownTask)
           !| T+7 (2000-01-08)                    |
           !| T+8 [2000-01-09]                    |
           !| T+9 [2000-01-10][l1]                |
-          !| T+10 **[2000-01-11](http://l2)**    |
+          !| T+10 **[2000-01-11](https://l2)**   |
           !| T+11 2000-01-12 Lots of other stuff |
           !| Lots of other stuff T+12 2000-01-13 |
           !| *T+1* 2000-01-02                    |
@@ -158,7 +158,7 @@ class DatecountTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(DateCountdownTask)
              !|  (1999-01-01) T+7
              !| [1999-01-01] T+8
              !| [1999-01-01] T+9[l1]
-             !| **[1999-01-01] T+10(http://l2)**
+             !| **[1999-01-01] T+10(https://l2)**
              !| 1999-01-01 T+11 Lots of other stuff
              !| Lots of other stuff 1999-01-01 T+12
              !| 2000-01-02 *T+X*
