@@ -54,10 +54,7 @@ package object markd {
       * @return
       *   The builder passed in.
       */
-    def build(
-        sb: StringBuilder = new StringBuilder(),
-        cfg: FormatCfg = FormatCfg.Default
-    ): StringBuilder = sb
+    def build(sb: StringBuilder = new StringBuilder(), cfg: FormatCfg = FormatCfg.Default): StringBuilder = sb
   }
 
   /** A simple text paragraph of Markdown, containing any text content.
@@ -66,17 +63,13 @@ package object markd {
     *   the text contents for the paragraph.
     */
   case class Paragraph(content: String) extends Markd {
-    override def build(
-        sb: StringBuilder = new StringBuilder(),
-        cfg: FormatCfg = FormatCfg.Default
-    ): StringBuilder = {
+    override def build(sb: StringBuilder = new StringBuilder(), cfg: FormatCfg = FormatCfg.Default): StringBuilder = {
       sb ++= content.trim() ++= "\n"
     }
 
     /** Transforms this paragraph into another more specific [[Markd]] type if possible.
       */
-    def refine(): Markd =
-      Table.parse(content).getOrElse(this)
+    def refine(): Markd = Table.parse(content).getOrElse(this)
 
   }
 
@@ -90,10 +83,7 @@ package object markd {
     *   the contents of the comment.
     */
   case class Comment(content: String) extends Markd {
-    override def build(
-        sb: StringBuilder = new StringBuilder(),
-        cfg: FormatCfg = FormatCfg.Default
-    ): StringBuilder = {
+    override def build(sb: StringBuilder = new StringBuilder(), cfg: FormatCfg = FormatCfg.Default): StringBuilder = {
       sb ++= "<!--" ++= content ++= "-->\n"
     }
   }
@@ -113,22 +103,16 @@ package object markd {
 
     lazy val builtContent: String = (code_type, content) match {
       case ("json", json) =>
-        Try(Json.prettyPrint(Json.parse(json)) + "\n")
-          .getOrElse(json)
+        Try(Json.prettyPrint(Json.parse(json)) + "\n").getOrElse(json)
       case ("jsonline" | "jsonlines" | "json line" | "json lines", jsonline) =>
         jsonline
           .split("\n")
-          .map { json =>
-            Try(Json.stringify(Json.parse(json))).getOrElse(json)
-          }
+          .map { json => Try(Json.stringify(Json.parse(json))).getOrElse(json) }
           .mkString("", "\n", "\n")
       case _ => content
     }
 
-    override def build(
-        sb: StringBuilder = new StringBuilder(),
-        cfg: FormatCfg = FormatCfg.Default
-    ): StringBuilder = {
+    override def build(sb: StringBuilder = new StringBuilder(), cfg: FormatCfg = FormatCfg.Default): StringBuilder = {
       sb ++= "```" ++= code_type ++= "\n" ++= builtContent ++= "```\n"
     }
   }
@@ -146,11 +130,7 @@ package object markd {
     * @param title
     *   optionally a title or description of the link for hover text
     */
-  case class LinkRef(
-      ref: String,
-      url: Option[String] = None,
-      title: Option[String] = None
-  ) extends Markd {
+  case class LinkRef(ref: String, url: Option[String] = None, title: Option[String] = None) extends Markd {
 
     /** Don't space between LinkRefs */
     override def buildPreSpace(
@@ -162,15 +142,10 @@ package object markd {
       case _                      => super.buildPreSpace(sb, prev, cfg)
     }
 
-    override def build(
-        sb: StringBuilder = new StringBuilder(),
-        cfg: FormatCfg = FormatCfg.Default
-    ): StringBuilder = {
+    override def build(sb: StringBuilder = new StringBuilder(), cfg: FormatCfg = FormatCfg.Default): StringBuilder = {
       sb ++= "[" ++= ref ++= "]:"
       url.filterNot(_.isBlank).map(sb ++= " " ++= _)
-      title
-        .filterNot(_.isBlank)
-        .map(sb ++= " \"" ++= LinkRef.escape(_) += '"')
+      title.filterNot(_.isBlank).map(sb ++= " \"" ++= LinkRef.escape(_) += '"')
       sb ++= "\n"
     }
   }
@@ -190,28 +165,21 @@ package object markd {
 
     def apply(ref: String, url: String): LinkRef = LinkRef(ref, Some(url), None)
 
-    def apply(ref: String, url: String, title: String): LinkRef =
-      LinkRef(ref, Some(url), Some(title))
+    def apply(ref: String, url: String, title: String): LinkRef = LinkRef(ref, Some(url), Some(title))
 
-    def parse(content: String): Option[LinkRef] = {
-      LinkRef.LinkRegex
-        .findFirstMatchIn(content)
-        .map(m =>
-          LinkRef(
-            m.group("ref"),
-            Option(m.group("url")).filter(!_.isBlank).map(_.trim),
-            Option(m.group("title")).map(LinkRef.unescape).filter(!_.isBlank)
-          )
+    def parse(content: String): Option[LinkRef] = LinkRef.LinkRegex
+      .findFirstMatchIn(content)
+      .map(m =>
+        LinkRef(
+          m.group("ref"),
+          Option(m.group("url")).filter(!_.isBlank).map(_.trim),
+          Option(m.group("title")).map(LinkRef.unescape).filter(!_.isBlank)
         )
-    }
+      )
 
-    def escape(in: String): String = in
-      .replace("\\", "\\\\")
-      .replace("\"", "\\\"")
+    def escape(in: String): String = in.replace("\\", "\\\\").replace("\"", "\\\"")
 
-    def unescape(in: String): String = in
-      .replace("\\\\", "\\")
-      .replace("\\\"", "\"")
+    def unescape(in: String): String = in.replace("\\\\", "\\").replace("\\\"", "\"")
   }
 
   /** An element that can contain other elements. */
@@ -268,9 +236,7 @@ package object markd {
       * @return
       *   A copy of this [[MultiMarkd]] with the replaced subelements
       */
-    def replaceIn(
-        filter: Boolean = false
-    )(pf: PartialFunction[(Option[T], Int), Seq[T]]): Self = {
+    def replaceIn(filter: Boolean = false)(pf: PartialFunction[(Option[T], Int), Seq[T]]): Self = {
       // Elements undefined by the partial function should either be filtered from the results
       // or passed through without modification.
       val unmatched: PartialFunction[(Option[T], Int), Seq[T]] =
@@ -301,25 +267,21 @@ package object markd {
       * @return
       *   A copy of this [[MultiMarkd]] with the replaced subelements
       */
-    def flatMapFirstIn(
-        ifNotFound: => Seq[T] = Seq.empty,
-        replace: Boolean = false
-    )(pf: PartialFunction[T, Seq[T]]): Self = {
+    def flatMapFirstIn(ifNotFound: => Seq[T] = Seq.empty, replace: Boolean = false)(
+        pf: PartialFunction[T, Seq[T]]
+    ): Self = {
       copyMds(
         Option(mds.indexWhere(pf.isDefinedAt))
           .filter(_ != -1)
           .map((_, mds))
           .orElse {
-            val ifNotFoundReplacement =
-              if (replace) ifNotFound else mds ++ ifNotFound
+            val ifNotFoundReplacement = if (replace) ifNotFound else mds ++ ifNotFound
             // First fallback, use the ifNotFound instead.
             Option(ifNotFoundReplacement.indexWhere(pf.isDefinedAt))
               .filter(_ != -1)
               .map((_, ifNotFoundReplacement))
           }
-          .map { case (idx, mds) =>
-            mds.patch(idx, pf(mds(idx)), 1)
-          }
+          .map { case (idx, mds) => mds.patch(idx, pf(mds(idx)), 1) }
           .getOrElse(mds)
       )
     }
@@ -341,12 +303,8 @@ package object markd {
       * @return
       *   A copy of this [[MultiMarkd]] with the replaced subelements
       */
-    def mapFirstIn(ifNotFound: => Seq[T] = Seq.empty, replace: Boolean = false)(
-        pf: PartialFunction[T, T]
-    ): Self =
-      flatMapFirstIn(ifNotFound = ifNotFound, replace = replace)(
-        pf.andThen(Seq(_))
-      )
+    def mapFirstIn(ifNotFound: => Seq[T] = Seq.empty, replace: Boolean = false)(pf: PartialFunction[T, T]): Self =
+      flatMapFirstIn(ifNotFound = ifNotFound, replace = replace)(pf.andThen(Seq(_)))
 
     /** Copies this element, but mapping the first matching subelement to a new value.
       *
@@ -387,12 +345,10 @@ package object markd {
 
     def replaceRecursively(pf: PartialFunction[Markd, Markd]): Self = {
       replaceIn() {
-        case (Some(md), _) if pf.isDefinedAt(md) =>
-          Seq(pf.apply(md).asInstanceOf[T])
-        case (Some(md: MultiMarkd[_]), _) =>
-          Seq(md.replaceRecursively(pf).asInstanceOf[T])
-        case (Some(md), _) => Seq(md)
-        case (None, _)     => Seq.empty
+        case (Some(md), _) if pf.isDefinedAt(md) => Seq(pf.apply(md).asInstanceOf[T])
+        case (Some(md: MultiMarkd[_]), _)        => Seq(md.replaceRecursively(pf).asInstanceOf[T])
+        case (Some(md), _)                       => Seq(md)
+        case (None, _)                           => Seq.empty
       }
     }
   }
@@ -440,10 +396,7 @@ package object markd {
       }
     }
 
-    override def build(
-        sb: StringBuilder = new StringBuilder(),
-        cfg: FormatCfg = FormatCfg.Default
-    ): StringBuilder = {
+    override def build(sb: StringBuilder = new StringBuilder(), cfg: FormatCfg = FormatCfg.Default): StringBuilder = {
       level match {
         case 0 => // No title section for a document.
         case 1 => sb ++= title ++= "\n" ++= "=" * 78 ++= "\n"
@@ -487,8 +440,7 @@ package object markd {
         "title_sl"
       )
 
-    def apply(level: Int, title: String, sub: Markd*): Header =
-      Header(title, level, sub)
+    def apply(level: Int, title: String, sub: Markd*): Header = Header(title, level, sub)
 
     /** Extract the level and title from a matching header. */
     private[this] def extractHeader(m: Regex.Match): Header = {
@@ -507,14 +459,11 @@ package object markd {
       val pass1: Iterator[Markd] = Pass1Regex
         .findAllMatchIn(content)
         .flatMap {
-          case Pass1Regex(_, _, _, code_type, code, _*) if code != null =>
-            Option(Code(code_type, code))
-          case Pass1Regex(_, comment, _*) if comment != null =>
-            Option(Comment(comment))
-          case Pass1Regex(_, _, _, _, _, _, _, linkRef, _*) if linkRef != null =>
-            LinkRef.parse(linkRef)
-          case Pass1Regex(all, _*) if !all.isBlank => Option(Paragraph(all))
-          case _                                   => None
+          case Pass1Regex(_, _, _, code_type, code, _*) if code != null        => Option(Code(code_type, code))
+          case Pass1Regex(_, comment, _*) if comment != null                   => Option(Comment(comment))
+          case Pass1Regex(_, _, _, _, _, _, _, linkRef, _*) if linkRef != null => LinkRef.parse(linkRef)
+          case Pass1Regex(all, _*) if !all.isBlank                             => Option(Paragraph(all))
+          case _                                                               => None
         }
 
       // The second pass splits Headers out of the paragraphs
@@ -559,8 +508,7 @@ package object markd {
           // then just return, and it can be added to the current node's parent.
           case Some(_: Header) => (node, flat)
           // If the next element in the list is any other Markd, then just add it to this node.
-          case Some(next) =>
-            treeify(node.copy(mds = node.mds :+ next), flat.tail)
+          case Some(next) => treeify(node.copy(mds = node.mds :+ next), flat.tail)
           // Otherwise processing is complete.
           case _ => (node, Seq.empty)
         }
@@ -569,9 +517,7 @@ package object markd {
       // Organize all of the nodes inside the tree.
       def organizeHeaderContents(node: Header): Header = {
         val (others, linkRefs, headers) = node.mds
-          .foldRight(
-            (List.empty[Markd], List.empty[LinkRef], List.empty[Header])
-          ) { case (md, (xs1, xs2, xs3)) =>
+          .foldRight((List.empty[Markd], List.empty[LinkRef], List.empty[Header])) { case (md, (xs1, xs2, xs3)) =>
             md match {
               case header: Header =>
                 (xs1, xs2, organizeHeaderContents(header) :: xs3)
@@ -623,26 +569,21 @@ package object markd {
     lazy val rowSize: Int = mds.length
 
     /** The maximum cell string length for each column, not including margins */
-    lazy val widths: Seq[Int] = Seq.tabulate(colSize) { i =>
-      Math.max(1, mds.map(_(i).length).max)
-    }
+    lazy val widths: Seq[Int] = Seq.tabulate(colSize) { i => Math.max(1, mds.map(_(i).length).max) }
 
     /** @param row
       *   The index of the row to get from the table, noting that zero is the header row.
       * @return
       *   The row, or an empty row if the index is out of bounds.
       */
-    def apply(row: Int): TableRow =
-      mds.applyOrElse(row, (_: Int) => TableRow.from())
+    def apply(row: Int): TableRow = mds.applyOrElse(row, (_: Int) => TableRow.from())
 
     /** @param rowHead
       *   The row to get from the table by matching the first cell, including the header row.
       * @return
       *   The row, or an empty row if a matching row can't be found.
       */
-    def apply(rowHead: String): TableRow = apply(
-      mds.indexWhere(_.head == rowHead)
-    )
+    def apply(rowHead: String): TableRow = apply(mds.indexWhere(_.head == rowHead))
 
     /** @param column
       *   The index of the column to get from the table
@@ -660,8 +601,7 @@ package object markd {
       * @return
       *   The cell value, or an empty string if the column is out of bounds or the row header can't be found
       */
-    def apply(column: Int, rowHead: String): String =
-      apply(rowHead).apply(column)
+    def apply(column: Int, rowHead: String): String = apply(rowHead).apply(column)
 
     /** @param columnHead
       *   The row to get from the table by matching the first cell in the header.
@@ -676,10 +616,7 @@ package object markd {
       else apply(rowHead).apply(colIndex)
     }
 
-    override def build(
-        sb: StringBuilder = new StringBuilder(),
-        cfg: FormatCfg = FormatCfg.Default
-    ): StringBuilder = {
+    override def build(sb: StringBuilder = new StringBuilder(), cfg: FormatCfg = FormatCfg.Default): StringBuilder = {
       // The column header line
       mds.head.buildRow(aligns, widths, sb, cfg)
 
@@ -714,11 +651,7 @@ package object markd {
       * @return
       *   A table with the one cell updated to the given value
       */
-    def updated(
-        column: Int,
-        row: Int,
-        cell: String
-    ): Table = {
+    def updated(column: Int, row: Int, cell: String): Table = {
       val cellsUpdated: Seq[String] =
         mds.lift
           .apply(row)
@@ -752,11 +685,7 @@ package object markd {
       * @return
       *   A table with the one cell updated to the given value
       */
-    def updated(
-        column: Int,
-        rowHead: String,
-        cell: String
-    ): Table = {
+    def updated(column: Int, rowHead: String, cell: String): Table = {
       val rowIndex = mds.indexWhere(_.head == rowHead)
       if (rowIndex == -1)
         updated(0, mds.length, rowHead).updated(column, mds.length, cell)
@@ -775,15 +704,10 @@ package object markd {
       * @return
       *   A table with the one cell updated to the given value
       */
-    def updated(
-        columnHead: String,
-        rowHead: String,
-        cell: String
-    ): Table = {
+    def updated(columnHead: String, rowHead: String, cell: String): Table = {
       val colIndex = mds.head.cells.indexOf(columnHead)
       if (colIndex == -1)
-        updated(mds.head.cells.length, 0, columnHead)
-          .updated(mds.head.cells.length, rowHead, cell)
+        updated(mds.head.cells.length, 0, columnHead).updated(mds.head.cells.length, rowHead, cell)
       else updated(colIndex, rowHead, cell)
     }
   }
@@ -797,8 +721,7 @@ package object markd {
     val AlignmentCellRegex: Regex = raw"^\s*(:-+:|---+|:--+|-+-:)\s*$$".r
 
     /** Shortcut method just for the varargs */
-    def from(aligns: Seq[Align], mds: TableRow*): Table =
-      Table(aligns, mds)
+    def from(aligns: Seq[Align], mds: TableRow*): Table = Table(aligns, mds)
 
     /** Determines if some content can be reasonably parsed into a [[Table]].
       * @param content
@@ -815,8 +738,7 @@ package object markd {
       // from each row.
       val lines =
         if (!prelines(1).headOption.contains("")) prelines
-        else
-          prelines.map(xs => if (xs.headOption.contains("")) xs.drop(1) else xs)
+        else prelines.map(xs => if (xs.headOption.contains("")) xs.drop(1) else xs)
 
       // Check the second row for alignments.
       val aligns: Seq[Align] = lines(1).flatMap {
@@ -830,8 +752,7 @@ package object markd {
       // If the alignment row removed any elements, then this is not a Table
       if (aligns.length < lines(1).length) return None
 
-      val rows =
-        lines.patch(1, Seq.empty, 1).map(_.map(_.trim)).map(TableRow.apply)
+      val rows = lines.patch(1, Seq.empty, 1).map(_.map(_.trim)).map(TableRow.apply)
 
       Some(Table(aligns, rows))
     }
@@ -856,14 +777,7 @@ package object markd {
     def apply(i: Int): String = cells.applyOrElse(i, (_: Int) => "")
 
     def updated(i: Int, c: String): TableRow =
-      copy(cells =
-        cells
-          .padTo(i + 1, "")
-          .updated(i, c)
-          .reverse
-          .dropWhile(_.isEmpty)
-          .reverse
-      )
+      copy(cells = cells.padTo(i + 1, "").updated(i, c).reverse.dropWhile(_.isEmpty).reverse)
 
     /** Write this element to the builder.
       *
@@ -914,29 +828,21 @@ package object markd {
     /** If sorting, provides a key to use from the linkref, allowing custom grouping and deduplication of the links. The
       * linkref will be sorted and deduplicated based on this key. By default, the [[LinkRef.ref]] is used directly.
       */
-    def linkSorter(): PartialFunction[LinkRef, (String, LinkRef)] = { case lr =>
-      lr.ref -> lr
-    }
+    def linkSorter(): PartialFunction[LinkRef, (String, LinkRef)] = { case lr => lr.ref -> lr }
 
     /** Clean up the references at the end of a section. */
     def linkCleaner(links: Seq[LinkRef]): Seq[LinkRef] = if (sortLinkRefs) {
       // Clean the links.
-      links
-        .map(linkSorter().orElse { case lr => (lr.ref, lr) })
-        .toMap
-        .toSeq
-        .sortBy(_._1)
-        .map(_._2)
+      links.map(linkSorter().orElse { case lr => (lr.ref, lr) }).toMap.toSeq.sortBy(_._1).map(_._2)
     } else links
 
     /** Apply this configuration to an element, reparsing it as a clean model.
       */
-    def clean(md: Markd, cfg: FormatCfg = FormatCfg.Default): Header =
-      Header.parse(md.build().toString, this)
+    def clean(md: Markd, cfg: FormatCfg = FormatCfg.Default): Header = Header.parse(md.build().toString, this)
   }
 
   /** Helps write the model to the output. */
-  class FormatCfg() {
+  class FormatCfg {
     // TODO: Minimise
   }
 
