@@ -31,11 +31,10 @@ class AdventOfCodeDay3Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
 
     def priorities(in: String*): Long = in.flatMap(findDup).map(priority).sum
 
-    def badge(in: String*): Iterator[Char] = {
-      in.grouped(3)
-        .map(elves => elves.tail.foldLeft(elves.head)((acc, elf) => acc.intersect(elf)))
-        .flatMap(_.headOption)
-    }
+    def badge(in: String*): Iterator[Char] = in
+      .grouped(3)
+      .map(elves => elves.tail.foldLeft(elves.head)((acc, elf) => acc.intersect(elf)))
+      .flatMap(_.headOption)
 
     def badgePriorities(in: String*): Long = badge(in: _*).map(priority).sum
   }
@@ -69,11 +68,15 @@ class AdventOfCodeDay3Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
 
   describe("🔑 Solution 🔑") {
     lazy val input = puzzleInput("Day3Input.txt")
-    it("should have answers") {
-      priorities(input: _*) shouldBe decryptLong("zOWo23t75p2Y4PYlepCTtA==")
-      badgePriorities(input: _*) shouldBe decryptLong(
-        "WSPQaXm5LkMz/vyB6UDUzw=="
-      )
+    lazy val answer1 = decryptLong("zOWo23t75p2Y4PYlepCTtA==")
+    lazy val answer2 = decryptLong("WSPQaXm5LkMz/vyB6UDUzw==")
+
+    it("should have answers for part 1") {
+      priorities(input: _*) shouldBe answer1
+    }
+
+    it("should have answers for part 2") {
+      badgePriorities(input: _*) shouldBe answer2
     }
   }
 }

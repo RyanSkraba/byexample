@@ -48,12 +48,8 @@ class AdventOfCodeDay6Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
   describe("🔑 Solution 🔑") {
     lazy val input = puzzleInput("Day6Input.txt")
     it("should have answers") {
-      findStartOfPacket(input.head) shouldBe decryptLong(
-        "W2KLC0gdFUj1aWMdI+s+dQ=="
-      )
-      findStartOfMessage(input.head) shouldBe decryptLong(
-        "v0oqAeLOT9J9U5cV0NlTdQ=="
-      )
+      findStartOfPacket(input.head) shouldBe decryptLong("W2KLC0gdFUj1aWMdI+s+dQ==")
+      findStartOfMessage(input.head) shouldBe decryptLong("v0oqAeLOT9J9U5cV0NlTdQ==")
     }
   }
 }

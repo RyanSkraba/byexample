@@ -91,31 +91,33 @@ class AdventOfCodeDay2Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
     it("should match the naive and other solution") {
       for (them <- Seq("A", "B", "C"))
         for (me <- Seq("X", "Y", "Y")) {
-          naiveStrategyGuide1(s"$them $me") shouldBe strategyGuide1(
-            s"$them $me"
-          )
-          naiveStrategyGuide2(s"$them $me") shouldBe strategyGuide2(
-            s"$them $me"
-          )
+          naiveStrategyGuide1(s"$them $me") shouldBe strategyGuide1(s"$them $me")
+          naiveStrategyGuide2(s"$them $me") shouldBe strategyGuide2(s"$them $me")
         }
     }
   }
 
   describe("🔑 Solution 🔑") {
     lazy val input = puzzleInput("Day2Input.txt")
-    it("should have answers") {
-      Solution.naiveStrategyGuide1(input: _*) shouldBe decryptLong(
-        "6W+UuLoK9Zp8PjoelpBgXQ=="
-      )
-      Solution.naiveStrategyGuide2(input: _*) shouldBe decryptLong(
-        "c9Yx0YWDTw2rZGa2xsHV3w=="
-      )
-      Solution.strategyGuide1(input: _*) shouldBe decryptLong(
-        "6W+UuLoK9Zp8PjoelpBgXQ=="
-      )
-      Solution.strategyGuide2(input: _*) shouldBe decryptLong(
-        "c9Yx0YWDTw2rZGa2xsHV3w=="
-      )
+    lazy val answer1 = decryptLong("6W+UuLoK9Zp8PjoelpBgXQ==")
+    lazy val answer2 = decryptLong("c9Yx0YWDTw2rZGa2xsHV3w==")
+
+    describe("naive") {
+      it("should have answers for part 1") {
+        naiveStrategyGuide1(input: _*) shouldBe answer1
+      }
+
+      it("should have answers for part 2") {
+        naiveStrategyGuide2(input: _*) shouldBe answer2
+      }
+    }
+
+    it("should have answers for part 1") {
+      strategyGuide1(input: _*) shouldBe answer1
+    }
+
+    it("should have answers for part 2") {
+      strategyGuide2(input: _*) shouldBe answer2
     }
   }
 }

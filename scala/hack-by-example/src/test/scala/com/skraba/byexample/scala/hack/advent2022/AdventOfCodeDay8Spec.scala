@@ -91,16 +91,8 @@ class AdventOfCodeDay8Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
         |""".stripMargin.split("\n").filter(_.nonEmpty)
 
     it("should match the puzzle description") {
-      visibilityCount(
-        input.length,
-        input.head.length,
-        isVisibleNaive(input: _*)
-      ) shouldBe 21
-      visibilityCount(
-        input.length,
-        input.head.length,
-        isVisibleWithMemo(input: _*)
-      ) shouldBe 21
+      visibilityCount(input.length, input.head.length, isVisibleNaive(input: _*)) shouldBe 21
+      visibilityCount(input.length, input.head.length, isVisibleWithMemo(input: _*)) shouldBe 21
       maxSceneryScore(input: _*) shouldBe 8
     }
   }
@@ -112,9 +104,7 @@ class AdventOfCodeDay8Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
       val rnd = new Random(i)
       val w = rnd.nextInt(100)
       val h = rnd.nextInt(100)
-      val example: Seq[String] =
-        for (_ <- 0 until w)
-          yield rnd.alphanumeric.filter(_.isDigit).take(h).mkString
+      val example: Seq[String] = for (_ <- 0 until w) yield rnd.alphanumeric.filter(_.isDigit).take(h).mkString
 
       it(s"should match for seed $i ($h, $w)") {
         val map1 = visibilityMap(h, w, isVisibleNaive(example: _*))
@@ -127,19 +117,13 @@ class AdventOfCodeDay8Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
   describe("🔑 Solution 🔑") {
     lazy val input = puzzleInput("Day8Input.txt").filter(_.nonEmpty)
     it("should have answers") {
-      visibilityCount(
-        input.length,
-        input.head.length,
-        isVisibleNaive(input: _*)
-      ) shouldBe decryptLong("slS4sw2FojZ+hy6T6tthsw==")
-      visibilityCount(
-        input.length,
-        input.head.length,
-        isVisibleWithMemo(input: _*)
-      ) shouldBe decryptLong("slS4sw2FojZ+hy6T6tthsw==")
-      maxSceneryScore(input: _*) shouldBe decryptLong(
-        "m0GxsYZCEQ6pm66DvtRDsg=="
+      visibilityCount(input.length, input.head.length, isVisibleNaive(input: _*)) shouldBe decryptLong(
+        "slS4sw2FojZ+hy6T6tthsw=="
       )
+      visibilityCount(input.length, input.head.length, isVisibleWithMemo(input: _*)) shouldBe decryptLong(
+        "slS4sw2FojZ+hy6T6tthsw=="
+      )
+      maxSceneryScore(input: _*) shouldBe decryptLong("m0GxsYZCEQ6pm66DvtRDsg==")
     }
   }
 }

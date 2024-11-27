@@ -39,11 +39,9 @@ class AdventOfCodeDay4Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
         case _ => None
       }
 
-    def part1(in: String*): Long =
-      in.flatMap(parse).map(_.overlapsEntirely).count(identity)
+    def part1(in: String*): Long = in.flatMap(parse).map(_.overlapsEntirely).count(identity)
 
-    def part2(in: String*): Long =
-      in.flatMap(parse).map(_.overlaps).count(identity)
+    def part2(in: String*): Long = in.flatMap(parse).map(_.overlaps).count(identity)
   }
 
   import Solution._
@@ -68,9 +66,15 @@ class AdventOfCodeDay4Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
 
   describe("🔑 Solution 🔑") {
     lazy val input = puzzleInput("Day4Input.txt")
-    it("should have answers") {
-      part1(input: _*) shouldBe decryptLong("KDeM8M7N+wUnLw/ar/peog==")
-      part2(input: _*) shouldBe decryptLong("U8p/O2bw9Ln6lEyRPsYbvA==")
+    lazy val answer1 = decryptLong("KDeM8M7N+wUnLw/ar/peog==")
+    lazy val answer2 = decryptLong("U8p/O2bw9Ln6lEyRPsYbvA==")
+
+    it("should have answers for part 1") {
+      part1(input: _*) shouldBe answer1
+    }
+
+    it("should have answers for part 2") {
+      part2(input: _*) shouldBe answer2
     }
   }
 }

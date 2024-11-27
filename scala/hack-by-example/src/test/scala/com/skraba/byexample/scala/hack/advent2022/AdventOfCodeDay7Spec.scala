@@ -28,12 +28,7 @@ class AdventOfCodeDay7Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
     val ReCd: Regex = """\$ cd (.+)""".r
     val ReFile: Regex = """(\d+) (.+)""".r
 
-    case class Dir(
-        name: String,
-        size: Long = 0,
-        files: Seq[(String, Long)] = Nil,
-        subs: Seq[Dir] = Nil
-    ) {
+    case class Dir(name: String, size: Long = 0, files: Seq[(String, Long)] = Nil, subs: Seq[Dir] = Nil) {
       def flatten(): Seq[Dir] = this +: subs.flatMap(_.flatten())
     }
 
@@ -119,12 +114,7 @@ class AdventOfCodeDay7Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
       root.subs(1).name shouldBe "d"
       root.subs(1).size shouldBe 24933642
       root.subs(1).files.map(_._1) shouldBe Seq("j", "d.log", "d.ext", "k")
-      root.subs(1).files.map(_._2) shouldBe Seq(
-        4060174,
-        8033020,
-        5626152,
-        7214296
-      )
+      root.subs(1).files.map(_._2) shouldBe Seq(4060174, 8033020, 5626152, 7214296)
       root.subs(1).subs shouldBe empty
 
       part1(root.subs, 100000) shouldBe 95437
@@ -139,10 +129,7 @@ class AdventOfCodeDay7Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
       part1(root.subs, 100000) shouldBe decryptLong("PmSVPFReCpuUfoUxHnatzQ==")
 
       root.size shouldBe decryptLong("b3TkteyegwfIDDAmeKcOUg==")
-      part2(
-        root,
-        30000000 - (70000000 - root.size)
-      ) shouldBe decryptLong("zTbCXe3N/Av04hE13TdiMw==")
+      part2(root, 30000000 - (70000000 - root.size)) shouldBe decryptLong("zTbCXe3N/Av04hE13TdiMw==")
     }
   }
 }

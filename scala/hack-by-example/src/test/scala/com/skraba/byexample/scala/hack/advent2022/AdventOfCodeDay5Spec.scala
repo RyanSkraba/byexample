@@ -38,9 +38,7 @@ class AdventOfCodeDay5Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
 
     /** @return The crate movement instructions from the input */
     def parseMoves(in: String*): Seq[(Int, Int, Int)] = {
-      in.collect { case Mover(n, src, dst) =>
-        (n.toInt, src.toInt - 1, dst.toInt - 1)
-      }
+      in.collect { case Mover(n, src, dst) => (n.toInt, src.toInt - 1, dst.toInt - 1) }
     }
 
     def part1(crates: Seq[String], moves: Seq[(Int, Int, Int)]): Seq[String] = {

@@ -9,11 +9,11 @@ import scala.collection.mutable
 
 /** =Advent of Code 2022 Day 11 Solutions in scala=
   *
-  * Input:
+  * Input: Monkeys throwing things to each other according to their rules
   *
-  * Part 1:
+  * Part 1: The multiplication of the two most active monkeys
   *
-  * Part 2:
+  * Part 2: The multiplication of the two most active monkeys, with a slight modification to the rules
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/11]]
@@ -22,15 +22,8 @@ class AdventOfCodeDay11Spec extends AnyFunSpecLike with Matchers with BeforeAndA
 
   object Solution {
 
-    case class Monkey(
-        modVal: Int,
-        modZero: Int,
-        modNonZero: Int,
-        worryFn: Long => Long,
-        items: Seq[Long]
-    ) {
+    case class Monkey(modVal: Int, modZero: Int, modNonZero: Int, worryFn: Long => Long, items: Seq[Long]) {
       def toQueue: mutable.Queue[Long] = mutable.Queue(items: _*)
-
     }
 
     case class Monkeys(ms: Seq[Monkey]) {
@@ -59,6 +52,7 @@ class AdventOfCodeDay11Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         this
       }
     }
+
     def part1(monkeys: Monkey*): Long = {
       Monkeys(monkeys)
         .processMonkey(20, 3)

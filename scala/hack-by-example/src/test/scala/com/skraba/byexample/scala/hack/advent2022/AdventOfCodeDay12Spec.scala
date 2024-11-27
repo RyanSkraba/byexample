@@ -24,15 +24,9 @@ class AdventOfCodeDay12Spec extends AnyFunSpecLike with Matchers with BeforeAndA
   object Solution {
 
     /** A string containing all of the character height as rows concatenated. */
-    case class Terrain(
-        map: String,
-        h: Int,
-        w: Int,
-        src: Int,
-        dst: Int
-    ) {
+    case class Terrain(map: String, h: Int, w: Int, src: Int, dst: Int) {
 
-      def part1(): Long = bfs(true)(src)
+      def part1(): Long = bfs()(src)
 
       def part2(): Long = {
         val dx = bfs(false)
@@ -60,18 +54,13 @@ class AdventOfCodeDay12Spec extends AnyFunSpecLike with Matchers with BeforeAndA
                 // If we've found the source, great, we know the number of steps
                 if (stopAtSource && pos == src) return dx
                 // Try looking at the north, south, east and west now.
-                bfs.enqueue(
-                  (pos - w, pos),
-                  (pos + w, pos),
-                  (pos - 1, pos),
-                  (pos + 1, pos)
-                )
+                bfs.enqueue((pos - w, pos), (pos + w, pos), (pos - 1, pos), (pos + 1, pos))
               }
             }
           }
         }
 
-        // Return all of the distances found
+        // Return all the distances found
         dx
       }
     }
