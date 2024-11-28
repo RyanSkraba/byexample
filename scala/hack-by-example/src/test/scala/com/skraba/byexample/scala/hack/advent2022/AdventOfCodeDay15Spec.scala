@@ -23,8 +23,7 @@ class AdventOfCodeDay15Spec extends AnyFunSpecLike with Matchers with BeforeAndA
 
   object Solution {
 
-    val Scan =
-      "Sensor at x=(.+), y=(.+): closest beacon is at x=(.+), y=(.+)".r: Regex
+    val Scan = "Sensor at x=(.+), y=(.+): closest beacon is at x=(.+), y=(.+)".r: Regex
 
     def analyseRow(
         row: Int,
@@ -33,36 +32,27 @@ class AdventOfCodeDay15Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         upper: Int = Int.MaxValue
     ): (List[(Int, Int)], Set[Int]) = {
 
-      // scanning through all of the sensors, find the intervals that the sensor contributes to the row, as well as any beacons in this row
-      val sensors: Seq[(Int, Int, Option[Int])] = in.toStream
+      // scanning through all the sensors, find the intervals that the sensor contributes to the row,
+      // as well as any beacons in this row
+      val sensors: Seq[(Int, Int, Option[Int])] = LazyList(in: _*)
         // parse the input to the sensor and beacon coordinates
-        .map { case Scan(sx, sy, bx, by) =>
-          (sx.toInt, sy.toInt, bx.toInt, by.toInt)
-        }
+        .map { case Scan(sx, sy, bx, by) => (sx.toInt, sy.toInt, bx.toInt, by.toInt) }
         // find the manhattan distance between the beacon and throw away the sensors that can't contribute to this row
-        .map { case (sx, sy, bx, by) =>
-          (sx, sy, bx, by, (sx - bx).abs + (sy - by).abs)
-        }
+        .map { case (sx, sy, bx, by) => (sx, sy, bx, by, (sx - bx).abs + (sy - by).abs) }
         .filter { case (_, sy, _, _, dist) => (row - sy).abs <= dist }
         // find the length of the interval that the sensor covers in this row
-        .map { case (sx, sy, bx, by, dist) =>
-          (sx, bx, by, dist - (row - sy).abs)
-        }
-        // instead of the signal location, use the interval bounds that the signal covers and filter out the ones that are out of bounds
-        .map { case (sx, bx, by, dx) =>
-          (sx - dx, sx + dx, bx, by)
-        }
+        .map { case (sx, sy, bx, by, dist) => (sx, bx, by, dist - (row - sy).abs) }
+        // instead of the signal location, use the interval bounds that the signal covers and filter out the ones that
+        // are out of bounds
+        .map { case (sx, bx, by, dx) => (sx - dx, sx + dx, bx, by) }
         .filter { case (i1, i2, bx, by) => i1 <= upper && i2 >= lower }
-        .map { case (i1, i2, bx, by) =>
-          (i1 max lower, i2 min upper, if (by == row) Some(bx) else None)
-        }
+        .map { case (i1, i2, bx, by) => (i1 max lower, i2 min upper, if (by == row) Some(bx) else None) }
 
       // merge the intervals
       val intervals = sensors.sortBy(_._1).foldLeft(List.empty[(Int, Int)]) {
-        case (Nil, (i1, i2, _)) => (i1, i2) :: Nil
-        case ((acc1, acc2) :: rest, (i1, i2, _)) if i1 <= (acc2 + 1) =>
-          (acc1, acc2 max i2) :: rest
-        case (acc, (i1, i2, _)) => (i1, i2) :: acc
+        case (Nil, (i1, i2, _))                                      => (i1, i2) :: Nil
+        case ((acc1, acc2) :: rest, (i1, i2, _)) if i1 <= (acc2 + 1) => (acc1, acc2 max i2) :: rest
+        case (acc, (i1, i2, _))                                      => (i1, i2) :: acc
       }
 
       val beacons = sensors.flatMap(_._3).toSet

@@ -28,26 +28,19 @@ class AdventOfCodeDay25Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       case (acc, '=') => acc * 5 - 2
     }
 
-    def snafu(in: Long): String = Stream
+    def snafu(in: Long): String = LazyList
       .iterate(("", in)) {
-        case (acc, remainder) if remainder % 5 == 2 =>
-          ("2" + acc, remainder / 5)
-        case (acc, remainder) if remainder % 5 == 1 =>
-          ("1" + acc, remainder / 5)
-        case (acc, remainder) if remainder % 5 == 0 =>
-          ("0" + acc, remainder / 5)
-        case (acc, remainder) if remainder % 5 == 3 =>
-          ("=" + acc, remainder / 5 + 1)
-        case (acc, remainder) if remainder % 5 == 4 =>
-          ("-" + acc, remainder / 5 + 1)
+        case (acc, remainder) if remainder % 5 == 2 => ("2" + acc, remainder / 5)
+        case (acc, remainder) if remainder % 5 == 1 => ("1" + acc, remainder / 5)
+        case (acc, remainder) if remainder % 5 == 0 => ("0" + acc, remainder / 5)
+        case (acc, remainder) if remainder % 5 == 3 => ("=" + acc, remainder / 5 + 1)
+        case (acc, remainder) if remainder % 5 == 4 => ("-" + acc, remainder / 5 + 1)
       }
       .dropWhile(_._2 != 0)
       .head
       ._1
 
     def part1(in: String*): String = snafu(in.map(unSnafu).sum)
-
-    def part2(in: String*): Long = 200
   }
 
   import Solution._

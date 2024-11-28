@@ -7,11 +7,11 @@ import org.scalatest.matchers.should.Matchers
 
 /** =Advent of Code 2022 Day 13 Solutions in scala=
   *
-  * Input: Monkeys throwing things to each other according to their rules
+  * Input: TODO
   *
-  * Part 1: The multiplication of the two most active monkeys
+  * Part 1:
   *
-  * Part 2: The multiplication of the two most active monkeys, with a slight modification to the rules
+  * Part 2:
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/13]]
@@ -56,16 +56,10 @@ class AdventOfCodeDay13Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       }
     }
 
-    def mkString(
-        s: Signal,
-        start: String = "<",
-        sep: String = "|",
-        end: String = ">"
-    ): String = {
+    def mkString(s: Signal, start: String = "<", sep: String = "|", end: String = ">"): String = {
       s.value match {
-        case Left(v) => v.toString
-        case Right(xs) =>
-          s"$start${xs.map(mkString(_, start, sep, end)).mkString(sep)}$end"
+        case Left(v)   => v.toString
+        case Right(xs) => s"$start${xs.map(mkString(_, start, sep, end)).mkString(sep)}$end"
       }
     }
 

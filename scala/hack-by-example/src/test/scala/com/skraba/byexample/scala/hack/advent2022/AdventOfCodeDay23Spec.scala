@@ -102,17 +102,12 @@ class AdventOfCodeDay23Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       }
 
       def part1(): Int = {
-        val plan10 = Stream.from(0).scanLeft(this)(_.part1Iterate(_)).apply(10)
+        val plan10 = LazyList.from(0).scanLeft(this)(_.part1Iterate(_)).apply(10)
         plan10.width * plan10.height - elves.size
       }
 
       def part2(): Int = {
-        1 + Stream
-          .from(0)
-          .scanLeft(this)(_.part1Iterate(_))
-          .sliding(2)
-          .takeWhile(_.distinct.length == 2)
-          .length
+        1 + LazyList.from(0).scanLeft(this)(_.part1Iterate(_)).sliding(2).takeWhile(_.distinct.length == 2).length
       }
     }
 
@@ -187,7 +182,7 @@ class AdventOfCodeDay23Spec extends AnyFunSpecLike with Matchers with BeforeAndA
 
     it("should iterate correctly on the sample") {
       val plan0 = Plan(input: _*)
-      val plans = Stream.from(0).scanLeft(plan0) { _.part1Iterate(_) }
+      val plans = LazyList.from(0).scanLeft(plan0) { _.part1Iterate(_) }
 
       plans.head.width shouldBe 7
       plans.head.height shouldBe 7

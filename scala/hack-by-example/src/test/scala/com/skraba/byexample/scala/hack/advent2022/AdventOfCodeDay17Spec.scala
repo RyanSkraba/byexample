@@ -24,12 +24,7 @@ class AdventOfCodeDay17Spec extends AnyFunSpecLike with Matchers with BeforeAndA
     val EmptyRow = "|.......|"
     val EmptyTower: Seq[String] = Seq("+-------+")
 
-    case class Rock(
-        height: Int,
-        pos: Seq[(Int, Int)],
-        ox: Int = 0,
-        oy: Int = 0
-    ) {
+    case class Rock(height: Int, pos: Seq[(Int, Int)], ox: Int = 0, oy: Int = 0) {
       def ifNoOverlap(tower: Seq[String]): Option[Rock] =
         if (!pos.exists { case (x, y) => tower(y + oy)(x + ox) != '.' })
           Some(this)
@@ -50,22 +45,19 @@ class AdventOfCodeDay17Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       Rock(2, Seq((3, 0), (4, 0), (3, 1), (4, 1)))
     )
 
-    def addRock(
-        jets: String
-    )(acc: (Seq[String], Int), rockI: Int): (Seq[String], Int) = {
+    def addRock(jets: String)(acc: (Seq[String], Int), rockI: Int): (Seq[String], Int) = {
       val (tower, jet0) = acc
 
       // The rock and the initial tower with enough space for the rock
       val rock0 = Rocks(rockI % Rocks.length)
       val tower0 = Seq.fill(rock0.height + 3)(EmptyRow) ++ tower
 
-      val Some((towerNext, _, jetNext)) = Stream
+      val Some((towerNext, _, jetNext)) = LazyList
         .iterate((Option.empty[Seq[String]], rock0, jet0)) { case (None, rock, jetN) =>
-          val rockDx =
-            rock
-              .copy(ox = rock.ox + (if (jets(jetN) == '<') -1 else 1))
-              .ifNoOverlap(tower0)
-              .getOrElse(rock)
+          val rockDx = rock
+            .copy(ox = rock.ox + (if (jets(jetN) == '<') -1 else 1))
+            .ifNoOverlap(tower0)
+            .getOrElse(rock)
           val rockDy = rockDx
             .copy(oy = rock.oy + 1)
             .ifNoOverlap(tower0)
@@ -80,10 +72,7 @@ class AdventOfCodeDay17Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       (towerNext.get, jetNext)
     }
 
-    def part1(
-        jets: String,
-        rocksToDrop: Int = 2022
-    ): Seq[String] = {
+    def part1(jets: String, rocksToDrop: Int = 2022): Seq[String] = {
       LazyList
         .from(0)
         .scanLeft(EmptyTower -> 0)(addRock(jets))
@@ -95,20 +84,15 @@ class AdventOfCodeDay17Spec extends AnyFunSpecLike with Matchers with BeforeAndA
     def part2(jets: String, rocksToDrop: Long = 1000000000000L): Long = {
 
       // The endless stream of dropped rocks
-      val dropped: Seq[(Seq[String], Int)] =
-        LazyList.from(0).scanLeft(EmptyTower -> 0)(addRock(jets))
+      val dropped: Seq[(Seq[String], Int)] = LazyList.from(0).scanLeft(EmptyTower -> 0)(addRock(jets))
 
       // These were calculated by investigation...
       val targetJetI = if (jets.length == 40) 2 else 1
 
       // Find the cycles in the towers at the target jet indices
       val cycle: Seq[(Int, Int)] = dropped.zipWithIndex
-        .filter { case ((_, jetI), rockI) =>
-          jetI == targetJetI && rockI % Rocks.length == 0
-        }
-        .map { case ((tower, _), rockI) =>
-          (rockI, tower.length - 1)
-        }
+        .filter { case ((_, jetI), rockI) => jetI == targetJetI && rockI % Rocks.length == 0 }
+        .map { case ((tower, _), rockI) => (rockI, tower.length - 1) }
         .take(3)
 
       // This is used to calculate, in a cycle, how many rocks provide what height
@@ -126,9 +110,7 @@ class AdventOfCodeDay17Spec extends AnyFunSpecLike with Matchers with BeforeAndA
   import Solution._
 
   describe("Example case") {
-    val input =
-      """>>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>
-        |""".stripMargin.trim
+    val input = ">>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>"
 
     it("should match the puzzle description for part 1") {
       part1(input).length - 1 shouldBe 3068

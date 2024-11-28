@@ -30,23 +30,15 @@ class AdventOfCodeDay19Spec extends AnyFunSpecLike with Matchers with BeforeAndA
     /** Helper class to keep track of resource and robot counts. Some arithmetic functions are defined, but only on
       * non-geode counts.
       */
-    case class Count(
-        ore: Int = 0,
-        clay: Int = 0,
-        obsidian: Int = 0,
-        geode: Int = 0
-    ) {
+    case class Count(ore: Int = 0, clay: Int = 0, obsidian: Int = 0, geode: Int = 0) {
 
-      def +(that: Count): Count =
-        Count(ore + that.ore, clay + that.clay, obsidian + that.obsidian, geode)
+      def +(that: Count): Count = Count(ore + that.ore, clay + that.clay, obsidian + that.obsidian, geode)
 
-      def -(that: Count): Count =
-        Count(ore - that.ore, clay - that.clay, obsidian - that.obsidian, geode)
+      def -(that: Count): Count = Count(ore - that.ore, clay - that.clay, obsidian - that.obsidian, geode)
 
       def *(m: Int): Count = Count(ore * m, clay * m, obsidian * m, geode)
 
-      def isNonNegative: Boolean =
-        ore >= 0 && clay >= 0 && obsidian >= 0 && geode >= 0
+      def isNonNegative: Boolean = ore >= 0 && clay >= 0 && obsidian >= 0 && geode >= 0
     }
 
     /** @param id
@@ -58,26 +50,16 @@ class AdventOfCodeDay19Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       * @param obsidianForGeode
       *   The amount of obsidian necessary to create a geode robot
       */
-    case class Blueprint(
-        id: Int,
-        oreFor: Count,
-        clayForObsidian: Int,
-        obsidianForGeode: Int
-    )
+    case class Blueprint(id: Int, oreFor: Count, clayForObsidian: Int, obsidianForGeode: Int)
 
     trait State[T] {
       def isValid: Boolean
       def valid: Option[this.type] = if (isValid) Some(this) else None
-
       def nextStates: Iterable[T]
     }
 
-    case class BuildState(
-        bp: Blueprint,
-        time: Int,
-        rbt: Count = Count(ore = 1),
-        avail: Count = Count()
-    ) extends State[BuildState] {
+    case class BuildState(bp: Blueprint, time: Int, rbt: Count = Count(ore = 1), avail: Count = Count())
+        extends State[BuildState] {
 
       import BuildState._
 
@@ -88,8 +70,7 @@ class AdventOfCodeDay19Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         *   with resources or go past the time limit).
         */
       def buildOreRobot(): BuildState = {
-        val minutes =
-          1 + turnsFor(avail.ore, bp.oreFor.ore, rbt.ore)
+        val minutes = 1 + turnsFor(avail.ore, bp.oreFor.ore, rbt.ore)
         copy(
           time = time - minutes,
           rbt = rbt.copy(ore = rbt.ore + 1),
@@ -98,8 +79,7 @@ class AdventOfCodeDay19Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       }
 
       def buildClayRobot(): BuildState = {
-        val minutes =
-          1 + turnsFor(avail.ore, bp.oreFor.clay, rbt.ore)
+        val minutes = 1 + turnsFor(avail.ore, bp.oreFor.clay, rbt.ore)
         copy(
           time = time - minutes,
           rbt = rbt.copy(clay = rbt.clay + 1),
@@ -108,33 +88,22 @@ class AdventOfCodeDay19Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       }
 
       def buildObsidianRobot(): BuildState = {
-        // If we build an obsidian robot next, we're either constrained by the
-        // ore or clay
-        val minutesOre =
-          1 + turnsFor(avail.ore, bp.oreFor.obsidian, rbt.ore)
-        val minutesClay =
-          1 + turnsFor(avail.clay, bp.clayForObsidian, rbt.clay)
+        // If we build an obsidian robot next, we're either constrained by the ore or clay
+        val minutesOre = 1 + turnsFor(avail.ore, bp.oreFor.obsidian, rbt.ore)
+        val minutesClay = 1 + turnsFor(avail.clay, bp.clayForObsidian, rbt.clay)
         val minutes = minutesOre max minutesClay
         copy(
           time = time - minutes,
           rbt = rbt.copy(obsidian = rbt.obsidian + 1),
-          avail = avail + rbt * minutes - Count(
-            bp.oreFor.obsidian,
-            clay = bp.clayForObsidian
-          )
+          avail = avail + rbt * minutes - Count(bp.oreFor.obsidian, clay = bp.clayForObsidian)
         )
       }
 
       def buildGeodeRobot(): BuildState = {
         // If we build an obsidian robot next, we're either constrained by the
         // ore or obsidian
-        val minutesOre =
-          1 + turnsFor(avail.ore, bp.oreFor.geode, rbt.ore)
-        val minutesObsidian = 1 + turnsFor(
-          avail.obsidian,
-          bp.obsidianForGeode,
-          rbt.obsidian
-        )
+        val minutesOre = 1 + turnsFor(avail.ore, bp.oreFor.geode, rbt.ore)
+        val minutesObsidian = 1 + turnsFor(avail.obsidian, bp.obsidianForGeode, rbt.obsidian)
         val minutes = minutesOre max minutesObsidian
         // If we do build it, this is how many geodes it'll produce until the
         // end of the plan
@@ -143,10 +112,7 @@ class AdventOfCodeDay19Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         copy(
           time = time - minutes,
           rbt = rbt.copy(geode = rbt.geode + 1),
-          avail = geodes + rbt * minutes - Count(
-            bp.oreFor.geode,
-            obsidian = bp.obsidianForGeode
-          )
+          avail = geodes + rbt * minutes - Count(bp.oreFor.geode, obsidian = bp.obsidianForGeode)
         )
       }
 
@@ -162,11 +128,8 @@ class AdventOfCodeDay19Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         val actuallyBuildObsidian =
           buildObsidian.flatMap(b =>
             if (
-              (
-                buildOre.map(_.buildObsidianRobot()) ++
-                  buildClay.map(_.buildObsidianRobot()) ++
-                  buildGeode.map(_.buildObsidianRobot())
-              ).filter(_.isValid).exists(other => other.time >= b.time)
+              (buildOre.map(_.buildObsidianRobot()) ++ buildClay.map(_.buildObsidianRobot()) ++ buildGeode
+                .map(_.buildObsidianRobot())).filter(_.isValid).exists(other => other.time >= b.time)
             ) None
             else buildObsidian
           )
@@ -175,11 +138,8 @@ class AdventOfCodeDay19Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         val actuallyBuildGeode =
           buildGeode.flatMap(b =>
             if (
-              (
-                buildOre.map(_.buildGeodeRobot()) ++
-                  buildClay.map(_.buildGeodeRobot()) ++
-                  actuallyBuildObsidian.map(_.buildGeodeRobot())
-              ).filter(_.isValid).exists(other => other.time >= b.time)
+              (buildOre.map(_.buildGeodeRobot()) ++ buildClay.map(_.buildGeodeRobot()) ++ actuallyBuildObsidian
+                .map(_.buildGeodeRobot())).filter(_.isValid).exists(other => other.time >= b.time)
             ) None
             else buildGeode
           )
@@ -273,8 +233,7 @@ class AdventOfCodeDay19Spec extends AnyFunSpecLike with Matchers with BeforeAndA
     }
 
     it("should not generate an obsidian robot if building another is quicker") {
-      val s0 =
-        BuildState(Blueprint(1, Count(1, 1, 1, 1), 100, 100), 1000, Count(1, 1))
+      val s0 = BuildState(Blueprint(1, Count(1, 1, 1, 1), 100, 100), 1000, Count(1, 1))
 
       s0.buildOreRobot().buildObsidianRobot().time shouldBe 899
       s0.buildClayRobot().buildObsidianRobot().time shouldBe 948

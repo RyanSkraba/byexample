@@ -26,10 +26,7 @@ class AdventOfCodeDay16Spec extends AnyFunSpecLike with Matchers with BeforeAndA
 
     case class Valve(rate: Long, dst: Seq[String])
 
-    def floydWarshall[T](
-        vs: Iterable[T],
-        edgeF: T => Iterator[T]
-    ): Map[(T, T), Long] = {
+    def floydWarshall[T](vs: Iterable[T], edgeF: T => Iterator[T]): Map[(T, T), Long] = {
       // Set up the distances between all vertices
       // If there's an initial edge, the distance is 1
       // The distance to itself is 0
@@ -48,8 +45,7 @@ class AdventOfCodeDay16Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       dv.toMap
     }
 
-    val Scan =
-      """Valve (..) has flow rate=(\d+); tunnels? leads? to valves? (.+)""".r
+    val Scan = """Valve (..) has flow rate=(\d+); tunnels? leads? to valves? (.+)""".r
 
     def parse(in: String*): Map[String, Valve] = in.map { case Scan(name, rate, dst) =>
       name -> Valve(rate.toLong, dst.split("[, ]+").sorted)
@@ -64,9 +60,7 @@ class AdventOfCodeDay16Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         total: Long = 0
     ): Long = {
       if (time < 0) return total
-      val dv = lazyDv.getOrElse(
-        floydWarshall[String](valves.keys, valves(_).dst.iterator)
-      )
+      val dv = lazyDv.getOrElse(floydWarshall[String](valves.keys, valves(_).dst.iterator))
       val dsts = lazyDsts.getOrElse(valves.filter(_._2.rate != 0).keys.toSet)
       (dsts
         .map(dst => (dst, dv(src -> dst)))
@@ -98,9 +92,7 @@ class AdventOfCodeDay16Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       val init = goals.head == goals(1)
 
       // Lazy value initialization
-      val dv = lazyDv.getOrElse(
-        floydWarshall[String](valves.keys, valves(_).dst.iterator)
-      )
+      val dv = lazyDv.getOrElse(floydWarshall[String](valves.keys, valves(_).dst.iterator))
       val dsts = lazyDsts.getOrElse(valves.filter(_._2.rate != 0).keys.toSet)
 
       val minDv = goals.minBy(_._2)._2
@@ -122,16 +114,13 @@ class AdventOfCodeDay16Spec extends AnyFunSpecLike with Matchers with BeforeAndA
 
       // if both goals are 0 then choose two new goals
       val moves = if (goals.head._2 == 0 && goals(1)._2 == 0) {
-        val myDsts = dsts
-          .map(x => (x, dv(goals.head._1 -> x))) + ((goals.head._1, time + 10))
-        val elDsts =
-          dsts.map(x => (x, dv(goals(1)._1 -> x))) + ((goals(1)._1, time + 10))
+        val myDsts = dsts.map(x => (x, dv(goals.head._1 -> x))) + ((goals.head._1, time + 10))
+        val elDsts = dsts.map(x => (x, dv(goals(1)._1 -> x))) + ((goals(1)._1, time + 10))
         val moves =
           for (
             myDst <- myDsts;
             elDst <- elDsts if elDst._1 != myDst._1
-          )
-            yield Seq(myDst, elDst)
+          ) yield Seq(myDst, elDst)
 
         if (!init) moves else moves.filter(g => g.head._1 > g(1)._1)
       } else {
@@ -188,15 +177,11 @@ class AdventOfCodeDay16Spec extends AnyFunSpecLike with Matchers with BeforeAndA
     lazy val input = puzzleInput("Day16Input.txt")
 
     it("should have answers to part 1 (1 second)", Slow) {
-      part1(valves = parse(input: _*)) shouldBe decryptLong(
-        "ypj35apULjT4XBk8pwo+tQ=="
-      )
+      part1(valves = parse(input: _*)) shouldBe decryptLong("ypj35apULjT4XBk8pwo+tQ==")
     }
 
     it("should have answers to part 2 (57 minutes)", Slow) {
-      part2(valves = parse(input: _*)) shouldBe decryptLong(
-        "6AHW6goNxpcvTl3j27QMKQ=="
-      )
+      part2(valves = parse(input: _*)) shouldBe decryptLong("6AHW6goNxpcvTl3j27QMKQ==")
     }
   }
 }

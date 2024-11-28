@@ -48,7 +48,7 @@ class AdventOfCodeDay20Spec extends AnyFunSpecLike with Matchers with BeforeAndA
 
     def part2(in: Seq[Long]): Long = {
       val withIndex = in.map(_ * 811589153L).zipWithIndex
-      val mixed = Stream.iterate(withIndex)(in.indices.foldLeft(_)(mix))(10)
+      val mixed = LazyList.iterate(withIndex)(in.indices.foldLeft(_)(mix))(10)
 
       val zeroIndex = mixed.indexWhere(_._1 == 0)
       val a = mixed((zeroIndex + 1000) % in.size)._1

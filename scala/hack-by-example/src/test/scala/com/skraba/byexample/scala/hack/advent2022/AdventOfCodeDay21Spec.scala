@@ -45,45 +45,29 @@ class AdventOfCodeDay21Spec extends AnyFunSpecLike with Matchers with BeforeAndA
 
       override def value(monkeys: Map[String, Monkey]): Long =
         if (op == '+') monkeys(lId).value(monkeys) + monkeys(rId).value(monkeys)
-        else if (op == '-')
-          monkeys(lId).value(monkeys) - monkeys(rId).value(monkeys)
-        else if (op == '*')
-          monkeys(lId).value(monkeys) * monkeys(rId).value(monkeys)
-        else if (op == '/')
-          monkeys(lId).value(monkeys) / monkeys(rId).value(monkeys)
+        else if (op == '-') monkeys(lId).value(monkeys) - monkeys(rId).value(monkeys)
+        else if (op == '*') monkeys(lId).value(monkeys) * monkeys(rId).value(monkeys)
+        else if (op == '/') monkeys(lId).value(monkeys) / monkeys(rId).value(monkeys)
         else if (op == '=')
           if (monkeys(lId).value(monkeys) == monkeys(rId).value(monkeys)) 1
           else 0
         else throw new IllegalArgumentException(s"Unexpected op $op")
 
-      override def balance(
-          monkeys: Map[String, Monkey],
-          expected: Long
-      ): Long = {
+      override def balance(monkeys: Map[String, Monkey], expected: Long): Long = {
         val left = monkeys(lId)
         val right = monkeys(rId)
 
         (Try(left.value(monkeys)), Try(right.value(monkeys))) match {
-          case (Success(lVal), Failure(_)) if op == '=' =>
-            right.balance(monkeys, lVal)
-          case (Failure(_), Success(rVal)) if op == '=' =>
-            left.balance(monkeys, rVal)
-          case (Success(lVal), Failure(_)) if op == '+' =>
-            right.balance(monkeys, expected - lVal)
-          case (Failure(_), Success(rVal)) if op == '+' =>
-            left.balance(monkeys, expected - rVal)
-          case (Success(lVal), Failure(_)) if op == '-' =>
-            right.balance(monkeys, lVal - expected)
-          case (Failure(_), Success(rVal)) if op == '-' =>
-            left.balance(monkeys, expected + rVal)
-          case (Success(lVal), Failure(_)) if op == '*' =>
-            right.balance(monkeys, expected / lVal)
-          case (Failure(_), Success(rVal)) if op == '*' =>
-            left.balance(monkeys, expected / rVal)
-          case (Success(lVal), Failure(_)) if op == '/' =>
-            right.balance(monkeys, lVal / expected)
-          case (Failure(_), Success(rVal)) if op == '/' =>
-            left.balance(monkeys, expected * rVal)
+          case (Success(lVal), Failure(_)) if op == '=' => right.balance(monkeys, lVal)
+          case (Failure(_), Success(rVal)) if op == '=' => left.balance(monkeys, rVal)
+          case (Success(lVal), Failure(_)) if op == '+' => right.balance(monkeys, expected - lVal)
+          case (Failure(_), Success(rVal)) if op == '+' => left.balance(monkeys, expected - rVal)
+          case (Success(lVal), Failure(_)) if op == '-' => right.balance(monkeys, lVal - expected)
+          case (Failure(_), Success(rVal)) if op == '-' => left.balance(monkeys, expected + rVal)
+          case (Success(lVal), Failure(_)) if op == '*' => right.balance(monkeys, expected / lVal)
+          case (Failure(_), Success(rVal)) if op == '*' => left.balance(monkeys, expected / rVal)
+          case (Success(lVal), Failure(_)) if op == '/' => right.balance(monkeys, lVal / expected)
+          case (Failure(_), Success(rVal)) if op == '/' => left.balance(monkeys, expected * rVal)
         }
       }
     }

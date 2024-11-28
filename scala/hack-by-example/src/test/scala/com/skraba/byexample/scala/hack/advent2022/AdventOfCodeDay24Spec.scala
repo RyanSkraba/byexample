@@ -13,7 +13,7 @@ import scala.collection.mutable
   *
   * Part 1: The minimum number of minutes that it takes to get from 0,0 to the bottom right corner.
   *
-  * Part 2:
+  * Part 2: TODO
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/24]]
@@ -22,22 +22,13 @@ class AdventOfCodeDay24Spec extends AnyFunSpecLike with Matchers with BeforeAndA
 
   object Solution {
 
-    case class Blizzard(
-        txt: String,
-        width: Int,
-        hit: Char,
-        ox: Int = 0,
-        oy: Int = 0
-    ) {
+    case class Blizzard(txt: String, width: Int, hit: Char, ox: Int = 0, oy: Int = 0) {
       lazy val height: Int = txt.length / width
 
       def apply(t: Int, x: Int, y: Int): Boolean = {
         val dx = (ox * t + x) % width
         val dy = (oy * t + y) % height
-        hit == txt(
-          width * (if (dy < 0) dy + height else dy) +
-            (if (dx < 0) dx + width else dx)
-        )
+        hit == txt(width * (if (dy < 0) dy + height else dy) + (if (dx < 0) dx + width else dx))
       }
     }
 
@@ -75,9 +66,7 @@ class AdventOfCodeDay24Spec extends AnyFunSpecLike with Matchers with BeforeAndA
 
     trait State[T] {
       def isValid: Boolean
-
       def valid: Option[this.type] = if (isValid) Some(this) else None
-
       def nextStates: Iterable[T]
     }
 
@@ -90,9 +79,7 @@ class AdventOfCodeDay24Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         dstY: Int,
         blizzards: Blizzards
     ) extends State[MoveState] {
-      override def isValid: Boolean = init ||
-        (x == dstX && y == dstY) ||
-        !blizzards(time, x, y)
+      override def isValid: Boolean = init || (x == dstX && y == dstY) || !blizzards(time, x, y)
 
       override def nextStates: Iterable[MoveState] = Seq(
         copy(time = time + 1, x = x + 1, init = false),
@@ -103,10 +90,8 @@ class AdventOfCodeDay24Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       ).filter(_.isValid)
 
       def dfsTimeToDestination(best: Int = Int.MaxValue): Int = {
-        if (x == dstX && y == dstY)
-          return time
-        if (time + blizzards.width - x + blizzards.height - y - 2 >= best)
-          return best
+        if (x == dstX && y == dstY) return time
+        if (time + blizzards.width - x + blizzards.height - y - 2 >= best) return best
         nextStates.foldLeft(best) { case (best, state) =>
           state.dfsTimeToDestination(best) min best
         }
@@ -127,14 +112,8 @@ class AdventOfCodeDay24Spec extends AnyFunSpecLike with Matchers with BeforeAndA
     }
 
     object MoveState {
-      def apply(b: Blizzards): MoveState =
-        MoveState(blizzards = b, dstX = b.width - 1, dstY = b.height)
-      def apply(
-          b: Blizzards,
-          time: Int,
-          src: (Int, Int),
-          dst: (Int, Int)
-      ): MoveState = MoveState(
+      def apply(b: Blizzards): MoveState = MoveState(blizzards = b, dstX = b.width - 1, dstY = b.height)
+      def apply(b: Blizzards, time: Int, src: (Int, Int), dst: (Int, Int)): MoveState = MoveState(
         blizzards = b,
         time = time,
         x = src._1,
@@ -270,16 +249,12 @@ class AdventOfCodeDay24Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       b.width shouldBe decryptLong("2dzW8/OZiZSfW85xox28Dw==")
       // DFS doesn't finish
       // MoveState(blizzards = b).dfsTimeToDestination() shouldBe ...
-      MoveState(b).bfsTimeToDestination() shouldBe decryptLong(
-        "piIPjzUyZdLca0FJr1c8dw=="
-      )
+      MoveState(b).bfsTimeToDestination() shouldBe decryptLong("piIPjzUyZdLca0FJr1c8dw==")
     }
 
     it("should have answers for part 2") {
       val b = Blizzards(input)
-      MoveState(b).bfsTimeToDestination() shouldBe decryptLong(
-        "piIPjzUyZdLca0FJr1c8dw=="
-      )
+      MoveState(b).bfsTimeToDestination() shouldBe decryptLong("piIPjzUyZdLca0FJr1c8dw==")
       MoveState(b, 253, (b.width - 1, b.height), (0, -1))
         .bfsTimeToDestination() shouldBe decryptLong("9/BfWfAD6Qs1DaF3t7wtAA==")
       MoveState(b, 521, (0, -1), (b.width - 1, b.height))

@@ -33,8 +33,7 @@ class AdventOfCodeDay22Spec extends AnyFunSpecLike with Matchers with BeforeAndA
 
       def line(start: Int, fixed: Int, faceWidth: Int, dir: Dir): Seq[Pos] = {
         val fixedPos =
-          if (dir == East || dir == South)
-            fixed * faceWidth - 1
+          if (dir == East || dir == South) fixed * faceWidth - 1
           else fixed * faceWidth
 
         if (dir == East || dir == West)
@@ -93,9 +92,7 @@ class AdventOfCodeDay22Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       def parse(in: String*): (Pos, Seq[String]) = {
         // Pad each line so the plan is a square and there's whitespace to the left and bottom of any place
         val width = 1 + in.maxBy(_.length).length
-        val cc = in
-          .dropRight(1)
-          .map(row => row + " " * (width - row.length)) :+ (" " * width)
+        val cc = in.dropRight(1).map(row => row + " " * (width - row.length)) :+ (" " * width)
         (
           Pos(x = cc.head.indexOf('.'), plan = Plan(cc)),
           in.last.split("((?<=\\D)|(?=\\D))").filter(_.nonEmpty)
@@ -104,9 +101,7 @@ class AdventOfCodeDay22Spec extends AnyFunSpecLike with Matchers with BeforeAndA
     }
 
     def solve(initialPos: Pos, moves: Seq[String]): Long = {
-      val posEnd = moves.foldLeft(initialPos) { case (pos, mv) =>
-        pos.move(mv)
-      }
+      val posEnd = moves.foldLeft(initialPos) { case (pos, mv) => pos.move(mv) }
       1000 * (posEnd.y + 1) + 4 * (posEnd.x + 1) + posEnd.facing.id
     }
   }
@@ -264,18 +259,10 @@ class AdventOfCodeDay22Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         }
         .toMap
 
-      init.copy(8, 11, South).warpOpt shouldBe Some(
-        init.copy(3, 7, North)
-      )
-      init.copy(9, 11, South).warpOpt shouldBe Some(
-        init.copy(2, 7, North)
-      )
-      init.copy(10, 10, South).warpOpt shouldBe Some(
-        init.copy(10, 11, South)
-      )
-      init.copy(10, 11, South).warpOpt shouldBe Some(
-        init.copy(1, 7, North)
-      )
+      init.copy(8, 11, South).warpOpt shouldBe Some(init.copy(3, 7, North))
+      init.copy(9, 11, South).warpOpt shouldBe Some(init.copy(2, 7, North))
+      init.copy(10, 10, South).warpOpt shouldBe Some(init.copy(10, 11, South))
+      init.copy(10, 11, South).warpOpt shouldBe Some(init.copy(1, 7, North))
       init.copy(1, 7, North).warpOpt shouldBe Some(init.copy(1, 6, North))
       init.copy(1, 6, North).warpOpt shouldBe Some(init.copy(1, 5, North))
       init.copy(10, 10, South).move("4") shouldBe init.copy(1, 5, North)

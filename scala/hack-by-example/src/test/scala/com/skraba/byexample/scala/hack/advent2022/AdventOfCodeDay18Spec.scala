@@ -37,11 +37,9 @@ class AdventOfCodeDay18Spec extends AnyFunSpecLike with Matchers with BeforeAndA
     }
 
     object Pos {
-      def parse(in: String*): Seq[Pos] = {
-        in.map(_.split(',') match {
-          case Array(x, y, z) => Pos(x.toInt, y.toInt, z.toInt)
-        })
-      }
+      def parse(in: String*): Seq[Pos] = in.map(_.split(',') match {
+        case Array(x, y, z) => Pos(x.toInt, y.toInt, z.toInt)
+      })
     }
 
     def part1(ds: Seq[Pos]): Long = {
@@ -54,16 +52,8 @@ class AdventOfCodeDay18Spec extends AnyFunSpecLike with Matchers with BeforeAndA
     def part2(ds: Seq[Pos]): Long = {
 
       // Find the bounds of the droplets with a margin of 1
-      val bMin = Pos(
-        ds.minBy(_.x).x - 1,
-        ds.minBy(_.y).y - 1,
-        ds.minBy(_.z).z - 1
-      )
-      val bMax = Pos(
-        ds.maxBy(_.x).x + 1,
-        ds.maxBy(_.y).y + 1,
-        ds.maxBy(_.z).z + 1
-      )
+      val bMin = Pos(ds.minBy(_.x).x - 1, ds.minBy(_.y).y - 1, ds.minBy(_.z).z - 1)
+      val bMax = Pos(ds.maxBy(_.x).x + 1, ds.maxBy(_.y).y + 1, ds.maxBy(_.z).z + 1)
 
       // Flood fill an external block defined by the bounds, excluding the droplet
       val inside = ds.toSet
@@ -73,12 +63,7 @@ class AdventOfCodeDay18Spec extends AnyFunSpecLike with Matchers with BeforeAndA
 
         while (next.nonEmpty) {
           val pos = next.dequeue()
-          for (
-            n <- pos.neighbours
-              .filterNot(filled)
-              .filterNot(inside)
-            if n.within(bMin, bMax)
-          ) {
+          for (n <- pos.neighbours.filterNot(filled).filterNot(inside) if n.within(bMin, bMax)) {
             filled += n
             next.enqueue(n)
           }
@@ -125,12 +110,8 @@ class AdventOfCodeDay18Spec extends AnyFunSpecLike with Matchers with BeforeAndA
   describe("🔑 Solution 🔑") {
     lazy val input = puzzleInput("Day18Input.txt").filter(_.nonEmpty)
     it("should have answers") {
-      part1(Pos.parse(input: _*)) shouldBe decryptLong(
-        "NtUlN2GRC0bYWH1u8RnGNg=="
-      )
-      part2(Pos.parse(input: _*)) shouldBe decryptLong(
-        "+vUA7F8j3jy4TtCQBNEKfQ=="
-      )
+      part1(Pos.parse(input: _*)) shouldBe decryptLong("NtUlN2GRC0bYWH1u8RnGNg==")
+      part2(Pos.parse(input: _*)) shouldBe decryptLong("+vUA7F8j3jy4TtCQBNEKfQ==")
     }
   }
 }

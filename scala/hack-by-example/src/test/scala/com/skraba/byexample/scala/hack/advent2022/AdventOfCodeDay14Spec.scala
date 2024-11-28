@@ -33,8 +33,7 @@ class AdventOfCodeDay14Spec extends AnyFunSpecLike with Matchers with BeforeAndA
     case class Cave(view: Seq[String], ox: Int, oy: Int) {
 
       /** The width and height of the view of the cave. */
-      lazy val (dx: Int, dy: Int) =
-        (view.headOption.map(_.length).getOrElse(0), view.length)
+      lazy val (dx: Int, dy: Int) = (view.headOption.map(_.length).getOrElse(0), view.length)
 
       /** A pretty view of the cave as a string */
       def mkString: String = view.mkString("\n")
@@ -47,8 +46,7 @@ class AdventOfCodeDay14Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         if (view(y)(x) != '.' && y == 0 && oy > 0)
           copy(view = "." * dx +: view, oy = oy - 1).dropping(x, y)
         else if (x == 0)
-          copy(view.map(row => row.head + row), ox = ox - 1)
-            .dropping(1, y)
+          copy(view.map(row => row.head + row), ox = ox - 1).dropping(1, y)
         else if (x == dx - 1)
           copy(view.map(row => row + row.head)).dropping(x, y)
         else if (y == dy - 1) (this, x, Int.MinValue)
@@ -65,7 +63,7 @@ class AdventOfCodeDay14Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       }
 
       def sands(dropX: Int = 500): Iterator[Cave] = {
-        Stream
+        LazyList
           .continually(0)
           .scanLeft(this) { (acc, _) => acc.dropSand(dropX) }
           .sliding(2)
@@ -81,10 +79,11 @@ class AdventOfCodeDay14Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         val (coords, (offsetX, offsetY, dx, dy)) = parseRockCoordinates(in: _*)
         val plan = Array.fill[Char](dy, dx)('.')
         for (
-          cs <- coords; Seq((x1, y1), (x2, y2)) <- cs.sliding(2);
-          x <- (x1 min x2) to (x1 max x2); y <- (y1 min y2) to (y1 max y2)
-        )
-          plan(y)(x) = '#'
+          cs <- coords;
+          Seq((x1, y1), (x2, y2)) <- cs.sliding(2);
+          x <- (x1 min x2) to (x1 max x2);
+          y <- (y1 min y2) to (y1 max y2)
+        ) plan(y)(x) = '#'
         Cave(plan.map(_.mkString), offsetX, offsetY)
       }
 
@@ -95,9 +94,7 @@ class AdventOfCodeDay14Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         *   the visible parts, including (in order) an x and y offset to the highest, leftmost non-empty space and the
         *   width and height of the non-empty space. A margin is included.
         */
-      def parseRockCoordinates(
-          in: String*
-      ): (Seq[Seq[(Int, Int)]], (Int, Int, Int, Int)) = {
+      def parseRockCoordinates(in: String*): (Seq[Seq[(Int, Int)]], (Int, Int, Int, Int)) = {
         val m = 1
 
         val coordinates = in
@@ -138,8 +135,7 @@ class AdventOfCodeDay14Spec extends AnyFunSpecLike with Matchers with BeforeAndA
     it("should match the puzzle description") {
 
       // Parsing the coordinates
-      val (coordinates, (offsetX, offsetY, dx, dy)) =
-        Cave.parseRockCoordinates(input: _*)
+      val (coordinates, (offsetX, offsetY, dx, dy)) = Cave.parseRockCoordinates(input: _*)
       coordinates shouldBe Seq(
         Seq((5, 1), (5, 3), (3, 3)),
         Seq((10, 1), (9, 1), (9, 6), (1, 6))
