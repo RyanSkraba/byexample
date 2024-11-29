@@ -31,15 +31,7 @@ class AdventOfCodeDay2Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
     object Game {
       def apply(in: String): Game =
         in.dropWhile(!_.isDigit).span(_.isDigit) match {
-          case (id, rest) =>
-            Game(
-              id.toLong,
-              rest
-                .dropWhile(!_.isDigit)
-                .split(';')
-                .map(_.split(','))
-                .map(Sample(_))
-            )
+          case (id, rest) => Game(id.toLong, rest.dropWhile(!_.isDigit).split(';').map(_.split(',')).map(Sample(_)))
         }
 
       def parse(in: String*): Seq[Game] = in.filter(_.nonEmpty).map(Game.apply)
@@ -64,13 +56,9 @@ class AdventOfCodeDay2Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
   import Solution._
 
   def extractGamesWithMax(maxR: Long, maxG: Long, maxB: Long, in: Game*): Long =
-    in.filter(
-      !_.bs.exists(b => b.red > maxR || b.green > maxG || b.blue > maxB)
-    ).map(_.id)
-      .sum
+    in.filter(!_.bs.exists(b => b.red > maxR || b.green > maxG || b.blue > maxB)).map(_.id).sum
 
-  def extractPower(in: Game*): Long =
-    in.map(_.power).sum
+  def extractPower(in: Game*): Long = in.map(_.power).sum
 
   describe("Example case") {
     val input =

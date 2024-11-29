@@ -22,35 +22,18 @@ class AdventOfCodeDay1Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
   object Solution {
 
     /** Spelling out the digits in text from zero to nine. */
-    val Digits: Seq[String] = Seq(
-      "zero",
-      "one",
-      "two",
-      "three",
-      "four",
-      "five",
-      "six",
-      "seven",
-      "eight",
-      "nine"
-    )
+    val Digits: Seq[String] = Seq("zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine")
 
     def extractCalibration(in: String*): Long =
       in
         .filter(_.nonEmpty)
         .map(str => (str.find(_.isDigit), str.findLast(_.isDigit)))
-        .map(dgt =>
-          10 * dgt._1.map(_ - '0').getOrElse(0) + dgt._2
-            .map(_ - '0')
-            .getOrElse(0)
-        )
+        .map(dgt => 10 * dgt._1.map(_ - '0').getOrElse(0) + dgt._2.map(_ - '0').getOrElse(0))
         .sum
 
     def extractCalibrationPart2(in: String*): Long = {
       val dgts: Map[String, Int] =
-        Digits.zipWithIndex.toMap ++ "0123456789".zipWithIndex
-          .map(dgt => dgt._1.toString -> dgt._2)
-          .toMap
+        Digits.zipWithIndex.toMap ++ "0123456789".zipWithIndex.map(dgt => dgt._1.toString -> dgt._2).toMap
 
       val re1 = dgts.keys.mkString("(", "|", ")").r
       val re2 = dgts.keys.map(_.reverse).mkString("(", "|", ")").r

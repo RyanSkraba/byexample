@@ -37,9 +37,9 @@ class AdventOfCodeDay3Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
           val below = full.slice(pos - 1 + dx, pos + num.length + 1 + dx)
           val beside = "" + full(pos - 1) + full(pos + num.length)
           val border = above + below + beside
-          if (border.exists(_ != '.')) {
+          if (border.exists(_ != '.'))
             (rest, acc._2 + num.toLong)
-          } else
+          else
             (rest.dropWhile(!_.isDigit), acc._2)
         } else
           (rest.dropWhile(!_.isDigit), acc._2)
@@ -71,7 +71,7 @@ class AdventOfCodeDay3Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
           .slice(pos, full.length)
           .takeWhile(_.isDigit)).toLong
 
-      // Now find all of the asterisks in the plan
+      // Now find all the asterisks in the plan
       val asterisks =
         for (
           y <- 1 until input.length + 1;

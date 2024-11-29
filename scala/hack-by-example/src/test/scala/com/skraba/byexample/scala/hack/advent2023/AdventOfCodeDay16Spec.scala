@@ -31,7 +31,7 @@ class AdventOfCodeDay16Spec extends AnyFunSpecLike with Matchers with BeforeAndA
     }
     import Dir._
 
-    case class Plan(input: Seq[String], border: String = "#") {
+    case class Plan(input: Seq[String], border: Char = '#') {
 
       /** The width of the full plan */
       lazy val dx: Int = input.headOption.map(_.length).getOrElse(0) + 2
@@ -41,7 +41,7 @@ class AdventOfCodeDay16Spec extends AnyFunSpecLike with Matchers with BeforeAndA
 
       /** The full plan as a single string, including a full border. */
       lazy val full: String =
-        input.mkString(border * (dx + 1), border * 2, border * (dx + 1))
+        input.mkString(border.toString * (dx + 1), border.toString * 2, border.toString * (dx + 1))
 
       lazy val display: String = full.grouped(dx).mkString("\n")
 
@@ -69,8 +69,7 @@ class AdventOfCodeDay16Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       }
 
       object Cursor {
-        def apply(x: Int, y: Int, dir: Dir): Cursor =
-          Cursor((y + 1) * dx + x + 1, dir)
+        def apply(x: Int, y: Int, dir: Dir): Cursor = Cursor((y + 1) * dx + x + 1, dir)
       }
 
       def mv(in: Cursor): Set[Cursor] = (in.dir, full(in.pos)) match {
@@ -92,11 +91,8 @@ class AdventOfCodeDay16Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         case class Acc(beam: Set[Cursor], visited: Set[Cursor] = Set.empty)
 
         LazyList
-          .iterate(new Acc(Set(start))) { acc =>
-            Acc(
-              acc.beam.flatMap(mv).filterNot(acc.visited),
-              acc.visited ++ acc.beam
-            )
+          .iterate(Acc(Set(start))) { acc =>
+            Acc(acc.beam.flatMap(mv).filterNot(acc.visited), acc.visited ++ acc.beam)
           }
           .dropWhile(_.beam.nonEmpty)
           .head
