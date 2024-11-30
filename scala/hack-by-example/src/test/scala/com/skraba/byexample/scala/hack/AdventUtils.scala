@@ -8,7 +8,7 @@ import java.util.Base64
 import javax.crypto.spec.SecretKeySpec
 import javax.crypto.{Cipher, KeyGenerator}
 import scala.io.Source
-import scala.reflect.io.File
+import scala.reflect.io.{File, Path}
 
 /** Helpful utilities for https://adventofcode.com/
   *
@@ -148,7 +148,8 @@ object AdventUtils {
 
   /** Create a whole new year of Advent of code! */
   def main(args: Array[String]): Unit = {
-    val year = args.headOption.getOrElse("2023")
+    import java.time.LocalDate
+    val year = args.headOption.getOrElse(LocalDate.now().getYear.toString)
 
     // If we can find this class' source, we can write code next to it in subpackages
     val uri = Thread
@@ -159,49 +160,65 @@ object AdventUtils {
     if (uri.getProtocol == "file") {
 
       // The ./src/test/ directory to add files to
-      val root = uri.getFile
-        .split("/target/")
-        .headOption
-        .map(File(_))
-        .map(_ / "src/test")
+      val root: Option[Path] = uri.getFile.split("/target/").headOption.map(File(_)).map(_ / "src/test")
 
-      // Copy the resource files over
-      root
-        .map(_ / "resources" / getClass.getPackageName.replace('.', '/'))
-        .foreach { hack =>
-          val src = hack / "advent2022"
-          val dst = hack / s"advent$year"
-
-          dst.toDirectory.createDirectory(failIfExists = true)
-
-          val txt = (src / "Day0Input.txt").toFile.slurp()
-          for (day <- 0 to 25)
-            (dst / s"Day${day}Input.txt").toFile.writeAll(txt)
+      // Find the most recent Day0Input.txt file and copy it to the new year
+      root.toSeq
+        .flatMap(_.walk)
+        .filter(_.name == "Day0Input.txt")
+        .filter(_.isFile)
+        .map(_.toFile)
+        .sortBy(_.toString())
+        .lastOption
+        .map(_.slurp())
+        .foreach { basic =>
+          root
+            .map(_ / "resources" / getClass.getPackageName.replace('.', '/') / s"advent$year")
+            .foreach { dst =>
+              dst.toDirectory.createDirectory(failIfExists = true)
+              for (day <- 0 to 25)
+                (dst / s"Day${day}Input.txt").toFile.writeAll(basic)
+            }
         }
 
-      // Create basic test files for each day
-      root
-        .map(_ / "scala" / getClass.getPackageName.replace('.', '/'))
-        .foreach { hack =>
-          val src = hack / "advent2022"
-          val dst = hack / s"advent$year"
+      // Find the most recent AdventOfCodeDay0Spec.scala file and copy it to the new year
+      val day0code = root.toSeq
+        .flatMap(_.walk)
+        .filter(_.name == "AdventOfCodeDay0Spec.scala")
+        .filter(_.isFile)
+        .map(_.toFile)
+        .sortBy(_.toString())
+        .lastOption
 
-          dst.toDirectory.createDirectory(failIfExists = true)
-
-          val util = (src / "AdventUtils.scala").toFile.slurp()
-          (dst / "AdventUtils.scala").toFile.writeAll(
-            util.replaceAll("advent2022", s"advent$year")
-          )
-
-          val txt = (src / "AdventOfCodeDay0Spec.scala").toFile.slurp()
-          for (day <- 0 to 25)
-            (dst / s"AdventOfCodeDay${day}Spec.scala").toFile.writeAll(
-              txt
-                .replaceAll("2022", s"$year")
-                .replaceAll("ZERO", day.toString)
-                .replaceAll("Day0", s"Day${day}")
-            )
+      day0code
+        .map(_.slurp())
+        .foreach { basic =>
+          root
+            .map(_ / "scala" / getClass.getPackageName.replace('.', '/') / s"advent$year")
+            .foreach { dst =>
+              dst.toDirectory.createDirectory(failIfExists = true)
+              for (day <- 0 to 25)
+                (dst / s"AdventOfCodeDay${day}Spec.scala").toFile.writeAll(
+                  basic
+                    .replaceAll("advent\\d\\d\\d\\d", s"advent$year")
+                    .replaceAll("Advent of Code \\d\\d\\d\\d Day 0", s"Advent of Code $year Day $day")
+                    .replaceAll("ZERO", day.toString)
+                    .replaceAll("Day0", s"Day$day")
+                )
+            }
         }
+
+      // Find the most recent AdventUtils.scala file and copy it to the new year
+      day0code
+        .map(_.parent / "AdventUtils.scala")
+        .filter(_.exists)
+        .map(_.toFile.slurp())
+        .foreach { basic =>
+          root
+            .map(_ / "scala" / getClass.getPackageName.replace('.', '/') / s"advent$year" / "AdventUtils.scala")
+            .foreach { dst => dst.toFile.writeAll(basic.replaceAll("advent\\d\\d\\d\\d", s"advent$year")) }
+        }
+
     } else {
       println("Can't find sources.")
     }
