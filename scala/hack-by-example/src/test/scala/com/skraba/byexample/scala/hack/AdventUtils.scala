@@ -175,9 +175,11 @@ object AdventUtils {
           root
             .map(_ / "resources" / getClass.getPackageName.replace('.', '/') / s"advent$year")
             .foreach { dst =>
-              dst.toDirectory.createDirectory(failIfExists = true)
-              for (day <- 0 to 25)
-                (dst / s"Day${day}Input.txt").toFile.writeAll(basic)
+              dst.toDirectory.createDirectory(force = true)
+              for (day <- 0 to 25) {
+                if (!(dst / s"Day${day}Input.txt").exists)
+                  (dst / s"Day${day}Input.txt").toFile.writeAll(basic)
+              }
             }
         }
 
@@ -196,15 +198,20 @@ object AdventUtils {
           root
             .map(_ / "scala" / getClass.getPackageName.replace('.', '/') / s"advent$year")
             .foreach { dst =>
-              dst.toDirectory.createDirectory(failIfExists = true)
+              dst.toDirectory.createDirectory(force = true)
               for (day <- 0 to 25)
-                (dst / s"AdventOfCodeDay${day}Spec.scala").toFile.writeAll(
-                  basic
-                    .replaceAll("advent\\d\\d\\d\\d", s"advent$year")
-                    .replaceAll("Advent of Code \\d\\d\\d\\d Day 0", s"Advent of Code $year Day $day")
-                    .replaceAll("ZERO", day.toString)
-                    .replaceAll("Day0", s"Day$day")
-                )
+                if (!(dst / s"AdventOfCodeDay${day}Spec.scala").exists)
+                  (dst / s"AdventOfCodeDay${day}Spec.scala").toFile.writeAll(
+                    basic
+                      .replaceAll(
+                        "https://adventofcode.com/\\d\\d\\d\\d/day/\\d+",
+                        s"https://adventofcode.com/$year/day/$day"
+                      )
+                      .replaceAll("advent\\d\\d\\d\\d", s"advent$year")
+                      .replaceAll("Advent of Code \\d\\d\\d\\d Day 0", s"Advent of Code $year Day $day")
+                      .replaceAll("ZERO", day.toString)
+                      .replaceAll("Day0", s"Day$day")
+                  )
             }
         }
 
