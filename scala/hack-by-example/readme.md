@@ -10,6 +10,69 @@ For the [Advent of Code](https://adventofcode.com/), this is a pretty good codin
 
 It's a point of pride to do these on my own, but I don't consider it cheating to look for [hints](https://www.reddit.com/r/adventofcode/) when I am obviously and hopelessly stuck.  Sometimes just a few words (`quadratic` or `Krager's`) is enough to lead me in the right direction for my own implementation, but sometimes I need to work through someone's implementation to find the bugs in mine.  I've noted the problems where I've gotten a bit of help!
 
+Advent of Code 2024
+------------------------------------------------------------------------------
+
+🟢 Easy / 🔶 Medium / 🟥 Hard / 💜️ Fun / 😱️ Frustrating / 🔵 Needed hints
+
+| Day                                                | Techniques and notes                                                                                                 |
+|----------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
+| 🟢[Day 1][AoC2024-01] ([Solution][Sol-AoC2024-01]) | Input as two columns of numbers, then sorting and finding matches.                                                   |
+| 🟢[Day 2][AoC2024-02] ([Solution][Sol-AoC2024-02]) | Each line is a list of numbers. Find the differences between numbers, exhaustively check when one number is removed. |
+| 🟢[Day 3][AoC2024-03] ([Solution][Sol-AoC2024-03]) | One long corrupted string over several lines.  Regex, and splitting.                                                 |
+| 🟢[Day 4][AoC2024-04] ([Solution][Sol-AoC2024-04]) | Looking up words in any direction in a 2D array of characters.                                                       |
+
+[AoC2024-01]: https://adventofcode.com/2024/day/1
+[AoC2024-02]: https://adventofcode.com/2024/day/2
+[AoC2024-03]: https://adventofcode.com/2024/day/3
+[AoC2024-04]: https://adventofcode.com/2024/day/4
+[AoC2024-05]: https://adventofcode.com/2024/day/5
+[AoC2024-06]: https://adventofcode.com/2024/day/6
+[AoC2024-07]: https://adventofcode.com/2024/day/7
+[AoC2024-08]: https://adventofcode.com/2024/day/8
+[AoC2024-09]: https://adventofcode.com/2024/day/9
+[AoC2024-10]: https://adventofcode.com/2024/day/10
+[AoC2024-11]: https://adventofcode.com/2024/day/11
+[AoC2024-12]: https://adventofcode.com/2024/day/12
+[AoC2024-13]: https://adventofcode.com/2024/day/13
+[AoC2024-14]: https://adventofcode.com/2024/day/14
+[AoC2024-15]: https://adventofcode.com/2024/day/15
+[AoC2024-16]: https://adventofcode.com/2024/day/16
+[AoC2024-17]: https://adventofcode.com/2024/day/17
+[AoC2024-18]: https://adventofcode.com/2024/day/18
+[AoC2024-19]: https://adventofcode.com/2024/day/19
+[AoC2024-20]: https://adventofcode.com/2024/day/20
+[AoC2024-21]: https://adventofcode.com/2024/day/21
+[AoC2024-22]: https://adventofcode.com/2024/day/22
+[AoC2024-23]: https://adventofcode.com/2024/day/23
+[AoC2024-24]: https://adventofcode.com/2024/day/24
+[AoC2024-25]: https://adventofcode.com/2024/day/25
+[Sol-AoC2024-01]: src/test/scala/com/skraba/byexample/scala/hack/advent2024/AdventOfCodeDay1Spec.scala
+[Sol-AoC2024-02]: src/test/scala/com/skraba/byexample/scala/hack/advent2024/AdventOfCodeDay2Spec.scala
+[Sol-AoC2024-03]: src/test/scala/com/skraba/byexample/scala/hack/advent2024/AdventOfCodeDay3Spec.scala
+[Sol-AoC2024-04]: src/test/scala/com/skraba/byexample/scala/hack/advent2024/AdventOfCodeDay4Spec.scala
+[Sol-AoC2024-05]: src/test/scala/com/skraba/byexample/scala/hack/advent2024/AdventOfCodeDay5Spec.scala
+[Sol-AoC2024-06]: src/test/scala/com/skraba/byexample/scala/hack/advent2024/AdventOfCodeDay6Spec.scala
+[Sol-AoC2024-07]: src/test/scala/com/skraba/byexample/scala/hack/advent2024/AdventOfCodeDay7Spec.scala
+[Sol-AoC2024-08]: src/test/scala/com/skraba/byexample/scala/hack/advent2024/AdventOfCodeDay8Spec.scala
+[Sol-AoC2024-09]: src/test/scala/com/skraba/byexample/scala/hack/advent2024/AdventOfCodeDay9Spec.scala
+[Sol-AoC2024-10]: src/test/scala/com/skraba/byexample/scala/hack/advent2024/AdventOfCodeDay10Spec.scala
+[Sol-AoC2024-11]: src/test/scala/com/skraba/byexample/scala/hack/advent2024/AdventOfCodeDay11pec.scala
+[Sol-AoC2024-12]: src/test/scala/com/skraba/byexample/scala/hack/advent2024/AdventOfCodeDay12Spec.scala
+[Sol-AoC2024-13]: src/test/scala/com/skraba/byexample/scala/hack/advent2024/AdventOfCodeDay13Spec.scala
+[Sol-AoC2024-14]: src/test/scala/com/skraba/byexample/scala/hack/advent2024/AdventOfCodeDay14Spec.scala
+[Sol-AoC2024-15]: src/test/scala/com/skraba/byexample/scala/hack/advent2024/AdventOfCodeDay15Spec.scala
+[Sol-AoC2024-16]: src/test/scala/com/skraba/byexample/scala/hack/advent2024/AdventOfCodeDay16Spec.scala
+[Sol-AoC2024-17]: src/test/scala/com/skraba/byexample/scala/hack/advent2024/AdventOfCodeDay17Spec.scala
+[Sol-AoC2024-18]: src/test/scala/com/skraba/byexample/scala/hack/advent2024/AdventOfCodeDay18Spec.scala
+[Sol-AoC2024-19]: src/test/scala/com/skraba/byexample/scala/hack/advent2024/AdventOfCodeDay19Spec.scala
+[Sol-AoC2024-20]: src/test/scala/com/skraba/byexample/scala/hack/advent2024/AdventOfCodeDay20Spec.scala
+[Sol-AoC2024-21]: src/test/scala/com/skraba/byexample/scala/hack/advent2024/AdventOfCodeDay21Spec.scala
+[Sol-AoC2024-22]: src/test/scala/com/skraba/byexample/scala/hack/advent2024/AdventOfCodeDay22Spec.scala
+[Sol-AoC2024-23]: src/test/scala/com/skraba/byexample/scala/hack/advent2024/AdventOfCodeDay23Spec.scala
+[Sol-AoC2024-24]: src/test/scala/com/skraba/byexample/scala/hack/advent2024/AdventOfCodeDay24Spec.scala
+[Sol-AoC2024-25]: src/test/scala/com/skraba/byexample/scala/hack/advent2024/AdventOfCodeDay25Spec.scala
+
 Advent of Code 2023
 ------------------------------------------------------------------------------
 
