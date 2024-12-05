@@ -5,6 +5,8 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
+import scala.util.matching.Regex
+
 /** =Advent of Code 2024 Day 3 Solutions in scala=
   *
   * Input: A data string to scan for multiplication.
@@ -20,7 +22,7 @@ class AdventOfCodeDay3Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
 
   object Solution {
 
-    val MulRegex = """mul\((\d+),(\d+)\)""".r
+    val MulRegex: Regex = """mul\((\d+),(\d+)\)""".r
 
     def part1(in: String): Long = MulRegex.findAllMatchIn(in).map(m => m.group(1).toLong * m.group(2).toLong).sum
 

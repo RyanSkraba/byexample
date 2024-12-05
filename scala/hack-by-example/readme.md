@@ -21,6 +21,7 @@ Advent of Code 2024
 | 🟢[Day 2][AoC2024-02] ([Solution][Sol-AoC2024-02]) | Each line is a list of numbers. Find the differences between numbers, exhaustively check when one number is removed. |
 | 🟢[Day 3][AoC2024-03] ([Solution][Sol-AoC2024-03]) | One long corrupted string over several lines.  Regex, and splitting.                                                 |
 | 🟢[Day 4][AoC2024-04] ([Solution][Sol-AoC2024-04]) | Looking up words in any direction in a 2D array of characters.                                                       |
+| 🟢[Day 5][AoC2024-05] ([Solution][Sol-AoC2024-05]) | Finding pair-wise violations in a list of longs, sorting with custom rules                                           |
 
 [AoC2024-01]: https://adventofcode.com/2024/day/1
 [AoC2024-02]: https://adventofcode.com/2024/day/2
