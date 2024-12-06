@@ -54,7 +54,7 @@ case class Ffmpeg(
   lazy val streamInfo: ujson.Obj = ujson
     .read(
       osProc(
-        "ffprobe",
+        Ffprobe,
         Seq("-v", "quiet"),
         Seq("-print_format", "json"),
         Seq("-show_format", "-show_streams"),
@@ -110,7 +110,7 @@ case class Ffmpeg(
   def frameChunkInfo(start: String, end: String, keyFramesOnly: Boolean = false): ujson.Arr = ujson
     .read(
       osProc(
-        "ffprobe",
+        Ffprobe,
         Seq("-v", "quiet"),
         if (keyFramesOnly) Seq("-skip_frame", "nokey") else Seq(),
         Seq("-print_format", "json"),
@@ -204,7 +204,7 @@ case class Ffmpeg(
     val frameRateArg: Seq[String] = if (frameRate != 25) Seq("-framerate", frameRate.toString) else Seq.empty[String]
 
     val cmd = osProc(
-      "ffmpeg",
+      FfmpegCmd,
       frameRateArg,
       // Loop the input image indefinitely for a certain number of seconds
       Seq("-loop", "1", "-t", duration, "-i", srcPng).map(_.toString),
@@ -256,7 +256,7 @@ case class Ffmpeg(
     val frameRateArg: Seq[String] = if (frameRate == 25) Seq("-framerate", frameRate.toString) else Seq.empty[String]
 
     val cmd = osProc(
-      "ffmpeg",
+      FfmpegCmd,
       frameRateArg,
       if (loop > 1) Seq("-stream_loop", (loop - 1).toString) else Seq.empty[String],
       // Use a pattern glob to select the incoming frames
@@ -296,7 +296,7 @@ case class Ffmpeg(
       fontFile: Option[os.Path] = None
   ): Ffmpeg = {
     val cmd = osProc(
-      "ffmpeg",
+      FfmpegCmd,
       Seq("-i", mp4).map(_.toString),
       // Use a video filter to draw text over the frames
       "-vf",
@@ -351,7 +351,7 @@ case class Ffmpeg(
       aevalsrc: String = ""
   ): Ffmpeg = {
     val cmd = osProc(
-      "ffmpeg",
+      FfmpegCmd,
       Seq("-i", mp4).map(_.toString),
       // The generated sound
       Seq("-f", "lavfi", "-i", s"aevalsrc=${if (aevalsrc.nonEmpty) aevalsrc else aevalsrcSweep()}:s=$audioRate:d=$dt"),
@@ -387,7 +387,7 @@ case class Ffmpeg(
       srcMp4s.map(_.toString.replaceAll(" ", "\\\\ ")).map(mp4 => s"file file:$mp4\n").mkString
     )
     val cmd = osProc(
-      "ffmpeg",
+      FfmpegCmd,
       "-f",
       "concat",
       "-safe",
@@ -420,7 +420,7 @@ case class Ffmpeg(
       reencode: Boolean
   ): Ffmpeg = {
     val cmd = osProc(
-      "ffmpeg",
+      FfmpegCmd,
       // The start time, either in seconds or HH:MM:SS
       start.toSeq.filterNot(_.isEmpty).flatMap(Seq("-ss", _)),
       // The end time, either in seconds or HH:MM:SS
@@ -453,7 +453,7 @@ case class Ffmpeg(
       if (end == 0) None else Some(s"afade=t=out:st=${duration - end}:d=$end")
     ).flatten.mkString(",")
     val cmd = osProc(
-      "ffmpeg",
+      FfmpegCmd,
       Seq("-i", mp4).map(_.toString),
       Seq("-af", fadeFilter),
       Seq("-c:v", "copy"),
@@ -470,7 +470,7 @@ case class Ffmpeg(
     *   An instance containing the destination MP4 and the command results.
     */
   def normalizeMp4(dstMp4: os.Path): os.CommandResult = osProc(
-    "ffmpeg",
+    FfmpegCmd,
     Seq("-i", mp4).map(_.toString),
     Seq("-filter:a", "loudnorm=I=-15 [f] ; [f] afftdn=nr=97 [g]; [g] highpass=f=100"),
     // Audio codec
@@ -481,6 +481,22 @@ case class Ffmpeg(
 }
 
 object Ffmpeg {
+
+  /** The command to call to run the Inkscape CLI. */
+  val InkscapeCmd: String = "inkscape"
+
+  /** The command to call to run the Ffmpeg CLI. */
+  val FfmpegCmd: String = "ffmpeg"
+
+  /** The command to call to run the Ffmpeg CLI. */
+  val Ffprobe: String = "ffprobe"
+
+  /** Determine if all of the commands have been installed. */
+  val enabled: Boolean = {
+    import scala.sys.process._
+    try { s"$FfmpegCmd -version".! == 0 && s"$Ffprobe -version".! == 0 && s"$InkscapeCmd --version".! == 0 }
+    catch { case _: Exception => false }
+  }
 
   /** @param loFrequency
     *   The low frequency in hertz

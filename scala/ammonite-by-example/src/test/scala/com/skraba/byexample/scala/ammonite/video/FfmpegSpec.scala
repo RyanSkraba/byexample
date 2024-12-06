@@ -1,14 +1,13 @@
 package com.skraba.byexample.scala.ammonite.video
 
 import com.skraba.byexample.scala.ammonite.OsPathScalaRelectIOConverters._
-import com.skraba.byexample.scala.ammonite.video.Card.Inkscape
+import com.skraba.byexample.scala.ammonite.video.Ffmpeg._
 import org.scalactic.source.Position
 import org.scalatest.{BeforeAndAfterAll, Tag}
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
 import java.nio.file.StandardCopyOption
-import scala.collection.mutable
 import scala.reflect.io.{Directory, File}
 import scala.util.Properties
 
@@ -76,13 +75,6 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
     * run the tests. If `ffmpeg` or `ffprobe` are not present, the word is replaced entirely by ignored calls.
     */
   protected class FfmpegItWord extends ItWord {
-
-    /** Determine if the tests should be run or not. */
-    val enabled: Boolean = {
-      import scala.sys.process._
-      try { "ffmpeg -version".! == 0 && "ffprobe -version".! == 0 && s"$Inkscape --version".! == 0 }
-      catch { case _: Exception => false }
-    }
     override def apply(specText: String, testTags: Tag*)(testFun: => Any)(implicit pos: Position): Unit = {
       // Since we override `it`, we fall back on the equivalent `they` if the tests are enabled.
       if (enabled) they(specText)(testFun)

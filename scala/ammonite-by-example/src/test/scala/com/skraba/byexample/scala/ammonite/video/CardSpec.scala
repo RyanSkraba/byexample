@@ -20,6 +20,7 @@ class CardSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 
   describe("Create a basic svg file using the card") {
     it("should create the files as needed") {
+      assume(Ffmpeg.enabled, "ffmeg and inkscape are required for this test")
       val flag = Card(
         genSvg = _ => CardSpec.SvgFlag,
         filename = "canada_flag",
