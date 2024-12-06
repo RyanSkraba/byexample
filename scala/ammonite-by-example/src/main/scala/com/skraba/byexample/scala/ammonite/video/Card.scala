@@ -37,7 +37,7 @@ case class Card(
   /** The title card in PNG format. */
   val png: FileMaker = maker
     .green(dstPath = dirPng / (filename + ".png"), tag = "png") {
-      Ffmpeg().osProc("inkscape", "-w", "1920", "-h", "1080", svg.dst.get, "--export-filename", _)
+      Ffmpeg().osProc(Card.Inkscape, "-w", "1920", "-h", "1080", svg.dst.get, "--export-filename", _)
     }
 
   private lazy val mp4Cache = collection.mutable.Map[Int, FileMaker]()
@@ -52,6 +52,9 @@ case class Card(
 }
 
 object Card {
+
+  /** The command to call to run the Inkscape CLI. */
+  val Inkscape: String = "inkscape"
 
   /** Given a template string, searches and replaces some lines in the template.
     *

@@ -60,6 +60,12 @@ object CountdownTask {
 
   val Description = "Generate a countdown timer from a template."
 
+  /** The command to run Inkscape on the CLI */
+  private val Inkscape: String = "inkscape"
+
+  /** The command to run Ffmeg on the CLI */
+  private val Ffmeg: String = "ffmeg"
+
   /** Represents the countdown video.
     *
     * @param src
@@ -105,7 +111,7 @@ object CountdownTask {
     private lazy val execCache = collection.mutable.Map[String, File]()
 
     private def execInkscape(f: Int, src: String, dst: String): Unit = {
-      Seq("inkscape", "-w", dx.toString, "-h", dy.toString, src, "--export-filename", dst).!!
+      Seq(Inkscape, "-w", dx.toString, "-h", dy.toString, src, "--export-filename", dst).!!
       if ((f + 1) % frameRate == 0) {
         if (f / frameRate % 10 == 0) print(f / frameRate)
         else print("x")
@@ -115,7 +121,7 @@ object CountdownTask {
     private def execFfmpeg(dst: File): Unit = {
       println(".")
       Seq(
-        "ffmpeg",
+        Ffmeg,
         "-y",
         "-framerate",
         frameRate.toString,
@@ -236,7 +242,7 @@ object CountdownTask {
   case class XmlFrame(v: Video, num: Int) {
     val dst: File = (v.dstDir / (v.src.stripExtension + f".$num%05d" + "." + v.src.extension)).toFile
 
-    def find(in: Node, key: String, pre: String = "inkscape"): Option[String] =
+    def find(in: Node, key: String, pre: String = Inkscape): Option[String] =
       in.attributes.collectFirst { case p: PrefixedAttribute if p.pre == pre && p.key == key => p }.map(_.toString)
 
     def replaceLayer(in: Node, layerName: String)(thunk: Node => Option[Node]): Node = in match {

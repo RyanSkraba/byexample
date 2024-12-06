@@ -1,6 +1,7 @@
 package com.skraba.byexample.scala.ammonite.video
 
 import com.skraba.byexample.scala.ammonite.OsPathScalaRelectIOConverters._
+import com.skraba.byexample.scala.ammonite.video.Card.Inkscape
 import org.scalactic.source.Position
 import org.scalatest.{BeforeAndAfterAll, Tag}
 import org.scalatest.funspec.AnyFunSpecLike
@@ -79,7 +80,7 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
     /** Determine if the tests should be run or not. */
     val enabled: Boolean = {
       import scala.sys.process._
-      try { "ffmpeg -version".! == 0 && "ffprobe -version".! == 0 && "inkscape --version".! == 0 }
+      try { "ffmpeg -version".! == 0 && "ffprobe -version".! == 0 && s"$Inkscape --version".! == 0 }
       catch { case _: Exception => false }
     }
     override def apply(specText: String, testTags: Tag*)(testFun: => Any)(implicit pos: Position): Unit = {
