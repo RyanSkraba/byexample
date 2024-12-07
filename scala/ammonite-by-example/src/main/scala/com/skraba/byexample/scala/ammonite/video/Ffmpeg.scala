@@ -54,7 +54,7 @@ case class Ffmpeg(
   lazy val streamInfo: ujson.Obj = ujson
     .read(
       osProc(
-        Ffprobe,
+        FfprobeCmd,
         Seq("-v", "quiet"),
         Seq("-print_format", "json"),
         Seq("-show_format", "-show_streams"),
@@ -110,7 +110,7 @@ case class Ffmpeg(
   def frameChunkInfo(start: String, end: String, keyFramesOnly: Boolean = false): ujson.Arr = ujson
     .read(
       osProc(
-        Ffprobe,
+        FfprobeCmd,
         Seq("-v", "quiet"),
         if (keyFramesOnly) Seq("-skip_frame", "nokey") else Seq(),
         Seq("-print_format", "json"),
@@ -489,12 +489,12 @@ object Ffmpeg {
   val FfmpegCmd: String = "ffmpeg"
 
   /** The command to call to run the Ffmpeg CLI. */
-  val Ffprobe: String = "ffprobe"
+  val FfprobeCmd: String = "ffprobe"
 
   /** Determine if all of the commands have been installed. */
-  val enabled: Boolean = {
+  lazy val enabled: Boolean = {
     import scala.sys.process._
-    try { s"$FfmpegCmd -version".! == 0 && s"$Ffprobe -version".! == 0 && s"$InkscapeCmd --version".! == 0 }
+    try { s"$FfmpegCmd -version".! == 0 && s"$FfprobeCmd -version".! == 0 && s"$InkscapeCmd --version".! == 0 }
     catch { case _: Exception => false }
   }
 

@@ -43,7 +43,7 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
     } catch { case ex: Exception => ex.printStackTrace() }
 
   /** Generated sequence of frames. */
-  val frames: Seq[File] = {
+  lazy val frames: Seq[File] = {
     val template: Card =
       Card(_ => "", "", dirSvg = CachedTmp / "src", dirPng = CachedTmp / "src", dirMp4 = CachedTmp / "src")
     for (i <- 0 to 99)
@@ -51,7 +51,7 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
   }
 
   /** Generated sequence of frames. */
-  val frames2: Seq[File] = {
+  lazy val frames2: Seq[File] = {
     for (i <- 0 to 99) yield {
       val dst = (CachedTmp / "src" / f"input$i%03d.png").toFile
       os.makeDir.all(dst.parent)

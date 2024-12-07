@@ -61,10 +61,10 @@ object CountdownTask {
   val Description = "Generate a countdown timer from a template."
 
   /** The command to run Inkscape on the CLI */
-  private val Inkscape: String = "inkscape"
+  private val InkscapeCmd: String = "inkscape"
 
   /** The command to run Ffmeg on the CLI */
-  private val Ffmeg: String = "ffmeg"
+  private val FfmegCmd: String = "ffmeg"
 
   /** Represents the countdown video.
     *
@@ -111,7 +111,7 @@ object CountdownTask {
     private lazy val execCache = collection.mutable.Map[String, File]()
 
     private def execInkscape(f: Int, src: String, dst: String): Unit = {
-      Seq(Inkscape, "-w", dx.toString, "-h", dy.toString, src, "--export-filename", dst).!!
+      Seq(InkscapeCmd, "-w", dx.toString, "-h", dy.toString, src, "--export-filename", dst).!!
       if ((f + 1) % frameRate == 0) {
         if (f / frameRate % 10 == 0) print(f / frameRate)
         else print("x")
@@ -121,7 +121,7 @@ object CountdownTask {
     private def execFfmpeg(dst: File): Unit = {
       println(".")
       Seq(
-        Ffmeg,
+        FfmegCmd,
         "-y",
         "-framerate",
         frameRate.toString,
