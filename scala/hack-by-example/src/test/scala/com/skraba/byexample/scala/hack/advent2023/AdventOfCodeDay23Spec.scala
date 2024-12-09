@@ -258,7 +258,7 @@ class AdventOfCodeDay23Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       part1(input: _*) shouldBe answer1
     }
 
-    it("should have answers for part 2", Slow) {
+    it("should have answers for part 2 (80 seconds)", Slow) {
       part2(input: _*) shouldBe answer2
     }
   }

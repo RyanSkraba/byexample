@@ -62,13 +62,11 @@ class AdventOfCodeDay15Spec extends AnyFunSpecLike with Matchers with BeforeAndA
 
     def part1(row: Int, in: String*): Long = {
       val (intervals, beacons) = analyseRow(row, in)
-      intervals.foldLeft(0L) { case (acc, (i1, i2)) =>
-        acc + i2 - i1 + 1
-      } - beacons.size
+      intervals.foldLeft(0L) { case (acc, (i1, i2)) => acc + i2 - i1 + 1 } - beacons.size
     }
 
     def part2(upper: Int, in: String*): Long = {
-      val findInInterval = (0 to upper).toStream.map { row =>
+      val findInInterval = LazyList.from(0 to upper).map { row =>
         analyseRow(row, in, 0, upper)._1 match {
           case Seq(one, _)                => (row, one._1 - 1)
           case Seq((0, x2)) if x2 < upper => (row, upper)
@@ -129,10 +127,15 @@ class AdventOfCodeDay15Spec extends AnyFunSpecLike with Matchers with BeforeAndA
 
   describe("🔑 Solution 🔑") {
     lazy val input = puzzleInput("Day15Input.txt")
-    it("should have answers (150s)", Slow) {
-      // About 2m30 seconds
-      part1(2000000, input: _*) shouldBe decryptLong("z7vfkvsrMPUmvUuss3ePuA==")
-      part2(4000000, input: _*) shouldBe decryptLong("xb2NRwXRMg3D81wNOJlt2w==")
+    lazy val answer1 = decryptLong("z7vfkvsrMPUmvUuss3ePuA==")
+    lazy val answer2 = decryptLong("xb2NRwXRMg3D81wNOJlt2w==")
+
+    it("should have answers for part 1") {
+      part1(2000000, input: _*) shouldBe answer1
+    }
+
+    it("should have answers for part 2 (150 seconds)", Slow) {
+      part2(4000000, input: _*) shouldBe answer2
     }
   }
 }

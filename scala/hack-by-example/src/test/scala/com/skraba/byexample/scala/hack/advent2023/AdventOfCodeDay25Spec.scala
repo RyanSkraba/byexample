@@ -115,7 +115,7 @@ class AdventOfCodeDay25Spec extends AnyFunSpecLike with Matchers with BeforeAndA
     lazy val input = puzzleInput("Day25Input.txt")
     lazy val answer1 = decryptLong("tngkDUZCABasAAD/+wr3ow==")
 
-    it("should have answers for part 1 (10-90s", Slow) {
+    it("should have answers for part 1 (10-90 seconds)", Slow) {
       // This could probably be improved by using an algorithm that finds the cut
       // deterministically.
       part1(input: _*) shouldBe answer1
