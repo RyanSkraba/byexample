@@ -25,6 +25,7 @@ Advent of Code 2024
 | 🔶[Day 6][AoC2024-06] ([Solution][Sol-AoC2024-06]) | Moving around a map with obstacles, adding a blockage to induce a loop.  Good map example.                           |
 | 🟢[Day 7][AoC2024-07] ([Solution][Sol-AoC2024-07]) | Recursive solution to applying operations to a list of numbers.  Also a DFS implemented using LazyLists.             |
 | 🟢[Day 8][AoC2024-08] ([Solution][Sol-AoC2024-08]) | Find points on a grid that are equidistance from different antenna.                                                  |
+| 🟢[Day 9][AoC2024-09] ([Solution][Sol-AoC2024-09]) | Move intervals of blocks into empty spaces.                                                                          |
 
 [AoC2024-01]: https://adventofcode.com/2024/day/1
 [AoC2024-02]: https://adventofcode.com/2024/day/2
