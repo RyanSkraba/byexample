@@ -5,6 +5,8 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
+import scala.collection.mutable
+
 /** =Advent of Code 2024 Day 11 Solutions in scala=
   *
   * Input: A series of numbers (written on stones). Every time you blink, the number changes: if it is zero, it becomes
@@ -37,9 +39,31 @@ class AdventOfCodeDay11Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         .groupMapReduce(_._1)(_._2)(_ + _)
     }
 
-    def part1(in: String*): Long = LazyList.iterate(parse(in.head)) { blink }.drop(25).head.values.sum
+    def countUsingMap(blinks: Int, in: String): Long =
+      LazyList.iterate(parse(in)) { blink }.drop(blinks).head.values.sum
 
-    def part2(in: String*): Long = LazyList.iterate(parse(in.head)) { blink }.drop(75).head.values.sum
+    def part1(in: String): Long = countUsingMap(25, in)
+
+    def part2(in: String): Long = countUsingMap(75, in)
+
+    /** Another implementation (slightly slower!) using a memo to count how many stones after N blinks on a number */
+    lazy val countUsingMemo: ((Int, Long)) => Long = new mutable.HashMap[(Int, Long), Long]() {
+      override def apply(key: (Int, Long)): Long = getOrElseUpdate(
+        key,
+        key match {
+          case (0, _)     => 1
+          case (blink, 0) => countUsingMemo(blink - 1, 1)
+          case (blink, num) if num.toString.length % 2 == 0 =>
+            val split = num.toString.splitAt(num.toString.length / 2)
+            countUsingMemo(blink - 1, split._1.toLong) + countUsingMemo(blink - 1, split._2.toLong)
+          case (blink, num) => countUsingMemo(blink - 1, num * 2024)
+        }
+      )
+    }
+
+    def part1Memo(in: String): Long = in.split("\\s+").map(_.toInt).map(countUsingMemo(25, _)).sum
+
+    def part2Memo(in: String): Long = in.split("\\s+").map(_.toInt).map(countUsingMemo(75, _)).sum
   }
 
   import Solution._
@@ -51,8 +75,16 @@ class AdventOfCodeDay11Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       part1(input) shouldBe 55312
     }
 
+    it("should match the puzzle description for part 1 using a memo") {
+      part1Memo(input) shouldBe 55312
+    }
+
     it("should match the puzzle description for part 2") {
       part2(input) shouldBe 65601038650482L
+    }
+
+    it("should match the puzzle description for part 2 using a memo") {
+      part2Memo(input) shouldBe 65601038650482L
     }
   }
 
@@ -65,8 +97,16 @@ class AdventOfCodeDay11Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       part1(input) shouldBe answer1
     }
 
+    it("should have answers for part 1 using a memo") {
+      part1Memo(input) shouldBe answer1
+    }
+
     it("should have answers for part 2") {
       part2(input) shouldBe answer2
+    }
+
+    it("should have answers for part 2 using a memo") {
+      part2Memo(input) shouldBe answer2
     }
   }
 }

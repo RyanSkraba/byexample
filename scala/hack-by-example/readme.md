@@ -27,6 +27,7 @@ Advent of Code 2024
 | 🟢[Day 8][AoC2024-08] ([Solution][Sol-AoC2024-08])  | Find points on a grid that are equidistant from different antenna.                                                   |
 | 🟢[Day 9][AoC2024-09] ([Solution][Sol-AoC2024-09])  | Move intervals of blocks into empty spaces.                                                                          |
 | 🟢[Day 10][AoC2024-10] ([Solution][Sol-AoC2024-10]) | Find hiking paths through a topological map that cover 0..9.                                                         |
+| 🟢[Day 11][AoC2024-11] ([Solution][Sol-AoC2024-11]) | Recursively apply rules to a set of numbers.                                                                         |
 
 [AoC2024-01]: https://adventofcode.com/2024/day/1
 [AoC2024-02]: https://adventofcode.com/2024/day/2
