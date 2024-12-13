@@ -29,6 +29,7 @@ Advent of Code 2024
 | 🟢[Day 10][AoC2024-10] ([Solution][Sol-AoC2024-10]) | Find hiking paths through a topological map that cover 0..9.                                                         |
 | 🟢[Day 11][AoC2024-11] ([Solution][Sol-AoC2024-11]) | Apply rules to a set of numbers. Two good solutions, one is a nice example of memoization.                           |
 | 🔶[Day 12][AoC2024-12] ([Solution][Sol-AoC2024-12]) | Finding disjoint sets (using union-find or merge-find) to calculate perimeters or sides of garden plots in a 2D map. |
+| 🔶[Day 13][AoC2024-13] ([Solution][Sol-AoC2024-13]) | Miniature linear algebra, finding integer solutions to two equations.                                                |
 
 [AoC2024-01]: https://adventofcode.com/2024/day/1
 [AoC2024-02]: https://adventofcode.com/2024/day/2

@@ -41,12 +41,16 @@ class AdventOfCodeDay13Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       * N * (ax / px - ay / py) = M * (by / py - bx / px)
       * N  = M * (by / py - bx / px) / (ax / px - ay / py)
       *
+      * N + M * bx / ax = px / ax
+      * N + M * by / ay = py / ay
       *
+      * M * bx / ax - M * by / ay = px / ax - py / ay
+      * M  = (px / ax - py / ay ) / (bx / ax - by / ay)
       * }}}
       */
     case class Claw(ax: Long, ay: Long, bx: Long, by: Long, px: Long, py: Long) {
 
-      def minToWinPart1(): Long = {
+      def iterateMinCostForWin(): Long = {
         // Iterate over all the possibilities for N, and check whether M is a possible integer candidate.
         val costs =
           for (
@@ -58,7 +62,23 @@ class AdventOfCodeDay13Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         costs.flatten.map(_._1).minOption.getOrElse(0L)
       }
 
-      def minToWinPart2(offset: Long = 10000000000000L): Long = minToWinPart1()
+      def solveMinCostForWin(offset: Long = 10000000000000L): Long = {
+        // The new prize location
+        val opx = this.px + offset.toDouble
+        val opy = this.py + offset.toDouble
+
+        // Solving for m numerically.
+        val m = (opx / ax - opy / ay) / (bx.toDouble / ax - by.toDouble / ay)
+        val n = (opx - m * bx) / ax
+        if (n < 0 || m < 0) return 0
+
+        // Check that it's "close enough" to an integer by recalculating the positions.
+        val mm = Math.round(m)
+        val nn = Math.round(n)
+
+        if (nn * ax + mm * bx == opx && nn * ay + mm * by == opy) mm + 3 * nn
+        else 0
+      }
     }
 
     def parse(in: String): Option[Claw] = ClawRe
@@ -74,9 +94,9 @@ class AdventOfCodeDay13Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         )
       )
 
-    def part1(in: String): Long = in.split("\n\n").flatMap(parse).map(_.minToWinPart1()).sum
+    def part1(in: String): Long = in.split("\n\n").flatMap(parse).map(_.iterateMinCostForWin()).sum
 
-    def part2(in: String): Long = in.split("\n\n").flatMap(parse).map(_.minToWinPart2()).sum
+    def part2(in: String): Long = in.split("\n\n").flatMap(parse).map(_.solveMinCostForWin()).sum
   }
 
   import Solution._
@@ -104,21 +124,21 @@ class AdventOfCodeDay13Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       part1(input) shouldBe 480
     }
 
-    ignore("should match the puzzle description for part 2") {
-      part2(input) shouldBe 200
+    it("should match the puzzle description for part 2") {
+      part2(input) shouldBe 875318608908L
     }
   }
 
   describe("🔑 Solution 🔑") {
     lazy val input = puzzleInput("Day13Input.txt").mkString("\n")
     lazy val answer1 = decryptLong("QtIUofosvafPBdWIBAVHUQ==")
-    lazy val answer2 = decryptLong("U9BZNCixKWAgOXNrGyDe5A==")
+    lazy val answer2 = decryptLong("WZ4/f0ChMTGVgvLs7vDa1Q==")
 
     it("should have answers for part 1") {
       part1(input) shouldBe answer1
     }
 
-    ignore("should have answers for part 2") {
+    it("should have answers for part 2") {
       part2(input) shouldBe answer2
     }
   }
