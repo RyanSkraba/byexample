@@ -61,11 +61,8 @@ class AdventOfCodeDay25Spec extends AnyFunSpecLike with Matchers with BeforeAndA
     }
     object Graph {
       def from(in: String*): Graph[String] = {
-        val edges: Seq[(String, String)] = in
-          .map(_.split("[: ]+").toList)
-          .flatMap(_ match {
-            case src :: dsts => dsts.map(dst => dst -> src)
-          })
+        val edges: Seq[(String, String)] =
+          in.map(_.split("[: ]+").toList).flatMap(_ match { case src :: dsts => dsts.map(dst => dst -> src) })
         val vertices = edges.map(_._1).toSet ++ edges.map(_._2).toSet
         Graph(vertices, edges)
       }

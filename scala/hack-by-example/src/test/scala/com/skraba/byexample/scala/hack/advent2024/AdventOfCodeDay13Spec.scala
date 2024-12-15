@@ -9,11 +9,13 @@ import scala.util.matching.Regex
 
 /** =Advent of Code 2024 Day 13 Solutions in scala=
   *
-  * Input:
+  * Input: Descriptions of a claw machine with two buttons and a prize location. Each button moves the claw a specific
+  * amount in the x and y directions. Pushing button A costs three tokens and button B costs one.
   *
-  * Part 1:
+  * Part 1: For each game, find the number of tokens necessary to win the winnable games with less than 100 button
+  * pushes on any button. Ignore unwinnable games.
   *
-  * Part 2:
+  * Part 2: Add 10000000000000 to the X and Y coordinates of the prize and repeat with any number of button pushes.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2024/day/13]]
@@ -64,8 +66,8 @@ class AdventOfCodeDay13Spec extends AnyFunSpecLike with Matchers with BeforeAndA
 
       def solveMinCostForWin(offset: Long = 10000000000000L): Long = {
         // The new prize location
-        val opx = this.px + offset.toDouble
-        val opy = this.py + offset.toDouble
+        val opx = px + offset.toDouble
+        val opy = py + offset.toDouble
 
         // Solving for m numerically.
         val m = (opx / ax - opy / ay) / (bx.toDouble / ax - by.toDouble / ay)
