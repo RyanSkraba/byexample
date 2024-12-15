@@ -30,6 +30,8 @@ Advent of Code 2024
 | 🟢[Day 11][AoC2024-11] ([Solution][Sol-AoC2024-11]) | Apply rules to a set of numbers. Two good solutions, one is a nice example of memoization.                           |
 | 🔶[Day 12][AoC2024-12] ([Solution][Sol-AoC2024-12]) | Finding disjoint sets (using union-find or merge-find) to calculate perimeters or sides of garden plots in a 2D map. |
 | 🔶[Day 13][AoC2024-13] ([Solution][Sol-AoC2024-13]) | Miniature linear algebra, finding integer solutions to two equations.                                                |
+| 🔶[Day 14][AoC2024-14] ([Solution][Sol-AoC2024-14]) | 💜Robots moving around a grid given a starting point and vector.  Find the pretty picture they make.                 |
+| 🟥[Day 15][AoC2024-15] ([Solution][Sol-AoC2024-15]) | A Robot pushing movable boxes in a 2D warehouse, where boxes can push other boxes.                                   |
 
 [AoC2024-01]: https://adventofcode.com/2024/day/1
 [AoC2024-02]: https://adventofcode.com/2024/day/2
