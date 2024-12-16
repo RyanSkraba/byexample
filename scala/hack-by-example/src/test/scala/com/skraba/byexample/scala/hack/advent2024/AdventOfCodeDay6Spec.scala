@@ -54,7 +54,7 @@ class AdventOfCodeDay6Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
 
         // Rotates the cursor clockwise or counter-clockwise
         lazy val rotCw: Cursor = copy(dir = Dir((dir.id + 1) % Dir.maxId))
-        lazy val rotcCw: Cursor = copy(dir = Dir((dir.id + Dir.maxId - 1) % Dir.maxId))
+        lazy val rotCcw: Cursor = copy(dir = Dir((dir.id + Dir.maxId - 1) % Dir.maxId))
 
         def mv(to: Dir): Cursor = to match {
           case East  => e

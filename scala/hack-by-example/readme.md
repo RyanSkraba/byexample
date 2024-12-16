@@ -32,6 +32,7 @@ Advent of Code 2024
 | 🔶[Day 13][AoC2024-13] ([Solution][Sol-AoC2024-13]) | Miniature linear algebra, finding integer solutions to two equations.                                                |
 | 🔶[Day 14][AoC2024-14] ([Solution][Sol-AoC2024-14]) | 💜Robots moving around a grid given a starting point and vector.  Find the pretty picture they make.                 |
 | 🟥[Day 15][AoC2024-15] ([Solution][Sol-AoC2024-15]) | A Robot pushing movable boxes in a 2D warehouse, where boxes can push other boxes.                                   |
+| 🔶[Day 16][AoC2024-16] ([Solution][Sol-AoC2024-16]) | Find the minimum cost path through a maze, then all minimum cost paths. BFS and directional map.                     |
 
 [AoC2024-01]: https://adventofcode.com/2024/day/1
 [AoC2024-02]: https://adventofcode.com/2024/day/2

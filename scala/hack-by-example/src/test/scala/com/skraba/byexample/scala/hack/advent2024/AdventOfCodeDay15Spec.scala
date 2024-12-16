@@ -7,7 +7,7 @@ import org.scalatest.matchers.should.Matchers
 
 /** =Advent of Code 2024 Day 15 Solutions in scala=
   *
-  * Input: A map showing the positions of a robot and some boxes, as well as unmoveable walls, followed by a list of
+  * Input: A map showing the positions of a robot and some boxes, as well as unmovable walls, followed by a list of
   * directions that the robot will wander around the warehouse, hitting walls and pushing boxes (when they can be
   * moved).
   *
@@ -93,7 +93,12 @@ class AdventOfCodeDay15Spec extends AnyFunSpecLike with Matchers with BeforeAndA
           Plan(p.mkString, p.head.length) -> r
       }) match {
         case (p, r) =>
-          p.copy(full = p.full.replaceAll("[^.#]", "."), robot = p.find('@').next(), boxes = p.find('O').toSet) -> r
+          p.copy(
+            full = p.full.replaceAll("[^.#]", "."),
+            robot = p.find('@').next(),
+            boxes = p.find('O').toSet,
+            doubledBox = doubled
+          ) -> r
       }
     }
 
