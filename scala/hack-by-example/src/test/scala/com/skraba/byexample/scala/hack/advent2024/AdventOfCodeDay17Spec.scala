@@ -43,6 +43,8 @@ class AdventOfCodeDay17Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       )
 
       lazy val next: CPU = program.lift(i).map(ops).map(_(this)).getOrElse(copy(i = -1))
+
+      lazy val endOutput: Seq[Int] = LazyList.iterate(this)(_.next).takeWhile(_.i != -1).last.out
     }
 
     def parse(in: String): CPU = {
@@ -57,10 +59,7 @@ class AdventOfCodeDay17Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       }
     }
 
-    def part1(in: String): String = {
-      val cpu = parse(in)
-      LazyList.iterate(cpu)(_.next).filter(_.i == -1).head.out.mkString(",")
-    }
+    def part1(in: String): String = parse(in).endOutput.mkString(",")
 
     def part2brute(in: String): Long = {
       val cpu = parse(in)
@@ -77,8 +76,73 @@ class AdventOfCodeDay17Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       -1
     }
 
+    // By examination:
+    // The 16 Int program is a loop that continues until A is zero.
+    // The only state that matters at the start of the loop is the value of A.
+    // A is shifted right by 3 at the end of the loop.
+    // We output one integer for each iteration of the loop, and it's value is given by:
+    def loopOutput(xor1: Int, xor2: Int, a: Long): Long = a % 8 ^ xor1 ^ a >> (a % 8 ^ xor1) ^ xor2
+    // Note that the XOR term  a % 8 only uses the last 3 bits of the value of A.
+    // And the term a >> (a % 8 ^ xor1) shifts A from 0 to 7 bits to the right.
+    // Since only the last 3 bits of the output are used, that the output only depends on
+    // the last 10 bits of A.
+
+    /** Optimized for the program, doesn't finish in a reasonable time. */
+    def part2bruteOptimized(in: String): Long = {
+      val cpu = parse(in)
+      var test = 0L
+      val (xor1, xor2) = (cpu.program(3), cpu.program(11))
+      while (test < Long.MaxValue) {
+        val ll0 = LazyList
+          .iterate(test -> loopOutput(xor1, xor2, test)) { case (a, _) => (a >> 3) -> loopOutput(xor1, xor2, a >> 3) }
+          .takeWhile(_ != (0L, 0L))
+          .map(_._2.toInt % 8)
+          .zipWithIndex
+
+        val ll = ll0.takeWhile { case (out, i) => out == cpu.program(i) }
+        if (ll.size == cpu.program.size)
+          return test
+        test += 1
+      }
+      -1
+    }
+
     def part2(in: String): Long = {
-      ???
+      val cpu = parse(in)
+
+      // Use the xor values from my program to calculate the next output value.
+      val (xor1, xor2) = (cpu.program(3), cpu.program(11))
+
+      // For every possible output, find the ten-bit values that could have produced it if they were the least significant bits of register A..
+      val outputToTenBit: Map[Long, IndexedSeq[Long]] =
+        (0L until 1024).map(a => loopOutput(xor1, xor2, a) % 8 -> a).groupMap(_._1)(_._2)
+
+      // Long-winded way of doing a DFS!
+      val solutions =
+        for (
+          c0 <- outputToTenBit(cpu.program.head);
+          // Find only the possible patterns that overlap 7 bits with the previous
+          c1 <- outputToTenBit(cpu.program(1)) if c0 >> 3L == (c1 & 127L);
+          c2 <- outputToTenBit(cpu.program(2)) if c1 >> 3L == (c2 & 127L);
+          c3 <- outputToTenBit(cpu.program(3)) if c2 >> 3L == (c3 & 127L);
+          c4 <- outputToTenBit(cpu.program(4)) if c3 >> 3L == (c4 & 127L);
+          c5 <- outputToTenBit(cpu.program(5)) if c4 >> 3L == (c5 & 127L);
+          c6 <- outputToTenBit(cpu.program(6)) if c5 >> 3L == (c6 & 127L);
+          c7 <- outputToTenBit(cpu.program(7)) if c6 >> 3L == (c7 & 127L);
+          c8 <- outputToTenBit(cpu.program(8)) if c7 >> 3L == (c8 & 127L);
+          c9 <- outputToTenBit(cpu.program(9)) if c8 >> 3L == (c9 & 127L);
+          c10 <- outputToTenBit(cpu.program(10)) if c9 >> 3L == (c10 & 127L);
+          c11 <- outputToTenBit(cpu.program(11)) if c10 >> 3L == (c11 & 127L);
+          c12 <- outputToTenBit(cpu.program(12)) if c11 >> 3L == (c12 & 127L);
+          c13 <- outputToTenBit(cpu.program(13)) if c12 >> 3L == (c13 & 127L);
+          c14 <- outputToTenBit(cpu.program(14)) if c13 >> 3L == (c14 & 127L);
+          c15 <- outputToTenBit(cpu.program(15)) if c14 >> 3L == (c15 & 127L)
+        ) yield Seq(c14, c13, c12, c11, c10, c9, c8, c7, c6, c5, c4, c3, c2, c1, c0).foldLeft(c15) {
+          // Reassemble the patterns three bits at a time to remove the overlapping regions.
+          case (acc, c) => (acc << 3L) + (c & 7)
+        }
+
+      solutions.head
     }
   }
 
@@ -113,13 +177,13 @@ class AdventOfCodeDay17Spec extends AnyFunSpecLike with Matchers with BeforeAndA
   describe("🔑 Solution 🔑") {
     lazy val input = puzzleInput("Day17Input.txt").mkString("\n")
     lazy val answer1 = decrypt("kp9XhkLRyEmw5BJmR9khvyKWTnExVnetqsFrcRv9OIo=")
-    lazy val answer2 = 200
+    lazy val answer2 = decryptLong("79E74lyUzhx2gwfS8BXLuA==")
 
     it("should have answers for part 1") {
       part1(input) shouldBe answer1
     }
 
-    ignore("should have answers for part 2") {
+    it("should have answers for part 2") {
       part2(input) shouldBe answer2
     }
   }
