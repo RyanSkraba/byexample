@@ -15,25 +15,26 @@ Advent of Code 2024
 
 🟢 Easy / 🔶 Medium / 🟥 Hard / 💜️ Fun / 😱️ Frustrating / 🔵 Needed hints
 
-| Day                                                 | Techniques and notes                                                                                                                |
-|-----------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| 🟢[Day 1][AoC2024-01] ([Solution][Sol-AoC2024-01])  | Input as two columns of numbers, then sorting and finding matches.                                                                  |
-| 🟢[Day 2][AoC2024-02] ([Solution][Sol-AoC2024-02])  | Each line is a list of numbers. Find the differences between numbers, exhaustively check when one number is removed.                |
-| 🟢[Day 3][AoC2024-03] ([Solution][Sol-AoC2024-03])  | One long corrupted string over several lines.  Regex, and splitting.                                                                |
-| 🟢[Day 4][AoC2024-04] ([Solution][Sol-AoC2024-04])  | Looking up words in any direction in a 2D array of characters.                                                                      |
-| 🟢[Day 5][AoC2024-05] ([Solution][Sol-AoC2024-05])  | Finding pair-wise violations in a list of longs, sorting with custom rules                                                          |
-| 🔶[Day 6][AoC2024-06] ([Solution][Sol-AoC2024-06])  | Moving around a map with obstacles, adding a blockage to induce a loop.  Good map example.                                          |
-| 🟢[Day 7][AoC2024-07] ([Solution][Sol-AoC2024-07])  | Recursive solution to applying operations to a list of numbers.  Also a DFS implemented using LazyLists.                            |
-| 🟢[Day 8][AoC2024-08] ([Solution][Sol-AoC2024-08])  | Find points on a grid that are equidistant from different antenna.                                                                  |
-| 🟢[Day 9][AoC2024-09] ([Solution][Sol-AoC2024-09])  | Move intervals of blocks into empty spaces.                                                                                         |
-| 🟢[Day 10][AoC2024-10] ([Solution][Sol-AoC2024-10]) | Find hiking paths through a topological map that cover 0..9.                                                                        |
-| 🟢[Day 11][AoC2024-11] ([Solution][Sol-AoC2024-11]) | Apply rules to a set of numbers. Two good solutions, one is a nice example of memoization.                                          |
-| 🔶[Day 12][AoC2024-12] ([Solution][Sol-AoC2024-12]) | Finding disjoint sets (using union-find or merge-find) to calculate perimeters or sides of garden plots in a 2D map.                |
-| 🔶[Day 13][AoC2024-13] ([Solution][Sol-AoC2024-13]) | Miniature linear algebra, finding integer solutions to two equations.                                                               |
-| 🔶[Day 14][AoC2024-14] ([Solution][Sol-AoC2024-14]) | 💜Robots moving around a grid given a starting point and vector.  Find the pretty picture they make.                                |
-| 🟥[Day 15][AoC2024-15] ([Solution][Sol-AoC2024-15]) | A Robot pushing movable boxes in a 2D warehouse, where boxes can push other boxes.                                                  |
-| 🔶[Day 16][AoC2024-16] ([Solution][Sol-AoC2024-16]) | Find the minimum cost path through a maze, then all minimum cost paths. BFS and directional map.                                    |
-| 🟥[Day 17][AoC2024-17] ([Solution][Sol-AoC2024-17]) | Make a simple CPU with opcodes and operands to find the output, then study the input program to make a quine. Lots of bit fiddling. |
+| Day                                                  | Techniques and notes                                                                                                                |
+|------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| 🟢[Day 1][AoC2024-01] ([Solution][Sol-AoC2024-01])   | Input as two columns of numbers, then sorting and finding matches.                                                                  |
+| 🟢[Day 2][AoC2024-02] ([Solution][Sol-AoC2024-02])   | Each line is a list of numbers. Find the differences between numbers, exhaustively check when one number is removed.                |
+| 🟢[Day 3][AoC2024-03] ([Solution][Sol-AoC2024-03])   | One long corrupted string over several lines.  Regex, and splitting.                                                                |
+| 🟢[Day 4][AoC2024-04] ([Solution][Sol-AoC2024-04])   | Looking up words in any direction in a 2D array of characters.                                                                      |
+| 🟢[Day 5][AoC2024-05] ([Solution][Sol-AoC2024-05])   | Finding pair-wise violations in a list of longs, sorting with custom rules                                                          |
+| 🔶[Day 6][AoC2024-06] ([Solution][Sol-AoC2024-06])   | Moving around a map with obstacles, adding a blockage to induce a loop.  Good map example.                                          |
+| 🟢[Day 7][AoC2024-07] ([Solution][Sol-AoC2024-07])   | Recursive solution to applying operations to a list of numbers.  Also a DFS implemented using LazyLists.                            |
+| 🟢[Day 8][AoC2024-08] ([Solution][Sol-AoC2024-08])   | Find points on a grid that are equidistant from different antenna.                                                                  |
+| 🟢[Day 9][AoC2024-09] ([Solution][Sol-AoC2024-09])   | Move intervals of blocks into empty spaces.                                                                                         |
+| 🟢[Day 10][AoC2024-10] ([Solution][Sol-AoC2024-10])  | Find hiking paths through a topological map that cover 0..9.                                                                        |
+| 🟢[Day 11][AoC2024-11] ([Solution][Sol-AoC2024-11])  | Apply rules to a set of numbers. Two good solutions, one is a nice example of memoization.                                          |
+| 🔶[Day 12][AoC2024-12] ([Solution][Sol-AoC2024-12])  | Finding disjoint sets (using union-find or merge-find) to calculate perimeters or sides of garden plots in a 2D map.                |
+| 🔶[Day 13][AoC2024-13] ([Solution][Sol-AoC2024-13])  | Miniature linear algebra, finding integer solutions to two equations.                                                               |
+| 🔶[Day 14][AoC2024-14] ([Solution][Sol-AoC2024-14])  | 💜Robots moving around a grid given a starting point and vector.  Find the pretty picture they make.                                |
+| 🟥[Day 15][AoC2024-15] ([Solution][Sol-AoC2024-15])  | A Robot pushing movable boxes in a 2D warehouse, where boxes can push other boxes.                                                  |
+| 🔶[Day 16][AoC2024-16] ([Solution][Sol-AoC2024-16])  | Find the minimum cost path through a maze, then all minimum cost paths. BFS and directional map.                                    |
+| 🟥[Day 17][AoC2024-17] ([Solution][Sol-AoC2024-17])  | Make a simple CPU with opcodes and operands to find the output, then study the input program to make a quine. Lots of bit fiddling. |
+| 🟢[Day 18][AoC2024-18] ([Solution][Sol-yAoC2024-18]) | 💜️Simple BFS pathfinding through a grid (without drawing a plan), then a binary search to find the first blocked path.             |
 
 [AoC2024-01]: https://adventofcode.com/2024/day/1
 [AoC2024-02]: https://adventofcode.com/2024/day/2
