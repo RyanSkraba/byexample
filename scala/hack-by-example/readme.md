@@ -35,6 +35,7 @@ Advent of Code 2024
 | 🔶[Day 16][AoC2024-16] ([Solution][Sol-AoC2024-16])  | Find the minimum cost path through a maze, then all minimum cost paths. BFS and directional map.                                    |
 | 🟥[Day 17][AoC2024-17] ([Solution][Sol-AoC2024-17])  | Make a simple CPU with opcodes and operands to find the output, then study the input program to make a quine. Lots of bit fiddling. |
 | 🟢[Day 18][AoC2024-18] ([Solution][Sol-yAoC2024-18]) | 💜️Simple BFS pathfinding through a grid (without drawing a plan), then a binary search to find the first blocked path.             |
+| 🟢[Day 19][AoC2024-19] ([Solution][Sol-yAoC2024-19]) | 💜️Splitting a design into valid towels, using memoization.                                                                         |
 
 [AoC2024-01]: https://adventofcode.com/2024/day/1
 [AoC2024-02]: https://adventofcode.com/2024/day/2
