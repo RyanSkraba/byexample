@@ -65,7 +65,7 @@ class AdventOfCodeDay20Spec extends AnyFunSpecLike with Matchers with BeforeAndA
 
       // Given any position, find any cheat to another position that cause the distance to decrease.
       def cheatsFrom(pos: Int): Seq[Int] = {
-        val d0 = distance(pos);
+        val d0 = distance(pos)
         for (
           xTaxi <- -cheat to cheat;
           x = pos % dx + xTaxi if x >= 1 && x < (dx - 1);
