@@ -52,12 +52,12 @@ class AdventOfCodeDay1Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
   describe("Example case") {
     val input =
       """|3   4
-        |4   3
-        |2   5
-        |1   3
-        |3   9
-        |3   3
-        |""".trim.stripMargin.split("\n")
+         |4   3
+         |2   5
+         |1   3
+         |3   9
+         |3   3
+         |""".trim.stripMargin.split("\n")
 
     it("should match the puzzle description for part 1") {
       part1(input: _*) shouldBe 11
