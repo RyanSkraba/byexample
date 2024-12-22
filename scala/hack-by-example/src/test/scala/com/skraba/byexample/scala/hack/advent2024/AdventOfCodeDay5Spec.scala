@@ -7,11 +7,13 @@ import org.scalatest.matchers.should.Matchers
 
 /** =Advent of Code 2024 Day 5 Solutions in scala=
   *
-  * Input:
+  * Input: A list of page ordering rules where the tuple means that the first page number must occur before the second
+  * page number (at any point, not necessarily immediately), followed by a list of page number sequences.
   *
-  * Part 1:
+  * Part 1: For all the sequences that are in order according to the rules, sum the middle page numbers.
   *
-  * Part 2:
+  * Part 2: For all the sequences that are not in order according to the rules, find a GOOD order and sum the middle
+  * page numbers.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2024/day/5]]
@@ -19,8 +21,6 @@ import org.scalatest.matchers.should.Matchers
 class AdventOfCodeDay5Spec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach {
 
   object Solution {
-
-    case class ABC(a: Long) {}
 
     def parse(in: String*): (Set[(Long, Long)], Seq[Seq[Long]]) = {
       val (rulesPart, updatesPart) = in.span(_.trim.nonEmpty)
