@@ -5,13 +5,18 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
+import scala.collection.mutable
+
 /** =Advent of Code 2024 Day 21 Solutions in scala=
   *
-  * Input:
+  * Input: A list of codes to enter into a numeric keypad, with a specific layout. A robot will push the buttons on the
+  * numeric pad, and it is controlled by a keypad with directional buttons.
   *
-  * Part 1:
+  * Part 1: There are two robots between you and the numeric keypad. Find the number of button presses you need to push
+  * on the robot keypad closest to you to eventually have the code entered on the numeric keypad. Sum the product of the
+  * numeric part of each code by the number of button presses it takes to enter it.
   *
-  * Part 2:
+  * Part 2: Same thing, but there are 25 robots between you and the numeric keypad.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2024/day/21]]
@@ -20,11 +25,55 @@ class AdventOfCodeDay21Spec extends AnyFunSpecLike with Matchers with BeforeAndA
 
   object Solution {
 
-    case class ABC(a: Long) {}
+    /** To move from the button on the src position of the string to the button at the dst position, these directions
+      * need to be applied.
+      *
+      * {{{
+      * +---+---+---+       +---+---+
+      * | 7 | 8 | 9 |       | ^ | A |
+      * +---+---+---+   +---+---+---+
+      * | 4 | 5 | 6 |   | < | v | > |
+      * +---+---+---+   +---+---+---+
+      * | 1 | 2 | 3 |
+      * +---+---+---+
+      *     | 0 | A |
+      *     +---+---+
+      * }}}
+      */
+    def fromTo(src: Int, dst: Int, buttons: String): (String, String) = buttons(src).toString + buttons(dst) -> {
+      val dx = dst % 3 - src % 3
+      val dy = dst / 3 - src / 3
+      val x = if (dx < 0) "<" * math.abs(dx) else ">" * dx
+      val y = if (dy < 0) "^" * math.abs(dy) else "v" * dy
+      // Always avoid passing by the 'X' button (an invalid spot).
+      if (buttons(src + dy * 3) == 'X') x + y
+      else if (buttons(src + dx) == 'X') y + x
+      else if (x.startsWith("<")) x + y // A bit by trial and error.
+      else y + x
+    }
 
-    def parse(in: String): Option[ABC] = None
+    val NumButtons: String = "789456123X0A"
+    lazy val NumPad: Map[String, String] =
+      (for (src <- NumButtons.indices; dst <- NumButtons.indices) yield fromTo(src, dst, NumButtons)).toMap
 
-    def part1(in: String*): Long = 100
+    val DirButtons: String = "X^A<v>"
+    lazy val DirPad: Map[String, String] =
+      (for (src <- DirButtons.indices; dst <- DirButtons.indices) yield fromTo(src, dst, DirButtons)).toMap
+
+    lazy val memo: ((String, Int)) => Long = new mutable.HashMap[(String, Int), Long]() {
+      override def apply(key: (String, Int)): Long = getOrElseUpdate(
+        key,
+        key match {
+          case (code, 0) => code.length
+        }
+      )
+    }
+
+    def part1(in: String*): Long = {
+      def numcode(in: String): String = ("A" + in).sliding(2).map(NumPad).mkString("", "A", "A")
+      def dircode(in: String): String = ("A" + in).sliding(2).map(DirPad).mkString("", "A", "A")
+      in.map(code => code.filter(_.isDigit).toLong * dircode(dircode(numcode(code))).length).sum
+    }
 
     def part2(in: String*): Long = 200
   }
@@ -33,11 +82,15 @@ class AdventOfCodeDay21Spec extends AnyFunSpecLike with Matchers with BeforeAndA
 
   describe("Example case") {
     val input =
-      """
+      """029A
+        |980A
+        |179A
+        |456A
+        |379A
         |""".trim.stripMargin.split("\n")
 
     it("should match the puzzle description for part 1") {
-      part1(input: _*) shouldBe 100
+      part1(input: _*) shouldBe 126384
     }
 
     it("should match the puzzle description for part 2") {
@@ -47,8 +100,8 @@ class AdventOfCodeDay21Spec extends AnyFunSpecLike with Matchers with BeforeAndA
 
   describe("🔑 Solution 🔑") {
     lazy val input = puzzleInput("Day21Input.txt")
-    lazy val answer1 = decryptLong("tTNGygZ0+O4PEH+5IiCrBw==")
-    lazy val answer2 = decryptLong("U9BZNCixKWAgOXNrGyDe5A==")
+    lazy val answer1 = decryptLong("jbymwwx5o4KzWYqMd+1G7A==")
+    lazy val answer2 = 200
 
     it("should have answers for part 1") {
       part1(input: _*) shouldBe answer1
