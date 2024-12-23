@@ -60,22 +60,28 @@ class AdventOfCodeDay21Spec extends AnyFunSpecLike with Matchers with BeforeAndA
     lazy val DirPad: Map[String, String] =
       (for (src <- DirButtons.indices; dst <- DirButtons.indices) yield fromTo(src, dst, DirButtons)).toMap
 
-    lazy val memo: ((String, Int)) => Long = new mutable.HashMap[(String, Int), Long]() {
-      override def apply(key: (String, Int)): Long = getOrElseUpdate(
-        key,
-        key match {
-          case (code, 0) => code.length
-        }
-      )
-    }
+    def numKey(in: String): Iterator[String] = ("A" + in).sliding(2).map(NumPad).map(_ + "A")
+    def dirKey(in: String): Iterator[String] = ("A" + in).sliding(2).map(DirPad).map(_ + "A")
 
     def part1(in: String*): Long = {
-      def numcode(in: String): String = ("A" + in).sliding(2).map(NumPad).mkString("", "A", "A")
-      def dircode(in: String): String = ("A" + in).sliding(2).map(DirPad).mkString("", "A", "A")
-      in.map(code => code.filter(_.isDigit).toLong * dircode(dircode(numcode(code))).length).sum
+      in.map(code => code.filter(_.isDigit).toLong * dirKey(dirKey(numKey(code).mkString).mkString).mkString.length).sum
     }
 
-    def part2(in: String*): Long = 200
+    def part2(robots: Int, in: String*): Long = {
+      // Memo from a syllable (ending with A) and the number of desired iterations to the number of keystrokes
+      // necessary to enter it.  ("^^>A", 4) -> is means four more robots need to be manipulated and the desired end
+      // sequence is "^^>A"
+      lazy val memo: ((String, Int)) => Long = new mutable.HashMap[(String, Int), Long]() {
+        override def apply(key: (String, Int)): Long = getOrElseUpdate(
+          key,
+          key match {
+            case (code, 0) => code.length
+            case (code, n) => dirKey(code).map(memo(_, n - 1)).sum
+          }
+        )
+      }
+      in.map(code => code.filter(_.isDigit).toLong * numKey(code).map(memo(_, robots)).sum).sum
+    }
   }
 
   import Solution._
@@ -93,22 +99,30 @@ class AdventOfCodeDay21Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       part1(input: _*) shouldBe 126384
     }
 
+    it("should solve part1 with part 2") {
+      part2(2, input: _*) shouldBe 126384
+    }
+
     it("should match the puzzle description for part 2") {
-      part2(input: _*) shouldBe 200
+      part2(25, input: _*) shouldBe 154115708116294L
     }
   }
 
   describe("🔑 Solution 🔑") {
     lazy val input = puzzleInput("Day21Input.txt")
     lazy val answer1 = decryptLong("jbymwwx5o4KzWYqMd+1G7A==")
-    lazy val answer2 = 200
+    lazy val answer2 = decryptLong("0YLzi62GPTcb7grfxLgkaA==")
 
     it("should have answers for part 1") {
       part1(input: _*) shouldBe answer1
     }
 
+    it("should solve part1 with part 2") {
+      part2(2, input: _*) shouldBe answer1
+    }
+
     it("should have answers for part 2") {
-      part2(input: _*) shouldBe answer2
+      part2(25, input: _*) shouldBe answer2
     }
   }
 }
