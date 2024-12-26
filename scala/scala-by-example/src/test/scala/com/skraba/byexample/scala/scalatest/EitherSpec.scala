@@ -19,19 +19,15 @@ class EitherSpec extends AnyFunSpecLike with Matchers {
 
     it("can be asserted as Left or Right") {
       l123 shouldBe Left(123)
-      l123 shouldBe 'left
-      l123.left.get shouldBe 123
+      l123 shouldBe Symbol("left")
+      l123.left.getOrElse(-1) shouldBe 123
       rAbc shouldBe Right("ABC")
-      rAbc shouldBe 'right
-      rAbc.right.get shouldBe "ABC"
+      rAbc shouldBe Symbol("right")
+      rAbc.getOrElse("") shouldBe "ABC"
 
       // And the directions can be reversed
       l123.swap shouldBe Right(123)
       rAbc.swap shouldBe Left("ABC")
-
-      // An exception is thrown if we try to get the wrong side
-      intercept[NoSuchElementException] { l123.right.get }
-      intercept[NoSuchElementException] { rAbc.left.get }
     }
 
     it("can use EitherValues for more complex expressions") {
@@ -39,14 +35,10 @@ class EitherSpec extends AnyFunSpecLike with Matchers {
 
       // Tests that something is defined then applies the test to the value
       l123.left.value should (be > 100 and be < 200)
-      rAbc.right.value should (be > "AAA" and be < "BBB")
+      rAbc.value should (be > "AAA" and be < "BBB")
 
-      intercept[TestFailedException] {
-        l123.right.value
-      }
-      intercept[TestFailedException] {
-        rAbc.left.value
-      }
+      intercept[TestFailedException] { l123.value }
+      intercept[TestFailedException] { rAbc.left.value }
     }
 
     it("is right-biased in for comprehensions") {
@@ -54,10 +46,8 @@ class EitherSpec extends AnyFunSpecLike with Matchers {
       val rGhi = Right("GHI"): Right[Int, String]
       val l456: Either[Int, String] = Left(456)
 
-      // In a for comprehension, if all of the arguments are right, they can be used in the yield
-      (for { x <- rAbc; y <- rDef; z <- rGhi } yield x + y + z) shouldBe Right(
-        "ABCDEFGHI"
-      )
+      // In a for comprehension, if all the arguments are right, they can be used in the yield
+      (for { x <- rAbc; y <- rDef; z <- rGhi } yield x + y + z) shouldBe Right("ABCDEFGHI")
 
       // If any turn out to be a left, the first one is the return value of the comprehension, no matter what
       (for { x <- l123; y <- rDef; z <- rGhi } yield x + y + z) shouldBe l123
@@ -154,7 +144,7 @@ class EitherSpec extends AnyFunSpecLike with Matchers {
       val good: Either[Exception, Int] = Right(100)
       val bad: Either[Exception, Int] = Left(new IllegalArgumentException())
       good.toTry shouldBe Success(100)
-      bad.toTry shouldBe Failure(bad.left.get)
+      bad.toTry shouldBe Failure(bad.left.toOption.get)
     }
 
     it("can be an option or a sequence") {
