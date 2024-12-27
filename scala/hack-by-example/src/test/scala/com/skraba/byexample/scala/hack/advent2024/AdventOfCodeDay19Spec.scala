@@ -108,8 +108,8 @@ class AdventOfCodeDay19Spec extends AnyFunSpecLike with Matchers with BeforeAndA
 
   describe("🔑 Solution 🔑") {
     lazy val input = puzzleInput("Day19Input.txt")
-    val answer1 = decryptLong("34UWR2zoNSFWhgClOYn6ow==")
-    val answer2 = decryptLong("LhJV2FxS76MbaYI3Rp2FbA==")
+    lazy val answer1 = decryptLong("34UWR2zoNSFWhgClOYn6ow==")
+    lazy val answer2 = decryptLong("LhJV2FxS76MbaYI3Rp2FbA==")
 
     it("should match the puzzle description for part 1") {
       part1(input: _*) shouldBe answer1
