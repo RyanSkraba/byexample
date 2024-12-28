@@ -5,6 +5,8 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
+import scala.collection.mutable
+
 /** =Advent of Code 2024 Day 23 Solutions in scala=
   *
   * Input: A list of edges that connect vertices (computers in a network).
@@ -39,7 +41,50 @@ class AdventOfCodeDay23Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       }.sum
     }
 
-    def part2(in: String*): String = "co,de,ka,ta"
+    /** Algorithm for looking up the max cliques in a graph. */
+    def bronKerbosch(
+        retained: Set[String],
+        potential: Set[String],
+        excluded: Set[String],
+        graph: Map[String, Set[String]]
+    ): Set[Set[String]] = {
+      if (potential.isEmpty && excluded.isEmpty) Set(retained)
+      else {
+        val xGrow = mutable.HashSet() ++ excluded
+        val pReduce = mutable.HashSet() ++ potential
+        potential.flatMap { v =>
+          bronKerbosch(retained + v, graph(v) intersect (pReduce -= v), graph(v) intersect (xGrow += v), graph)
+        }
+      }
+    }
+
+    /** Modification to only pick the maximum clique. */
+    def bronKerboschMax(
+        retained: Set[String],
+        potential: Set[String],
+        excluded: Set[String],
+        graph: Map[String, Set[String]]
+    ): Set[String] = {
+      if (potential.isEmpty && excluded.isEmpty) retained
+      else {
+        // These are mutable to improve performance as the vertices in potential are checked
+        val xGrow = mutable.HashSet() ++ excluded
+        val pReduce = mutable.HashSet() ++ potential
+        potential
+          .flatMap { v =>
+            bronKerbosch(retained + v, graph(v) intersect (pReduce -= v), graph(v) intersect (xGrow += v), graph)
+          }
+          .maxBy(_.size)
+      }
+    }
+
+    def part2(in: String*): String = {
+      // The graph represented as a map from a vertex to its neighbours
+      val graph = parse(in: _*).flatMap(x => Seq(x, x.reverse)).groupMapReduce(_.head)(l => Set(l.last))(_ ++ _)
+
+      // Find the maximum clique using Bron-Kerbosch
+      bronKerboschMax(Set.empty, graph.keySet, Set.empty, graph).toSeq.sorted.mkString(",")
+    }
   }
 
   import Solution._
@@ -92,13 +137,13 @@ class AdventOfCodeDay23Spec extends AnyFunSpecLike with Matchers with BeforeAndA
   describe("🔑 Solution 🔑") {
     lazy val input = puzzleInput("Day23Input.txt")
     lazy val answer1 = decryptLong("7X0r/mSttOC3CnLb39kuSQ==")
-    lazy val answer2 = decrypt("U9BZNCixKWAgOXNrGyDe5A==")
+    lazy val answer2 = decrypt("o8RNCdJQad55wReDyTPYOQCzCHIGDToNw9ao1ffF7SopxFOVZpLbZU209bpQpWws")
 
     it("should have answers for part 1") {
       part1(input: _*) shouldBe answer1
     }
 
-    ignore("should have answers for part 2") {
+    it("should have answers for part 2") {
       part2(input: _*) shouldBe answer2
     }
   }
