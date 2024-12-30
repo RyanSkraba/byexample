@@ -12,7 +12,7 @@ import org.scalatest.matchers.should.Matchers
   *
   * Part 1: Calculate the signals for the z bits, and assemble them into a Z-register.
   *
-  * Part 2:
+  * Part 2: Fix the bit adder, finding 4 pairs of swapped output signals.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2024/day/24]]
@@ -21,16 +21,17 @@ class AdventOfCodeDay24Spec extends AnyFunSpecLike with Matchers with BeforeAndA
 
   object Solution {
 
-    case class Gate(op: String, src1: String, src2: String) {
+    case class Gate(op: String, in1: String, in2: String) {
+      lazy val xIn: String = Seq(in1, in2).find(_.startsWith("x")).getOrElse("") // If there's an x input.
       def calculate(gates: Map[String, Gate], x: Long, y: Long): Long = {
         val operand1 =
-          if (src1.startsWith("x")) (x >> src1.tail.toInt) % 2L
-          else if (src1.startsWith("y")) (y >> src1.tail.toInt) % 2L
-          else gates.get(src1).map(_.calculate(gates, x, y)).getOrElse(0L)
+          if (in1.startsWith("x")) (x >> in1.tail.toInt) % 2L
+          else if (in1.startsWith("y")) (y >> in1.tail.toInt) % 2L
+          else gates.get(in1).map(_.calculate(gates, x, y)).getOrElse(0L)
         val operand2 =
-          if (src2.startsWith("x")) (x >> src2.tail.toInt) % 2L
-          else if (src2.startsWith("y")) (y >> src2.tail.toInt) % 2L
-          else gates.get(src2).map(_.calculate(gates, x, y)).getOrElse(0L)
+          if (in2.startsWith("x")) (x >> in2.tail.toInt) % 2L
+          else if (in2.startsWith("y")) (y >> in2.tail.toInt) % 2L
+          else gates.get(in2).map(_.calculate(gates, x, y)).getOrElse(0L)
         op match {
           case "AND" => operand1 & operand2
           case "OR"  => operand1 | operand2
@@ -60,11 +61,65 @@ class AdventOfCodeDay24Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       val (x, y, gates) = parse(in: _*)
       // All the z bits.
       val zs = gates.filter(_._1.startsWith("z")).map { case (dst, gate) => dst -> gate.calculate(gates, x, y) }
-      // Reassemble the Z register from all of the non-zero bits.
+      // Reassemble the Z register from all the non-zero bits.
       zs.filter(_._2 != 0).foldLeft(0L) { case (acc, (zbit, _)) => acc | (1L << zbit.tail.toInt) }
     }
 
-    def part2(in: String*): Long = 200
+    def part2(in: String*): String = {
+      val (_, _, gates) = parse(in: _*)
+
+      /* It's a ripple adder. https://en.wikipedia.org/wiki/Adder_(electronics).
+       The *AND* / *XOR* blocks are called a half-adder.
+
+       The input signals are all accurately placed, so the number of half-adders and OR gates
+       are accurate and can be used to describe what type of input signals they must have.
+       All the left half-adders have matching xbit and ybit inputs.
+       All the right half-adders must have their XOR output tied to a zbit output.
+
+
+       x00-----|*AND*|------------------------------------- carry00
+       y00-----|*XOR*|------------------------------------- z00
+
+       xbitN-----|*AND*|------------preN ----------*OR*---- carryN  (or zbitN+1 for the last one)
+       ybitN-----|*XOR*|--inSumN                    /
+                           \-------|*AND*|---postN-/
+       carryN-1--------------------|*XOR*|----------------- zbitN          */
+
+      // =======================================================
+      // All inputs to an OR gate must come from an AND
+
+      // 3 errors that are inputs to an OR gate, but they are outputs of an XOR.
+      // 1 of those is on a left half-adder and the others are on the right
+      val orSrcsShouldBeXorDst = gates
+        .filter { case (_, v) => v.op == "OR" }
+        .flatMap { { case (_, v) => Seq(v.in1, v.in2) } }
+        .flatMap { signal => gates.find(_._1 == signal) }
+        .filter { case (_, v) => v.op != "AND" }
+
+      // 1 error is coming out of AND gate but goes into a right half-adder instead of an OR
+      val andSrcShouldBeOrDst = gates
+        .filter { case (_, v) => v.op != "OR" }
+        .flatMap { { case (_, v) => Seq(v.in1, v.in2) } }
+        .flatMap { signal => gates.find(_._1 == signal) }
+        .filter { case (_, v) => v.op == "AND" }
+        .filterNot(_._2.xIn == "x00")
+      // we can remove the AND for x00, y00 as the first half-adder without any carryN-1
+
+      // =======================================================
+      // All zbit outputs must come from an XOR in the right half-adder
+
+      // 2 errors for zbits are coming out of an OR gate (well, three but the last zbit is expected and removed).
+      // 1 error for a zbit coming out of an AND gate, on a left half-adder.
+      val zSignalsShouldBeXor = gates.filter { case (k, v) => k.startsWith("z") && v.op != "XOR" } - "z45"
+
+      // And everything coming out of a second half-adder must go to a zbit
+      val rightHalfAdderShouldBeZ = gates
+        .filter { case (k, v) => v.xIn.isEmpty && !k.startsWith("z") && v.op == "XOR" }
+
+      // We don't know the pairs to swap, but there are 8 error output signals already.
+      (orSrcsShouldBeXorDst ++ andSrcShouldBeOrDst ++ zSignalsShouldBeXor ++ rightHalfAdderShouldBeZ).toMap.keySet.toSeq.sorted
+        .mkString(",")
+    }
   }
 
   import Solution._
@@ -140,16 +195,12 @@ class AdventOfCodeDay24Spec extends AnyFunSpecLike with Matchers with BeforeAndA
     it("should match the puzzle description for part 1") {
       part1(input: _*) shouldBe 2024
     }
-
-    it("should match the puzzle description for part 2") {
-      part2(input: _*) shouldBe 200
-    }
   }
 
   describe("🔑 Solution 🔑") {
     lazy val input = puzzleInput("Day24Input.txt")
     lazy val answer1 = decryptLong("2qG0v8u9cPKHglRg/BoD8A==");
-    lazy val answer2 = decryptLong("U9BZNCixKWAgOXNrGyDe5A==")
+    lazy val answer2 = decrypt("v4YmErkMM37d5uTTuozKe7/obskvGMNQSfmJbzlX29E=");
 
     it("should have answers for part 1") {
       part1(input: _*) shouldBe answer1
