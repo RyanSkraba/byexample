@@ -36,7 +36,12 @@ It's a point of pride to do these on my own, but I don't consider it cheating to
 | 🟥[Day 17][AoC2024-17] ([Solution][Sol-AoC2024-17]) | Make a simple CPU with opcodes and operands to find the output, then study the input program to make a quine. Lots of bit fiddling. |
 | 🟢[Day 18][AoC2024-18] ([Solution][Sol-AoC2024-18]) | 💜️ Simple BFS pathfinding through a grid (without drawing a plan), then a binary search to find the first blocked path.            |
 | 🟢[Day 19][AoC2024-19] ([Solution][Sol-AoC2024-19]) | 💜️ Splitting a design into valid towels, using memoization.                                                                        |
-| 🔶[Day 20][AoC2024-20] ([Solution][Sol-AoC2024-20]) | Running a maze choosing when some walls can disappear.                                                                              | 
+| 🔶[Day 20][AoC2024-20] ([Solution][Sol-AoC2024-20]) | Running a maze choosing when some walls can disappear.                                                                              |
+| 🟥[Day 21][AoC2024-21] ([Solution][Sol-AoC2024-21]) | A chain of keypad controlling robots used to enter codes. Tricky optimisation down the chain.                                       |
+| 🟢[Day 22][AoC2024-22] ([Solution][Sol-AoC2024-22]) | Finding the most common 4-digit pattern in many pseudorandom number functions.                                                      |
+| 🔶[Day 23][AoC2024-23] ([Solution][Sol-AoC2024-23]) | Finding the maximum clique in a graph. I know about Bron-Kerbosch from work!                                                        |
+| 🟥[Day 24][AoC2024-24] ([Solution][Sol-AoC2024-24]) | Running a logic machine to find the outputs, then untangling some wires to debug the machine's intention.                           |
+| 🟢[Day 25][AoC2024-25] ([Solution][Sol-AoC2024-25]) | Matching non-overlapping 2x2 grids.                                                                                                 |
 
 [AoC2024-01]: https://adventofcode.com/2024/day/1
 [AoC2024-02]: https://adventofcode.com/2024/day/2
