@@ -24,12 +24,12 @@
     <maven.deploy.skip>true</maven.deploy.skip>
 
     <!-- Common versions used by projects. -->
-    <jetty.version>11.0.19</jetty.version>
-    <jakarta.servlet-api.version>6.0.0</jakarta.servlet-api.version>
+    <jetty.version>11.0.24</jetty.version>
+    <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
 
     <!-- Plugins -->
     <!-- It looks like this needs to be hard-coded below. -->
-    <plugin.maven.jetty.version>11.0.19</plugin.maven.jetty.version>
+    <plugin.maven.jetty.version>11.0.24</plugin.maven.jetty.version>
   </properties>
 
   <dependencyManagement>
