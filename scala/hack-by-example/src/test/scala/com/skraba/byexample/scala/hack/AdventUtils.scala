@@ -2,13 +2,14 @@ package com.skraba.byexample.scala.hack
 
 import org.scalatest.Assertions
 
+import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.security.Key
 import java.util.Base64
 import javax.crypto.spec.SecretKeySpec
 import javax.crypto.{Cipher, KeyGenerator}
 import scala.io.Source
-import scala.reflect.io.{File, Path}
+import scala.reflect.io.{Directory, File, Path}
 
 /** Helpful utilities for https://adventofcode.com/
   *
@@ -21,8 +22,7 @@ class AdventUtils {
 
   /** The environment variable that contains the AES-256 key. */
   val AdventOfCodeKey = "ADVENT_OF_CODE_KEY"
-  val AdventOfCodeEncrypted =
-    s"!! Set $AdventOfCodeKey to decrypt (https://adventofcode.com/about)"
+  val AdventOfCodeEncrypted = s"!! Set $AdventOfCodeKey to decrypt (https://adventofcode.com/about)"
 
   /** @return
     *   the [[Key]] being used to decrypt inputs and solutions.
@@ -42,14 +42,8 @@ class AdventUtils {
   /** Causes a test to be canceled (but not failed) if the key isn't present. */
   def requireAdventOfCodeKey(): Unit = {
     val filteredEnv = sys.env.filter(_._1 == AdventOfCodeKey)
-    Assertions.assume(
-      filteredEnv.contains(AdventOfCodeKey),
-      "(missing key for running solutions)"
-    )
-    Assertions.assume(
-      filteredEnv.get(AdventOfCodeKey).exists(_.nonEmpty),
-      "(\"\" key for running solutions)"
-    )
+    Assertions.assume(filteredEnv.contains(AdventOfCodeKey), "(missing key for running solutions)")
+    Assertions.assume(filteredEnv.get(AdventOfCodeKey).exists(_.nonEmpty), "(\"\" key for running solutions)")
   }
 
   /** A helper method for testing and getting the encrypted answer. This can be used temporarily but shouldn't be
@@ -58,8 +52,7 @@ class AdventUtils {
   def decryptLongDoNotSubmit(in: Long): Long = {
     val cipher = Cipher.getInstance("AES")
     cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKey())
-    val encrypted =
-      Base64.getEncoder.encodeToString(cipher.doFinal(in.toString.getBytes))
+    val encrypted = Base64.getEncoder.encodeToString(cipher.doFinal(in.toString.getBytes))
     println(s"Encrypted $in: decryptLong(\"$encrypted\")")
     in
   }
@@ -70,26 +63,20 @@ class AdventUtils {
   def decryptDoNotSubmit(in: String): String = {
     val cipher = Cipher.getInstance("AES")
     cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKey())
-    val encrypted =
-      Base64.getEncoder.encodeToString(cipher.doFinal(in.getBytes))
+    val encrypted = Base64.getEncoder.encodeToString(cipher.doFinal(in.getBytes))
     println(s"Encrypted $in: decrypt(\"$encrypted\")")
     in
   }
 
   /** @return the long value encrypted in the string */
-  def decryptLong(in: String): Long = {
-    decrypt(in).toLong
-  }
+  def decryptLong(in: String): Long = decrypt(in).toLong
 
   /** @return the long value encrypted in the string */
   def decrypt(in: String): String = {
     requireAdventOfCodeKey()
     val cipher = Cipher.getInstance("AES")
     cipher.init(Cipher.DECRYPT_MODE, getOrCreateKey())
-    new String(
-      cipher.doFinal(Base64.getDecoder.decode(in)),
-      StandardCharsets.UTF_8
-    )
+    new String(cipher.doFinal(Base64.getDecoder.decode(in)), StandardCharsets.UTF_8)
   }
 
   /** Get the puzzle input corresponding to the filename, in the right Advent of Code directory.
@@ -98,20 +85,14 @@ class AdventUtils {
     * text.
     */
   def puzzleInput(name: String): Array[String] = {
-    val in = Source
-      .fromResource(getClass.getPackageName.replace('.', '/') + s"/$name")
-      .getLines()
-      .toArray
+    val in = Source.fromResource(getClass.getPackageName.replace('.', '/') + s"/$name").getLines().toArray
 
     // If the file exists but was encrypted, then attempt to decrypt it with the environment variable.
     if (in.headOption.exists(_.startsWith(AdventOfCodeEncrypted))) {
       requireAdventOfCodeKey()
       val cipher = Cipher.getInstance("AES")
       cipher.init(Cipher.DECRYPT_MODE, getOrCreateKey())
-      new String(
-        cipher.doFinal(Base64.getDecoder.decode(in.drop(1).mkString)),
-        StandardCharsets.UTF_8
-      ).split("\n")
+      new String(cipher.doFinal(Base64.getDecoder.decode(in.drop(1).mkString)), StandardCharsets.UTF_8).split("\n")
     } else {
 
       // It's not encrypted, but we'll try to overwrite it if we can find it in the filesystem
@@ -132,9 +113,7 @@ class AdventUtils {
             cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKey())
             out.toFile.writeAll(
               AdventOfCodeEncrypted + "\n",
-              Base64.getEncoder.encodeToString(
-                cipher.doFinal(in.map(_ + "\n").flatMap(_.getBytes))
-              )
+              Base64.getEncoder.encodeToString(cipher.doFinal(in.map(_ + "\n").flatMap(_.getBytes)))
             )
           }
       }
@@ -146,25 +125,27 @@ class AdventUtils {
 
 object AdventUtils {
 
+  lazy val SrcTest: Option[Directory] =
+    Option(Thread.currentThread().getContextClassLoader.getResource(getClass.getName.replace('.', '/') + ".class"))
+      .filter(_.getProtocol == "file")
+      .flatMap(_.getFile.split("/target/").headOption.map(File(_)).map(_ / "src/test").map(_.toDirectory))
+
   /** Create a whole new year of Advent of code! */
   def main(args: Array[String]): Unit = {
     import java.time.LocalDate
     val year = args.headOption.getOrElse(LocalDate.now().getYear.toString)
 
+    if (SrcTest.isEmpty) {
+      println("Can't find sources.")
+    }
+
     // If we can find this class' source, we can write code next to it in subpackages
-    val uri = Thread
-      .currentThread()
-      .getContextClassLoader
-      .getResource(getClass.getName.replace('.', '/') + ".class")
-
-    if (uri.getProtocol == "file") {
-
-      // The ./src/test/ directory to add files to
-      val root: Option[Path] = uri.getFile.split("/target/").headOption.map(File(_)).map(_ / "src/test")
+    SrcTest.foreach { root =>
+      // The directory to the package
+      val dstPackage = getClass.getPackageName.replace('.', '/')
 
       // Find the most recent Day0Input.txt file and copy it to the new year
-      root.toSeq
-        .flatMap(_.walk)
+      root.walk.toSeq
         .filter(_.name == "Day0Input.txt")
         .filter(_.isFile)
         .map(_.toFile)
@@ -172,20 +153,14 @@ object AdventUtils {
         .lastOption
         .map(_.slurp())
         .foreach { basic =>
-          root
-            .map(_ / "resources" / getClass.getPackageName.replace('.', '/') / s"advent$year")
-            .foreach { dst =>
-              dst.toDirectory.createDirectory(force = true)
-              for (day <- 0 to 25) {
-                if (!(dst / s"Day${day}Input.txt").exists)
-                  (dst / s"Day${day}Input.txt").toFile.writeAll(basic)
-              }
-            }
+          val dst = (root / "resources" / dstPackage / s"advent$year").toDirectory
+          dst.createDirectory(force = true)
+          for (day <- 0 to 25 if !(dst / s"Day${day}Input.txt").exists)
+            (dst / s"Day${day}Input.txt").toFile.writeAll(basic)
         }
 
       // Find the most recent AdventOfCodeDay0Spec.scala file and copy it to the new year
-      val day0code = root.toSeq
-        .flatMap(_.walk)
+      val day0code = root.walk.toSeq
         .filter(_.name == "AdventOfCodeDay0Spec.scala")
         .filter(_.isFile)
         .map(_.toFile)
@@ -195,24 +170,20 @@ object AdventUtils {
       day0code
         .map(_.slurp())
         .foreach { basic =>
-          root
-            .map(_ / "scala" / getClass.getPackageName.replace('.', '/') / s"advent$year")
-            .foreach { dst =>
-              dst.toDirectory.createDirectory(force = true)
-              for (day <- 0 to 25)
-                if (!(dst / s"AdventOfCodeDay${day}Spec.scala").exists)
-                  (dst / s"AdventOfCodeDay${day}Spec.scala").toFile.writeAll(
-                    basic
-                      .replaceAll(
-                        "https://adventofcode.com/\\d\\d\\d\\d/day/\\d+",
-                        s"https://adventofcode.com/$year/day/$day"
-                      )
-                      .replaceAll("advent\\d\\d\\d\\d", s"advent$year")
-                      .replaceAll("Advent of Code \\d\\d\\d\\d Day 0", s"Advent of Code $year Day $day")
-                      .replaceAll("ZERO", day.toString)
-                      .replaceAll("Day0", s"Day$day")
-                  )
-            }
+          val dst = (root / "scala" / dstPackage / s"advent$year").toDirectory
+          dst.createDirectory(force = true)
+          for (day <- 0 to 25 if !(dst / s"AdventOfCodeDay${day}Spec.scala").exists)
+            (dst / s"AdventOfCodeDay${day}Spec.scala").toFile.writeAll(
+              basic
+                .replaceAll(
+                  "https://adventofcode.com/\\d\\d\\d\\d/day/\\d+",
+                  s"https://adventofcode.com/$year/day/$day"
+                )
+                .replaceAll("advent\\d\\d\\d\\d", s"advent$year")
+                .replaceAll("Advent of Code \\d\\d\\d\\d Day 0", s"Advent of Code $year Day $day")
+                .replaceAll("ZERO", day.toString)
+                .replaceAll("Day0", s"Day$day")
+            )
         }
 
       // Find the most recent AdventUtils.scala file and copy it to the new year
@@ -221,13 +192,9 @@ object AdventUtils {
         .filter(_.exists)
         .map(_.toFile.slurp())
         .foreach { basic =>
-          root
-            .map(_ / "scala" / getClass.getPackageName.replace('.', '/') / s"advent$year" / "AdventUtils.scala")
-            .foreach { dst => dst.toFile.writeAll(basic.replaceAll("advent\\d\\d\\d\\d", s"advent$year")) }
+          val dst = (root / "scala" / dstPackage / s"advent$year" / "AdventUtils.scala").toFile
+          dst.writeAll(basic.replaceAll("advent\\d\\d\\d\\d", s"advent$year"))
         }
-
-    } else {
-      println("Can't find sources.")
     }
   }
 }
