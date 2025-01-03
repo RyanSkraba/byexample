@@ -89,34 +89,24 @@ class AdventUtils {
 
     // If the file exists but was encrypted, then attempt to decrypt it with the environment variable.
     if (in.headOption.exists(_.startsWith(AdventOfCodeEncrypted))) {
-      requireAdventOfCodeKey()
-      val cipher = Cipher.getInstance("AES")
-      cipher.init(Cipher.DECRYPT_MODE, getOrCreateKey())
-      new String(cipher.doFinal(Base64.getDecoder.decode(in.drop(1).mkString)), StandardCharsets.UTF_8).split("\n")
+      decrypt(in.dropWhile(_.startsWith("!!")).mkString).split("\n")
     } else {
 
       // It's not encrypted, but we'll try to overwrite it if we can find it in the filesystem
-      val uri = Thread
-        .currentThread()
-        .getContextClassLoader
-        .getResource(getClass.getPackageName.replace('.', '/') + s"/$name")
-      if (sys.env.contains(AdventOfCodeKey) && uri.getProtocol == "file") {
-        uri.getFile
-          .split("/target/")
-          .headOption
-          .map(File(_))
-          .map(_ / "src/test/resources")
-          .map(_ / getClass.getPackageName.replace('.', '/'))
-          .map(_ / name)
-          .foreach { out =>
-            val cipher = Cipher.getInstance("AES")
-            cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKey())
-            out.toFile.writeAll(
-              AdventOfCodeEncrypted + "\n",
-              Base64.getEncoder.encodeToString(cipher.doFinal(in.map(_ + "\n").flatMap(_.getBytes)))
-            )
-          }
-      }
+      if (sys.env.contains(AdventOfCodeKey))
+        AdventUtils.SrcTestResourcesRoot.foreach { root =>
+          Option(root)
+            .map(_ / name)
+            .foreach { out =>
+              val cipher = Cipher.getInstance("AES")
+              cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKey())
+              out.toFile.writeAll(
+                AdventOfCodeEncrypted + "\n",
+                Base64.getEncoder.encodeToString(cipher.doFinal(in.map(_ + "\n").flatMap(_.getBytes)))
+              )
+            }
+        }
+
       // Return the unencrypted input
       in
     }
@@ -130,6 +120,12 @@ object AdventUtils {
       .filter(_.getProtocol == "file")
       .flatMap(_.getFile.split("/target/").headOption.map(File(_)).map(_ / "src/test").map(_.toDirectory))
 
+  lazy val SrcTestResourcesRoot: Option[Directory] =
+    SrcTest.map(_ / "resources" / getClass.getPackageName.replace('.', '/')).map(_.toDirectory)
+
+  lazy val SrcTestScalaRoot: Option[Directory] =
+    SrcTest.map(_ / "scala" / getClass.getPackageName.replace('.', '/')).map(_.toDirectory)
+
   /** Create a whole new year of Advent of code! */
   def main(args: Array[String]): Unit = {
     import java.time.LocalDate
@@ -140,12 +136,9 @@ object AdventUtils {
     }
 
     // If we can find this class' source, we can write code next to it in subpackages
-    SrcTest.foreach { root =>
-      // The directory to the package
-      val dstPackage = getClass.getPackageName.replace('.', '/')
-
+    SrcTestResourcesRoot.foreach { rsrcRoot =>
       // Find the most recent Day0Input.txt file and copy it to the new year
-      root.walk.toSeq
+      rsrcRoot.walk.toSeq
         .filter(_.name == "Day0Input.txt")
         .filter(_.isFile)
         .map(_.toFile)
@@ -153,14 +146,17 @@ object AdventUtils {
         .lastOption
         .map(_.slurp())
         .foreach { basic =>
-          val dst = (root / "resources" / dstPackage / s"advent$year").toDirectory
+          val dst = (rsrcRoot / s"advent$year").toDirectory
           dst.createDirectory(force = true)
           for (day <- 0 to 25 if !(dst / s"Day${day}Input.txt").exists)
             (dst / s"Day${day}Input.txt").toFile.writeAll(basic)
         }
+    }
 
+    // If we can find this class' source, we can write code next to it in subpackages
+    SrcTestScalaRoot.foreach { mainRoot =>
       // Find the most recent AdventOfCodeDay0Spec.scala file and copy it to the new year
-      val day0code = root.walk.toSeq
+      val day0code = mainRoot.walk.toSeq
         .filter(_.name == "AdventOfCodeDay0Spec.scala")
         .filter(_.isFile)
         .map(_.toFile)
@@ -170,7 +166,7 @@ object AdventUtils {
       day0code
         .map(_.slurp())
         .foreach { basic =>
-          val dst = (root / "scala" / dstPackage / s"advent$year").toDirectory
+          val dst = (mainRoot / s"advent$year").toDirectory
           dst.createDirectory(force = true)
           for (day <- 0 to 25 if !(dst / s"AdventOfCodeDay${day}Spec.scala").exists)
             (dst / s"AdventOfCodeDay${day}Spec.scala").toFile.writeAll(
@@ -192,7 +188,7 @@ object AdventUtils {
         .filter(_.exists)
         .map(_.toFile.slurp())
         .foreach { basic =>
-          val dst = (root / "scala" / dstPackage / s"advent$year" / "AdventUtils.scala").toFile
+          val dst = (mainRoot / s"advent$year" / "AdventUtils.scala").toFile
           dst.writeAll(basic.replaceAll("advent\\d\\d\\d\\d", s"advent$year"))
         }
     }
