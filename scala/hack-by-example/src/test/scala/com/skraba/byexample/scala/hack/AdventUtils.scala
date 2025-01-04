@@ -1,5 +1,6 @@
 package com.skraba.byexample.scala.hack
 
+import com.skraba.byexample.scala.hack.AdventUtils.SrcTestScalaRoot
 import org.scalatest.Assertions
 
 import java.net.URL
@@ -10,6 +11,7 @@ import javax.crypto.spec.SecretKeySpec
 import javax.crypto.{Cipher, KeyGenerator}
 import scala.io.Source
 import scala.reflect.io.{Directory, File, Path}
+import scala.util.matching.Regex
 
 /** Helpful utilities for https://adventofcode.com/
   *
@@ -49,22 +51,49 @@ class AdventUtils {
   /** A helper method for testing and getting the encrypted answer. This can be used temporarily but shouldn't be
     * committed to a repo.
     */
-  def decryptLongDoNotSubmit(in: Long): Long = {
-    val cipher = Cipher.getInstance("AES")
-    cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKey())
-    val encrypted = Base64.getEncoder.encodeToString(cipher.doFinal(in.toString.getBytes))
-    println(s"Encrypted $in: decryptLong(\"$encrypted\")")
-    in
-  }
+  def decryptDoNotSubmit(in: Long): Long =
+    decryptDoNotSubmit(in.toString, "decryptLong").toLong
 
   /** A helper method for testing and getting the encrypted answer. This can be used temporarily but shouldn't be
     * committed to a repo.
     */
-  def decryptDoNotSubmit(in: String): String = {
+  def decryptDoNotSubmit(in: Long, rewrite: Boolean): Long =
+    decryptDoNotSubmit(in.toString, "decryptLong", rewrite).toLong
+
+  /** A helper method for testing and getting the encrypted answer. This can be used temporarily but shouldn't be
+    * committed to a repo.
+    */
+  def decryptDoNotSubmit(in: String, method: String = "decrypt", rewrite: Boolean = true): String = {
     val cipher = Cipher.getInstance("AES")
     cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKey())
     val encrypted = Base64.getEncoder.encodeToString(cipher.doFinal(in.getBytes))
-    println(s"Encrypted $in: decrypt(\"$encrypted\")")
+
+    if (SrcTestScalaRoot.isEmpty)
+      println(s"Encrypted $in: $method(\"$encrypted\")")
+
+    // Rewrite the test files with the encrypted value.
+    if (rewrite)
+      SrcTestScalaRoot.foreach { root =>
+        root.walk.toSeq
+          .filterNot(_.name == "AdventUtils.scala")
+          .filter(_.name.endsWith(".scala"))
+          .map(_.toFile)
+          .foreach { f =>
+            val scalaCode = f.slurp()
+            if (scalaCode.contains("decryptDoNotSubmit")) {
+
+              s"decryptDoNotSubmit\\((\"?)\\Q$in\\E\\1L?\\)".r.findFirstMatchIn(scalaCode) match {
+                case Some(m) =>
+                  println(s"${f.name}: Replacing with $method(\"$encrypted\") in ${f.name}")
+                  val out = scalaCode.patch(m.start, s"""$method("$encrypted")""", m.end - m.start)
+                  f.writeAll(out)
+                case _ =>
+              }
+
+            }
+          }
+      }
+
     in
   }
 
