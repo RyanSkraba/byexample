@@ -273,3 +273,23 @@ mvn clean verify
 By default, tests tagged `Slow` are not run.  See [scala-by-example](../scala-by-example/) for running the slow tests from the command line or from an IDE.
 
 The author of [Advent of Code](https://adventofcode.com/about) asks us not to check in or share our personalized inputs or answers to the puzzles (although the example inputs and answer are shareable). Although they are checked in here, they are only readable when the `ADVENT_OF_CODE_KEY` environment variable is set to _**my**_ private 256-bit AES key (Base64-encoded). If this environment variable is not set, these tests should be automatically ignored.
+
+You can run the solutions with your own inputs!  The easiest way is:
+
+* Ensure that the ADVENT_OF_CODE_KEY environment variable is unset.
+* Overwrite the day's input file in the `src/test/resources/` directory with your own values.
+* Replace the calls to `decryptXxx("tTNGygZ0+O4PEH+5IiCrBw==")` with the answers that correspond to your inputs (or fake answers if you don't know them yet!)
+
+The tests will run with your _**inputs**_, and will probably fail if you used fake answers.  Please respect the author's request and do not share your inputs or answers!
+
+If you want to encrypt your solutions with your own key, so that they can be checked in:
+
+* Anywhere in one of the puzzles, add the line `decryptDoNotSubmit("Hello")` (any text will do), and run the test.
+* It will print a Base64-encoded encrypted string to the console with a valid, generated key.
+  - `Using temporary key: ADVENT_OF_CODE_KEY=xWOT6BzvNgLDMMWshAyIaOv8IwSLHBhAKxPYKdVuzHk=` (or similar)
+* Set this key in the environment variable `ADVENT_OF_CODE_KEY`.
+* Overwrite the day's input file in the `src/test/resources/` directory with your own values.
+* Replace the calls to `decryptXxx("tTNGygZ0+O4PEH+5IiCrBw==")` with the answers that correspond to your inputs (or fake answers if you don't know them yet!), in the format `decryptDoNotSubmit(123L)`.
+* Run the tests, and they will use your inputs and answers, while encrypting them so they can be safely checked in.
+
+Note that if you attempt to decrypt _**my**_ private inputs, you'll probably get exceptions or garbage: `javax.crypto.BadPaddingException`.  Such is life!

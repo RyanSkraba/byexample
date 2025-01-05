@@ -35,7 +35,7 @@ class AdventUtils {
       gen.init(256)
       val key = gen.generateKey
       val encoded = Base64.getEncoder.encodeToString(key.getEncoded)
-      println(s"Using temporary key: $encoded")
+      println(s"Using temporary key: $AdventOfCodeKey=$encoded")
       encoded
     }
     new SecretKeySpec(Base64.getDecoder.decode(keyEnv), "AES")
