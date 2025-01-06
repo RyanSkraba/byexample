@@ -24,16 +24,8 @@ class AdventOfCodeDay22Spec extends AnyFunSpecLike with Matchers with BeforeAndA
 
   object Solution {
 
-    case class Brick(
-        x1: Long,
-        y1: Long,
-        z1: Long,
-        x2: Long,
-        y2: Long,
-        z2: Long
-    ) {
-      def toTuple: (Long, Long, Long, Long, Long, Long) =
-        (x1, y1, z1, x2, y2, z2)
+    case class Brick(x1: Long, y1: Long, z1: Long, x2: Long, y2: Long, z2: Long) {
+      def toTuple: (Long, Long, Long, Long, Long, Long) = (x1, y1, z1, x2, y2, z2)
     }
 
     object Brick {
@@ -57,16 +49,12 @@ class AdventOfCodeDay22Spec extends AnyFunSpecLike with Matchers with BeforeAndA
     ) {
 
       /** For each brick, the bricks that it supports. */
-      lazy val supports: Map[Brick, Set[Brick]] =
-        supporting.groupMap(_._1)(_._2).withDefaultValue(Set.empty)
+      lazy val supports: Map[Brick, Set[Brick]] = supporting.groupMap(_._1)(_._2).withDefaultValue(Set.empty)
 
       /** For each brick, the bricks that support it. */
-      lazy val supportedBy: Map[Brick, Set[Brick]] =
-        supporting.groupMap(_._2)(_._1).withDefaultValue(Set.empty)
+      lazy val supportedBy: Map[Brick, Set[Brick]] = supporting.groupMap(_._2)(_._1).withDefaultValue(Set.empty)
 
-      lazy val safeToRemove: Set[Brick] = bs.filter { b =>
-        !supports(b).map(supportedBy).exists(_.size <= 1)
-      }.toSet
+      lazy val safeToRemove: Set[Brick] = bs.filter { b => !supports(b).map(supportedBy).exists(_.size <= 1) }.toSet
 
       def drop(b: Brick): Plan = {
         val zBricks =
@@ -88,20 +76,13 @@ class AdventOfCodeDay22Spec extends AnyFunSpecLike with Matchers with BeforeAndA
 
         val supports1 = zBricks.filter(_.z2 == zMax).map(_ -> b1)
 
-        Plan(
-          bs = bs :+ b1,
-          zs = zs ++ zs1,
-          supporting = supporting ++ supports1
-        )
+        Plan(bs = bs :+ b1, zs = zs ++ zs1, supporting = supporting ++ supports1)
       }
 
     }
 
     object Plan {
-      def from(in: String*): Plan =
-        in.map(Brick.apply).sortBy(_.z1).foldLeft(Plan()) { (acc, b) =>
-          acc.drop(b)
-        }
+      def from(in: String*): Plan = in.map(Brick.apply).sortBy(_.z1).foldLeft(Plan()) { (acc, b) => acc.drop(b) }
     }
 
     def part1(in: String*): Long = {
@@ -120,21 +101,13 @@ class AdventOfCodeDay22Spec extends AnyFunSpecLike with Matchers with BeforeAndA
           falling: Set[Brick],
           fallen: Set[Brick] = Set.empty
       ): Set[Brick] = {
-        // If there are no bricks that are currently "falling", then return the
-        // list of fallen bricks.
+        // If there are no bricks that are currently "falling", then return the list of fallen bricks.
         if (falling.isEmpty) fallen
         else {
-          // Otherwise, find all of the bricks supported by the "falling" bricks
-          // that are themselves supported ONLY by fallen and falling bricks.
+          // Otherwise, find all the bricks supported by the "falling" bricks that are themselves supported ONLY by
+          // fallen and falling bricks.
           dominates(
-            falling
-              .flatMap(plan.supports)
-              .filterNot(
-                !plan
-                  .supportedBy(_)
-                  .filterNot(falling)
-                  .forall(fallen)
-              ),
+            falling.flatMap(plan.supports).filterNot(!plan.supportedBy(_).filterNot(falling).forall(fallen)),
             falling ++ fallen
           )
         }
