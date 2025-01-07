@@ -37,31 +37,19 @@ class AdventOfCodeDay23Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       lazy val dx: Int = input.headOption.map(_.length).getOrElse(0) + 2
 
       /** The full plan as a single string, including a full border. */
-      lazy val full: String =
-        input.mkString(border * (dx + 1), border * 2, border * (dx + 1))
+      lazy val full: String = input.mkString(border * (dx + 1), border * 2, border * (dx + 1))
 
       /** The start and end positions */
-      lazy val (start, end) =
-        (Cursor(full.indexOf('.')), Cursor(full.lastIndexOf('.')))
+      lazy val (start, end) = (Cursor(full.indexOf('.')), Cursor(full.lastIndexOf('.')))
 
       override def toString: String = full.grouped(dx).mkString("\n")
 
       def withPath(cs: Set[Cursor]): String = {
-        full.indices
-          .map(Cursor.apply)
-          .map(c => if (cs(c)) 'O' else c.at)
-          .grouped(dx)
-          .map(_.mkString)
-          .mkString("\n")
+        full.indices.map(Cursor.apply).map(c => if (cs(c)) 'O' else c.at).grouped(dx).map(_.mkString).mkString("\n")
       }
 
-      def dfsRecursive(
-          path: Set[Cursor] = Set(start),
-          pos: Cursor = start,
-          slippery: Boolean = true
-      ): Int = {
-        if (pos == end)
-          path.size
+      def dfsRecursive(path: Set[Cursor] = Set(start), pos: Cursor = start, slippery: Boolean = true): Int = {
+        if (pos == end) path.size
         else
           (if (slippery) pos.nextSlippery else pos.next)
             .filterNot(path)
@@ -70,37 +58,25 @@ class AdventOfCodeDay23Spec extends AnyFunSpecLike with Matchers with BeforeAndA
             .getOrElse(Int.MinValue)
       }
 
-      def dfsIterative(
-          pos: Cursor = start,
-          slippery: Boolean = true
-      ): Int = {
+      def dfsIterative(pos: Cursor = start, slippery: Boolean = true): Int = {
         var max = Int.MinValue
         val queue = mutable.Queue(Set(pos) -> pos)
         while (queue.nonEmpty) {
           val (path, current) = queue.dequeue()
-          if (current == end)
-            max = max max path.size
-          val next =
-            (if (slippery) current.nextSlippery else current.next)
-              .filterNot(path)
+          if (current == end) max = max max path.size
+          val next = (if (slippery) current.nextSlippery else current.next).filterNot(path)
           queue.addAll(next.map(c => path + c -> c))
         }
         max
       }
 
-      def bfsIterative(
-          pos: Cursor = start,
-          slippery: Boolean = true
-      ): Int = {
+      def bfsIterative(pos: Cursor = start, slippery: Boolean = true): Int = {
         var max = Int.MinValue
         val queue = mutable.Queue(Set(pos) -> pos)
         while (queue.nonEmpty) {
           val (path, current) = queue.dequeue()
-          if (current == end)
-            max = max max path.size
-          val next =
-            (if (slippery) current.nextSlippery else current.next)
-              .filterNot(path)
+          if (current == end) max = max max path.size
+          val next = (if (slippery) current.nextSlippery else current.next).filterNot(path)
           queue.enqueueAll(next.map(c => path + c -> c))
         }
         max
@@ -109,11 +85,7 @@ class AdventOfCodeDay23Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       def simplify(slippery: Boolean = true): Set[(Cursor, Cursor, Int)] = {
 
         // each of these points are "nodes" in the simplified graph
-        val forks = full.indices
-          .map(Cursor.apply)
-          .filterNot(_.at == '#')
-          .filter(_.next.size > 2)
-          .toSet + start + end
+        val forks = full.indices.map(Cursor.apply).filterNot(_.at == '#').filter(_.next.size > 2).toSet + start + end
 
         // from any point to the next forks, including the distance.
         def dfsNextBranch(
@@ -123,29 +95,18 @@ class AdventOfCodeDay23Spec extends AnyFunSpecLike with Matchers with BeforeAndA
             slippery: Boolean = true
         ): Set[(Cursor, Cursor, Int)] = {
           val (last, current) = path.getOrElse(src -> src)
-          if (current != src && forks.contains(current))
-            Set((src, current, distance))
+          if (current != src && forks.contains(current)) Set((src, current, distance))
           else
             (if (slippery) current.nextSlippery else current.next)
               .filterNot(_ == last)
-              .flatMap(p =>
-                dfsNextBranch(
-                  src,
-                  distance + 1,
-                  Some(current -> p),
-                  slippery
-                )
-              )
+              .flatMap(p => dfsNextBranch(src, distance + 1, Some(current -> p), slippery))
         }
 
         // the simplified graph edges, from points where there are options
         forks.flatMap(c => dfsNextBranch(src = c, slippery = false))
       }
 
-      def bfsSimplifiedIterative(
-          pos: Cursor = start,
-          slippery: Boolean = true
-      ): Int = {
+      def bfsSimplifiedIterative(pos: Cursor = start, slippery: Boolean = true): Int = {
 
         val graph = simplify(slippery)
 
@@ -153,13 +114,9 @@ class AdventOfCodeDay23Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         val queue = mutable.Queue(Set(pos) -> pos -> 0)
         while (queue.nonEmpty) {
           val ((path, current), distance) = queue.dequeue()
-          if (current == end)
-            max = max max distance
-          val next =
-            graph.filter(_._1 == current).filterNot(x => path.contains(x._2))
-          queue.enqueueAll(
-            next.map(x => path + x._2 -> x._2 -> (distance + x._3))
-          )
+          if (current == end) max = max max distance
+          val next = graph.filter(_._1 == current).filterNot(x => path.contains(x._2))
+          queue.enqueueAll(next.map(x => path + x._2 -> x._2 -> (distance + x._3)))
         }
         max
       }
