@@ -22,14 +22,7 @@ class AdventOfCodeDay24Spec extends AnyFunSpecLike with Matchers with BeforeAndA
 
   object Solution {
 
-    case class Hail(
-        px: Long,
-        py: Long,
-        pz: Long,
-        vx: Long,
-        vy: Long,
-        vz: Long
-    ) {
+    case class Hail(px: Long, py: Long, pz: Long, vx: Long, vy: Long, vz: Long) {
 
       // For each hailstone dimension, we can express it in terms of time.
 
@@ -49,8 +42,7 @@ class AdventOfCodeDay24Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       // vy*x - vz*x - vx*y  + vx*z + vx*py - vy*px - vx*pz + vz*px = 0
       //  a*x        +  b*y  +  c*z + d                             = 0
 
-      lazy val (a, b, c, d) =
-        (vy - vz, -vx, vx, vx * py - vy * px - vx * pz + vz * px)
+      lazy val (a, b, c, d) = (vy - vz, -vx, vx, vx * py - vy * px - vx * pz + vz * px)
 
       // shortcut for the XY plane, if pz and dz were zero
 
@@ -98,8 +90,7 @@ class AdventOfCodeDay24Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         else if (vz != 0) (y - pz) / vz
         else Double.MinValue
 
-      def toTuple: (Long, Long, Long, Long, Long, Long) =
-        (px, py, pz, vx, vy, vz)
+      def toTuple: (Long, Long, Long, Long, Long, Long) = (px, py, pz, vx, vy, vz)
     }
 
     object Hail {
@@ -112,10 +103,7 @@ class AdventOfCodeDay24Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       val hail = in.map(Hail.parse)
 
       val intersects = (
-        for (
-          i1 <- hail.indices;
-          i2 <- (1 + i1) until hail.length
-        ) yield (hail(i1), hail(i2))
+        for (i1 <- hail.indices; i2 <- (1 + i1) until hail.length) yield (hail(i1), hail(i2))
       ).flatMap { case (h1, h2) => h1.xyIntersect(h2).map(_ -> (h1, h2)) }
         .filter { case ((x, _), (_, _)) => x >= from && x <= to }
         .filter { case ((_, y), (_, _)) => y >= from && y <= to }
@@ -200,40 +188,14 @@ class AdventOfCodeDay24Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         val (p0x, p0y, p0z, v0x, v0y, v0z) = h0.toTuple
         val (p1x, p1y, p1z, v1x, v1y, v1z) = h1.toTuple
         Seq(
-          Seq(
-            v1y - v0y,
-            v0x - v1x,
-            0,
-            p0y - p1y,
-            p1x - p0x,
-            0,
-            p0y * v0x - p0x * v0y + p1x * v1y - p1y * v1x
-          ),
-          Seq(
-            v1z - v0z,
-            0,
-            v0x - v1x,
-            p0z - p1z,
-            0,
-            p1x - p0x,
-            p0z * v0x - p0x * v0z + p1x * v1z - p1z * v1x
-          ),
-          Seq(
-            0,
-            v0z - v1z,
-            v1y - v0y,
-            0,
-            p1z - p0z,
-            p0y - p1y,
-            p0y * v0z - p0z * v0y + p1z * v1y - p1y * v1z
-          )
+          Seq(v1y - v0y, v0x - v1x, 0, p0y - p1y, p1x - p0x, 0, p0y * v0x - p0x * v0y + p1x * v1y - p1y * v1x),
+          Seq(v1z - v0z, 0, v0x - v1x, p0z - p1z, 0, p1x - p0x, p0z * v0x - p0x * v0z + p1x * v1z - p1z * v1x),
+          Seq(0, v0z - v1z, v1y - v0y, 0, p1z - p0z, p0y - p1y, p0y * v0z - p0z * v0y + p1z * v1y - p1y * v1z)
         ).map(_.map(_.toDouble))
       }
 
       // Reduce the matrix using any three points.
-      val solved = matrixReduce(
-        matrix3(hail.head, hail(1)) ++ matrix3(hail.head, hail(2))
-      )
+      val solved = matrixReduce(matrix3(hail.head, hail(1)) ++ matrix3(hail.head, hail(2)))
 
       solved.map(_.last).map(math.round).take(3).sum
     }
@@ -265,11 +227,7 @@ class AdventOfCodeDay24Spec extends AnyFunSpecLike with Matchers with BeforeAndA
     lazy val answer2 = decryptLong("b1SEz1TocSBtGc37FTnMEg==")
 
     it("should have answers for part 1") {
-      part1(
-        200000000000000L,
-        400000000000000L,
-        input: _*
-      ) shouldBe answer1
+      part1(200000000000000L, 400000000000000L, input: _*) shouldBe answer1
     }
 
     it("should have answers for part 2") {
