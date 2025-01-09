@@ -37,8 +37,7 @@ class AdventOfCodeDay25Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         val rnd = new Random()
 
         // Start with each vertex in its own vertex set, and a complete list of edges.
-        val vSets: mutable.Set[mutable.Set[T]] =
-          mutable.Set.from(v.map(mutable.Set(_)))
+        val vSets: mutable.Set[mutable.Set[T]] = mutable.Set.from(v.map(mutable.Set(_)))
         var remaining: Seq[(T, T)] = e
 
         // Continue to collapse nodes on randomly selected edges until only 2 vertex sets remain
@@ -70,10 +69,7 @@ class AdventOfCodeDay25Spec extends AnyFunSpecLike with Matchers with BeforeAndA
 
     def part1(in: String*): Long = {
       val g = Graph.from(in: _*)
-
-      val (left, right, edges) =
-        LazyList.continually(g.karger()).dropWhile(_._3.size != 3).head
-
+      val (left, right, edges) = LazyList.continually(g.karger()).dropWhile(_._3.size != 3).head
       left.size * right.size
     }
   }
