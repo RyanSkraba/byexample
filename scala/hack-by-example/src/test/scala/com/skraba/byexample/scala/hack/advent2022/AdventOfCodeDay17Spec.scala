@@ -4,7 +4,6 @@ import com.skraba.byexample.scala.hack.advent2022.AdventUtils._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.tagobjects.Slow
 
 /** =Advent of Code 2022 Day 17 Solutions in scala=
   *

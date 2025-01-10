@@ -13,7 +13,7 @@ It's a point of pride to do these on my own, but I don't consider it cheating to
 🎄 Advent of Code 2024 🎄
 ------------------------------------------------------------------------------
 
-🟢 Easy / 🔶 Medium / 🟥 Hard / 💜️ Fun / 😱️ Frustrating / 🔵 Needed hints
+🟢 Easy / 🔶 Medium / 🟥 Hard / 💜️ Fun / 😱️ Frustrating / 🔵 Needed hints / 🐢 Slow
 
 | Day                                                 | Techniques and notes                                                                                                                |
 |-----------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
@@ -97,7 +97,7 @@ It's a point of pride to do these on my own, but I don't consider it cheating to
 Advent of Code 2023
 ------------------------------------------------------------------------------
 
-🟢 Easy / 🔶 Medium / 🟥 Hard / 💜️ Fun / 😱️ Frustrating / 🔵 Needed hints
+🟢 Easy / 🔶 Medium / 🟥 Hard / 💜️ Fun / 😱️ Frustrating / 🔵 Needed hints / 🐢 Slow
 
 | Day                                                  | Techniques and notes                                                                                                                                                                                                                                                                          |
 |------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -123,9 +123,9 @@ Advent of Code 2023
 | 🟥[Day 20][AoC2023-20] ([Solution][Sol-AoC2023-20])  | 😱️ Ugh. Implementing a graph and electronics-like gates, which was fun, but for Part 2 I just guessed at the answer, like I did on Day 8.  Really unsatisfactory.                                                                                                                            |
 | 🟥[Day 21][AoC2023-21] ([Solution][Sol-AoC2023-21])  | 😱️ Not very fun -- Part 1 was a BFS-like search, but Part 2 relied on some fussy math solving a geometric progression.  I got the 🔵 hint from reddit, but still couldn't implement it correctly, and ended up reading and running some python code to check my answer until I got it right. |
 | 🔶[Day 22][AoC2023-22] ([Solution][Sol-AoC2023-22])  | Falling 3D bricks stack like tetris. Find how many bricks can be removed without any others falling, then find how many would fall when each brick is removed.                                                                                                                                |
-| 🟥[Day 23][AoC2023-23] ([Solution][Sol-AoC2023-23])  | Finding the _longest_ path through a 2D maze with and without certain constraints.  Good example of DFS and BFS iterative and recursive solutions.                                                                                                                                            |
+| 🟥[Day 23][AoC2023-23] ([Solution][Sol-AoC2023-23])  | 🐢 Finding the _longest_ path through a 2D maze with and without certain constraints.  Good example of DFS and BFS iterative and recursive solutions.                                                                                                                                         |
 | 🟥[Day 24][AoC2023-24] ([Solution][Sol-AoC2023-24])  | 💜️ The hailstorm one! Find intersections that occur in a given area, then find a line that intersects every single moving hail. Mostly solved the linear algebra math on paper, implemented matrix reduction.                                                                                |
-| 🔶[Day 25][AoC2023-25] ([Solution][Sol-AoC2023-25])  | Graph problem, find the three edges that need to be cut in order to have two connected components. I got the Karger 🔵 hint from reddit.                                                                                                                                                      |
+| 🔶[Day 25][AoC2023-25] ([Solution][Sol-AoC2023-25])  | 🐢 Graph problem, find the three edges that need to be cut in order to have two connected components. I got the Karger 🔵 hint from reddit.                                                                                                                                                   |
 
 [AoC2023-01]: https://adventofcode.com/2023/day/1
 [AoC2023-02]: https://adventofcode.com/2023/day/2
@@ -181,6 +181,8 @@ Advent of Code 2023
 Advent of Code 2022
 ------------------------------------------------------------------------------
 
+🟢 Easy / 🔶 Medium / 🟥 Hard / 💜️ Fun / 😱️ Frustrating / 🔵 Needed hints / 🐢 Slow
+
 | Day                                               | Techniques and notes                                                                               |
 |---------------------------------------------------|----------------------------------------------------------------------------------------------------|
 | [Day 1][AoC2022-01] ([Solution][Sol-AoC2022-01])  | Using `foldLeft` to accumulate over lists joined by empty lines.                                   |
@@ -197,11 +199,11 @@ Advent of Code 2022
 | [Day 12][AoC2022-12] ([Solution][Sol-AoC2022-12]) | Breadth-First Search on a height map.                                                              |
 | [Day 13][AoC2022-13] ([Solution][Sol-AoC2022-13]) |                                                                                                    |
 | [Day 14][AoC2022-14] ([Solution][Sol-AoC2022-14]) | Calculate falling sand in a cave.                                                                  |
-| [Day 15][AoC2022-15] ([Solution][Sol-AoC2022-15]) |                                                                                                    |
-| [Day 16][AoC2022-16] ([Solution][Sol-AoC2022-16]) | Floyd-Warshall minimum paths.  Depth-First Search optimising open valves. _(57 minutes)_           |
+| [Day 15][AoC2022-15] ([Solution][Sol-AoC2022-15]) | 🐢                                                                                                 |
+| [Day 16][AoC2022-16] ([Solution][Sol-AoC2022-16]) | 🐢 (57 minutes) Floyd-Warshall minimum paths.  Depth-First Search optimising open valves.          |
 | [Day 17][AoC2022-17] ([Solution][Sol-AoC2022-17]) | Cycle detection in a tetris like falling-rock game.                                                |
 | [Day 18][AoC2022-18] ([Solution][Sol-AoC2022-18]) | Three-dimensional surface detection.                                                               |
-| [Day 19][AoC2022-19] ([Solution][Sol-AoC2022-19]) | Building golems to build golems: DFS optimisation with some tricky heuristics. _(2 minutes)_       |
+| [Day 19][AoC2022-19] ([Solution][Sol-AoC2022-19]) | 🐢 (2 minutes) Building golems to build golems: DFS optimisation with some tricky heuristics.      |
 | [Day 20][AoC2022-20] ([Solution][Sol-AoC2022-20]) |                                                                                                    |
 | [Day 21][AoC2022-21] ([Solution][Sol-AoC2022-21]) |                                                                                                    |
 | [Day 22][AoC2022-22] ([Solution][Sol-AoC2022-22]) | Moving around an unfolded cube, manually setting up the folded edges.                              |
