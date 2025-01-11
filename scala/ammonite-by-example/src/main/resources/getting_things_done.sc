@@ -113,7 +113,7 @@ object PrjTask {
   )
 }
 
-lazy val PrjTasks: Map[String, PrjTask] = GettingThingsDone(StatusContents).cfg
+lazy val PrjTasks: Map[String, PrjTask] = Gtd.cfg
   .flatMap(_.collectFirstRecursive {
     case tbl: Table if tbl.title == "Projects" =>
       for (row <- 1 until tbl.rowSize)
@@ -442,8 +442,8 @@ def statsToday(
     case Seq(k)    => printf(s"$MAGENTA%${maxKeySize}s$RESET:\n", k)
   }
 
-  // Read the existing document.
-  val gtdUpdated = groupedStats.foldLeft(Gtd) { (acc: GettingThingsDone, list: Seq[String]) =>
+  lazy val gtd = GettingThingsDone(os.read(StatusFile), ProjectParserCfg)
+  val gtdUpdated = groupedStats.foldLeft(gtd) { (acc: GettingThingsDone, list: Seq[String]) =>
     acc.updateTopWeekStats(list.head, list.tail.headOption.getOrElse(""))
   }
   writeGtd(
