@@ -47,17 +47,20 @@ lazy val StatusContents = os.read(StatusFile)
 lazy val Gtd = GettingThingsDone(StatusContents, ProjectParserCfg)
 
 /** Configuration for a project (usually) that can be assigned tasks.
+  *
   * @param tag
-  *   The short key to refer to the project.
-  * @param title
-  *   The title of the project to use in the weekly To Do.
-  * @param issueRef
-  *   The text to use for an reference to an issue on this project.
-  * @param issueLink
-  *   The URL to use for an issue on this project.
-  * @param prRef
+  *   The short key to refer to the project, usually all lowercase.
+  * @param titleOpt
+  *   The title of the project to use in the weekly To Do, usually in CamelCase. If it's not explicitly present, this is
+  *   created from the tag.
+  * @param issueRefOpt
+  *   The text to use for an reference to an issue on this project. If it's not explicitly present, this is created from
+  *   the tag.
+  * @param issueLinkOpt
+  *   The URL to use for an issue on this project. If it's not explicitly present, this is created from the tag.
+  * @param prRefOpt
   *   The text to use for a reference to a PR on this project.
-  * @param prLink
+  * @param prLinkOpt
   *   The URL to use for a PR on this project.
   */
 case class PrjTask(
@@ -69,10 +72,23 @@ case class PrjTask(
     prLinkOpt: Option[String]
 ) {
 
+  /** The title of the project to use in the weekly To Do list. */
   val title: String = titleOpt.getOrElse(tag.toLowerCase.capitalize)
+
+  /** The user-visible way this issue is referenced in the To Do list. */
   val issueRef: String = issueRefOpt.getOrElse(tag.toUpperCase + "-")
+
+  /** The URL used to construct the link to the issue number. If this contains a %s, the issue number will replace it,
+    * otherwise the issue number is appended.
+    */
   val issueLink: String = issueLinkOpt.getOrElse(s"https://issues.apache.org/jira/browse/${tag.toUpperCase}-")
+
+  /** The user-visible way the PR is references in the To Do list. */
   val prRef: String = prRefOpt.getOrElse(s"apache/${tag.toLowerCase}#")
+
+  /** The URL used to construct the link to the PR. If this contains a %s, the PR number will replace it, otherwise the
+    * PR number is appended.
+    */
   val prLink: String = prLinkOpt.getOrElse(s"https://github.com/apache/${tag.toLowerCase}/pull/")
 
   private def replace(tmpl: String, in: String): String = if (tmpl.contains("%s")) tmpl.format(in) else tmpl + in
