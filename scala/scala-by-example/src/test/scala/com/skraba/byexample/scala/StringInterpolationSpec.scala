@@ -157,7 +157,7 @@ class StringInterpolationSpec extends AnyFunSpecLike with Matchers {
     }
 
     it("should format dates") {
-      // Saturday, February 14, 2015 3:14:15.926 Pm
+      // Saturday, February 14, 2015 3:14:15.926 PM
       val time = 1423926855926L
 
       inUtc {
