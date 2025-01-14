@@ -129,7 +129,7 @@ object PrjTask {
   )
 }
 
-lazy val PrjTasks: Map[String, PrjTask] = Gtd.cfg
+lazy val PrjTasks: Map[String, PrjTask] = GettingThingsDone(StatusContents).cfg
   .flatMap(_.collectFirstRecursive {
     case tbl: Table if tbl.title == "Projects" =>
       for (row <- 1 until tbl.rowSize)
