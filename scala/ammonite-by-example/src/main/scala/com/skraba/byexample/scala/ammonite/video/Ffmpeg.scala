@@ -496,6 +496,8 @@ object Ffmpeg {
     import scala.sys.process._
     try { s"$FfmpegCmd -version".! == 0 && s"$FfprobeCmd -version".! == 0 && s"$InkscapeCmd --version".! == 0 }
     catch { case _: Exception => false }
+    // TODO: ffmpeg installed but broken on my dev machine
+    false
   }
 
   /** @param loFrequency
