@@ -1,7 +1,6 @@
 #!/usr/bin/env amm
 
 /** A user script concentrating on file operations */
-import com.skraba.byexample.scala.ammonite.FileRenamer
 import mainargs.{Flag, arg, main}
 
 import java.time.LocalDate
@@ -21,6 +20,7 @@ local_import_util.load("ammonite-by-example")
 
 @
 import com.skraba.byexample.scala.ammonite.ConsoleCfg
+import com.skraba.byexample.scala.ammonite.FileRenamer
 
 // ==========================================================================
 // Top level variables available to the script
