@@ -15,7 +15,7 @@ object MarkdGo extends DocoptCliGo {
 
   override lazy val Tasks: Seq[Task] = Seq(BeautifyTask, DateCountdownTask, BuildFailureReportTask, SortTableTask)
 
-  override lazy val Doc: String = "A driver for the various markdown utilities.\n\n" + TaskDoc
+  override lazy val Doc: String = "A driver for the various markdown utilities.\n\n" + SimpleDoc
 
   /** A helper method to process a list of files supplied on the command line.
     * @param files
