@@ -404,51 +404,51 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
   val Description = "Summarize a markdown report on build failures."
 
   val Doc: String =
-    """Summarize a markdown report on build failures.
-      |
-      |Usage:
-      |  MarkdGo buildfail FILE [options]
-      |
-      |Options:
-      |  -h --help         Show this screen.
-      |  --version         Show version.
-      |  FILE              File to read and summarize
-      |  --all             Report using all of the build investigations in the file
-      |  --after=DATE      Exclude any investigations that occurred before DATE
-      |  --until=DATE      Exclude any investigations that occurred after DATE
-      |  --days=DAYS       The number of days to include in the report [default: 1]
-      |  --html            If present, writes the text as an html file
-      |  --add-fails=REPO  If present, adds any GitHub action fails
-      |  --markdown-msg    If present, rewrites the investigations as markdown
-      |                    notifications.
-      |  --main-version=V  If present, uses V as the build version for main/master
-      |
-      |This has a very specific use, but is also a nice example for parsing and
-      |generating markdown.  The input file should have a format like:
-      |
-      |  # Project Build Failures
-      |
-      |  ## YYYY-MM-DD The date the failure was investigated
-      |
-      |  ### 1.99 CI build description https://buildlink
-      |
-      |  Job or step description https://joblink
-      |  ISSUE-1234 Issue description
-      |
-      |  ```
-      |  Optional extra information in a code block of any size
-      |  ```
-      |
-      |  Job or step description https://joblink
-      |  ISSUE-1234 Issue description
-      |
-      |  Job or step description https://joblink
-      |  ISSUE-1234 Issue description
-      |
-      |By default, only the last investigation date is reported (one day).  If --all
-      |is specified, the entire file is used.
-      |
-      |""".stripMargin.trim
+    s"""Summarize a markdown report on build failures.
+       |
+       |Usage:
+       |  ${MarkdGo.Cli} $Cmd FILE [options]
+       |
+       |Options:
+       |  -h --help         Show this screen.
+       |  --version         Show version.
+       |  FILE              File to read and summarize
+       |  --all             Report using all of the build investigations in the file
+       |  --after=DATE      Exclude any investigations that occurred before DATE
+       |  --until=DATE      Exclude any investigations that occurred after DATE
+       |  --days=DAYS       The number of days to include in the report [default: 1]
+       |  --html            If present, writes the text as an html file
+       |  --add-fails=REPO  If present, adds any GitHub action fails
+       |  --markdown-msg    If present, rewrites the investigations as markdown
+       |                    notifications.
+       |  --main-version=V  If present, uses V as the build version for main/master
+       |
+       |This has a very specific use, but is also a nice example for parsing and
+       |generating markdown.  The input file should have a format like:
+       |
+       |  # Project Build Failures
+       |
+       |  ## YYYY-MM-DD The date the failure was investigated
+       |
+       |  ### 1.99 CI build description https://buildlink
+       |
+       |  Job or step description https://joblink
+       |  ISSUE-1234 Issue description
+       |
+       |  ```
+       |  Optional extra information in a code block of any size
+       |  ```
+       |
+       |  Job or step description https://joblink
+       |  ISSUE-1234 Issue description
+       |
+       |  Job or step description https://joblink
+       |  ISSUE-1234 Issue description
+       |
+       |By default, only the last investigation date is reported (one day).  If --all
+       |is specified, the entire file is used.
+       |
+       |""".stripMargin.trim
 
   def go(opts: TaskOptions): Unit = {
 

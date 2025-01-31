@@ -16,27 +16,27 @@ object DateCountdownTask extends DocoptCliGo.Task {
   val Description = "Adjust countdown cells in tables."
 
   val Doc: String =
-    """Look for tables with dates in a countdown format and fix them.
-      |
-      |Usage:
-      |  MarkdGo datecount FILE...
-      |
-      |Options:
-      |  -h --help       Show this screen.
-      |  --version       Show version.
-      |  FILE            File(s) to find and add date countdowns.
-      |
-      |If a table has a cell with a value "T 2024-06-03" (for example), all of the
-      |cells in the same column with the format "T-100 2023-08-22" will have the date
-      |adjusted to fit the countdown.  In this case, the value will be modified to
-      |"T-100 2024-02-20".
-      |
-      |All of the cells in the same column with the format "T-XX 2023-08-22" will have
-      |the countdown modified to fit the date.  In this case, the value would be
-      |modified to "T-286 2023-08-22".
-      |
-      |Other cells will not be modified.
-      |""".stripMargin.trim
+    s"""Look for tables with dates in a countdown format and fix them.
+       |
+       |Usage:
+       |    ${MarkdGo.Cli} $Cmd FILE...
+       |
+       |Options:
+       |  -h --help       Show this screen.
+       |  --version       Show version.
+       |  FILE            File(s) to find and add date countdowns.
+       |
+       |If a table has a cell with a value "T 2024-06-03" (for example), all of the
+       |cells in the same column with the format "T-100 2023-08-22" will have the date
+       |adjusted to fit the countdown.  In this case, the value will be modified to
+       |"T-100 2024-02-20".
+       |
+       |All of the cells in the same column with the format "T-XX 2023-08-22" will have
+       |the countdown modified to fit the date.  In this case, the value would be
+       |modified to "T-286 2023-08-22".
+       |
+       |Other cells will not be modified.
+       |""".stripMargin.trim
 
   def go(opts: TaskOptions): Unit = {
 

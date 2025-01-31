@@ -13,17 +13,17 @@ object BeautifyTask extends DocoptCliGo.Task {
   val Description = "Reformat a markdown file."
 
   val Doc: String =
-    """Beautify a markdown file.
-      |
-      |Usage:
-      |  MarkdGo beautify [--sortLinkRefs] FILE...
-      |
-      |Options:
-      |  -h --help       Show this screen.
-      |  --version       Show version.
-      |  --sortLinkRefs  Sort the link references in the file (off by default)
-      |  FILE            File(s) to beautify.
-      |""".stripMargin.trim
+    s"""Beautify a markdown file.
+       |
+       |Usage:
+       |  ${MarkdGo.Cli} $Cmd [--sortLinkRefs] FILE...
+       |
+       |Options:
+       |  -h --help       Show this screen.
+       |  --version       Show version.
+       |  --sortLinkRefs  Sort the link references in the file (off by default)
+       |  FILE            File(s) to beautify.
+       |""".stripMargin.trim
 
   def go(opts: TaskOptions): Unit = {
 
