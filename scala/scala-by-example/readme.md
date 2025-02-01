@@ -4,11 +4,11 @@ Scala by example
 There's a LOT to the Scala programming language.  This project includes some common and useful
 libraries and techniques.
 
-| How do I...                                      | Examples                                                                                          |
-|--------------------------------------------------|---------------------------------------------------------------------------------------------------|
-| compile and run scala code dynamically _(eval)_? | [com.skraba.byexample.scala.dynamic](src/test/scala/com/skraba/byexample/scala/dynamic/)          |
-| use self-types versus traits?                    | [TraitSelfTypeSpec](src/test/scala/com/skraba/byexample/scala/TraitSelfTypeSpec.scala)            |
-| use Regex?                                       | [Markd](src/main/scala/com/skraba/byexample/scala/markd/MarkdGo.scala) (A simple markdown parser) |
+| How do I...                                      | Examples                                                                                 |
+|--------------------------------------------------|------------------------------------------------------------------------------------------|
+| compile and run scala code dynamically _(eval)_? | [com.skraba.byexample.scala.dynamic](src/test/scala/com/skraba/byexample/scala/dynamic/) |
+| use self-types versus traits?                    | [TraitSelfTypeSpec](src/test/scala/com/skraba/byexample/scala/TraitSelfTypeSpec.scala)   |
+| use Regex?                                       | [RegexSpec](src/test/scala/com/skraba/byexample/scala/RegexSpec.scala)                   |
 
 Some of the code samples were taken or adapted into unit tests from other learning resources.  All
 of these are highly recommended!
