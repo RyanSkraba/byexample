@@ -16,6 +16,7 @@
   <modules>
     <module>ammonite-by-example</module>
     <module>hack-by-example</module>
+    <module>markd-by-example</module>
     <module>scala-by-example</module>
     <module>scalatags-by-example</module>
   </modules>

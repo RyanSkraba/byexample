@@ -22,8 +22,9 @@ import scala.util.matching.Regex
 // Adding artifacts to your local build (from this project, from maven and
 // from local maven).
 import $file.local_import_util
-local_import_util.load("scala-by-example")
 local_import_util.load("ammonite-by-example")
+local_import_util.load("markd-by-example")
+local_import_util.load("scala-by-example")
 
 @
 import com.skraba.byexample.scala.ammonite.ConsoleCfg
