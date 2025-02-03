@@ -6,13 +6,12 @@ A command line utility for working with Markdown files
 Running the driver
 ------------------------------------------------------------------------------
 
-This project includes an [example executable](src/main/java/com/skraba/byexample/scala/JavaScalaGo.java)
-that does a simple hello world mixing Java and Scala code.
+This project includes an [example executable](src/main/java/com/skraba/byexample/scala/markd/MarkdGo.java) that can perform a variety of tasks on a markdown file.
 
 ```bash
 mvn package
 # Using the uber jar from the command line
-alias byexample_go_markd="java -jar $(find ~+ -name markd-by-example-*.jar)"
+alias byexample_go_markd="java -jar $(find ~+ -name markd-by-example-*.jar | sort | head -n1)"
 byexample_go_markd --help
 # Using the maven-generated classpath
 mvn exec:java -Dexec.args="beautify readme.md"
