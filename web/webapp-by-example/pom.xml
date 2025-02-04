@@ -4,14 +4,14 @@
 
   <parent>
     <groupId>com.skraba.byexample</groupId>
-    <artifactId>byexample-webapp-aggregator</artifactId>
+    <artifactId>byexample-web-aggregator</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>webapp-by-example</artifactId>
   <packaging>war</packaging>
 
-  <name>By Example :: Webapp :: Webapp</name>
+  <name>By Example :: Web :: Webapp</name>
   <description>A Java web application example project, setup, howtos, etc.</description>
 
   <properties>

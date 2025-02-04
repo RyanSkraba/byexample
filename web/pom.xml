@@ -8,10 +8,10 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
-  <artifactId>byexample-webapp-aggregator</artifactId>
+  <artifactId>byexample-web-aggregator</artifactId>
   <packaging>pom</packaging>
 
-  <name>By Example :: Webapp :: Aggregator</name>
+  <name>By Example :: Web :: Aggregator</name>
 
   <modules>
     <module>webapp-by-example</module>

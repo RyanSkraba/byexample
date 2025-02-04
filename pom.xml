@@ -14,7 +14,7 @@
     <module>misc</module>
     <module>scala</module>
     <module>testing</module>
-    <module>webapp</module>
+    <module>web</module>
   </modules>
 
   <properties>
