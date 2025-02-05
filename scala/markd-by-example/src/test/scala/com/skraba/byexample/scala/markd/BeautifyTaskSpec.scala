@@ -6,6 +6,8 @@ import org.docopt.DocoptExitException
 /** Unit tests for [[BeautifyTask]] */
 class BeautifyTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BeautifyTask)) {
 
+  // TODO: Improve all unit tests
+
   describe(s"${Cli.Cli} $TaskCmd command line") {
 
     itShouldThrowOnHelpAndVersionFlags()
