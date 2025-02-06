@@ -22,8 +22,8 @@ object BeautifyTask extends DocoptCliGo.Task {
        |  -h --help       Show this screen.
        |  --version       Show version.
        |  --sortLinkRefs  Sort the link references in the file (off by default)
-       |  --dryRun        Print the files that would have been modified but without
-       |                  changing them.
+       |  --verbose       Print the files that are modified.
+       |  --dryRun        Like --verbose but without modifying any files.
        |  FILE            File(s) to beautify.
        |""".stripMargin.trim
 
@@ -32,16 +32,19 @@ object BeautifyTask extends DocoptCliGo.Task {
     val files: Iterable[String] = opts.getStrings("FILE")
     val cfg: ParserCfg = new ParserCfg(sortLinkRefs = opts.getBoolean("--sortLinkRefs"))
     val dryRun: Boolean = opts.getBoolean("--dryRun")
+    val verbose: Boolean = dryRun || opts.getBoolean("--verbose")
 
     MarkdGo.processMd(files) { f =>
       {
         val original = f.slurp()
         val md = Header.parse(original, cfg)
-        val modified = md.build().toString()
+        val rewritten = md.build().toString()
+        val modified = original != rewritten
 
-        if (dryRun) {
-          if (original != modified) println(s"Modifying $f")
-        } else f.writeAll(md.build().toString)
+        if (modified) {
+          if (verbose) println(s"Modifying $f")
+          if (!dryRun) f.writeAll(rewritten)
+        }
       }
     }
   }
