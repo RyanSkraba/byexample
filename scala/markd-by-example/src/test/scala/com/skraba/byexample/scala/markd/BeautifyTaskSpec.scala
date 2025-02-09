@@ -38,7 +38,7 @@ class BeautifyTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BeautifyTask)) {
       // The same file as it would be beautified
       File(scenario / "basic_expected.md").writeAll(
         s"""Header
-           |=====================================================================
+           |==============================================================================
            |
            |Some text
            |""".stripMargin
@@ -51,7 +51,14 @@ class BeautifyTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BeautifyTask)) {
 
       (basic / "basic.md").toFile.slurp() shouldNot be((basic / "basic_expected.md").toFile.slurp())
 
-      withGoMatching(TaskCmd, basic) { case (stdout, stderr) =>
+      withGoMatching(TaskCmd, basic, "--dryRun") { case (stdout, stderr) =>
+        stderr shouldBe empty
+        stdout shouldBe s"Modifying $basic/basic.md\n"
+      }
+
+      (basic / "basic.md").toFile.slurp() shouldNot be((basic / "basic_expected.md").toFile.slurp())
+
+      withGoMatching(TaskCmd, basic / "basic.md") { case (stdout, stderr) =>
         stderr shouldBe empty
         stdout shouldBe ""
       }
