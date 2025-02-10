@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.skraba.byexample</groupId>
+    <artifactId>byexample-scala-aggregator</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>scalatra-by-example</artifactId>
+  <packaging>jar</packaging>
+
+  <name>By Example :: Scala :: Scalatra</name>
+  <description>Scalatra example project, setup, howtos, etc.</description>
+
+  <properties>
+    <byexample.relBaseDir>../..</byexample.relBaseDir>
+    <maven.deploy.skip>false</maven.deploy.skip>
+    <scalafmt.conf.path>${project.basedir}/../../.scalafmt.conf</scalafmt.conf.path>
+    <!-- Launcher class -->
+    <exec.mainClass>com.skraba.byexample.scalatra.ScalatraGo</exec.mainClass>
+    <!-- other project dependency versions as properties -->
+    <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
+    <jetty.version>9.4.12.v20180830</jetty.version>
+    <scalatra.version>2.8.4</scalatra.version>
+  </properties>
+
+  <dependencies>
+    <!-- {{Insert dependencies for specific project.}} -->
+    <dependency>
+      <groupId>com.skraba.byexample</groupId>
+      <artifactId>scala-by-example</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!--
+TODO: Update for Jakarta
+<dependency>
+  <groupId>jakarta.servlet</groupId>
+  <artifactId>jakarta.servlet-api</artifactId>
+  <version>${jakarta.servlet-api.version}</version>
+</dependency> -->
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-webapp</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.scalatra</groupId>
+      <artifactId>scalatra_${scala.binary.version}</artifactId>
+      <version>${scalatra.version}</version>
+    </dependency>
+
+    <!-- Jetty is used to serve the resources for unit testing. -->
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-http</artifactId>
+      <version>${jetty.version}</version>
+      <classifier>tests</classifier>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.skraba.byexample</groupId>
+      <artifactId>scala-by-example</artifactId>
+      <version>${project.version}</version>
+      <classifier>tests</classifier>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+
+</project>

@@ -19,6 +19,7 @@
     <module>markd-by-example</module>
     <module>scala-by-example</module>
     <module>scalatags-by-example</module>
+    <module>scalatra-by-example</module>
   </modules>
 
   <properties>
