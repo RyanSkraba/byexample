@@ -22,8 +22,8 @@
     <exec.mainClass>com.skraba.byexample.scalatra.ScalatraGo</exec.mainClass>
     <!-- other project dependency versions as properties -->
     <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
-    <jetty.version>9.4.12.v20180830</jetty.version>
-    <scalatra.version>2.8.4</scalatra.version>
+    <jetty.version>12.0.16</jetty.version>
+    <scalatra.version>3.1.1</scalatra.version>
   </properties>
 
   <dependencies>
@@ -34,21 +34,19 @@
       <version>${project.version}</version>
     </dependency>
 
-    <!--
-TODO: Update for Jakarta
-<dependency>
-  <groupId>jakarta.servlet</groupId>
-  <artifactId>jakarta.servlet-api</artifactId>
-  <version>${jakarta.servlet-api.version}</version>
-</dependency> -->
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <version>${jakarta.servlet-api.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-webapp</artifactId>
+      <artifactId>jetty-server</artifactId>
       <version>${jetty.version}</version>
     </dependency>
     <dependency>
       <groupId>org.scalatra</groupId>
-      <artifactId>scalatra_${scala.binary.version}</artifactId>
+      <artifactId>scalatra-jakarta_${scala.binary.version}</artifactId>
       <version>${scalatra.version}</version>
     </dependency>
 
@@ -57,7 +55,6 @@ TODO: Update for Jakarta
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-http</artifactId>
       <version>${jetty.version}</version>
-      <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>
 
