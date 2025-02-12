@@ -24,8 +24,7 @@ Resources
 
 * [Deploy a Java web application inside a Tomcat server container](https://www.jetbrains.com/help/idea/deploying-a-web-app-into-an-app-server-container.html)
 
-* [Jetty and Maven](https://www.eclipse.org/jetty/documentation/jetty-11/programming-guide/index.html#maven-and-jetty
-  ).
+* [Jetty and Maven](https://www.eclipse.org/jetty/documentation/jetty-12/programming-guide/index.html#maven-and-jetty).
 
 Running the web application
 ------------------------------------------------------------------------------

@@ -37,6 +37,8 @@
     <assertj.version>3.27.0</assertj.version>
     <docopt.version>0.6.0.20150202</docopt.version>
     <hamcrest.version>3.0</hamcrest.version>
+    <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
+    <jetty.version>12.0.16</jetty.version>
     <junit5.version>5.11.4</junit5.version>
     <scala.binary.version>2.13</scala.binary.version>
     <scala.version>2.13.15</scala.version>
@@ -76,6 +78,17 @@
         <groupId>com.offbytwo</groupId>
         <artifactId>docopt</artifactId>
         <version>${docopt.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.servlet</groupId>
+        <artifactId>jakarta.servlet-api</artifactId>
+        <version>${jakarta.servlet-api.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-server</artifactId>
+        <version>${jetty.version}</version>
       </dependency>
       <dependency>
         <groupId>org.scala-lang</groupId>

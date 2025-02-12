@@ -3,10 +3,10 @@ package com.skraba.byexample.webapp.hello;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.http.HttpTester;
 import org.eclipse.jetty.server.LocalConnector;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +20,8 @@ public class HelloServletTest {
     Server server = new Server();
     connector = new LocalConnector(server);
     server.addConnector(connector);
-    ServletContextHandler context = new ServletContextHandler(server, "/");
+    ServletContextHandler context = new ServletContextHandler("/");
+    server.setHandler(context);
     context.addServlet(HelloServlet.class, "/hello");
     server.start();
   }
