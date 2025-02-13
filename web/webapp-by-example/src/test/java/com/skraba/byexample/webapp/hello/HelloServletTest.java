@@ -7,23 +7,28 @@ import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.http.HttpTester;
 import org.eclipse.jetty.server.LocalConnector;
 import org.eclipse.jetty.server.Server;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for {@link HelloServlet}. */
 public class HelloServletTest {
 
-  private static LocalConnector connector;
+  private static final Server server = new Server();
+  private static final LocalConnector connector= new LocalConnector(server);
 
   @BeforeAll
   public static void setUp() throws Exception {
-    Server server = new Server();
-    connector = new LocalConnector(server);
     server.addConnector(connector);
     ServletContextHandler context = new ServletContextHandler("/");
     server.setHandler(context);
     context.addServlet(HelloServlet.class, "/hello");
     server.start();
+  }
+
+  @AfterAll
+  public static void tearDown() throws Exception {
+    server.stop();
   }
 
   @Test
