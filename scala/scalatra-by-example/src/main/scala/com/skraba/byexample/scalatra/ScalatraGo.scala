@@ -8,6 +8,6 @@ import com.skraba.docoptcli.DocoptCliGo.Task
 object ScalatraGo extends DocoptCliGo {
   override lazy val Cli: String = "ScalatraGo"
   override lazy val Version: String = "0.0.1-SNAPSHOT"
-  override lazy val Tasks: Seq[Task] = Seq(HelloWorldTask)
+  override lazy val Tasks: Seq[Task] = Seq(HelloWorldTask, ServeJarResourceTask)
   override lazy val Doc: String = "A driver to launch a web server.\n\n" + SimpleDoc
 }

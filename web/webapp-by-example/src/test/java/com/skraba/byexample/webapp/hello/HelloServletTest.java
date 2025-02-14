@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 public class HelloServletTest {
 
   private static final Server server = new Server();
-  private static final LocalConnector connector= new LocalConnector(server);
+  private static final LocalConnector connector = new LocalConnector(server);
 
   @BeforeAll
   public static void setUp() throws Exception {

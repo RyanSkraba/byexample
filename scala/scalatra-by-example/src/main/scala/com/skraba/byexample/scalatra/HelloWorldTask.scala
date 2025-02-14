@@ -5,8 +5,7 @@ import org.eclipse.jetty.ee10.webapp.WebAppContext
 import org.eclipse.jetty.server.Server
 import org.scalatra.ScalatraServlet
 
-/** Command-line driver that launches a server that says hello.
-  */
+/** Command-line driver that launches a server that says hello. */
 object HelloWorldTask extends Task {
 
   val Cmd = "helloworld"
