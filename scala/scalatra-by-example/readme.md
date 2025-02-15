@@ -1,7 +1,8 @@
 Scalatra by example
 ==============================================================================
 
-A command line utility for running a scalatra server
+A command line utility for running a scalatra server, especially one embedded
+in an uber jar.
 
 Running the driver
 ------------------------------------------------------------------------------
@@ -9,12 +10,11 @@ Running the driver
 This project includes an [example executable](src/main/java/com/skraba/byexample/scala/markd/MarkdGo.java) that can perform some tasks serving pages.
 
 ```bash
+# Build and create an alias for using the uber jar.
 mvn package
-# Using the uber jar from the command line
 alias byexample_go_scalatra="java -jar $(find ~+ -name scalatra-by-example-*.jar | sort | head -n1)"
 byexample_go_scalatra --help
-byexample_go_scalatra server
-# Using the maven-generated classpath
-mvn exec:java -Dexec.args="server"
-mvn exec:java -Dexec.mainClass="com.skraba.byexample.scalatra.ScalatraGo" -Dexec.args="server" 
+
+# Run the helloworld example
+byexample_go_scalatra helloworld
 ```

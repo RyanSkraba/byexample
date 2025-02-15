@@ -24,16 +24,30 @@ object HelloWorldTask extends Task {
        |  --port=PORT  Port (Default: 8080)
        |""".stripMargin.trim
 
+  /** Internal flag to help turn off the server. */
+  private[this] var Running = true
+
   def go(opts: TaskOptions): Unit = {
     val server = new Server(opts.getInt("PORT", 8080))
     val context = new WebAppContext()
     context.setContextPath("/")
     context.addServlet(classOf[Srvlet], "/*")
+    context.setBaseResourceAsString("/")
     server.setHandler(context)
+    Running = true
     server.start()
+    while (Running) {
+      Thread.sleep(1000L)
+    }
+    server.stop()
   }
 
   class Srvlet extends ScalatraServlet {
     get("/") { "Hello world" }
+
+    get("/shutdown") {
+      Running = false
+      "Goodbye"
+    }
   }
 }

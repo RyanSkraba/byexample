@@ -33,19 +33,28 @@
     </dependency>
 
     <dependency>
-      <groupId>jakarta.servlet</groupId>
-      <artifactId>jakarta.servlet-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-server</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.scalatra</groupId>
       <artifactId>scalatra-jakarta_${scala.binary.version}</artifactId>
       <version>${scalatra.version}</version>
     </dependency>
 
+    <!-- We want these embedded in the uber jar to run standalone -->
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-server</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <scope>compile</scope>
+    </dependency>
+
+    <!-- tests -->
     <dependency>
       <groupId>com.skraba.byexample</groupId>
       <artifactId>scala-by-example</artifactId>
