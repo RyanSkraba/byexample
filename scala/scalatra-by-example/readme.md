@@ -17,4 +17,6 @@ byexample_go_scalatra --help
 
 # Run the helloworld example
 byexample_go_scalatra helloworld
+# Go to https://localhost:8080/ to see the message
+# Go to https://localhost:8080/_shutdown to turn the server off 
 ```

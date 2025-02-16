@@ -16,7 +16,7 @@ object HelloWorldTask extends Task {
     s"""$Description
        |
        |Usage:
-       |  ${ScalatraGo.Cli} $Cmd [--port=PORT]
+       |  ${ScalatraGo.Cli} $Cmd [options]
        |
        |Options:
        |  -h --help    Show this screen.
@@ -45,7 +45,11 @@ object HelloWorldTask extends Task {
   class Srvlet extends ScalatraServlet {
     get("/") { "Hello world" }
 
-    get("/shutdown") {
+    get("/_health") {
+      true
+    }
+
+    get("/_shutdown") {
       Running = false
       "Goodbye"
     }
