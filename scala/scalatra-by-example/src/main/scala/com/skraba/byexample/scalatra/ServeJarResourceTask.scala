@@ -1,9 +1,7 @@
 package com.skraba.byexample.scalatra
 
+import com.skraba.byexample.scalatra.ScalatraGo.TestableServlet
 import com.skraba.docoptcli.DocoptCliGo.Task
-import org.eclipse.jetty.ee10.webapp.WebAppContext
-import org.eclipse.jetty.server.Server
-import org.scalatra.ScalatraServlet
 
 import java.net.URLConnection
 
@@ -26,16 +24,9 @@ object ServeJarResourceTask extends Task {
        |  --port=PORT  Port (Default: 8080)
        |""".stripMargin.trim
 
-  def go(opts: TaskOptions): Unit = {
-    val server = new Server(opts.getInt("PORT", 8080))
-    val context = new WebAppContext()
-    context.setContextPath("/")
-    context.addServlet(classOf[Srvlet], "/*")
-    server.setHandler(context)
-    server.start()
-  }
+  def go(opts: TaskOptions): Unit = ScalatraGo.runStandaloneServer(opts.getInt("PORT", 8080), classOf[Srvlet])
 
-  class Srvlet extends ScalatraServlet {
+  class Srvlet extends TestableServlet {
     get("/") {
       redirect("/index.html")
     }
@@ -50,7 +41,7 @@ object ServeJarResourceTask extends Task {
           contentType =
             Option(URLConnection.guessContentTypeFromName(request.getRequestURI)).getOrElse("application/octet-stream")
           stream
-        case None => halt(404, "File not found")
+        case None => halt(404, "Not found")
       }
     }
   }
