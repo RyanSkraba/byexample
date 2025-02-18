@@ -22,7 +22,7 @@ object HelloWorldTask extends Task {
        |  --port=PORT  Port (Default: 8080)
        |""".stripMargin.trim
 
-  def go(opts: TaskOptions): Unit = ScalatraGo.runStandaloneServer(opts.getInt("PORT", 8080), classOf[Srvlet])
+  def go(opts: TaskOptions): Unit = ScalatraGo.runStandaloneServer(opts.getInt("--port", 8080), classOf[Srvlet])
 
   class Srvlet extends TestableServlet { get("/") { "Hello world" } }
 }

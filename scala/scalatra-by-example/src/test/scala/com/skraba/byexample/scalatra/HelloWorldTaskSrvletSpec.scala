@@ -20,7 +20,7 @@ class HelloWorldTaskSrvletSpec extends AnyFunSpecLike with BeforeAndAfterAll wit
     server.setHandler(context)
     server.start()
 
-    it("should respond to a correct request") {
+    it("should greet when requested") {
       val request = HttpTester.newRequest
       request.setMethod("GET")
       request.setVersion("HTTP/1.0")
