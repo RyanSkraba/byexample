@@ -4,8 +4,11 @@ import com.skraba.docoptcli.DocoptCliGo
 import com.skraba.docoptcli.DocoptCliGo.Task
 import jakarta.servlet.Servlet
 import org.eclipse.jetty.ee10.webapp.WebAppContext
-import org.eclipse.jetty.server.Server
+import org.eclipse.jetty.server.Request.getLocalPort
+import org.eclipse.jetty.server.{Connector, Server, ServerConnector}
 import org.scalatra.ScalatraServlet
+
+import scala.reflect.io.Directory
 
 /** A driver for running a Scalatra web server.
   */
@@ -33,9 +36,8 @@ object ScalatraGo extends DocoptCliGo {
     server.setHandler(context)
     Running = true
     server.start()
-    while (Running) {
-      Thread.sleep(1000L)
-    }
+    if (port == 0) println(s"Standalone server started: ${server.getURI}")
+    while (Running) Thread.sleep(1000L)
     server.stop()
   }
 
