@@ -5,7 +5,7 @@ import sttp.client4.{DefaultSyncBackend, Response, UriContext, quickRequest}
 import sttp.model.StatusCodes
 
 /** Unit tests for [[ServeJarResourceTask]]. */
-class ServeJarResourceSpec extends DocoptCliGoSpec(ScalatraGo, Some(ServeJarResourceTask)) with StatusCodes {
+class ServeJarResourceTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(ServeJarResourceTask)) with StatusCodes {
 
   val Srv = new ScalatraGoServer(Seq(TaskCmd))
 
