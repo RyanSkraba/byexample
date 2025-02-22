@@ -1,8 +1,7 @@
 package com.skraba.byexample.scalatra
 
-import sttp.client4.{DefaultSyncBackend, quickRequest}
+import sttp.client4.{DefaultSyncBackend, Response, UriContext, quickRequest}
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
-import sttp.client4.UriContext
 import sttp.model.StatusCodes
 
 import java.io.ByteArrayOutputStream
@@ -55,6 +54,9 @@ class ScalatraGoServer(args: Seq[String], timeout: Duration = 10.seconds) extend
     ),
     timeout
   ) shouldBe "Started"
+
+  /** Make a GET request to the server. */
+  def get(path: String): Response[String] = quickRequest.get(uri"$base$path").send(DefaultSyncBackend())
 
   /** Request the server be shut down. */
   def shutdown(): Unit = {

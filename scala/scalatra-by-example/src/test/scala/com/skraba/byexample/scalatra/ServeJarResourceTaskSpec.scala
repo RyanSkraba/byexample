@@ -1,7 +1,6 @@
 package com.skraba.byexample.scalatra
 
 import com.skraba.docoptcli.DocoptCliGoSpec
-import sttp.client4.{DefaultSyncBackend, Response, UriContext, quickRequest}
 import sttp.model.StatusCodes
 
 /** Unit tests for [[ServeJarResourceTask]]. */
@@ -22,13 +21,13 @@ class ServeJarResourceTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(ServeJar
 
   describe(s"${Cli.Cli} $TaskCmd running as a server") {
     it("should have a health check") {
-      val response: Response[String] = quickRequest.get(uri"${Srv.base}/_health").send(DefaultSyncBackend())
+      val response = Srv.get("/_health")
       response.code shouldBe Ok
       response.body shouldBe "true"
     }
 
     it("should redirect on /") {
-      val response: Response[String] = quickRequest.get(uri"${Srv.base}/").send(DefaultSyncBackend())
+      val response = Srv.get("/")
       response.code shouldBe Ok
       response.body shouldBe
         """<html>
@@ -39,7 +38,7 @@ class ServeJarResourceTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(ServeJar
     }
 
     it("should respond to /index.html") {
-      val response: Response[String] = quickRequest.get(uri"${Srv.base}/index.html").send(DefaultSyncBackend())
+      val response = Srv.get("/index.html")
       response.code shouldBe Ok
       response.body shouldBe
         """<html>
@@ -50,7 +49,7 @@ class ServeJarResourceTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(ServeJar
     }
 
     it("should return 404 when a location isn't found") {
-      val response: Response[String] = quickRequest.get(uri"${Srv.base}/notfound").send(DefaultSyncBackend())
+      val response = Srv.get("/notfound")
       response.code shouldBe NotFound
       response.body shouldBe "Not found"
     }
