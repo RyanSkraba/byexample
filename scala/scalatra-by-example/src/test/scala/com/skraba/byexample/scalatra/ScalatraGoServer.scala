@@ -2,7 +2,7 @@ package com.skraba.byexample.scalatra
 
 import sttp.client4.{DefaultSyncBackend, Response, UriContext, quickRequest}
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
-import sttp.model.StatusCodes
+import sttp.model.{StatusCodes, Uri}
 
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
@@ -18,7 +18,7 @@ class ScalatraGoServer(args: Seq[String], timeout: Duration = 10.seconds) extend
   private[this] val started = "Standalone server started: (.*)\n".r
 
   /** Run a server in the background, capturing the base URI. */
-  val (server, base) = Streamable.closing(new ByteArrayOutputStream()) { out =>
+  val (server: Future[String], base: Uri) = Streamable.closing(new ByteArrayOutputStream()) { out =>
     (
       Future {
         Console.withOut(out) {
@@ -31,7 +31,7 @@ class ScalatraGoServer(args: Seq[String], timeout: Duration = 10.seconds) extend
           out.flush()
           new String(out.toByteArray, StandardCharsets.UTF_8)
         }
-        .collectFirst { case started(uri) => uri }
+        .collectFirst { case started(uri) => uri"$uri" }
         .get
     )
   }
@@ -56,7 +56,7 @@ class ScalatraGoServer(args: Seq[String], timeout: Duration = 10.seconds) extend
   ) shouldBe "Started"
 
   /** Make a GET request to the server. */
-  def get(path: String): Response[String] = quickRequest.get(uri"$base$path").send(DefaultSyncBackend())
+  def get(path: String): Response[String] = quickRequest.get(base.withWholePath(path)).send(DefaultSyncBackend())
 
   /** Request the server be shut down. */
   def shutdown(): Unit = {
