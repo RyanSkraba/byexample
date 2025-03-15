@@ -59,7 +59,7 @@ case class Ffmpeg(
         Seq("-print_format", "json"),
         Seq("-show_format", "-show_streams"),
         mp4
-      ).out.text
+      ).out.text()
     )
     .obj
 
@@ -117,7 +117,7 @@ case class Ffmpeg(
         Seq("-show_frames", "-select_streams", "v:0"),
         Seq("-read_intervals", f"$start%%$end"),
         mp4
-      ).out.text
+      ).out.text()
     )
     .obj("frames")
     .arr

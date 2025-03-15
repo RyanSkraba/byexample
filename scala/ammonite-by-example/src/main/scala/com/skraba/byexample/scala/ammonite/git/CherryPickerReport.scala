@@ -31,37 +31,29 @@ case class CherryPickerReport(
   }
 
   /** Rerun this report using the updated commits. */
-  def update(current: CherryPickerReport): CherryPickerReport =
-    copy(left = current.left, right = current.right)
+  def update(current: CherryPickerReport): CherryPickerReport = copy(left = current.left, right = current.right)
 
   /** If the commit describes a dependabot bump, then update the notes in the table row with the word Bump.
     */
   private[this] def rowUpdateBump(cmt: Commit)(row: TableRow): TableRow =
-    if (cmt.isBump && !row(2).toLowerCase.contains("bump"))
-      row.updated(2, "Bump " + row(2))
+    if (cmt.isBump && !row(2).toLowerCase.contains("bump")) row.updated(2, "Bump " + row(2))
     else row
 
-  private[this] def rowUpdatePossibleCherryPick(cmt: Commit)(
-      otherSubjects: Map[String, Seq[Commit]]
-  )(row: TableRow): TableRow = otherSubjects
+  private[this] def rowUpdatePossibleCherryPick(
+      cmt: Commit
+  )(otherSubjects: Map[String, Seq[Commit]])(row: TableRow): TableRow = otherSubjects
     .get(cmt.subject)
     .flatMap(_.headOption)
     .map(cmt2 =>
-      if (refersTo(cmt2.commit, row(2)))
-        row
-      else
-        row
-          .updated(2, "🔵" + row(2) + s" [${cmt2.commit.take(CommitHashSize)}]")
+      if (refersTo(cmt2.commit, row(2))) row
+      else row.updated(2, "🔵" + row(2) + s" [${cmt2.commit.take(CommitHashSize)}]")
     )
     .getOrElse(row)
 
   private[this] def rowTrim(row: TableRow): TableRow =
     row
       .updated(0, s"[${row.head.take(CommitHashSize)}]")
-      .updated(
-        1,
-        if (row(1).length < 100) row(1) else row(1).take(97) + "..."
-      )
+      .updated(1, if (row(1).length < 100) row(1) else row(1).take(97) + "...")
 
   /** Generate a commit table for the given header, integrating the given list of commits with any existing notes.
     */
@@ -89,11 +81,8 @@ case class CherryPickerReport(
       case tbl: Table if tbl.title == "Commit" =>
         clean.copy(mds = clean.mds.map { row =>
           val cmtHash = row.head
-          val originalRow = tbl
-            .collectFirstRecursive {
-              case r: TableRow if refersTo(cmtHash, r.head) => r
-            }
-            .getOrElse(TableRow.from())
+          val originalRow =
+            tbl.collectFirstRecursive { case r: TableRow if refersTo(cmtHash, r.head) => r }.getOrElse(TableRow.from())
           row.updated(2, originalRow(2))
         })
     }
@@ -106,11 +95,7 @@ case class CherryPickerReport(
           case headerRow if headerRow == tbl(0) => headerRow
           case r =>
             val commit = cmts.find(_.commit == r.head).get
-            Some(r)
-              .map(rowUpdateBump(commit))
-              .map(rowUpdatePossibleCherryPick(commit)(otherSubjects))
-              .map(rowTrim)
-              .get
+            Some(r).map(rowUpdateBump(commit)).map(rowUpdatePossibleCherryPick(commit)(otherSubjects)).map(rowTrim).get
         })
     }
   }
@@ -120,12 +105,8 @@ case class CherryPickerReport(
     val preIssues = doc
       .mapFirstIn(ifNotFound = Header(1, "CherryPickerReport")) {
         case h1: Header if h1.title == "CherryPickerReport" =>
-          h1.mapFirstIn(ifNotFound =
-            // TODO Table.from without alignments
-            Seq(
-              Table
-                .from(Seq.fill(2)(Align.LEFT), TableRow.from(ConfigTable, ""))
-            )
+          h1.mapFirstIn(ifNotFound = // TODO Table.from without alignments
+            Seq(Table.from(Seq.fill(2)(Align.LEFT), TableRow.from(ConfigTable, "")))
           ) {
             case tbl: Table if tbl.title.startsWith(ConfigTable) =>
               tbl
@@ -134,44 +115,29 @@ case class CherryPickerReport(
                     row.copy(cells = row.cells.updated(1, lBranch))
                 }
                 .mapFirstIn(ifNotFound = TableRow.from("Left N", "")) {
-                  case row if row.head == "Left N" =>
-                    row.copy(cells = row.cells.updated(1, left.size.toString))
+                  case row if row.head == "Left N" => row.copy(cells = row.cells.updated(1, left.size.toString))
                 }
                 .mapFirstIn(ifNotFound = TableRow.from("Left Dups", "")) {
                   case row if row.head == "Left Dups" =>
-                    row.copy(cells =
-                      row.cells.updated(
-                        1,
-                        leftSubjects.count(p => p._2.size > 1).toString
-                      )
-                    )
+                    row.copy(cells = row.cells.updated(1, leftSubjects.count(p => p._2.size > 1).toString))
                 }
                 .mapFirstIn(ifNotFound = TableRow.from("Right", "")) {
-                  case row if row.head == "Right" =>
-                    row.copy(cells = row.cells.updated(1, rBranch))
+                  case row if row.head == "Right" => row.copy(cells = row.cells.updated(1, rBranch))
                 }
                 .mapFirstIn(ifNotFound = TableRow.from("Right N", "")) {
-                  case row if row.head == "Right N" =>
-                    row.copy(cells = row.cells.updated(1, right.size.toString))
+                  case row if row.head == "Right N" => row.copy(cells = row.cells.updated(1, right.size.toString))
                 }
                 .mapFirstIn(ifNotFound = TableRow.from("Right Dups", "")) {
                   case row if row.head == "Right Dups" =>
-                    row.copy(cells =
-                      row.cells.updated(
-                        1,
-                        rightSubjects.count(p => p._2.size > 1).toString
-                      )
-                    )
+                    row.copy(cells = row.cells.updated(1, rightSubjects.count(p => p._2.size > 1).toString))
                 }
           }
       }
       .mapFirstIn(ifNotFound = Header(1, "Left")) {
-        case h1: Header if h1.title == "Left" =>
-          addTableOfCommits(h1, left.reverse, rightSubjects)
+        case h1: Header if h1.title == "Left" => addTableOfCommits(h1, left.reverse, rightSubjects)
       }
       .mapFirstIn(ifNotFound = Header(1, "Right")) {
-        case h1: Header if h1.title == "Right" =>
-          addTableOfCommits(h1, right.reverse, leftSubjects)
+        case h1: Header if h1.title == "Right" => addTableOfCommits(h1, right.reverse, leftSubjects)
       }
       .mapFirstIn(ifNotFound = Header(1, "References")) {
         case h1: Header if h1.level == 1 && h1.title == "References" =>
@@ -192,15 +158,11 @@ case class CherryPickerReport(
         val preTxt: String = preIssues.build().toString
 
         // Replaces all issue tags that aren't already surrounded by square brackets with ones that are
-        val post = Header.parse(
-          s"(?<!\\[)\\b$tag-\\d+(?<!])".r.replaceAllIn(preTxt, "[$0]")
-        )
+        val post = Header.parse(s"(?<!\\[)\\b$tag-\\d+(?<!])".r.replaceAllIn(preTxt, "[$0]"))
 
         // Find all of the issues numbers that are referred to in the doc.
         val issueRegex = s"\\b$tag-(\\d+)\\b".r
-        val allIssueNum =
-          (for (patternMatch <- issueRegex.findAllMatchIn(preTxt))
-            yield patternMatch.group(1)).toSet
+        val allIssueNum = (for (patternMatch <- issueRegex.findAllMatchIn(preTxt)) yield patternMatch.group(1)).toSet
 
         // All of the original references in that section.
         val originalReferences = preIssues
@@ -223,17 +185,12 @@ case class CherryPickerReport(
       .getOrElse(preIssues)
   }
 
-  private[this] def summarizeSubjects(
-      commits: Seq[Commit],
-      s: Map[String, Seq[Commit]],
-      tag: String
-  ): String = {
+  private[this] def summarizeSubjects(commits: Seq[Commit], s: Map[String, Seq[Commit]], tag: String): String = {
     if (s.size != commits.size) {
       s"* Found duplicate subjects on $tag (${out.warn(s.size)} unique subjects)\n" +
         s.map {
-          case (subject, commits) if commits.size > 1 =>
-            s"  - $subject (${commits.size})\n"
-          case _ => ""
+          case (subject, commits) if commits.size > 1 => s"  - $subject (${commits.size})\n"
+          case _                                      => ""
         }.mkString
     } else {
       ""
@@ -250,11 +207,8 @@ case class CherryPickerReport(
     print(summarizeSubjects(left, leftSubjects, lTag))
     print(summarizeSubjects(right, rightSubjects, rTag))
 
-    val actuallyCherryPicked =
-      leftSubjects.keySet.intersect(rightSubjects.keySet)
-    println(
-      s"* There were ${out.warn(actuallyCherryPicked.size)} commits that look cherrypicked:"
-    )
+    val actuallyCherryPicked = leftSubjects.keySet.intersect(rightSubjects.keySet)
+    println(s"* There were ${out.warn(actuallyCherryPicked.size)} commits that look cherrypicked:")
     print(actuallyCherryPicked.map(msg => s"  - $msg\n").mkString)
 
     println(s"\n# $lTag\n")
@@ -275,15 +229,7 @@ case class CherryPickerReport(
 
 object CherryPickerReport {
 
-  val Cmd: Seq[String] = Seq(
-    "git",
-    "--no-pager",
-    "log",
-    "--left-right",
-    "--graph",
-    "--cherry-pick",
-    Commit.LogFormat
-  )
+  val Cmd: Seq[String] = Seq("git", "--no-pager", "log", "--left-right", "--graph", "--cherry-pick", Commit.LogFormat)
 
   val CommitHashSize = 10
 
@@ -309,17 +255,10 @@ object CherryPickerReport {
     * @return
     *   The [[CherryPickerReport]] if successful, or the git command output if it failed.
     */
-  def fromGit(
-      repo: String,
-      lTag: String,
-      rTag: String
-  ): Either[CherryPickerReport, Try[CommandResult]] = {
-    Try(
-      os.proc(Cmd :+ s"$lTag...$rTag").call(os.Path(repo))
-    ) match {
+  def fromGit(repo: String, lTag: String, rTag: String): Either[CherryPickerReport, Try[CommandResult]] = {
+    Try(os.proc(Cmd :+ s"$lTag...$rTag").call(os.Path(repo))) match {
       case Success(result) if result.exitCode == 0 =>
-        val (left, right) =
-          Commit.fromGit(result.out.text).partition(_.isLeft)
+        val (left, right) = Commit.fromGit(result.out.text()).partition(_.isLeft)
         Left(CherryPickerReport(lTag, rTag, left, right))
       case other => Right(other)
     }
@@ -344,13 +283,6 @@ object CherryPickerReport {
       }
       .getOrElse(("", "", None))
 
-    CherryPickerReport(
-      lBranch,
-      rBranch,
-      Seq.empty,
-      Seq.empty,
-      issuesUrl = issues,
-      doc = doc
-    )
+    CherryPickerReport(lBranch, rBranch, Seq.empty, Seq.empty, issuesUrl = issues, doc = doc)
   }
 }
