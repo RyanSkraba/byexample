@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 class JunitInScalaTest {
   @Test
   @throws[IOException]
-  def testBasic() {
+  def testBasic(): Unit = {
     {
       val p: GreeterBean = new GreeterBean(100, "Joe")
       assertThat(p.getName, is("Joe"))

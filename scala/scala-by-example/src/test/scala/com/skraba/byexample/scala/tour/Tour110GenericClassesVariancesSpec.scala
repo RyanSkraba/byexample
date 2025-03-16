@@ -68,8 +68,8 @@ class Tour110GenericClassesVariancesSpec extends AnyFunSpecLike with Matchers {
       fruitStack.push(apple)
       fruitStack.push(banana)
 
-      fruitStack.pop shouldBe a[Banana]
-      fruitStack.pop shouldBe an[Apple]
+      fruitStack.pop() shouldBe a[Banana]
+      fruitStack.pop() shouldBe an[Apple]
       "val check: Stack[Fruit] = new Stack[Apple]" shouldNot typeCheck
       "val check: Stack[Apple] = fruitStack" shouldNot typeCheck
     }

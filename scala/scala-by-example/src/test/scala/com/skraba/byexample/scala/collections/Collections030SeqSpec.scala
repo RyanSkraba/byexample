@@ -207,7 +207,7 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
       buf dropRightInPlace 6
       buf shouldBe mutable.Buffer(1, 2, 3)
 
-      buf.clear
+      buf.clear()
       buf shouldBe empty
     }
 
@@ -258,7 +258,7 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
       buf.dequeueAll(_ % 10 != 0) shouldBe mutable.Queue(99, 1, 2)
 
       buf shouldBe mutable.Queue(100, 0)
-      buf.clear
+      buf.clear()
       buf shouldBe empty
     }
 

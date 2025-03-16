@@ -63,7 +63,7 @@ object ScalaGo {
     // All of the command is executed in the go method, and this wraps DocOpt and exceptions for
     // console feedback.
     try {
-      go(args: _*)
+      go(args.toSeq: _*)
     } catch {
       case ex: DocoptExitException =>
         Option(if (ex.getExitCode == 0) System.out else System.err)

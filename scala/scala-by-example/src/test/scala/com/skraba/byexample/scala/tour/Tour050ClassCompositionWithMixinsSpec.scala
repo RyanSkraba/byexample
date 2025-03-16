@@ -61,8 +61,8 @@ class Tour050ClassCompositionWithMixinsSpec extends AnyFunSpecLike with Matchers
       // Classic iterator
       val si = new StringIterator("Hello")
       si.hasNext shouldBe true
-      si.next shouldBe a[Character]
-      si.next shouldBe 'e'
+      si.next() shouldBe a[Character]
+      si.next() shouldBe 'e'
 
       // Add a foreach implementation
       trait RichIterator extends AbsIterator {
@@ -74,8 +74,8 @@ class Tour050ClassCompositionWithMixinsSpec extends AnyFunSpecLike with Matchers
 
       val ri = new Iter("Hello")
       ri.hasNext shouldBe true
-      ri.next shouldBe a[Character]
-      ri.next shouldBe 'e'
+      ri.next() shouldBe a[Character]
+      ri.next() shouldBe 'e'
       // The rest of the values should be chars too.
       ri.foreach(_ shouldBe a[Character])
       ri.hasNext shouldBe false

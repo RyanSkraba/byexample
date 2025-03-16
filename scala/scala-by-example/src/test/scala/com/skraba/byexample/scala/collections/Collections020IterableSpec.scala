@@ -27,16 +27,16 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
     it("has high-performance next() and hasNext() methods") {
       val it: Iterator[Int] = xs.iterator
       it.hasNext shouldBe true
-      it.next shouldBe 1
+      it.next() shouldBe 1
       it.hasNext shouldBe true
-      it.nextOption shouldBe Some(2)
+      it.nextOption() shouldBe Some(2)
       it.hasNext shouldBe true
-      it.next shouldBe 3
+      it.next() shouldBe 3
 
       // nextOption is OK, but don't call next if hasNext is false.
       it.hasNext shouldBe false
-      it.nextOption shouldBe None
-      val t = intercept[NoSuchElementException] { it.next }
+      it.nextOption() shouldBe None
+      val t = intercept[NoSuchElementException] { it.next() }
       t.getMessage shouldBe "head of empty list"
     }
 
@@ -68,7 +68,7 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
       // All methods in this trait are implemented via .iterator
       val it: Iterator[Int] = xs.iterator
       // An Iterator is a collection too -- with hasNext() and next()
-      while (it.hasNext) it.next should (be > 0 and be <= 3)
+      while (it.hasNext) it.next() should (be > 0 and be <= 3)
 
       // For example
       xs.foreach(
@@ -295,9 +295,9 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
       // Returns iterators taking the original collection in chunks.
       val it = xs.grouped(2)
       it.hasNext shouldBe true
-      it.next shouldBe Iterable(1, 2)
+      it.next() shouldBe Iterable(1, 2)
       it.hasNext shouldBe true
-      it.next shouldBe Iterable(3)
+      it.next() shouldBe Iterable(3)
       it.hasNext shouldBe false
     }
 
@@ -305,9 +305,9 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
       // Returns iterators taking the original collection in chunks.
       val it = xs.sliding(2, 1)
       it.hasNext shouldBe true
-      it.next shouldBe Iterable(1, 2)
+      it.next() shouldBe Iterable(1, 2)
       it.hasNext shouldBe true
-      it.next shouldBe Iterable(2, 3)
+      it.next() shouldBe Iterable(2, 3)
       it.hasNext shouldBe false
     }
 

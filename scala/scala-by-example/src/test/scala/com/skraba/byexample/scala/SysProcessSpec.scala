@@ -32,7 +32,7 @@ class SysProcessSpec extends AnyFunSpecLike with Matchers {
       Seq("echo", "-n", "Hello", "world").!! shouldBe "Hello world\n"
 
       Process("echo Hello world").!
-      Process("echo Hello world").run.exitValue() shouldBe 0
+      Process("echo Hello world").run().exitValue() shouldBe 0
     }
 
     it("allows you to pipe stdout and stdin") {
@@ -53,8 +53,7 @@ class SysProcessSpec extends AnyFunSpecLike with Matchers {
       // Use string builders to save console output.
       val stdout = new StringBuilder
       val stderr = new StringBuilder
-      val status =
-        "echo Hello world".!(ProcessLogger(stdout.append(_), stderr.append(_)))
+      val status = "echo Hello world".!(ProcessLogger(stdout.append(_), stderr.append(_)))
       status shouldBe 0
       stdout.toString() shouldBe "Hello world"
       stderr.size shouldBe 0
