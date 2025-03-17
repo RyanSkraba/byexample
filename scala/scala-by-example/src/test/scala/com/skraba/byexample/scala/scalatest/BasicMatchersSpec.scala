@@ -150,12 +150,13 @@ class BasicMatchersSpec extends AnyFunSpecLike with Matchers {
     val p = Person("Betty White", 1922, golden = true)
 
     it("can check properties") {
-      p shouldBe 'golden
+      // These used to have an interesting syntactic sugar, but now it's better to check explicitly
+      p shouldBe Symbol("golden")
       p should have(
-        'name("Betty White"),
-        'birthYear(1922),
-        'golden(true),
-        'century(19)
+        Symbol("name")("Betty White"),
+        Symbol("birthYear")(1922),
+        Symbol("golden")(true),
+        Symbol("century")(19)
       )
     }
 
@@ -173,12 +174,16 @@ class BasicMatchersSpec extends AnyFunSpecLike with Matchers {
   describe("Boolean property matchers") {
     it("can call boolean methods") {
       // String has an isEmpty method that can be called and tested as a symbol
-      "" shouldBe 'empty
-      "xx" should not be 'empty
+      "" shouldBe Symbol("empty")
+      "xx" should not be Symbol("empty")
+
+      // But it's better to use the built-in emptiness checker
+      "" shouldBe empty
+      "xx" should not be empty
 
       // This works for any isXxxx property on any class, like isBlank
-      "    \n\t" shouldBe 'blank
-      "    \n\t" should be a 'blank
+      "    \n\t" shouldBe Symbol("blank")
+      "    \n\t" should be a Symbol("blank")
     }
   }
 

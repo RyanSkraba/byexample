@@ -78,7 +78,7 @@ class TrySpec extends AnyFunSpecLike with Matchers {
     it("can be a success") {
       good.isFailure shouldBe false
       good.isSuccess shouldBe true
-      good shouldBe 'success
+      good shouldBe Symbol("success") // Not very interesting
       good shouldBe Success(BugId("ABC", 998))
 
       // Getting the value on a success just returns it
@@ -90,7 +90,7 @@ class TrySpec extends AnyFunSpecLike with Matchers {
     it("can be a failure") {
       bad.isFailure shouldBe true
       bad.isSuccess shouldBe false
-      bad shouldBe 'failure
+      bad shouldBe Symbol("failure") // Not very interesting
       bad shouldBe Failure(BadBugIdException("Underflow"))
 
       // Getting the value should cause the exception to be thrown
@@ -150,14 +150,14 @@ class TrySpec extends AnyFunSpecLike with Matchers {
       // Filter only works on success
       bad.filter(_.num % 2 == 0) shouldBe bad
       good.filter(_.num % 2 == 0) shouldBe good
-      good.filter(_.num % 2 == 1) shouldBe 'failure
+      good.filter(_.num % 2 == 1) shouldBe Symbol("failure")
     }
 
     it("can invert the success/failure") {
       // Calling .failed causes a failure to be a Success (containing it's own exception)
       bad.failed shouldBe Success(BadBugIdException("Underflow"))
       // And the good to be a failure containing an UnsupportedOperationException
-      good.failed shouldBe 'failure
+      good.failed shouldBe Symbol("failure")
       intercept[UnsupportedOperationException] {
         good.failed.get
       } should have message "Success.failed"

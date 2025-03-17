@@ -19,11 +19,10 @@ class CollectionsSpec extends AnyFunSpecLike with Matchers {
 
     it("can assert emptiness") {
       // Uses the boolean property of isEmpty to determine if there are contents
-      vide shouldBe 'empty
-      xs should not be 'empty
+      vide shouldBe Symbol("empty")
+      xs should not be Symbol("empty")
 
-      // Using the empty keyword works, but is unhappy in IntelliJ.  You can ignore
-      // the error though.
+      // Using the empty keyword works is better
       vide shouldBe empty
       xs should not be empty
 

@@ -19,7 +19,6 @@ class OptionsSpec extends AnyFunSpecLike with Matchers {
 
       // All of these can be used to show that the option is None
       nothing shouldBe None
-      nothing shouldBe 'empty
       nothing shouldBe empty
       nothing should not be defined
     }
@@ -36,7 +35,6 @@ class OptionsSpec extends AnyFunSpecLike with Matchers {
 
       // Negative assertion on None
       something shouldNot be(None)
-      something should not be 'empty
       something should not be empty
       something shouldBe defined
     }
