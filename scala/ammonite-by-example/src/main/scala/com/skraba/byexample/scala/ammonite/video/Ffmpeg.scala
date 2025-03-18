@@ -339,8 +339,10 @@ case class Ffmpeg(
     *   The length of the sound clip to generate (it should be repeated)
     * @param audioRate
     *   Audio sampling rate to generate
-    * @param aevalsrc
-    *   Optionally, an `ffmpeg` aevalsrc expression, such as [[aevalsrcSweep]]
+    * @param aevalsrcL
+    *   Optionally, an `ffmpeg` aevalsrc expression, such as [[aevalsrcSweep]] for the left channel
+    * @param aevalsrcR
+    *   Optionally, an `ffmpeg` aevalsrc expression, such as [[aevalsrcSweep]] for the right channel
     * @return
     *   An instance containing the destination MP4 and the command results.
     */
@@ -348,18 +350,56 @@ case class Ffmpeg(
       dstMp4: os.Path,
       dt: Int = 5,
       audioRate: Int = 96000,
-      aevalsrc: String = ""
+      aevalsrcL: String = "",
+      aevalsrcR: String = ""
   ): Ffmpeg = {
+
+    // The audio channel
+    val stereo = dstMp4 / os.up / (dstMp4.baseName + ".stereo.wav")
+
+    // The left channel or the default
+    val aevalsrcLImpl = if (aevalsrcL.nonEmpty) aevalsrcL else aevalsrcSweep(dt = dt)
+    val aevalsrcRImpl = if (aevalsrcR.nonEmpty) aevalsrcR else aevalsrcLImpl
+    if (aevalsrcLImpl == aevalsrcRImpl) {
+      // Use the same source for both channels
+      osProc(
+        FfmpegCmd,
+        Seq("-f", "lavfi", "-i", s"aevalsrc=${aevalsrcLImpl}:s=$audioRate:d=$dt"),
+        Seq("-ac", "2", "-ar", audioRate).map(_.toString),
+        Seq("-y", stereo).map(_.toString)
+      )
+    } else {
+      // Generate left and right channels and merge them
+      val leftChannel = dstMp4 / os.up / (dstMp4.baseName + ".left.raw")
+      val rightChannel = dstMp4 / os.up / (dstMp4.baseName + ".right.raw")
+      osProc(
+        FfmpegCmd,
+        Seq("-f", "lavfi", "-i", s"aevalsrc=${aevalsrcLImpl}:s=$audioRate:d=$dt"),
+        Seq("-ac", "1", "-ar", audioRate, "-f", "s16le").map(_.toString),
+        Seq("-y", leftChannel).map(_.toString)
+      )
+      osProc(
+        FfmpegCmd,
+        Seq("-f", "lavfi", "-i", s"aevalsrc=${aevalsrcRImpl}:s=$audioRate:d=$dt"),
+        Seq("-ac", "1", "-ar", audioRate, "-f", "s16le").map(_.toString),
+        Seq("-y", rightChannel).map(_.toString)
+      )
+      osProc(
+        FfmpegCmd,
+        Seq("-ac", "1", "-ar", audioRate, "-f", "s16le", "-i", leftChannel).map(_.toString),
+        Seq("-ac", "1", "-ar", audioRate, "-f", "s16le", "-i", rightChannel).map(_.toString),
+        Seq("-filter_complex", "[0:a][1:a]join=inputs=2:channel_layout=stereo[aout]"),
+        Seq("-map", "[aout]", "-ac", "2", "-ar", audioRate).map(_.toString),
+        Seq("-y", stereo).map(_.toString)
+      )
+    }
+
+    // Replace the audio in the video
     val cmd = osProc(
       FfmpegCmd,
       Seq("-i", mp4).map(_.toString),
-      // The generated sound
-      Seq("-f", "lavfi", "-i", s"aevalsrc=${if (aevalsrc.nonEmpty) aevalsrc else aevalsrcSweep()}:s=$audioRate:d=$dt"),
-      // Repeat the sound and map it to an output
-      Seq("-filter_complex", s"[1:a]aloop=loop=-1:size=${audioRate * dt}[aout]"),
-      // Copy the video and map the audio to the output
-      Seq("-c:v", "copy", "-c:a", "aac", "-ac", 2, "-ar", audioRate).map(_.toString),
-      Seq("-map", "0:v:0", "-map", "[aout]"),
+      Seq("-stream_loop", "-1", "-i", stereo).map(_.toString),
+      Seq("-map", "0:v:0", "-map", "1:a:0", "-c:v", "copy", "-c:a", "aac"),
       "-shortest",
       // Overwrite and output
       Seq("-y", dstMp4).map(_.toString)
@@ -496,8 +536,6 @@ object Ffmpeg {
     import scala.sys.process._
     try { s"$FfmpegCmd -version".! == 0 && s"$FfprobeCmd -version".! == 0 && s"$InkscapeCmd --version".! == 0 }
     catch { case _: Exception => false }
-    // TODO: ffmpeg installed but broken on my dev machine
-    false
   }
 
   /** @param loFrequency
@@ -512,18 +550,21 @@ object Ffmpeg {
   def aevalsrcSweep(loFrequency: Int = 220, hiFrequency: Int = 440, dt: Int = 5): String =
     s"sin(2*PI*t*($loFrequency+t*${hiFrequency - loFrequency})/$dt)"
 
-  /** @param loFrequency
+  /** @param loFreq
     *   The low frequency in hertz
-    * @param hiFrequency
+    * @param hiFreq
     *   The high frequency in hertz
     * @param dt
     *   The length of the sound clip to generate
+    * @param ot
+    *   A time offset to apply to the generated clip
     * @return
     *   An `ffmpeg` aevalsrc expression that generates a wave from the low frequency to the high frequency in the time
     *   required.
     */
-  def aevalsrcSine(loFrequency: Int = 220, hiFrequency: Int = 440, dt: Int = 5): String =
-    s"sin(2*PI*t*(${(loFrequency + hiFrequency) / 2})-${(hiFrequency - loFrequency) / 2}*cos(2*PI*t/$dt))"
+  def aevalsrcSine(loFreq: Int = 220, hiFreq: Int = 440, dt: Int = 5, ot: Int = 0): String =
+    if (ot == 0) s"sin(2*PI*t*(${(loFreq + hiFreq) / 2})-${(hiFreq - loFreq) / 2}*cos(2*PI*t/$dt))"
+    else s"sin(2*PI*(t + $ot)*(${(loFreq + hiFreq) / 2})-${(hiFreq - loFreq) / 2}*cos(2*PI*(t + $ot)/$dt))"
 
   /** Helper class to capture commands in an ffmpeg tool to a file. */
   case class CmdLogToFile(file: os.Path) extends Function[String, Any] {

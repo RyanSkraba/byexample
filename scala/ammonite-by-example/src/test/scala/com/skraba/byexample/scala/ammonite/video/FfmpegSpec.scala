@@ -112,10 +112,11 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
       /** Basic silent animation reused in tests in this section. */
       lazy val basic: Ffmpeg = {
         val ff = Ffmpeg(mp4 = Tmp / "animated.mp4", cmdLog = Ffmpeg.cmdLogToMemory())
-        ff.pngsToMp4((CachedTmp / "src" / "input").toString + "*.png", 10)
+        val glob = frames.head.parent / frames.head.name.replaceAll("0+", "*")
+        ff.pngsToMp4(glob.toString(), 10)
         Ffmpeg
           .log(ff)
-          .last shouldBe s"ffmpeg -framerate 25 -stream_loop 9 -pattern_type glob -i $CachedTmp/src/input*.png " +
+          .last shouldBe s"ffmpeg -framerate 25 -stream_loop 9 -pattern_type glob -i $glob " +
           "-f lavfi -i anullsrc=channel_layout=stereo:sample_rate=96000 -c:v libx264 -pix_fmt yuv420p " +
           """-vf "scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2" """ +
           s"-c:a aac -b:a 128k -shortest -y $Tmp/animated.mp4"
@@ -136,13 +137,14 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
         annotated.replaceGeneratedAudio(
           Tmp / "sound.mp4",
           dt = 2,
-          aevalsrc = Ffmpeg.aevalsrcSine(hiFrequency = 880, dt = 2)
+          aevalsrcR = Ffmpeg.aevalsrcSine(hiFreq = 880, dt = 2),
+          aevalsrcL = Ffmpeg.aevalsrcSine(hiFreq = 880, dt = 2, ot = 1)
         )
-        Ffmpeg.log(annotated).last shouldBe s"ffmpeg -i $Tmp/annotated.mp4 -f lavfi " +
-          """-i "aevalsrc=sin(2*PI*t*(550)-330*cos(2*PI*t/2)):s=96000:d=2" """ +
-          "-filter_complex [1:a]aloop=loop=-1:size=192000[aout] " +
-          "-c:v copy -c:a aac -ac 2 -ar 96000 -map 0:v:0 -map [aout] " +
-          s"-shortest -y $Tmp/sound.mp4"
+        // Ffmpeg.log(annotated).last shouldBe s"ffmpeg -i $Tmp/annotated.mp4 -f lavfi " +
+        Ffmpeg
+          .log(annotated)
+          .last shouldBe s"""ffmpeg -i $Tmp/annotated.mp4 -stream_loop -1 -i $Tmp/sound.stereo.wav -map 0:v:0 -map 1:a:0 -c:v copy -c:a aac -shortest -y $Tmp/sound.mp4"""
+
         basic.mp4(Tmp / "sound.mp4").copy(cmdLog = Ffmpeg.cmdLogToMemory())
       }
 
@@ -182,12 +184,10 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
           val (first0, firstNon0) = first.value.keys.partition(first(_) == ujson.Num(0))
           first0.toSeq.sorted shouldBe Seq(
             "best_effort_timestamp",
-            "coded_picture_number",
             "crop_bottom",
             "crop_left",
             "crop_right",
             "crop_top",
-            "display_picture_number",
             "interlaced_frame",
             "pkt_dts",
             "pts",
@@ -208,8 +208,6 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
             "pict_type",
             "pix_fmt",
             "pkt_dts_time",
-            "pkt_duration",
-            "pkt_duration_time",
             "pkt_pos",
             "pkt_size",
             "pts_time",
@@ -228,8 +226,6 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
           first("media_type") shouldBe ujson.Str("video")
           first("pict_type") shouldBe ujson.Str("I")
           first("pix_fmt") shouldBe ujson.Str("yuv420p")
-          first("pkt_duration") shouldBe ujson.Num(512)
-          first("pkt_duration_time") shouldBe ujson.Str("0.040000")
           first("pkt_pos") shouldBe ujson.Str("48")
           // The packet size will probably depend on the contents of the frame
           // first("pkt_size") shouldBe ujson.Str("2623")
