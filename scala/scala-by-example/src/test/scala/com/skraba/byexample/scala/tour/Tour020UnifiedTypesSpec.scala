@@ -56,7 +56,7 @@ class Tour020UnifiedTypesSpec extends AnyFunSpecLike with Matchers {
     // but not in the other direction
     it("should have casting") {
       val x: Long = 987654321
-      val y: Float = x
+      val y: Float = x.toFloat
       // 9.8765434E8 (note that some precision is lost in this case)
       assert(y === 987654321f +- 50)
       """val z: Long = y""" shouldNot compile
