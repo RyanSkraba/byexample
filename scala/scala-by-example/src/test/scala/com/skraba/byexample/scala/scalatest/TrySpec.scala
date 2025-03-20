@@ -2,10 +2,7 @@ package com.skraba.byexample.scala.scalatest
 
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
-import org.scalatest._
-import funspec._
-import org.scalatest.matchers.should._
-import matchers.should.Matchers._
+import org.scalatest.TryValues._
 
 import scala.util.{Failure, Success, Try}
 
@@ -32,9 +29,9 @@ class TrySpec extends AnyFunSpecLike with Matchers {
 
   case class BadBugIdException(msg: String) extends Exception(msg)
 
-  describe("Catching an exception in a test") {
+  describe("Testing exceptions") {
 
-    it("can be caught and wrapped") {
+    it("can be caught and wrapped using the try/catch keywords") {
       // A classical way would be to write code wrapping the action under test with a try/catch block, and testing that the expected exception occurs
       val value =
         try {
@@ -48,43 +45,40 @@ class TrySpec extends AnyFunSpecLike with Matchers {
       value shouldBe Int.MinValue
     }
 
-    it("can be expected") {
+    it("can be expected by assertThrows and thrownBy statements") {
       // This doesn't see the exception but ensures that it was thrown
-      assertThrows[BadBugIdException] {
-        BugId("ABC", 1).prev
-      }
+      assertThrows[BadBugIdException] { BugId("ABC", 1).prev }
 
       an[BadBugIdException] should be thrownBy BugId("ABC", 1).prev
-      the[BadBugIdException] thrownBy {
-        BugId("ABC", 1).prev
-      } should have message "Underflow"
+      the[BadBugIdException] thrownBy { BugId("ABC", 1).prev } should have message "Underflow"
       noException should be thrownBy BugId("ABC", 999).prev
     }
 
-    it("can be intercepted") {
+    it("can be intercepted to check the exception instance") {
       // Or better yet, intercept and test the exception
-      val ex = intercept[BadBugIdException] {
-        BugId("ABC", 1).prev
-      }
+      val ex = intercept[BadBugIdException] { BugId("ABC", 1).prev }
       ex.msg shouldBe "Underflow"
     }
   }
 
-  describe("Try type") {
+  describe("Using the Try type to check exceptional states") {
 
-    val good = BugId("ABC", 999).prevTry
-    val bad = BugId("ABC", 1).prevTry
+    val good: Try[BugId] = BugId("ABC", 999).prevTry
+    val bad: Try[BugId] = BugId("ABC", 1).prevTry
 
     it("can be a success") {
       good.isFailure shouldBe false
       good.isSuccess shouldBe true
-      good shouldBe Symbol("success") // Not very interesting
+      good shouldBe Symbol("success") // The symbol isn't very interesting
       good shouldBe Success(BugId("ABC", 998))
 
       // Getting the value on a success just returns it
       good.get shouldBe BugId("ABC", 998)
       good.getOrElse(BugId("DEF", 1)) shouldBe BugId("ABC", 998)
       good.orElse(Try(BugId("DEF", 1))) shouldBe good
+
+      // The best test from TryValues checks the return value
+      good.success.value shouldBe BugId("ABC", 998)
     }
 
     it("can be a failure") {
@@ -94,11 +88,12 @@ class TrySpec extends AnyFunSpecLike with Matchers {
       bad shouldBe Failure(BadBugIdException("Underflow"))
 
       // Getting the value should cause the exception to be thrown
-      intercept[BadBugIdException] {
-        bad.get
-      } should have message "Underflow"
+      intercept[BadBugIdException] { bad.get } should have message "Underflow"
       bad.getOrElse(BugId("DEF", 1)) shouldBe BugId("DEF", 1)
       bad.orElse(Try(BugId("DEF", 1))) shouldBe Success(BugId("DEF", 1))
+
+      // The best test from TryValues checks the return value
+      bad.failure.exception should have message "Underflow"
     }
 
     it("can be recoverable") {
@@ -111,9 +106,7 @@ class TrySpec extends AnyFunSpecLike with Matchers {
       recovered shouldBe Success(BugId("Underflow", 999))
 
       // recoverWith returns a Try that will replace the failure
-      val recoverWith = bad.recoverWith { case BadBugIdException(msg) =>
-        Try(BugId(msg, 999))
-      }
+      val recoverWith = bad.recoverWith { case BadBugIdException(msg) => Try(BugId(msg, 999)) }
       recoverWith.isFailure shouldBe false
       recoverWith.isSuccess shouldBe true
       recoverWith shouldBe Success(BugId("Underflow", 999))
@@ -121,10 +114,8 @@ class TrySpec extends AnyFunSpecLike with Matchers {
 
     it("can recover by throwing another exception") {
       intercept[IllegalArgumentException] {
-        BugId("ABC", 1).prevTry.recover {
-          throw new IllegalArgumentException("Rewrite the exception")
-        }
-        fail()
+        BugId("ABC", 1).prevTry.recover { throw new IllegalArgumentException("Rewrite the exception") }
+        fail("We don't arrive here")
       } should have message "Rewrite the exception"
     }
 
@@ -132,9 +123,7 @@ class TrySpec extends AnyFunSpecLike with Matchers {
       // Mapping on the value if successful
       good.map(_.prev) shouldBe Success(BugId("ABC", 997))
       good.map(_.next.prev) shouldBe Success(BugId("ABC", 998))
-      good.map(_.copy(num = 1).prev) shouldBe Failure(
-        BadBugIdException("Underflow")
-      )
+      good.map(_.copy(num = 1).prev) shouldBe Failure(BadBugIdException("Underflow"))
 
       // Ignored entirely if it's already a failure
       bad.map(_.next) shouldBe bad
@@ -150,7 +139,7 @@ class TrySpec extends AnyFunSpecLike with Matchers {
       // Filter only works on success
       bad.filter(_.num % 2 == 0) shouldBe bad
       good.filter(_.num % 2 == 0) shouldBe good
-      good.filter(_.num % 2 == 1) shouldBe Symbol("failure")
+      good.filter(_.num % 2 == 1).failure.exception should have message "Predicate does not hold for BugId(ABC,998)"
     }
 
     it("can invert the success/failure") {
@@ -158,9 +147,7 @@ class TrySpec extends AnyFunSpecLike with Matchers {
       bad.failed shouldBe Success(BadBugIdException("Underflow"))
       // And the good to be a failure containing an UnsupportedOperationException
       good.failed shouldBe Symbol("failure")
-      intercept[UnsupportedOperationException] {
-        good.failed.get
-      } should have message "Success.failed"
+      intercept[UnsupportedOperationException] { good.failed.get } should have message "Success.failed"
     }
 
     it("can use turn a success or failure into a known type") {
@@ -172,14 +159,8 @@ class TrySpec extends AnyFunSpecLike with Matchers {
 
       // Transform provides two methods that act on the failure or success, turning them into another Try.
       // The first method acts on the success, and the second acts on the failure.
-      good.transform(
-        _.prevTry,
-        t => BugId(t.getMessage, 100).prevTry
-      ) shouldBe Success(BugId("ABC", 997))
-      bad.transform(
-        _.prevTry,
-        t => BugId(t.getMessage, 100).prevTry
-      ) shouldBe Success(BugId("Underflow", 99))
+      good.transform(_.prevTry, t => BugId(t.getMessage, 100).prevTry) shouldBe Success(BugId("ABC", 997))
+      bad.transform(_.prevTry, t => BugId(t.getMessage, 100).prevTry) shouldBe Success(BugId("Underflow", 99))
     }
 
     it("can be an either") {
