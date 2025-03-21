@@ -3,8 +3,6 @@ package com.skraba.byexample.scala.ammonite
 import com.skraba.docoptcli.AnsiConsole
 import mainargs._
 
-import scala.io.AnsiColor
-
 /** A configurable, colourful mechanism for interacting with the user via the terminal.
   *
   * @param verbose

@@ -4,6 +4,7 @@ import com.skraba.docoptcli.AnsiConsole
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
+
 import scala.io.AnsiColor._
 
 /** Test the [[Setting]] instances. */

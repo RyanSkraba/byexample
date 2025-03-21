@@ -5,8 +5,8 @@ import org.scalatest.matchers.should.Matchers
 
 import java.io.ByteArrayInputStream
 import java.nio.charset.StandardCharsets
+import scala.sys.process._
 import scala.util.{Success, Try}
-import sys.process._
 
 /** Running a system process in Scala
   *

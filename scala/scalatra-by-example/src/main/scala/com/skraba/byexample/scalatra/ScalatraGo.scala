@@ -4,11 +4,8 @@ import com.skraba.docoptcli.DocoptCliGo
 import com.skraba.docoptcli.DocoptCliGo.Task
 import jakarta.servlet.Servlet
 import org.eclipse.jetty.ee10.webapp.WebAppContext
-import org.eclipse.jetty.server.Request.getLocalPort
-import org.eclipse.jetty.server.{Connector, Server, ServerConnector}
+import org.eclipse.jetty.server.Server
 import org.scalatra.ScalatraServlet
-
-import scala.reflect.io.Directory
 
 /** A driver for running a Scalatra web server.
   */

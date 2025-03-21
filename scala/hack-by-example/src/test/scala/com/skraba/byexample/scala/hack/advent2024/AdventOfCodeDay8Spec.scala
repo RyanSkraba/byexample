@@ -5,8 +5,6 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-import scala.collection.immutable
-
 /** =Advent of Code 2024 Day 8 Solutions in scala=
   *
   * Input: A map of antennas and their positions on a grid. Each antenna has a character identifier.

@@ -5,7 +5,6 @@ import com.skraba.docoptcli.DocoptCliGo
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import scala.jdk.CollectionConverters._
 import scala.util.Try
 import scala.util.matching.Regex
 

@@ -1,10 +1,6 @@
 package com.skraba.byexample.lanterna;
 
-import com.googlecode.lanterna.SGR;
-import com.googlecode.lanterna.TerminalPosition;
-import com.googlecode.lanterna.TerminalSize;
-import com.googlecode.lanterna.TextCharacter;
-import com.googlecode.lanterna.TextColor;
+import com.googlecode.lanterna.*;
 import com.googlecode.lanterna.TextColor.ANSI;
 import com.googlecode.lanterna.TextColor.RGB;
 import com.googlecode.lanterna.graphics.TextGraphics;
@@ -17,11 +13,7 @@ import com.skraba.byexample.lanterna.progress.PercentProgress;
 import com.skraba.byexample.lanterna.progress.ProgressMonitor;
 import com.skraba.byexample.misc.ClrsCc;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import org.docopt.Docopt;
 import org.docopt.DocoptExitException;
 

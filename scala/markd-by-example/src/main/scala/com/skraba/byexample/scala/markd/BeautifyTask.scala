@@ -2,8 +2,6 @@ package com.skraba.byexample.scala.markd
 
 import com.skraba.docoptcli.DocoptCliGo
 
-import scala.jdk.CollectionConverters._
-
 /** Command-line driver for beautifying a markdown file.
   */
 object BeautifyTask extends DocoptCliGo.Task {

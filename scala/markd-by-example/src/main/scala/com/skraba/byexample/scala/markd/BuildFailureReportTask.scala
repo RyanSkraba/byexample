@@ -6,9 +6,9 @@ import play.api.libs.json.{JsArray, Json}
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import scala.collection.SortedMap
-import scala.util.matching.Regex
 import scala.io.Source
 import scala.util.Using
+import scala.util.matching.Regex
 
 /** All of the information that was collected during a build failure investigation for one specific step. A build can
   * contain more than one failed job and step.

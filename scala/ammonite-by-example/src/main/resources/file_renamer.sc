@@ -19,8 +19,7 @@ local_import_util.load("scala-by-example")
 local_import_util.load("ammonite-by-example")
 
 @
-import com.skraba.byexample.scala.ammonite.ConsoleCfg
-import com.skraba.byexample.scala.ammonite.FileRenamer
+import com.skraba.byexample.scala.ammonite.{ConsoleCfg, FileRenamer}
 
 // ==========================================================================
 // Top level variables available to the script

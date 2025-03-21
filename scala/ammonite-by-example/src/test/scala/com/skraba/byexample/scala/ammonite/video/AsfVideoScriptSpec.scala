@@ -4,7 +4,6 @@ import com.skraba.byexample.scala.ammonite.AmmoniteScriptSpecBase
 
 import scala.Console._
 import scala.io.AnsiColor.{BOLD, RESET}
-import scala.reflect.io.File
 
 /** Test the asf_video.sc script. */
 class AsfVideoScriptSpec extends AmmoniteScriptSpecBase("/asf_video.sc") {

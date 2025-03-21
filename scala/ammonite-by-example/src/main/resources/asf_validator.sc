@@ -13,8 +13,7 @@ local_import_util.load("ammonite-by-example")
 
 @
 import com.skraba.byexample.scala.ammonite.ConsoleCfg
-import com.skraba.byexample.scala.ammonite.validator.AsfReleaseCfg
-import com.skraba.byexample.scala.ammonite.validator.SvnCheck
+import com.skraba.byexample.scala.ammonite.validator.{AsfReleaseCfg, SvnCheck}
 
 // ==========================================================================
 // Top level variables available to the script

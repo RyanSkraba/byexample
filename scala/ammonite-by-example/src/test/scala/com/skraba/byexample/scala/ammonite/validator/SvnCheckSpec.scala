@@ -3,6 +3,7 @@ package com.skraba.byexample.scala.ammonite.validator
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
+
 import scala.reflect.io.Directory
 
 /** Test the [[SvnCheck]]. */

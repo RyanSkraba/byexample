@@ -2,7 +2,6 @@ package com.skraba.byexample.scala.markd
 
 import com.skraba.docoptcli.DocoptCliGo
 
-import scala.jdk.CollectionConverters._
 import scala.util.Try
 import scala.util.matching.Regex
 

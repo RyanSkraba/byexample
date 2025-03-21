@@ -3,15 +3,7 @@ package com.skraba.byexample.junit5;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.io.FileMatchers.aFileNamed;
-import static org.hamcrest.io.FileMatchers.aFileWithAbsolutePath;
-import static org.hamcrest.io.FileMatchers.aFileWithCanonicalPath;
-import static org.hamcrest.io.FileMatchers.aFileWithSize;
-import static org.hamcrest.io.FileMatchers.aReadableFile;
-import static org.hamcrest.io.FileMatchers.aWritableFile;
-import static org.hamcrest.io.FileMatchers.anExistingDirectory;
-import static org.hamcrest.io.FileMatchers.anExistingFile;
-import static org.hamcrest.io.FileMatchers.anExistingFileOrDirectory;
+import static org.hamcrest.io.FileMatchers.*;
 
 import java.io.File;
 import java.io.IOException;

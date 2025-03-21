@@ -1,10 +1,10 @@
 package com.skraba.byexample.scala
 
-import java.io.IOException
-
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.is
 import org.junit.jupiter.api.Test
+
+import java.io.IOException
 
 /** Basic JUnit test written in scala.
   */

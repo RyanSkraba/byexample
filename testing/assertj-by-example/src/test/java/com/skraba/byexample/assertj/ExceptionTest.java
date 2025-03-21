@@ -1,9 +1,6 @@
 package com.skraba.byexample.assertj;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.catchThrowableOfType;
+import static org.assertj.core.api.Assertions.*;
 
 import com.skraba.byexample.scala.Project;
 import org.junit.jupiter.api.Test;

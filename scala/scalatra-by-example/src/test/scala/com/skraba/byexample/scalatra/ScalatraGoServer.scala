@@ -1,7 +1,7 @@
 package com.skraba.byexample.scalatra
 
-import sttp.client4.{DefaultSyncBackend, Response, UriContext, quickRequest}
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
+import sttp.client4.{DefaultSyncBackend, Response, UriContext, quickRequest}
 import sttp.model.{StatusCodes, Uri}
 
 import java.io.ByteArrayOutputStream

@@ -1,7 +1,5 @@
 package com.skraba.byexample.scalatags
 
-import java.io.BufferedWriter
-
 import scalatags.Text.TypedTag
 import scalatags.Text.implicits._
 import scalatags.Text.svgTags.{g, svg, text}
@@ -9,6 +7,7 @@ import scalatags.Text.tags.attr
 import scalatags.generic
 import scalatags.text.Builder
 
+import java.io.BufferedWriter
 import scala.reflect.io.File
 
 object Svg {

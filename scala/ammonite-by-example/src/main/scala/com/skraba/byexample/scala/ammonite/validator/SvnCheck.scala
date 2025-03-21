@@ -1,9 +1,6 @@
 package com.skraba.byexample.scala.ammonite.validator
 
 import com.skraba.docoptcli.AnsiConsole
-import os.Path
-
-import scala.xml.XML
 
 /** SVN management for the release: checking out, updating and fetching information.
   *

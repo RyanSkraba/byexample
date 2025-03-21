@@ -3,9 +3,9 @@ package com.skraba.byexample.scala.ammonite.video
 import com.skraba.byexample.scala.ammonite.OsPathScalaRelectIOConverters._
 import com.skraba.byexample.scala.ammonite.video.Ffmpeg._
 import org.scalactic.source.Position
-import org.scalatest.{BeforeAndAfterAll, Tag}
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.{BeforeAndAfterAll, Tag}
 
 import java.nio.file.StandardCopyOption
 import scala.reflect.io.{Directory, File}

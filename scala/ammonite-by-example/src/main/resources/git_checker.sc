@@ -3,9 +3,10 @@
 /** Some ammonite scala scripts that demonstrate using git. */
 
 import mainargs.{Flag, arg, main}
-import java.time.{DayOfWeek, LocalDateTime}
+
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import java.time.{DayOfWeek, LocalDateTime}
 import scala.io.AnsiColor._
 import scala.util._
 
@@ -18,9 +19,9 @@ local_import_util.load("markd-by-example")
 local_import_util.load("scala-by-example")
 
 @
+import com.skraba.byexample.scala.ammonite.ConsoleCfg
 import com.skraba.byexample.scala.ammonite.git.CherryPickerReport
 import com.skraba.byexample.scala.ammonite.git.Commit.getDateFromRepo
-import com.skraba.byexample.scala.ammonite.ConsoleCfg
 import com.skraba.byexample.scala.markd._
 
 // ==========================================================================

@@ -5,8 +5,6 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-import scala.util.matching.Regex
-
 /** =Advent of Code 2022 Day 6 Solutions in scala=
   *
   * Input: One string as a message with letters

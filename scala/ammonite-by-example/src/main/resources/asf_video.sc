@@ -15,9 +15,8 @@ local_import_util.load("scala-by-example")
 local_import_util.load("ammonite-by-example")
 
 @
+import com.skraba.byexample.scala.ammonite.video.{Card, Ffmpeg}
 import com.skraba.byexample.scala.ammonite.{ConsoleCfg, FileMaker}
-import com.skraba.byexample.scala.ammonite.video.Ffmpeg
-import com.skraba.byexample.scala.ammonite.video.Card
 
 // ==========================================================================
 // Top level variables available to the script
@@ -195,7 +194,7 @@ case class Session(
 
 object Session {
 
-  import scala.xml.{Attribute, Elem, Node, Null, XML}
+  import scala.xml._
   import scala.xml.transform.{RewriteRule, RuleTransformer}
 
   val InkNs: String = "http://www.inkscape.org/namespaces/inkscape"

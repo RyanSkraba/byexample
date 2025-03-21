@@ -3,8 +3,8 @@ package com.skraba.byexample.scala.collections
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-import scala.collection.{LinearSeq, mutable}
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.{LinearSeq, mutable}
 
 /** Examples from the scala collections doc. Each spec covers a page.
   *

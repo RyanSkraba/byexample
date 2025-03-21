@@ -1,6 +1,7 @@
 package com.skraba.byexample.scala
 
 import org.docopt.{Docopt, DocoptExitException}
+
 import scala.jdk.CollectionConverters._
 
 class ScalaGo(params: Either[GreeterBean, ScalaCaseClass]) {

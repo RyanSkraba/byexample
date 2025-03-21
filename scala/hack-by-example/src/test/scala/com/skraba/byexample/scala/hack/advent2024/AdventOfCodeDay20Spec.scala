@@ -6,8 +6,6 @@ import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.tagobjects.Slow
 
-import scala.collection.mutable
-
 /** =Advent of Code 2024 Day 20 Solutions in scala=
   *
   * Input: A maze with walls defined by '#', and a single non-branching path starting from 'S' and ending at 'E'. Since

@@ -1,9 +1,6 @@
 package com.skraba.byexample.jmh;
 
-import static com.skraba.byexample.jmh.MaxPrecisionBenchmark.NUMERATOR_40_BITS;
-import static com.skraba.byexample.jmh.MaxPrecisionBenchmark.getMaxPrecisionLogPowerRule;
-import static com.skraba.byexample.jmh.MaxPrecisionBenchmark.getMaxPrecisionOriginalAvro;
-import static com.skraba.byexample.jmh.MaxPrecisionBenchmark.getMaxPrecisionWithApprox;
+import static com.skraba.byexample.jmh.MaxPrecisionBenchmark.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 

@@ -1,8 +1,8 @@
 package com.skraba.byexample.scala.scalatest
 
+import org.scalatest.TryValues._
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.TryValues._
 
 import scala.util.{Failure, Success, Try}
 

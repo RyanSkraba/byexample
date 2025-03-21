@@ -3,9 +3,9 @@ package com.skraba.byexample.scalatags.duolingo.cn
 import com.skraba.byexample.scalatags.Svg
 import com.skraba.byexample.scalatags.duolingo.cn.CheatsheetSpec.assumeCheatsheetNetwork
 import org.scalactic.{Prettifier, source}
-import org.scalatest.{Assertion, Assertions, BeforeAndAfterAll}
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.{Assertion, Assertions, BeforeAndAfterAll}
 
 import scala.reflect.io.{Directory, File}
 

@@ -4,7 +4,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import scala.Console._
 import scala.io.AnsiColor.{BOLD, RESET}
-import scala.reflect.io.{Directory, File}
+import scala.reflect.io.Directory
 
 /** Test the file_renamer.sc script.
   *

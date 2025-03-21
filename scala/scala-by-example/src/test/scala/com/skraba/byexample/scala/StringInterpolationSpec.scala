@@ -3,9 +3,7 @@ package com.skraba.byexample.scala
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-import java.time.ZoneId
-import java.util.{Locale, TimeZone}
-import scala.util.matching.Regex
+import java.util.TimeZone
 
 /** String formats and interpolation in scala.
   *

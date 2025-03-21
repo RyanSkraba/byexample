@@ -5,8 +5,6 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-import scala.collection.mutable
-
 /** =Advent of Code 2024 Day 22 Solutions in scala=
   *
   * Input: A list of seeds for the monkey's random number generator with rules to find subsequent numbers.

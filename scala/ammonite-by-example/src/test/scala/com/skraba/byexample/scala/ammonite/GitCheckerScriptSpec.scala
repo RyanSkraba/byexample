@@ -2,7 +2,6 @@ package com.skraba.byexample.scala.ammonite
 
 import scala.Console._
 import scala.io.AnsiColor.{BOLD, RESET}
-import scala.reflect.io.File
 
 /** Test the git_checker.sc script. */
 class GitCheckerScriptSpec extends AmmoniteScriptSpecBase("/git_checker.sc") {

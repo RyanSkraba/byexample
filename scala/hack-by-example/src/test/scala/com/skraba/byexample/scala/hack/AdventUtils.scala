@@ -3,15 +3,13 @@ package com.skraba.byexample.scala.hack
 import com.skraba.byexample.scala.hack.AdventUtils.SrcTestScalaRoot
 import org.scalatest.Assertions
 
-import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.security.Key
 import java.util.Base64
 import javax.crypto.spec.SecretKeySpec
 import javax.crypto.{Cipher, KeyGenerator}
 import scala.io.Source
-import scala.reflect.io.{Directory, File, Path}
-import scala.util.matching.Regex
+import scala.reflect.io.{Directory, File}
 
 /** Helpful utilities for https://adventofcode.com/
   *
