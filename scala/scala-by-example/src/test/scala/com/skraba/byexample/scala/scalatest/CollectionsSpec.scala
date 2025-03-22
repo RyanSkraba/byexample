@@ -51,6 +51,12 @@ class CollectionsSpec extends AnyFunSpecLike with Matchers {
       xs should contain noneOf (99, 999)
       xs should contain allOf (1, 3)
 
+      // note that contents of strings are characters, be careful
+      "Hello" should contain('l')
+      "Hello" should not contain ("l")
+      "Hello" should not contain ("ell")
+      "Hello" should not contain ('o', 'e')
+
       // oneOf is exactly one (and only one)
       xs should contain oneOf (3, 99, 999)
       xs should not contain oneOf(2, 3, 99)
@@ -72,12 +78,7 @@ class CollectionsSpec extends AnyFunSpecLike with Matchers {
       // Check that only
       List(1, 2, 2, 3, 3) should contain inOrderOnly (1, 2, 3)
       List(99, 1, 2, 2, 99, 3, 3, 3, 99) should contain inOrder (1, 2, 3)
-      List(1, 1, 2, 3) should contain theSameElementsInOrderAs Vector(
-        1,
-        1,
-        2,
-        3
-      )
+      List(1, 1, 2, 3) should contain theSameElementsInOrderAs Vector(1, 1, 2, 3)
     }
 
     it("can assert for singleton using loneElement") {

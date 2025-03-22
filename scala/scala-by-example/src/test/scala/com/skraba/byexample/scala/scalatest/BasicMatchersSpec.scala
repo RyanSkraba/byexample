@@ -78,17 +78,19 @@ class BasicMatchersSpec extends AnyFunSpecLike with Matchers {
     it("can be composed in boolean expressions") {
       val xs = Set(1, 2)
 
-      // These expressions are evaluated left to right ("and" is not a priority) and do not short
-      // circuit.
+      // These expressions are evaluated left to right ("and" is not a priority) and do not short circuit.
+      // A or B and C ==> "true or false and true" ==> true when evaluated left to right
       xs.toSeq should (be(Seq(1, 2)) or be(Seq(2, 1)) and contain(1))
+      // A or B and C ==> "true or false and false" ==> false when evaluated left to right
+      xs.toSeq shouldNot (be(Seq(1, 2)) or be(Seq(2, 1)) and contain(99))
+      // A or (B and C) ==> "true or (false and false)" ==> true when parenthesis are added
+      xs.toSeq should (be(Seq(1, 2)) or (be(Seq(2, 1)) and contain(99)))
     }
   }
 
   describe("Exceptions") {
     it("can be intercepted") {
-      val t = intercept[IndexOutOfBoundsException] {
-        "hi" (10)
-      }
+      val t = intercept[IndexOutOfBoundsException] { "hi" (10) }
       t.getMessage shouldBe "String index out of range: 10"
       t should have message "String index out of range: 10"
     }
@@ -97,9 +99,7 @@ class BasicMatchersSpec extends AnyFunSpecLike with Matchers {
       an[IndexOutOfBoundsException] should be thrownBy "hi" (10)
 
       // Or looking at the Exception.
-      the[IndexOutOfBoundsException] thrownBy "hi" (
-        10
-      ) should have message "String index out of range: 10"
+      the[IndexOutOfBoundsException] thrownBy "hi" (10) should have message "String index out of range: 10"
 
       // Or capturing the exception for future use.
       val t2 = the[IndexOutOfBoundsException] thrownBy "hi" (10)
@@ -163,9 +163,7 @@ class BasicMatchersSpec extends AnyFunSpecLike with Matchers {
     it("can pattern match") {
       // Either using inside
       import org.scalatest.Inside.inside
-      inside(p) { case Person(first, _, _) =>
-        first should startWith("B")
-      }
+      inside(p) { case Person(first, _, _) => first should startWith("B") }
       // Or patterns directly
       p should matchPattern { case Person("Betty White", _, _) => }
     }

@@ -20,6 +20,7 @@ class StdoutSpec extends AnyFunSpecLike with Matchers {
       withConsoleMatch {
         // Run any arbritrary code here.
         Console.out.println("Hello")
+        System.out.println("NOT CAPTURED!") // TODO: This is capturable in other ways
         println("World")
         Console.err.println("WARNING!")
         99
@@ -65,9 +66,7 @@ object StdoutSpec {
     * @return
     *   The return value of the partial function.
     */
-  def withConsoleMatch[T, U](
-      thunk: => T
-  )(pf: scala.PartialFunction[(T, String, String), U]): U = {
+  def withConsoleMatch[T, U](thunk: => T)(pf: scala.PartialFunction[(T, String, String), U]): U = {
     Streamable.closing(new ByteArrayOutputStream()) { out =>
       Streamable.closing(new ByteArrayOutputStream()) { err =>
         Console.withOut(out) {
@@ -99,13 +98,8 @@ object StdoutSpec {
     * @return
     *   The return value of the partial function.
     */
-  def withStdoutGoMatch[T, U](
-      args: String*
-  )(pf: scala.PartialFunction[(String, String), U]): U = {
-    withConsoleMatch(go(args: _*)) { case (_, stdout, stderr) =>
-      pf(stdout, stderr)
-    }
-  }
+  def withStdoutGoMatch[T, U](args: String*)(pf: scala.PartialFunction[(String, String), U]): U =
+    withConsoleMatch(go(args: _*)) { case (_, stdout, stderr) => pf(stdout, stderr) }
 
   /** A helper method used to capture the console of a method execution and return the output.
     * @param args
@@ -113,7 +107,5 @@ object StdoutSpec {
     * @return
     *   A tuple of the stdout and stderr
     */
-  def withStdoutGo(args: String*): (String, String) = {
-    withStdoutGoMatch(args: _*) { case any => any }
-  }
+  def withStdoutGo(args: String*): (String, String) = withStdoutGoMatch(args: _*) { case any => any }
 }

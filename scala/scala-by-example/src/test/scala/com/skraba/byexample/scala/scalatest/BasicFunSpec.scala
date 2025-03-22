@@ -18,14 +18,12 @@ class BasicFunSpec extends AnyFunSpecLike with Matchers {
       val reused = true
       it("permits you to organise your unit tests") {
         assert(reused)
-        assert(reused, "A custom error messages")
+        assert(reused, "A custom error message")
         assertResult(3)(1 + 2)
         assertThrows[StringIndexOutOfBoundsException]("hi" (10))
       }
       it("organises unit tests carefully") {
-        withClue("using a clue") {
-          reused should not be false
-        }
+        withClue("using a clue") { reused should not be false }
       }
       for (x <- 1 to 10) {
         it(s"allows creating a scope for tests (#$x)") {
@@ -39,12 +37,8 @@ class BasicFunSpec extends AnyFunSpecLike with Matchers {
     }
 
     ignore("can be ignored by changing the keyword") {
-      it("so this failing test isn't used") {
-        fail("I never get here")
-      }
-      it("or this one") {
-        fail("I never get here")
-      }
+      it("so this failing test isn't used") { fail("I never get here") }
+      it("or this one") { fail("I never get here") }
     }
   }
 
@@ -87,12 +81,8 @@ class BasicFunSpec extends AnyFunSpecLike with Matchers {
 
       describe("when applied in a describe block applies to all the tests") {
         if (!condition) pending
-        it("should fail") {
-          fail("This isn't run but isn't seen in the console")
-        }
-        it("should also fail") {
-          fail("This isn't run but isn't seen in the console")
-        }
+        it("should fail") { fail("This isn't run but isn't seen in the console") }
+        it("should also fail") { fail("This isn't run but isn't seen in the console") }
       }
 
     }

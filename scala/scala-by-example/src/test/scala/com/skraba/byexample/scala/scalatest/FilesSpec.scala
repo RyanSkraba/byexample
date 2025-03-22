@@ -63,9 +63,7 @@ class FilesSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
     }
 
     it("should create and append to a file") {
-      Streamable.closing(
-        Basic.resolve("newFile").createFile(true).bufferedWriter()
-      ) { out =>
+      Streamable.closing(Basic.resolve("newFile").createFile(true).bufferedWriter()) { out =>
         out.write("1;one\n2;two\n")
       }
 
@@ -85,17 +83,13 @@ class FilesSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
       myFile.jfile shouldBe writable
 
       // Now append using the buffered writer
-      Streamable.closing(
-        myFile.bufferedWriter(append = true)
-      ) { out =>
+      Streamable.closing(myFile.bufferedWriter(append = true)) { out =>
         out.write("3;three\n4;four\n")
       }
       myFile.toFile.length shouldBe 27
 
       // Reading using a source
-      val contents = Streamable.closing(
-        scala.io.Source.fromFile(myFile.toAbsolute.toString())
-      ) { out =>
+      val contents = Streamable.closing(scala.io.Source.fromFile(myFile.toAbsolute.toString())) { out =>
         out.getLines().toList
       }
       contents.length shouldBe 4
@@ -106,9 +100,7 @@ class FilesSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
       val count = File(Basic / "count")
 
       // Using a source
-      val contents = Streamable.closing(
-        scala.io.Source.fromFile(count.jfile)
-      ) { out =>
+      val contents = Streamable.closing(scala.io.Source.fromFile(count.jfile)) { out =>
         out.getLines().toList
       }
       contents should contain inOrderOnly ("1;one", "2;two")
@@ -117,9 +109,7 @@ class FilesSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
       count.slurp() shouldBe "1;one\n2;two\n"
       count.safeSlurp() shouldBe Some("1;one\n2;two\n")
       File(Basic / "noFile").safeSlurp() shouldBe None
-      count
-        .lines()
-        .toList should contain inOrderOnly ("1;one", "2;two")
+      count.lines().toList should contain inOrderOnly ("1;one", "2;two")
     }
 
     it("should find a file in the resources") {
