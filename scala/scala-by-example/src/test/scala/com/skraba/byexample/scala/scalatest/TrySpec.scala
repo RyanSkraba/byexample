@@ -49,7 +49,7 @@ class TrySpec extends AnyFunSpecLike with Matchers {
       // This doesn't see the exception but ensures that it was thrown
       assertThrows[BadBugIdException] { BugId("ABC", 1).prev }
 
-      an[BadBugIdException] should be thrownBy BugId("ABC", 1).prev
+      a[BadBugIdException] should be thrownBy BugId("ABC", 1).prev
       the[BadBugIdException] thrownBy { BugId("ABC", 1).prev } should have message "Underflow"
       noException should be thrownBy BugId("ABC", 999).prev
     }
