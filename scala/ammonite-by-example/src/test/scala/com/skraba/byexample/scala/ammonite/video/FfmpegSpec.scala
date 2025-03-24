@@ -76,9 +76,9 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
     */
   protected class FfmpegItWord extends ItWord {
     override def apply(specText: String, testTags: Tag*)(testFun: => Any)(implicit pos: Position): Unit = {
-      // Since we override `it`, we fall back on the equivalent `they` if the tests are enabled.
+      // If we override `it`, we can fall back on the equivalent `they` for the tests that are enabled.
       if (enabled) they(specText)(testFun)
-      else ignore(specText)()
+      else ignore(specText)((): Unit)
     }
   }
   override val it = new FfmpegItWord

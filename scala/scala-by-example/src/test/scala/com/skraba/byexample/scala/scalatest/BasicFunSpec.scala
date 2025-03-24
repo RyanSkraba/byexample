@@ -103,9 +103,9 @@ class BasicFunSpec extends AnyFunSpecLike with Matchers {
   /** This is a technique for disabling many unit tests in a spec by rewriting the `it` word used to run the tests. */
   class MaybeItWord(enabled: Boolean) extends ItWord {
     override def apply(specText: String, testTags: Tag*)(testFun: => Any)(implicit pos: Position): Unit = {
-      // Since we override `it`, we fall back on the equivalent `they` if the tests are enabled.
+      // If we override `it`, we can fall back on the equivalent `they` for the tests that are enabled.
       if (enabled) they(specText, testTags: _*)(testFun)
-      else ignore(specText)()
+      else ignore(specText)((): Unit)
     }
   }
 
