@@ -16,22 +16,15 @@ class Tour090SingletonRegexExtractorsSpec extends AnyFunSpecLike with Matchers {
 
     // Shorthand for creating a single immutable val at the level it is defined.
     // Usually at the same level as a class (known as companion object), but can be anywhere.
-    object DeviceA {
-      val MaxWidth: Int = 750
-    }
+    object DeviceA { val MaxWidth: Int = 750 }
 
     // A singleton object can extend classes and traits.
-    trait ThreeDimensional {
-      val MaxDepth: Int = 10
-    }
+    trait ThreeDimensional { val MaxDepth: Int = 10 }
 
-    object DeviceB extends ThreeDimensional {
-      val MaxWidth: Int = 1000
-    }
+    object DeviceB extends ThreeDimensional { val MaxWidth: Int = 1000 }
 
     class Device(val name: String) {
       import Device._
-
       def secretExposed(): Int = secret + name.length
     }
 
@@ -73,16 +66,13 @@ class Tour090SingletonRegexExtractorsSpec extends AnyFunSpecLike with Matchers {
     it("can be contructed from any string") {
       IssueRegex.findFirstIn("No match") shouldBe None
       IssueRegex.findFirstIn("BYEX-1234") shouldBe Some("BYEX-1234")
-      IssueRegex.findFirstIn("This addresses BYEX-123.") shouldBe Some(
-        "BYEX-123"
-      )
+      IssueRegex.findFirstIn("This addresses BYEX-123.") shouldBe Some("BYEX-123")
       // None of these match.
       IssueRegex.findFirstIn("byex-23 BYEX -123") shouldBe None
     }
 
     it("can use groups") {
-      val input: String =
-        "BYEX-123 AVRO-1234 BEAM-4321 byex-1 BYEX- -1234 - ignored"
+      val input: String = "BYEX-123 AVRO-1234 BEAM-4321 byex-1 BYEX- -1234 - ignored"
 
       // Iterating over all matches to find the project
       val allProjects = {
@@ -101,21 +91,16 @@ class Tour090SingletonRegexExtractorsSpec extends AnyFunSpecLike with Matchers {
       number shouldBe "1234"
 
       // When used as an extractor, the entire string must match.
-      intercept[MatchError] {
-        val IssueRegex(project, number) = "I fixed BYEX-123 and BYEX-124 today"
-      }
+      intercept[MatchError] { val IssueRegex(_, _) = "I fixed BYEX-123 and BYEX-124 today" }
 
       // If you just want to find one, then unanchor it.
       val unanchoredIssue = IssueRegex.unanchored
-      val unanchoredIssue(project2, number2) =
-        "Fixed BYEX-123 and BYEX-124 today"
+      val unanchoredIssue(project2, number2) = "Fixed BYEX-123 and BYEX-124 today"
       project2 shouldBe "BYEX"
       number2 shouldBe "123"
       unanchoredIssue.anchored shouldBe theSameInstanceAs(IssueRegex)
 
-      intercept[MatchError] {
-        val unanchoredIssue(project3, number3) = "Fixed no issues today"
-      }
+      intercept[MatchError] { val unanchoredIssue(project3, number3) = "Fixed no issues today" }
     }
 
     it("can be used as an extractor in match statements") {
@@ -150,13 +135,10 @@ class Tour090SingletonRegexExtractorsSpec extends AnyFunSpecLike with Matchers {
         // Unapply takes that object and returns parameters.
         def unapply(issue: String): Option[(String, Int)] = try {
           issue.split("-") match {
-            case Array(project, number) if project.nonEmpty =>
-              Some((project, number.toInt))
-            case _ => None
+            case Array(project, number) if project.nonEmpty => Some((project, number.toInt))
+            case _                                          => None
           }
-        } catch {
-          case e: NumberFormatException => None
-        }
+        } catch { case _: NumberFormatException => None }
       }
 
       // Creating an Issue.  Here, it's encoded as a string, but usually will be a
@@ -205,9 +187,7 @@ class Tour090SingletonRegexExtractorsSpec extends AnyFunSpecLike with Matchers {
         def apply(project: String, number: Int) = s"$project-$number"
 
         // Unapply takes that object and returns parameters.
-        def unapplySeq(issue: String): Option[Seq[String]] = {
-          Some(issue.split("-"))
-        }
+        def unapplySeq(issue: String): Option[Seq[String]] = { Some(issue.split("-").toIndexedSeq) }
       }
 
       // Creating an Issue.  Here, it's encoded as a string, but usually will be a
@@ -220,7 +200,7 @@ class Tour090SingletonRegexExtractorsSpec extends AnyFunSpecLike with Matchers {
       num1 shouldBe "1234"
 
       // The number of extractions must match or there's a MatchError
-      intercept[MatchError] { val Issue(prjX, numX) = "BYEX-1234-Urgent" }
+      intercept[MatchError] { val Issue(_, _) = "BYEX-1234-Urgent" }
 
       val Issue(prj2, num2, cat2) = "BYEX-1234-Urgent"
       prj2 shouldBe "BYEX"
@@ -228,7 +208,7 @@ class Tour090SingletonRegexExtractorsSpec extends AnyFunSpecLike with Matchers {
       cat2 shouldBe "Urgent"
 
       // Throws a match error if it can't be unapplied.
-      intercept[MatchError] { val Issue(prjX, numX) = "BYEX1234" }
+      intercept[MatchError] { val Issue(_, _) = "BYEX1234" }
 
       // But you can throw away unused parameters with _*
       val Issue(prj3, _*) = "BYEX1234"

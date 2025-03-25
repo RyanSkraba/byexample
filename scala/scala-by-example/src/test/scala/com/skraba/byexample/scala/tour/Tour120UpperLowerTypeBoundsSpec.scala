@@ -98,12 +98,15 @@ class Tour120UpperLowerTypeBoundsSpec extends AnyFunSpecLike with Matchers {
       // The List is covariant
       val birds: List[Bird] = africanSwallows
 
-      // The list can change it's type depending what is put into it, while respecting the covariant contract.
-      africanSwallows.prepend(AfricanSwallow()) shouldBe a[List[AfricanSwallow]]
-      africanSwallows.prepend(EuropeanSwallow()) shouldBe a[List[Bird]]
+      // The list can change its type depending on what is put into it, while respecting the covariant contract.
+      "val check: List[AfricanSwallow] = africanSwallows.prepend(AfricanSwallow())" should compile
+      "val check: List[Bird] = africanSwallows.prepend(AfricanSwallow())" should compile
+      "val check: List[Any] = africanSwallows.prepend(AfricanSwallow())" should compile
+      "val check: List[AfricanSwallow] = africanSwallows.prepend(EuropeanSwallow())" shouldNot typeCheck
+      "val check: List[Bird] = africanSwallows.prepend(EuropeanSwallow())" should compile
 
       // This is a mistake! We now have a List(bird, bird, List) where the type is Object or Any, which is probably not what we want.
-      val error = birds.prepend(EuropeanSwallow()).prepend(swallowsFromAntarctica)
+      val error: List[Any] = birds.prepend(EuropeanSwallow()).prepend(swallowsFromAntarctica)
     }
   }
 }
