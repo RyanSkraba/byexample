@@ -71,9 +71,7 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
       while (it.hasNext) it.next() should (be > 0 and be <= 3)
 
       // For example
-      xs.foreach(
-        _ should (be > 0 and be <= 3)
-      )
+      xs.foreach(_ should (be > 0 and be <= 3))
     }
 
     it("has aliases") {
@@ -93,9 +91,7 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
 
       // Unfold takes a state (accumulator) and applies a function to it that
       // returns the next value of the Iterable -> newState, or the end.
-      Iterable.unfold('d') { c =>
-        if (c <= 'f') Some(c - 'a', (c + 1).toChar) else None
-      } shouldBe Iterable(3, 4, 5)
+      Iterable.unfold('d') { c => if (c <= 'f') Some(c - 'a', (c + 1).toChar) else None } shouldBe Iterable(3, 4, 5)
 
       // Ranges fill the iterable
       Iterable.range(0, 3) shouldBe Iterable(0, 1, 2)
@@ -103,8 +99,7 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
 
       // Iterable dimensional
       Iterable.fill(5)("A") shouldBe Iterable("A", "A", "A", "A", "A")
-      Iterable.tabulate(5)(x => s"A$x") shouldBe
-        Iterable("A0", "A1", "A2", "A3", "A4")
+      Iterable.tabulate(5)(x => s"A$x") shouldBe Iterable("A0", "A1", "A2", "A3", "A4")
 
       // Up to five dimensions are possible.
       Iterable.fill(5, 2)("A") shouldBe Iterable(
@@ -209,20 +204,11 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
       // (xs filter p, xs.filterNot p)
       xs partition (_ % 2 == 0) shouldBe (Iterable(2), Iterable(1, 3))
       // Arbitrary discrimator function for the key.
-      xs groupBy (_ <= 2) shouldBe Map(
-        false -> Iterable(3),
-        true -> Iterable(1, 2)
-      )
+      xs groupBy (_ <= 2) shouldBe Map(false -> Iterable(3), true -> Iterable(1, 2))
       // As well as arbitrary function for the value.
-      xs.groupMap(_ % 2)(_ + 100) shouldBe Map(
-        0 -> Iterable(102),
-        1 -> Iterable(101, 103)
-      )
+      xs.groupMap(_ % 2)(_ + 100) shouldBe Map(0 -> Iterable(102), 1 -> Iterable(101, 103))
       // Or even to accumulate the values.
-      xs.groupMapReduce(_ % 2)(_ + 100)(_ * _) shouldBe Map(
-        0 -> 102,
-        1 -> 10403
-      )
+      xs.groupMapReduce(_ % 2)(_ + 100)(_ * _) shouldBe Map(0 -> 102, 1 -> 10403)
     }
 
     it("supports element conditions") {
@@ -253,12 +239,10 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
       xs.scanLeft("z")(_ + _) shouldBe Iterable("z", "z1", "z12", "z123")
 
       // Note that the LAST argument in the lambda is the accumulator type.
-      xs.scanRight("z")(_ + _) shouldBe Iterable("123z", "23z", "3z", "z")
+      xs.scanRight("z")((a, b) => s"$a$b") shouldBe Iterable("123z", "23z", "3z", "z")
 
       // UnsupportedOperationException on empty lists.
-      intercept[UnsupportedOperationException] {
-        Iterable().reduceLeft(op)
-      }
+      intercept[UnsupportedOperationException] { Iterable().reduceLeft(op) }
     }
 
     it("supports specific numeric folds") {
@@ -271,12 +255,8 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
       val xs0 = xs.drop(3)
       xs0.sum shouldBe 0
       xs0.product shouldBe 1
-      intercept[UnsupportedOperationException] {
-        xs0.min
-      }.getMessage shouldBe "empty.min"
-      intercept[UnsupportedOperationException] {
-        xs0.max
-      }.getMessage shouldBe "empty.max"
+      intercept[UnsupportedOperationException] { xs0.min }.getMessage shouldBe "empty.min"
+      intercept[UnsupportedOperationException] { xs0.max }.getMessage shouldBe "empty.max"
 
       xs.minOption shouldBe Some(1)
       xs.maxOption shouldBe Some(3)
@@ -324,12 +304,7 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
 
       // Using the longest and providing defaults.
       xs.zipAll(ys1, 99, "z") shouldBe Iterable((1, "a"), (2, "b"), (3, "z"))
-      xs.zipAll(ys2, 99, "z") shouldBe Iterable(
-        (1, "a"),
-        (2, "b"),
-        (3, "c"),
-        (99, "d")
-      )
+      xs.zipAll(ys2, 99, "z") shouldBe Iterable((1, "a"), (2, "b"), (3, "c"), (99, "d"))
 
       // Iterate with it's own index (the second value)
       xs.zipWithIndex shouldBe Iterable((1, 0), (2, 1), (3, 2))
