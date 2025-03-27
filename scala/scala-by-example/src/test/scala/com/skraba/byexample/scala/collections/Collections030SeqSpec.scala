@@ -174,8 +174,7 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
 
       // Append
       (buf += 4) shouldBe mutable.Buffer(1, 2, 3, 4)
-      (buf += (5, 6, 7)) shouldBe mutable.Buffer(1, 2, 3, 4, 5, 6, 7)
-      (buf ++= Seq(8, 9)) shouldBe mutable.Buffer(1, 2, 3, 4, 5, 6, 7, 8, 9)
+      (buf ++= Seq(5, 6, 7)) shouldBe mutable.Buffer(1, 2, 3, 4, 5, 6, 7)
 
       // Prepend
       (0 +=: buf) shouldBe mutable.Buffer(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
@@ -190,8 +189,7 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
     }
 
     it("supports removal") {
-      val buf =
-        ArrayBuffer(-2, -1, 97, 98, 99, 100, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+      val buf = ArrayBuffer(-2, -1, 97, 98, 99, 100, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
 
       (buf -= 100) shouldBe mutable.Buffer(-2, -1, 97, 98, 99, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
 
@@ -235,8 +233,7 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
 
       // Append
       (buf += 4) shouldBe mutable.Queue(1, 2, 3, 4)
-      (buf += (5, 6, 7)) shouldBe mutable.Queue(1, 2, 3, 4, 5, 6, 7)
-      (buf ++= Seq(8, 9)) shouldBe mutable.Queue(1, 2, 3, 4, 5, 6, 7, 8, 9)
+      (buf ++= Seq(5, 6, 7)) shouldBe mutable.Queue(1, 2, 3, 4, 5, 6, 7)
 
       // Prepend
       (0 +=: buf) shouldBe mutable.Queue(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
