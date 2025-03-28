@@ -177,7 +177,7 @@ class Collections040SetSpec extends AnyFunSpecLike with Matchers {
       // Use the greater than operation for less than reverses the order.
       val myOrdering = Ordering.fromLessThan[Int](_ > _)
       val xs = SortedSet.empty(myOrdering)
-      (xs + (2, 1, 3)).toSeq shouldBe Seq(3, 2, 1)
+      (xs ++ Seq(2, 1, 3)).toSeq shouldBe Seq(3, 2, 1)
     }
 
     it("supports ranges") {
