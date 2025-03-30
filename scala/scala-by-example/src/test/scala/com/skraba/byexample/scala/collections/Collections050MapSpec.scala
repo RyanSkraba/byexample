@@ -19,9 +19,9 @@ class Collections050MapSpec extends AnyFunSpecLike with Matchers {
 
     it("has a default implementation of immutable.TreeMap") {
       // Any smaller maps may have a specialized implementation.
-      ms + (4 -> "four", 5 -> "five") shouldBe a[immutable.HashMap[_, _]]
+      ms ++ Seq(4 -> "four", 5 -> "five") shouldBe a[immutable.HashMap[_, _]]
 
-      // Of course they aren't necessarily in order... we don't know if the following is true.
+      // Of course, they aren't necessarily in order... we don't know if the following is true.
       // xs.takeRight(1) shouldBe Map(1 -> "one"))
 
       // Because of the apply method, a set can be used as a function.
@@ -44,9 +44,7 @@ class Collections050MapSpec extends AnyFunSpecLike with Matchers {
       // Get directly with an exception if not found.
       ms(1) shouldBe "one"
       ms.apply(1) shouldBe "one" // alias
-      intercept[NoSuchElementException] {
-        ms(4)
-      }
+      intercept[NoSuchElementException] { ms(4) }
 
       // Using an indicator for not found.
       ms.getOrElse(4, -1) shouldBe -1
@@ -56,70 +54,29 @@ class Collections050MapSpec extends AnyFunSpecLike with Matchers {
     }
 
     it("support additions and updates") {
-      ms + (4 -> "four") shouldBe Map(
-        1 -> "one",
-        2 -> "two",
-        3 -> "three",
-        4 -> "four"
-      )
-      ms updated (4, "four") shouldBe Map(
-        1 -> "one",
-        2 -> "two",
-        3 -> "three",
-        4 -> "four"
-      ) // alias
-      ms + (4 -> "four", 5 -> "five") shouldBe Map(
-        1 -> "one",
-        2 -> "two",
-        3 -> "three",
-        4 -> "four",
-        5 -> "five"
-      )
-      ms ++ Map(99 -> "ninety-nine") shouldBe Map(
-        1 -> "one",
-        2 -> "two",
-        3 -> "three",
-        99 -> "ninety-nine"
-      )
+      ms + (4 -> "four") shouldBe Map(1 -> "one", 2 -> "two", 3 -> "three", 4 -> "four")
+      ms updated (4, "four") shouldBe Map(1 -> "one", 2 -> "two", 3 -> "three", 4 -> "four") // alias
+      ms ++ Seq(4 -> "four", 5 -> "five") shouldBe Map(1 -> "one", 2 -> "two", 3 -> "three", 4 -> "four", 5 -> "five")
+      ms ++ Map(99 -> "ninety-nine") shouldBe Map(1 -> "one", 2 -> "two", 3 -> "three", 99 -> "ninety-nine")
     }
 
     it("supports removals") {
       ms - 2 shouldBe Map(1 -> "one", 3 -> "three")
-      ms - (2, 3) shouldBe Map(1 -> "one")
       ms -- List(1, 2) shouldBe Map(3 -> "three")
     }
 
     it("supports subcollections") {
       ms.keys.toSet shouldBe Set(1, 2, 3) // Actually returns an Iterable
       ms.keySet shouldBe Set(1, 2, 3)
-      ms.keysIterator.toSet shouldBe Set(
-        1,
-        2,
-        3
-      ) // Actually returns an Iterator
-      ms.values.toSet shouldBe Set(
-        "one",
-        "two",
-        "three"
-      ) // Actually returns an Iterable
-      ms.valuesIterator.toSet shouldBe Set(
-        "one",
-        "two",
-        "three"
-      ) // Actually returns an Iterator
+      ms.keysIterator.toSet shouldBe Set(1, 2, 3) // Actually returns an Iterator
+      ms.values.toSet shouldBe Set("one", "two", "three") // Actually returns an Iterable
+      ms.valuesIterator.toSet shouldBe Set("one", "two", "three") // Actually returns an Iterator
     }
 
     it("supports transformations") {
       // filterKeys and mapValues both return MapViews, which aren't testable by scalatest
-      ms.view.filterKeys(_ % 2 == 1).toMap shouldBe Map(
-        1 -> "one",
-        3 -> "three"
-      )
-      ms.view.mapValues(_.reverse).toMap shouldBe Map(
-        1 -> "eno",
-        2 -> "owt",
-        3 -> "eerht"
-      )
+      ms.view.filterKeys(_ % 2 == 1).toMap shouldBe Map(1 -> "one", 3 -> "three")
+      ms.view.mapValues(_.reverse).toMap shouldBe Map(1 -> "eno", 2 -> "owt", 3 -> "eerht")
     }
   }
 
@@ -142,24 +99,14 @@ class Collections050MapSpec extends AnyFunSpecLike with Matchers {
       val xs = SortedMap(5 -> "A", 4 -> "A", 3 -> "B", 2 -> "X", 1 -> "A")
       val sortedXs = SortedMap.empty[Int, String] ++ xs
       sortedXs shouldBe a[immutable.TreeMap[_, _]]
-      sortedXs.toSeq shouldBe Seq(
-        1 -> "A",
-        2 -> "X",
-        3 -> "B",
-        4 -> "A",
-        5 -> "A"
-      )
+      sortedXs.toSeq shouldBe Seq(1 -> "A", 2 -> "X", 3 -> "B", 4 -> "A", 5 -> "A")
     }
 
     it("supports ordering") {
       // Use the greater than operation for less than reverses the order.
       val myOrdering = Ordering.fromLessThan[Int](_ > _)
       val xs = SortedMap.empty(myOrdering)
-      (xs + (5 -> "A", 4 -> "A", 3 -> "B")).toSeq shouldBe Seq(
-        5 -> "A",
-        4 -> "A",
-        3 -> "B"
-      )
+      (xs ++ Seq(5 -> "A", 4 -> "A", 3 -> "B")).toSeq shouldBe Seq(5 -> "A", 4 -> "A", 3 -> "B")
     }
 
     it("supports ranges") {
@@ -168,9 +115,9 @@ class Collections050MapSpec extends AnyFunSpecLike with Matchers {
       // inclusive start, exclusive end
       xs.range(2, 4).toSeq shouldBe Seq(2 -> "X", 3 -> "B")
       // inclusive
-      xs.from(3).toSeq shouldBe Seq(3 -> "B", 4 -> "A", 5 -> "A")
-      xs.to(4).toSeq shouldBe Seq(1 -> "A", 2 -> "X", 3 -> "B", 4 -> "A")
-      xs.until(4).toSeq shouldBe Seq(1 -> "A", 2 -> "X", 3 -> "B")
+      xs.rangeFrom(3).toSeq shouldBe Seq(3 -> "B", 4 -> "A", 5 -> "A")
+      xs.rangeTo(4).toSeq shouldBe Seq(1 -> "A", 2 -> "X", 3 -> "B", 4 -> "A")
+      xs.rangeUntil(4).toSeq shouldBe Seq(1 -> "A", 2 -> "X", 3 -> "B")
     }
   }
 
@@ -188,83 +135,26 @@ class Collections050MapSpec extends AnyFunSpecLike with Matchers {
       ms.update(2, "deux") // alias
       ms shouldBe Map(1 -> "un", 2 -> "deux", 3 -> "three")
 
-      (ms += (4 -> "four")) shouldBe Map(
-        1 -> "un",
-        2 -> "deux",
-        3 -> "three",
-        4 -> "four"
-      )
-      (ms += (4 -> "quatre", 3 -> "trois")) shouldBe Map(
-        1 -> "un",
-        2 -> "deux",
-        3 -> "trois",
-        4 -> "quatre"
-      )
+      (ms += (4 -> "four")) shouldBe Map(1 -> "un", 2 -> "deux", 3 -> "three", 4 -> "four")
+      (ms ++= Seq(4 -> "quatre", 3 -> "trois")) shouldBe Map(1 -> "un", 2 -> "deux", 3 -> "trois", 4 -> "quatre")
 
-      (ms ++= Map(5 -> "cinq")) shouldBe Map(
-        1 -> "un",
-        2 -> "deux",
-        3 -> "trois",
-        4 -> "quatre",
-        5 -> "cinq"
-      )
-      ms shouldBe Map(
-        1 -> "un",
-        2 -> "deux",
-        3 -> "trois",
-        4 -> "quatre",
-        5 -> "cinq"
-      )
+      (ms ++= Map(5 -> "cinq")) shouldBe Map(1 -> "un", 2 -> "deux", 3 -> "trois", 4 -> "quatre", 5 -> "cinq")
 
+      ms shouldBe Map(1 -> "un", 2 -> "deux", 3 -> "trois", 4 -> "quatre", 5 -> "cinq")
       ms.put(4, "cat") shouldBe Some("quatre")
       ms.put(6, "six") shouldBe None
-      ms shouldBe Map(
-        1 -> "un",
-        2 -> "deux",
-        3 -> "trois",
-        4 -> "cat",
-        5 -> "cinq",
-        6 -> "six"
-      )
+      ms shouldBe Map(1 -> "un", 2 -> "deux", 3 -> "trois", 4 -> "cat", 5 -> "cinq", 6 -> "six")
 
       ms.getOrElseUpdate(6, "SIXSIX") shouldBe "six"
       ms.getOrElseUpdate(7, "sept") shouldBe "sept"
-      ms shouldBe Map(
-        1 -> "un",
-        2 -> "deux",
-        3 -> "trois",
-        4 -> "cat",
-        5 -> "cinq",
-        6 -> "six",
-        7 -> "sept"
-      )
+      ms shouldBe Map(1 -> "un", 2 -> "deux", 3 -> "trois", 4 -> "cat", 5 -> "cinq", 6 -> "six", 7 -> "sept")
     }
 
     it("support removals") {
-      var ms = mutable.Map(
-        1 -> "un",
-        2 -> "deux",
-        3 -> "trois",
-        4 -> "quatre",
-        5 -> "cinq",
-        6 -> "six",
-        7 -> "sept"
-      )
-      (ms -= 1) shouldBe Map(
-        2 -> "deux",
-        3 -> "trois",
-        4 -> "quatre",
-        5 -> "cinq",
-        6 -> "six",
-        7 -> "sept"
-      )
+      var ms = mutable.Map(1 -> "un", 2 -> "deux", 3 -> "trois", 4 -> "quatre", 5 -> "cinq", 6 -> "six", 7 -> "sept")
+      (ms -= 1) shouldBe Map(2 -> "deux", 3 -> "trois", 4 -> "quatre", 5 -> "cinq", 6 -> "six", 7 -> "sept")
 
-      (ms -= (1, 2, 3)) shouldBe Map(
-        4 -> "quatre",
-        5 -> "cinq",
-        6 -> "six",
-        7 -> "sept"
-      )
+      (ms --= Seq(1, 2, 3)) shouldBe Map(4 -> "quatre", 5 -> "cinq", 6 -> "six", 7 -> "sept")
 
       (ms --= Seq(2, 3, 7)) shouldBe Map(4 -> "quatre", 5 -> "cinq", 6 -> "six")
 
@@ -274,20 +164,8 @@ class Collections050MapSpec extends AnyFunSpecLike with Matchers {
       (ms remove 4) shouldBe Some("quatre")
       ms shouldBe Map(5 -> "cinq", 6 -> "six")
 
-      ms = mutable.Map(
-        1 -> "un",
-        2 -> "deux",
-        3 -> "trois",
-        4 -> "quatre",
-        5 -> "cinq",
-        6 -> "six",
-        7 -> "sept"
-      )
-      (ms retain ((k, v) => k % 2 == 0)) shouldBe Map(
-        2 -> "deux",
-        4 -> "quatre",
-        6 -> "six"
-      )
+      ms = mutable.Map(1 -> "un", 2 -> "deux", 3 -> "trois", 4 -> "quatre", 5 -> "cinq", 6 -> "six", 7 -> "sept")
+      (ms filterInPlace ((k, _) => k % 2 == 0)) shouldBe Map(2 -> "deux", 4 -> "quatre", 6 -> "six")
       ms.keySet shouldBe Set(2, 4, 6)
 
       ms.clear()
@@ -297,11 +175,7 @@ class Collections050MapSpec extends AnyFunSpecLike with Matchers {
     it("supports transformations and cloning") {
       val ms = mutable.Map(1 -> "one", 2 -> "two", 3 -> "three")
       // values only, but with key as a paramter
-      ms.transform((k, v) => v.reverse + k) shouldBe Map(
-        1 -> "eno1",
-        2 -> "owt2",
-        3 -> "eerht3"
-      )
+      ms.mapValuesInPlace((k, v) => v.reverse + k) shouldBe Map(1 -> "eno1", 2 -> "owt2", 3 -> "eerht3")
       ms.clone shouldBe ms
       ms.clone should not be theSameInstanceAs(ms)
     }
