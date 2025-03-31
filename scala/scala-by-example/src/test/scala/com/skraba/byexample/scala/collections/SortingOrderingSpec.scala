@@ -21,7 +21,7 @@ class SortingOrderingSpec extends AnyFunSpecLike with Matchers {
     Issue("e", 200, 1, 99, 50, 40)
   )
 
-  def prj(in: Seq[Issue]): Seq[String] = in.map(_.prj)
+  def prj(in: Iterable[Issue]): Iterable[String] = in.map(_.prj)
 
   describe("When sorting a collection") {
 
@@ -49,12 +49,12 @@ class SortingOrderingSpec extends AnyFunSpecLike with Matchers {
       it("the sorted method can take an explicit Ordering") {
         val sorted = is.sorted(Ordering.by[Issue, Int](_.num))
         prj(is) shouldBe Seq("a", "b", "c", "d", "e")
-        prj(sorted) shouldBe Seq("b", "e", "c", "d", "a")
+        prj(sorted) shouldBe Array("b", "e", "c", "d", "a")
       }
 
       it("the sortWith method specifies a 'less than' predicate.") {
         val sorted = is.sortWith(_.num < _.num)
-        prj(sorted) shouldBe Seq("b", "e", "c", "d", "a")
+        prj(sorted) shouldBe Array("b", "e", "c", "d", "a")
       }
 
       it("the sortBy method specifies a function to a known ordering") {
@@ -91,12 +91,7 @@ class SortingOrderingSpec extends AnyFunSpecLike with Matchers {
 
     it("can be used to sort tuples") {
       // The tuples are sorted using the first to last elements in order.
-      Sorting.stableSort(Seq((3, 0), (2, 99), (1, 1), (1, 0))) shouldBe Seq(
-        (1, 0),
-        (1, 1),
-        (2, 99),
-        (3, 0)
-      )
+      Sorting.stableSort(Seq((3, 0), (2, 99), (1, 1), (1, 0))) shouldBe Seq((1, 0), (1, 1), (2, 99), (3, 0))
     }
   }
 
@@ -140,7 +135,7 @@ class SortingOrderingSpec extends AnyFunSpecLike with Matchers {
     }
 
     it("can be added implicitly for a case class") {
-      implicit object IssueOrderByPrio extends Ordering[Issue] {
+      implicit object IssueOrderByPriority extends Ordering[Issue] {
         def compare(a: Issue, b: Issue): Int = a.priorities.maxOption
           .getOrElse(Int.MinValue)
           .compare(b.priorities.maxOption.getOrElse(Int.MinValue))
