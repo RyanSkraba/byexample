@@ -17,9 +17,8 @@ class FoldSpec extends AnyFunSpecLike with Matchers {
         in.foldRight[List[List[Int]]](Nil) {
           // x is the new element
           // y and ys are part of the accumulator being constructed.
-          case (x, y :: ys) if y.headOption.exists(_ - x <= gap) =>
-            (x :: y) :: ys
-          case (x, ys) => (x :: Nil) :: ys
+          case (x, y :: ys) if y.headOption.exists(_ - x <= gap) => (x :: y) :: ys
+          case (x, ys)                                           => (x :: Nil) :: ys
         }
 
       // The input elements.  We want to cut them into lists where subsequent elements
@@ -36,10 +35,9 @@ class FoldSpec extends AnyFunSpecLike with Matchers {
       // Merges intervals of integers where (i1,i2) is inclusive.
       def merge(sortedByFirst: Seq[(Int, Int)]): Seq[(Int, Int)] =
         sortedByFirst.foldRight(List.empty[(Int, Int)]) {
-          case ((i1, i2), Nil) => (i1, i2) :: Nil
-          case ((i1, i2), (acc1, acc2) :: rest) if i2 >= (acc1 - 1) =>
-            (i1 min acc1, i2 max acc2) :: rest
-          case ((i1, i2), acc) => (i1, i2) :: acc
+          case ((i1, i2), Nil)                                      => (i1, i2) :: Nil
+          case ((i1, i2), (acc1, acc2) :: rest) if i2 >= (acc1 - 1) => (i1 min acc1, i2 max acc2) :: rest
+          case ((i1, i2), acc)                                      => (i1, i2) :: acc
         }
 
       for (
@@ -55,10 +53,7 @@ class FoldSpec extends AnyFunSpecLike with Matchers {
         // Although this doesn´t overlap, these integer ranges can be merged
         merge(x ++ List((0, 1), (2, 4)) ++ y) shouldBe x ++ List((0, 4)) ++ y
         // This doesn´t overlap
-        merge(x ++ List((0, 1), (3, 4)) ++ y) shouldBe x ++ List(
-          (0, 1),
-          (3, 4)
-        ) ++ y
+        merge(x ++ List((0, 1), (3, 4)) ++ y) shouldBe x ++ List((0, 1), (3, 4)) ++ y
       }
     }
   }
