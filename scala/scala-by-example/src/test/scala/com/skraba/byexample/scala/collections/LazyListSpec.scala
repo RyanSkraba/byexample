@@ -80,13 +80,7 @@ class LazyListSpec extends AnyFunSpecLike with Matchers {
 
     // Even zipping itself with it's own tail is lazily evaluated!  However, it's necessary for
     // fibs.tail itself to be concretely defined, or it would be recurse forever.
-    fibs.take(5) shouldBe Seq(
-      BigInt(0),
-      BigInt(1),
-      BigInt(1),
-      BigInt(2),
-      BigInt(3)
-    )
+    fibs.take(5) shouldBe Seq(BigInt(0), BigInt(1), BigInt(1), BigInt(2), BigInt(3))
     fibs(100) shouldBe BigInt("354224848179261915075")
 
     // Here's an implementation that does not use tail.
@@ -94,13 +88,7 @@ class LazyListSpec extends AnyFunSpecLike with Matchers {
       def loop(h: BigInt, n: BigInt): LazyList[BigInt] = h #:: loop(n, h + n)
       loop(0, 1)
     }
-    fibs2.take(5) shouldBe Seq(
-      BigInt(0),
-      BigInt(1),
-      BigInt(1),
-      BigInt(2),
-      BigInt(3)
-    )
+    fibs2.take(5) shouldBe Seq(BigInt(0), BigInt(1), BigInt(1), BigInt(2), BigInt(3))
     fibs2(100) shouldBe BigInt("354224848179261915075")
   }
 
@@ -116,18 +104,16 @@ class LazyListSpec extends AnyFunSpecLike with Matchers {
 
     // This works with bounded and infinite lists
     roundRobin(LazyList(1, 2), LazyList(3, 4, 5)) shouldBe Seq(1, 3, 2, 4, 5)
-    roundRobin(LazyList(50, 51), LazyList(60, 61), LazyList.from(1))
-      .take(10) shouldBe Seq(50, 60, 1, 51, 61, 2, 3, 4, 5, 6)
-    roundRobin(LazyList.continually(-1), LazyList.from(1))
-      .take(10) shouldBe Seq(-1, 1, -1, 2, -1, 3, -1, 4, -1, 5)
+    roundRobin(LazyList(50, 51), LazyList(60, 61), LazyList.from(1)).take(10) shouldBe Seq(50, 60, 1, 51, 61, 2, 3, 4,
+      5, 6)
+    roundRobin(LazyList.continually(-1), LazyList.from(1)).take(10) shouldBe Seq(-1, 1, -1, 2, -1, 3, -1, 4, -1, 5)
   }
 
   it("can be iterate over a state and detect loops") {
     // This mystery function deterministically takes and returns a state (int).  We want to see if
     // applying it consecutively on the state ends up in a loop so we can efficiently calculate
     // the BILLIONTH index (for example)
-    def mystery(in: Int): Int =
-      if (in == 83) 47 else if (in == 1099) 1095 else in + 1
+    def mystery(in: Int): Int = if (in == 83) 47 else if (in == 1099) 1095 else in + 1
 
     // states is the list of repeatedly applying the mystery function to the previous value, starting at 0
     val states = LazyList.iterate(0)(mystery)
