@@ -71,9 +71,9 @@ public class BarProgress implements ProgressMonitor {
         graphics,
         position,
         barSize,
-        new TextCharacter('='),
-        new TextCharacter('-'),
-        new TextCharacter(' '),
+        TextCharacter.fromCharacter('=')[0],
+        TextCharacter.fromCharacter('-')[0],
+        TextCharacter.fromCharacter(' ')[0],
         overCount);
   }
 
