@@ -168,7 +168,7 @@ class BuildFailureReport(
   lazy val all: Seq[FailedStep] = buildFailureSection.mds
     .collect { case daily @ Header(_, 2, _) => daily }
     .zipWithIndex
-    .flatMap { case (daily @ Header(investigateDate, 2, _)) -> investigateOrder =>
+    .flatMap { case (daily @ Header(investigateDate, _, _)) -> investigateOrder =>
       daily.mds
         .collect { case buildDetails @ Header(buildTitle, 3, _) =>
           val base = FailedStep(investigateDate, investigateOrder).addBuildInfo(buildTitle)

@@ -19,7 +19,7 @@ class ExceptionTest {
         .hasMessage("Issue.project is required");
 
     NullPointerException npe =
-        catchThrowableOfType(() -> new Project.Issue(null, null), NullPointerException.class);
+        catchThrowableOfType(NullPointerException.class, () -> new Project.Issue(null, null));
 
     assertThat(npe).hasMessage("Issue.project is required");
   }
