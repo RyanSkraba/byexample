@@ -127,7 +127,7 @@ class AdventOfCodeDay13Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |#####.##.
         |..##..###
         |#....#..#
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     it("should match horizontal examples") {
       val x =
@@ -137,13 +137,13 @@ class AdventOfCodeDay13Spec extends AnyFunSpecLike with Matchers with BeforeAndA
           |..#
           |.#.
           |#..
-          |""".trim.stripMargin.split("\n")
+          |""".trimSplit
 
       val x2 =
         """###
           |.#.
           |..#
-          |""".trim.stripMargin.split("\n")
+          |""".trimSplit
 
       part1Count()(x ++ x2: _*) shouldBe 3
       part1Count()(x2 ++ x: _*) shouldBe 6
@@ -170,7 +170,7 @@ class AdventOfCodeDay13Spec extends AnyFunSpecLike with Matchers with BeforeAndA
                       |.###.......
                       |#.#########
                       |#...##.##.#
-                      |""".trim.stripMargin.split("\n")
+                      |""".trimSplit
       part1(example: _*) shouldBe 8
       part2(example: _*) shouldBe 1300
       part1(example.toSeq.transpose.map(_.mkString): _*) shouldBe 800

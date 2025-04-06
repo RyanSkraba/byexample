@@ -46,7 +46,7 @@ class AdventOfCodeDay9Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
       """0 3 6 9 12 15
         |1 3 6 10 15 21
         |10 13 16 21 30 45
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     it("should match the puzzle description for part 1") {
       part1extrapolate(1, 1, 1) shouldBe 1

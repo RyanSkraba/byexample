@@ -93,7 +93,7 @@ class AdventOfCodeDay14Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |.......O..
         |#....###..
         |#OO..#....
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     it("should manipulate the map") {
       val nLeft = rotateCcw(input)

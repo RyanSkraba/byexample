@@ -174,7 +174,7 @@ class AdventOfCodeDay19Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |{x=2461,m=1339,a=466,s=291}
         |{x=2127,m=1623,a=2188,s=1013}
         |
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     it("should match the puzzle description for part 1") {
       part1(input: _*) shouldBe 19114

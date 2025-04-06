@@ -83,7 +83,7 @@ class AdventOfCodeDay14Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |p=7,3 v=-1,2
         |p=2,4 v=2,-3
         |p=9,5 v=-3,-3
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     it("should match the puzzle description for part 1") {
       part1(11, 7, input: _*) shouldBe 12

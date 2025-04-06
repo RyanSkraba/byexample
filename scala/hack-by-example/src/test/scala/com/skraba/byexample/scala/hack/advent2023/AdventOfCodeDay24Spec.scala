@@ -210,7 +210,7 @@ class AdventOfCodeDay24Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |20, 25, 34 @ -2, -2, -4
         |12, 31, 28 @ -1, -2, -1
         |20, 19, 15 @  1, -5, -3
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     it("should match the puzzle description for part 1") {
       part1(7, 27, input: _*) shouldBe 2

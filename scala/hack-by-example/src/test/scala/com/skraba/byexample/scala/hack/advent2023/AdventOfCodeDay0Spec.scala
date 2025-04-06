@@ -34,7 +34,7 @@ class AdventOfCodeDay0Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
   describe("Example case") {
     val input =
       """
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     it("should match the puzzle description for part 1") {
       part1(input: _*) shouldBe 100

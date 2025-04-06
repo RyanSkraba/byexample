@@ -207,7 +207,7 @@ class AdventOfCodeDay5Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
         |humidity-to-location map:
         |60 56 37
         |56 93 4
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     it("should parse and find seeds") {
       val (seeds, mapByName, mapNames) = parse(input: _*)

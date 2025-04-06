@@ -169,7 +169,7 @@ class AdventOfCodeDay21Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |.##.#.####.
         |.##..##.##.
         |...........
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     it("should match the puzzle description for part 1") {
       part1(6, input: _*).size shouldBe 16

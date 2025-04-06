@@ -111,8 +111,8 @@ class AdventUtils {
     * If the file isn't encrypted but the [[AdventOfCodeKey]] is set in the environment, overwrite it with an encrypted
     * text.
     */
-  def puzzleInput(name: String): Array[String] = {
-    val in = Source.fromResource(getClass.getPackageName.replace('.', '/') + s"/$name").getLines().toArray
+  def puzzleInput(name: String): IndexedSeq[String] = {
+    val in = Source.fromResource(getClass.getPackageName.replace('.', '/') + s"/$name").getLines().toIndexedSeq
 
     // If the file exists but was encrypted, then attempt to decrypt it with the environment variable.
     if (in.headOption.exists(_.startsWith(AdventOfCodeEncrypted))) {
@@ -129,7 +129,7 @@ class AdventUtils {
               cipher.init(Cipher.ENCRYPT_MODE, getOrCreateKey())
               out.toFile.writeAll(
                 AdventOfCodeEncrypted + "\n",
-                Base64.getEncoder.encodeToString(cipher.doFinal(in.map(_ + "\n").flatMap(_.getBytes)))
+                Base64.getEncoder.encodeToString(cipher.doFinal(in.toArray.map(_ + "\n").flatMap(_.getBytes)))
               )
             }
         }
@@ -137,6 +137,12 @@ class AdventUtils {
       // Return the unencrypted input
       in
     }
+  }
+
+  /** A standard way to strip input blocks in tests. */
+  def trimSplit(input: String): IndexedSeq[String] = {
+    if (input == null) IndexedSeq.empty
+    else input.trim.stripMargin.split("\n").toIndexedSeq
   }
 }
 

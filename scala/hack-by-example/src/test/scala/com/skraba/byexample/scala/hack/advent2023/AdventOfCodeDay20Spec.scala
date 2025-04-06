@@ -248,7 +248,7 @@ class AdventOfCodeDay20Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |%b -> c
         |%c -> inv
         |&inv -> a
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     val input1b =
       """broadcaster -> a
@@ -256,7 +256,7 @@ class AdventOfCodeDay20Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |&inv -> b
         |%b -> con
         |&con -> output
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     def testMod(src: String, dst: Module, h: Boolean, ss: States) = {
       val (ssNext, out) = dst.pulse((src, dst.name, h), ss)

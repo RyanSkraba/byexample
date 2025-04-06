@@ -70,7 +70,7 @@ class AdventOfCodeDay6Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
     val input =
       """Time:      7  15   30
         |Distance:  9  40  200
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     it("should match the puzzle description for part 1") {
       part1(input: _*) shouldBe 288

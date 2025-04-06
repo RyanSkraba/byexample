@@ -91,7 +91,7 @@ class AdventOfCodeDay25Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |lsr: lhk
         |rzs: qnr cmg lsr rsh
         |frs: qnr lhk lsr
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     it("should create a graph") {
       val g = Graph.from(input: _*)

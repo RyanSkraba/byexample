@@ -53,7 +53,7 @@ class AdventOfCodeDay1Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
         |pqr3stu8vwx
         |a1b2c3d4e5f
         |treb7uchet
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     val input2 =
       """two1nine

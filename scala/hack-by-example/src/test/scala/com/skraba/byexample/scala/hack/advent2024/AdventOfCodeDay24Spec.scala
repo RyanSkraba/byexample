@@ -136,7 +136,7 @@ class AdventOfCodeDay24Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |x00 AND y00 -> z00
         |x01 XOR y01 -> z01
         |x02 OR y02 -> z02
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     val input =
       """x00: 1
@@ -186,7 +186,7 @@ class AdventOfCodeDay24Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |hwm AND bqk -> z03
         |tgd XOR rvg -> z12
         |tnw OR pbm -> gnj
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     it("should match the puzzle description for part 1 mini") {
       part1(inputMini: _*) shouldBe 4

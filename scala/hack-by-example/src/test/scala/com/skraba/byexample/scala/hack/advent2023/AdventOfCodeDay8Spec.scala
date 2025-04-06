@@ -139,7 +139,7 @@ class AdventOfCodeDay8Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
         |EEE = (EEE, EEE)
         |GGG = (GGG, GGG)
         |ZZZ = (ZZZ, ZZZ)
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     val input2 =
       """LLR
@@ -147,7 +147,7 @@ class AdventOfCodeDay8Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
         |AAA = (BBB, BBB)
         |BBB = (AAA, ZZZ)
         |ZZZ = (ZZZ, ZZZ)
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     val input3 =
       """LR
@@ -160,7 +160,7 @@ class AdventOfCodeDay8Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
         |22C = (22Z, 22Z)
         |22Z = (22B, 22B)
         |XXX = (XXX, XXX)
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     it("should match the puzzle description for part 1") {
       part1(input: _*) shouldBe 2

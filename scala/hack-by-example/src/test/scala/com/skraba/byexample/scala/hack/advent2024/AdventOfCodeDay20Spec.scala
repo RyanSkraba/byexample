@@ -100,7 +100,7 @@ class AdventOfCodeDay20Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |#.#.#.#.#.#.###
         |#...#...#...###
         |###############
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     it("should match the puzzle description for part 1") {
       val cheats = solve(3, 1, input: _*)

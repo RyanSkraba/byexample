@@ -90,7 +90,7 @@ class AdventOfCodeDay12Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |????.#...#... 4,1,1
         |????.######..#####. 1,6,5
         |?###???????? 3,2,1
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     it("should match the puzzle description for part 1") {
 

@@ -124,7 +124,7 @@ class AdventOfCodeDay10Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |32019012
         |01329801
         |10456732
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     val input2 =
       """012345
@@ -133,7 +133,7 @@ class AdventOfCodeDay10Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |345678
         |4.6789
         |56789.
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     it("should match the puzzle description for part 1") {
       part1(input: _*) shouldBe 36

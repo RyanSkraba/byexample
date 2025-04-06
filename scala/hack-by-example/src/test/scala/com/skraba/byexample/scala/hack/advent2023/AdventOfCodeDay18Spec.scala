@@ -198,7 +198,7 @@ class AdventOfCodeDay18Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |U 3 (#a77fa3)
         |L 2 (#015232)
         |U 2 (#7a21e3)
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     it("should match the puzzle description for part 1") {
       floodFillCount(parsePart1(input: _*)) shouldBe 62

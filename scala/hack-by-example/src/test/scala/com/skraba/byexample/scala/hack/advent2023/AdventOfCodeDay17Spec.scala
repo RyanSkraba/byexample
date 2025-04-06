@@ -134,7 +134,7 @@ class AdventOfCodeDay17Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |1224686865563
         |2546548887735
         |4322674655533
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     val unfortunate =
       """111111111111
@@ -142,7 +142,7 @@ class AdventOfCodeDay17Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |999999999991
         |999999999991
         |999999999991
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     it("should match the puzzle description for part 1") {
 

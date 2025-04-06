@@ -105,7 +105,7 @@ class AdventOfCodeDay3Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
         |..592.....
         |......755.
         |...$.*....
-        |.664.598..""".trim.stripMargin.split("\n")
+        |.664.598..""".trimSplit
 
     it("should match the puzzle description for part 1") {
       part1(input: _*) shouldBe 4361

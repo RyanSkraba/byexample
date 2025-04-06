@@ -176,7 +176,7 @@ class AdventOfCodeDay12Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |BBCD
         |BBCC
         |EEEC
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     val input2 =
       """OOOOO
@@ -184,7 +184,7 @@ class AdventOfCodeDay12Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |OOOOO
         |OXOXO
         |OOOOO
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     val input =
       """RRRRIICCFF
@@ -196,7 +196,7 @@ class AdventOfCodeDay12Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |VVIIICJJEE
         |MIIIIIJJEE
         |MIIISIJEEE
-        |MMMISSJEEE""".trim.stripMargin.split("\n")
+        |MMMISSJEEE""".trimSplit
 
     it("should match the puzzle description for part 1 mini") {
       part1(input1: _*) shouldBe 140
@@ -204,7 +204,7 @@ class AdventOfCodeDay12Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       part1("""AABB
               |ABBA
               |AAAA
-              |""".trim.stripMargin.split("\n"): _*) shouldBe 184
+              |""".trimSplit: _*) shouldBe 184
     }
 
     it("should match the puzzle description for part 1") {
@@ -219,14 +219,14 @@ class AdventOfCodeDay12Spec extends AnyFunSpecLike with Matchers with BeforeAndA
               |EEEEE
               |EXXXX
               |EEEEE
-              |""".trim.stripMargin.split("\n"): _*) shouldBe 236
+              |""".trimSplit: _*) shouldBe 236
       part2("""AAAAAA
               |AAABBA
               |AAABBA
               |ABBAAA
               |ABBAAA
               |AAAAAA
-              |""".trim.stripMargin.split("\n"): _*) shouldBe 368
+              |""".trimSplit: _*) shouldBe 368
     }
 
     it("should match the puzzle description for part 2") {

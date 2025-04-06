@@ -47,7 +47,7 @@ class AdventOfCodeDay2Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
         |1 3 2 4 5
         |8 6 4 4 1
         |1 3 6 7 9
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     it("should calculate safe reports for part 1") {
       isSafe(Array(7, 6, 4, 2, 1)) shouldBe true

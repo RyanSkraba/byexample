@@ -159,7 +159,7 @@ class AdventOfCodeDay15Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |########
         |
         |<^^>>>vv<v>>v<<
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     val input =
       """##########
@@ -183,7 +183,7 @@ class AdventOfCodeDay15Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |<><^^>^^^<><vvvvv^v<v<<>^v<v>v<<^><<><<><<<^^<<<^<<>><<><^^^>^^<>^>v<>
         |^^>vv<^v^v<vv>^<><v<^v>^^^>>>^^vvv^>vvv<>>>^<^>>>>>^<<^v>^vvv<>^<><<v>
         |v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     val inputMini2 =
       """#######
@@ -195,7 +195,7 @@ class AdventOfCodeDay15Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |#######
         |
         |<vv<<^^<<^^
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     it("should match the puzzle description for part 1 mini") {
       part1(inputMini: _*) shouldBe 2028

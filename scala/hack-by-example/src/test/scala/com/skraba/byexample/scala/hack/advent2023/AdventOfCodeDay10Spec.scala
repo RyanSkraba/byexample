@@ -114,7 +114,7 @@ class AdventOfCodeDay10Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |L|7||
         |-L-J|
         |L|-JF
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     val input2 =
       """7-F7-
@@ -122,7 +122,7 @@ class AdventOfCodeDay10Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |SJLL7
         ||F--J
         |LJ.LJ
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     it("should match the puzzle description for part 1") {
       part1(input: _*) shouldBe 4

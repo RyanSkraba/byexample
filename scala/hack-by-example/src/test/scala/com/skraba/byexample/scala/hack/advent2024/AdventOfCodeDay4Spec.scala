@@ -72,7 +72,7 @@ class AdventOfCodeDay4Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
         |.A..A.
         |XMAS.S
         |.X....
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     val input =
       """MMMSXXMASM
@@ -85,7 +85,7 @@ class AdventOfCodeDay4Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
         |SAXAMASAAA
         |MAMMMXMMMM
         |MXMXAXMASX
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     it("should match the puzzle description for part 1") {
       part1(inputMin: _*) shouldBe 4

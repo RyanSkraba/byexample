@@ -110,7 +110,7 @@ class AdventOfCodeDay15Spec extends AnyFunSpecLike with Matchers with BeforeAndA
   describe("Example case") {
     val input =
       """rn=1,cm-,qp=3,cm=2,qp-,pc=4,ot=9,ab=5,pc-,pc=6,ot=7
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     it("should hash") {
       hash("H") shouldBe 200

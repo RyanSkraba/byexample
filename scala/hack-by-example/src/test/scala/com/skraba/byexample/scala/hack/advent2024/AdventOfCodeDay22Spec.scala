@@ -54,7 +54,7 @@ class AdventOfCodeDay22Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |10
         |100
         |2024
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     it("should calculate secrets correctly") {
 

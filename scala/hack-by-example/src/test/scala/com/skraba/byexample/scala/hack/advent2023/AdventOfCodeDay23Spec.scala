@@ -180,7 +180,7 @@ class AdventOfCodeDay23Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |#.###.###.#.###.#.#v###
         |#.....###...###...#...#
         |#####################.#
-        |""".trim.stripMargin.split("\n")
+        |""".trimSplit
 
     it("should match the puzzle description for part 1 (DFS recursive)") {
       val plan = Plan(input)
