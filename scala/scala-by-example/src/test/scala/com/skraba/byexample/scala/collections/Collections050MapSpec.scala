@@ -179,5 +179,30 @@ class Collections050MapSpec extends AnyFunSpecLike with Matchers {
       ms.clone shouldBe ms
       ms.clone should not be theSameInstanceAs(ms)
     }
+
+    it("supports use as a memo for dynamic programming") {
+      // You used to override apply() on a mutable.HashMap in order to getOrElseUpdate
+      lazy val fibonacci: Int => Long = {
+        val memo = new mutable.HashMap[Int, Long]()
+        key =>
+          memo.getOrElseUpdate(
+            key,
+            key match {
+              case n if n < 0 => 0
+              case 1 | 2      => 1
+              case n          => fibonacci(n - 2) + fibonacci(n - 1)
+            }
+          )
+      }
+
+      fibonacci(0) shouldBe 0
+      fibonacci(1) shouldBe 1
+      fibonacci(2) shouldBe 1
+      fibonacci(3) shouldBe 2
+      fibonacci(4) shouldBe 3
+      fibonacci(5) shouldBe 5
+      fibonacci(6) shouldBe 8
+      fibonacci(60) shouldBe 1548008755920L
+    }
   }
 }

@@ -47,18 +47,20 @@ class AdventOfCodeDay11Spec extends AnyFunSpecLike with Matchers with BeforeAndA
     def part2(in: String): Long = countUsingMap(75, in)
 
     /** Another implementation (slightly slower!) using a memo to count how many stones after N blinks on a number */
-    lazy val countUsingMemo: ((Int, Long)) => Long = new mutable.HashMap[(Int, Long), Long]() {
-      override def apply(key: (Int, Long)): Long = getOrElseUpdate(
-        key,
-        key match {
-          case (0, _)     => 1
-          case (blink, 0) => countUsingMemo(blink - 1, 1)
-          case (blink, num) if num.toString.length % 2 == 0 =>
-            val split = num.toString.splitAt(num.toString.length / 2)
-            countUsingMemo(blink - 1, split._1.toLong) + countUsingMemo(blink - 1, split._2.toLong)
-          case (blink, num) => countUsingMemo(blink - 1, num * 2024)
-        }
-      )
+    lazy val countUsingMemo: ((Int, Long)) => Long = {
+      val memo = new mutable.HashMap[(Int, Long), Long]()
+      key =>
+        memo.getOrElseUpdate(
+          key,
+          key match {
+            case (0, _)     => 1
+            case (blink, 0) => countUsingMemo(blink - 1, 1)
+            case (blink, num) if num.toString.length % 2 == 0 =>
+              val split = num.toString.splitAt(num.toString.length / 2)
+              countUsingMemo(blink - 1, split._1.toLong) + countUsingMemo(blink - 1, split._2.toLong)
+            case (blink, num) => countUsingMemo(blink - 1, num * 2024)
+          }
+        )
     }
 
     def part1Memo(in: String): Long = in.split("\\s+").map(_.toInt).map(countUsingMemo(25, _)).sum

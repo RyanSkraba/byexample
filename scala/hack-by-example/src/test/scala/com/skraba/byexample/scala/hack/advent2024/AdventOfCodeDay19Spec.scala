@@ -30,12 +30,14 @@ class AdventOfCodeDay19Spec extends AnyFunSpecLike with Matchers with BeforeAndA
     def part1(in: String*): Long = {
       val (towels, designs) = parse(in: _*)
       // Memo of whether a substring can be split into towels or not.
-      lazy val split: String => Boolean = new mutable.HashMap[String, Boolean]() {
-        override def apply(design: String): Boolean = getOrElseUpdate(
-          design,
-          if (design.isEmpty) true
-          else towels.filter(design.startsWith).map(_.length).map(design.substring).exists(split)
-        )
+      lazy val split: String => Boolean = {
+        val memo = new mutable.HashMap[String, Boolean]()
+        design =>
+          memo.getOrElseUpdate(
+            design,
+            if (design.isEmpty) true
+            else towels.filter(design.startsWith).map(_.length).map(design.substring).exists(split)
+          )
       }
       designs.map(split).count(identity)
     }
@@ -64,12 +66,14 @@ class AdventOfCodeDay19Spec extends AnyFunSpecLike with Matchers with BeforeAndA
     def part2(in: String*): Long = {
       val (towels, designs) = parse(in: _*) match { case (t, d) => (t.toSeq, d) }
       // Memo of how many towels a substring can be split into
-      lazy val split: String => Long = new mutable.HashMap[String, Long]() {
-        override def apply(design: String): Long = getOrElseUpdate(
-          design,
-          if (design.isEmpty) 1L
-          else towels.filter(design.startsWith).map(_.length).map(design.substring).map(split).sum
-        )
+      lazy val split: String => Long = {
+        val memo = new mutable.HashMap[String, Long]()
+        design =>
+          memo.getOrElseUpdate(
+            design,
+            if (design.isEmpty) 1L
+            else towels.filter(design.startsWith).map(_.length).map(design.substring).map(split).sum
+          )
       }
       designs.map(split).sum
     }

@@ -71,16 +71,18 @@ class AdventOfCodeDay21Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       // Memo from a syllable (ending with A) and the number of desired iterations to the number of keystrokes
       // necessary to enter it.  ("^^>A", 4) -> is means four more robots need to be manipulated and the desired end
       // sequence is "^^>A"
-      lazy val memo: ((String, Int)) => Long = new mutable.HashMap[(String, Int), Long]() {
-        override def apply(key: (String, Int)): Long = getOrElseUpdate(
-          key,
-          key match {
-            case (code, 0) => code.length
-            case (code, n) => dirKey(code).map(memo(_, n - 1)).sum
-          }
-        )
+      lazy val syllableToIterations: ((String, Int)) => Long = {
+        val memo = new mutable.HashMap[(String, Int), Long]()
+        key =>
+          memo.getOrElseUpdate(
+            key,
+            key match {
+              case (code, 0) => code.length
+              case (code, n) => dirKey(code).map(syllableToIterations(_, n - 1)).sum
+            }
+          )
       }
-      in.map(code => code.filter(_.isDigit).toLong * numKey(code).map(memo(_, robots)).sum).sum
+      in.map(code => code.filter(_.isDigit).toLong * numKey(code).map(syllableToIterations(_, robots)).sum).sum
     }
   }
 
