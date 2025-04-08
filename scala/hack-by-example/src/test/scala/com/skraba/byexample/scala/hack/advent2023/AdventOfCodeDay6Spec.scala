@@ -26,7 +26,7 @@ class AdventOfCodeDay6Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
 
     /** The quadratic formula. */
     def quadratic(a: Long, b: Long, c: Long): (Double, Double) = {
-      val dsc = math.sqrt(b * b - 4 * a * c)
+      val dsc = math.sqrt(b * b - 4.0 * a * c)
       val root1 = (-b - dsc) / (2 * a)
       val root2 = (-b + dsc) / (2 * a)
       (math.min(root1, root2), math.max(root1, root2))
