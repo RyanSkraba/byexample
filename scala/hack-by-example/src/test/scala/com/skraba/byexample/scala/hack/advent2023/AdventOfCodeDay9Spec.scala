@@ -29,11 +29,11 @@ class AdventOfCodeDay9Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
     }
 
     def part1(in: String*): Long = {
-      in.map(_.split("\\s+").map(_.toLong)).map(part1extrapolate(_: _*)).sum
+      in.map(_.split("\\s+").toSeq.map(_.toLong)).map(part1extrapolate(_: _*)).sum
     }
 
     def part2(in: String*): Long = {
-      in.map(_.split("\\s+").reverse.map(_.toLong))
+      in.map(_.split("\\s+").toSeq.reverse.map(_.toLong))
         .map(part1extrapolate(_: _*))
         .sum
     }

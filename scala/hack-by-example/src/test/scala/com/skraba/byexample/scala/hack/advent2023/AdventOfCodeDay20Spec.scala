@@ -56,7 +56,7 @@ class AdventOfCodeDay20Spec extends AnyFunSpecLike with Matchers with BeforeAndA
     object Module {
       def apply(in: String): Module = {
         val Array(name, output, _*) = in.split(" -> ")
-        val outputs = output.split("[, ]+")
+        val outputs = output.split("[, ]+").toSeq
         if (name.startsWith("%"))
           FlipFlop(name.drop(1), outputs)
         else if (name.startsWith("&")) {

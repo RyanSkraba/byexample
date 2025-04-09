@@ -59,7 +59,7 @@ class AdventOfCodeDay25Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |1-12
         |12
         |1=
-        |122""".stripMargin.split("\n")
+        |122""".trimSplit
 
     val inputDecimal =
       Seq(1747, 906, 198, 11, 201, 31, 1257, 32, 353, 107, 7, 3, 37)

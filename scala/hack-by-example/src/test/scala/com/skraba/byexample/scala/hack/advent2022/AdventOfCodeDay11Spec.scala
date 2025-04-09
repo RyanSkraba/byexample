@@ -105,7 +105,7 @@ class AdventOfCodeDay11Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |  Test: divisible by 17
         |    If true: throw to monkey 0
         |    If false: throw to monkey 1
-        |""".stripMargin.split("\n").filter(_.nonEmpty)
+        |""".trimSplit.filter(_.nonEmpty)
 
     val monkeys = List(
       Monkey(23, 2, 3, w => w * 19, Seq(79, 98)),

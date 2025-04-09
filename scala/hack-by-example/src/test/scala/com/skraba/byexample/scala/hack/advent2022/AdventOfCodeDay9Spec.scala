@@ -74,7 +74,7 @@ class AdventOfCodeDay9Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
         |D 1
         |L 5
         |R 2
-        |""".stripMargin.split("\n").filter(_.nonEmpty)
+        |""".trimSplit
 
     it("should pull ropes in the right direction") {
       Knot(0, 0).pulled(Knot(0, 2)) shouldBe Knot(0, 1)
@@ -120,7 +120,7 @@ class AdventOfCodeDay9Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
         |D 10
         |L 25
         |U 20
-        |""".stripMargin.split("\n").filter(_.nonEmpty)
+        |""".trimSplit
 
     it("should match the puzzle description") {
       part1(example: _*) shouldBe 88

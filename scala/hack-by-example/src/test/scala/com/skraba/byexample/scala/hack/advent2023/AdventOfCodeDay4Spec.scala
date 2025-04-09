@@ -29,7 +29,7 @@ class AdventOfCodeDay4Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
       *   A sequence containing two sets: drawn numbers and the actual numbers
       */
     def parse(in: String): Seq[Set[String]] =
-      in.split("[:|]").drop(1).map(_.trim.split("\\s+").toSet)
+      in.split("[:|]").toSeq.drop(1).map(_.trim.split("\\s+").toSet)
 
     def part1(in: String*): Long = in
       .map(parse)

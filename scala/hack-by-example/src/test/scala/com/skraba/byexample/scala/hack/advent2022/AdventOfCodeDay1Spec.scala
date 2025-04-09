@@ -59,7 +59,7 @@ class AdventOfCodeDay1Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
         |8000
         |9000
         |
-        |10000""".stripMargin.split("\n")
+        |10000""".trimSplit
 
     it("should match the puzzle description") {
       elfWithMostCalories(input: _*) shouldBe 24000

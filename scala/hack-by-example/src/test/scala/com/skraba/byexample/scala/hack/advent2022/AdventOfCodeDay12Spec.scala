@@ -90,7 +90,7 @@ class AdventOfCodeDay12Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |accszExk
         |acctuvwj
         |abdefghi
-        |""".stripMargin.split("\n").filter(_.nonEmpty)
+        |""".trimSplit
 
     it("should match the puzzle description") {
       val map = Terrain(input: _*)

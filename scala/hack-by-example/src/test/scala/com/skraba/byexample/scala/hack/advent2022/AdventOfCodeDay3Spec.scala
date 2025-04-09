@@ -48,7 +48,7 @@ class AdventOfCodeDay3Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
         |PmmdzqPrVvPwwTWBwg
         |wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn
         |ttgJtRGJQctTZtZT
-        |CrZsJsPPZsGzwwsLwLmpwMDw""".stripMargin.split("\n")
+        |CrZsJsPPZsGzwwsLwLmpwMDw""".trimSplit
 
     it("should match the puzzle description") {
       findDup(input(0)) shouldBe Some('p')

@@ -88,7 +88,7 @@ class AdventOfCodeDay8Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
         |65332
         |33549
         |35390
-        |""".stripMargin.split("\n").filter(_.nonEmpty)
+        |""".trimSplit
 
     it("should match the puzzle description") {
       visibilityCount(input.length, input.head.length, isVisibleNaive(input: _*)) shouldBe 21

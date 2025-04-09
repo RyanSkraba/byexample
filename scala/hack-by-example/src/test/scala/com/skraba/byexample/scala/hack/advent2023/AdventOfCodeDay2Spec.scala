@@ -31,7 +31,8 @@ class AdventOfCodeDay2Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
     object Game {
       def apply(in: String): Game =
         in.dropWhile(!_.isDigit).span(_.isDigit) match {
-          case (id, rest) => Game(id.toLong, rest.dropWhile(!_.isDigit).split(';').map(_.split(',')).map(Sample(_)))
+          case (id, rest) =>
+            Game(id.toLong, rest.dropWhile(!_.isDigit).split(';').toSeq.map(_.split(',').toSeq).map(Sample(_)))
         }
 
       def parse(in: String*): Seq[Game] = in.filter(_.nonEmpty).map(Game.apply)

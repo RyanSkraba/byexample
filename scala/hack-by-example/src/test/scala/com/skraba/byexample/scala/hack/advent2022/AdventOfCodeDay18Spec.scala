@@ -97,7 +97,7 @@ class AdventOfCodeDay18Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |3,2,5
         |2,1,5
         |2,3,5
-        |""".stripMargin.split("\n").filter(_.nonEmpty)
+        |""".trimSplit
 
     it("should match the puzzle description") {
       part1(Pos.parse("1,1,1", "2,1,1")) shouldBe 10

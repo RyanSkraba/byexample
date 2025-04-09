@@ -133,7 +133,7 @@ class AdventOfCodeDay23Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |#.###..
         |##.#.##
         |.#..#..
-        |""".stripMargin.split("\n").filter(_.nonEmpty)
+        |""".trimSplit
 
     it("should iterate correctly on the small example") {
       val simple =
@@ -142,7 +142,7 @@ class AdventOfCodeDay23Spec extends AnyFunSpecLike with Matchers with BeforeAndA
           |..#..
           |.....
           |..##.
-          |.....""".stripMargin.split("\n").filter(_.nonEmpty)
+          |.....""".trimSplit
 
       val plan0 = Plan(simple: _*)
       plan0.mkString shouldBe

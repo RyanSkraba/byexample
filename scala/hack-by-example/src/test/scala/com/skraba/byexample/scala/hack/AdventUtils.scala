@@ -116,7 +116,7 @@ class AdventUtils {
 
     // If the file exists but was encrypted, then attempt to decrypt it with the environment variable.
     if (in.headOption.exists(_.startsWith(AdventOfCodeEncrypted))) {
-      decrypt(in.dropWhile(_.startsWith("!!")).mkString).split("\n")
+      decrypt(in.dropWhile(_.startsWith("!!")).mkString).split("\n").toIndexedSeq
     } else {
 
       // It's not encrypted, but we'll try to overwrite it if we can find it in the filesystem

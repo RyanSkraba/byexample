@@ -25,7 +25,7 @@ class AdventOfCodeDay7Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
   object Solution {
 
     def parse(in: String): (Long, Seq[Long]) = in.split(':') match {
-      case Array(k, v) => (k.trim.toLong, v.trim.split(' ').map(_.toLong))
+      case Array(k, v) => (k.trim.toLong, v.trim.split(' ').map(_.toLong).toSeq)
     }
 
     def part1(in: String*): Long = {

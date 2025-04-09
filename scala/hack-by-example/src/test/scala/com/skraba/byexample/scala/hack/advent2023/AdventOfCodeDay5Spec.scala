@@ -45,7 +45,7 @@ class AdventOfCodeDay5Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
         }
 
       // Clean up the seeds values
-      val seeds = seedLine.head.split("\\s").drop(1).map(_.toLong)
+      val seeds = seedLine.head.split("\\s").toSeq.drop(1).map(_.toLong)
 
       // Get the maps by name
       val mapByName = maps.map(x => (x._1.head, x._2)).toMap
@@ -126,10 +126,7 @@ class AdventOfCodeDay5Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
     }
 
     def from(in: Array[Array[Long]]): Intervals = {
-      Intervals(
-        in.map((iv: Array[Long]) => Interval(iv(1), iv(2), iv.head))
-          .sortBy(_.src)
-      )
+      Intervals(in.map((iv: Array[Long]) => Interval(iv(1), iv(2), iv.head)).sortBy(_.src).toSeq)
     }
 
     def part2slow(in: String*): Long = {

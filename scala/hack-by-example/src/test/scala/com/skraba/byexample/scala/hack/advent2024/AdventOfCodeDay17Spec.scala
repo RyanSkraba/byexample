@@ -54,7 +54,7 @@ class AdventOfCodeDay17Spec extends AnyFunSpecLike with Matchers with BeforeAndA
             a = a.split(" ").last.toInt,
             b = b.split(" ").last.toInt,
             c = c.split(" ").last.toInt,
-            program = program.split(" ").last.split(",").map(_.toInt)
+            program = program.split(" ").last.split(",").map(_.toInt).toSeq
           )
       }
     }

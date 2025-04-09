@@ -105,7 +105,7 @@ class AdventOfCodeDay13Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |
         |[1,[2,[3,[4,[5,6,7]]]],8,9]
         |[1,[2,[3,[4,[5,6,0]]]],8,9]
-        |""".stripMargin.split("\n").filter(_.nonEmpty)
+        |""".trimSplit.filter(_.nonEmpty)
 
     it("should test the parse function") {
       val signals = input.map(Signal(_))

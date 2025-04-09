@@ -63,7 +63,7 @@ class AdventOfCodeDay1Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
         |4nineeightseven2
         |zoneight234
         |7pqrstsixteen
-        |""".stripMargin.split("\n")
+        |""".trimSplit
 
     it("should match the puzzle description") {
       extractCalibration(input: _*) shouldBe 142

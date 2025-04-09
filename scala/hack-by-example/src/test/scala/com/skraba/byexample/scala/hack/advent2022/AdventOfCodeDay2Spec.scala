@@ -79,7 +79,7 @@ class AdventOfCodeDay2Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
     val input =
       """A Y
         |B X
-        |C Z""".stripMargin.split("\n")
+        |C Z""".trimSplit
 
     it("should match the puzzle description") {
       naiveStrategyGuide1(input: _*) shouldBe 15

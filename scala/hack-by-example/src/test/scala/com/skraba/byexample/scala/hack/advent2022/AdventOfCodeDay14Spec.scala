@@ -84,7 +84,7 @@ class AdventOfCodeDay14Spec extends AnyFunSpecLike with Matchers with BeforeAndA
           x <- (x1 min x2) to (x1 max x2);
           y <- (y1 min y2) to (y1 max y2)
         ) plan(y)(x) = '#'
-        Cave(plan.map(_.mkString), offsetX, offsetY)
+        Cave(plan.map(_.mkString).toSeq, offsetX, offsetY)
       }
 
       /** @param in
@@ -130,7 +130,7 @@ class AdventOfCodeDay14Spec extends AnyFunSpecLike with Matchers with BeforeAndA
     val input =
       """498,4 -> 498,6 -> 496,6
         |503,4 -> 502,4 -> 502,9 -> 494,9
-        |""".stripMargin.split("\n").filter(_.nonEmpty)
+        |""".trimSplit
 
     it("should match the puzzle description") {
 

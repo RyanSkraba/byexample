@@ -95,7 +95,7 @@ class AdventOfCodeDay22Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         val cc = in.dropRight(1).map(row => row + " " * (width - row.length)) :+ (" " * width)
         (
           Pos(x = cc.head.indexOf('.'), plan = Plan(cc)),
-          in.last.split("((?<=\\D)|(?=\\D))").filter(_.nonEmpty)
+          in.last.split("((?<=\\D)|(?=\\D))").toSeq.filter(_.nonEmpty)
         )
       }
     }

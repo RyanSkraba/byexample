@@ -56,7 +56,7 @@ class AdventOfCodeDay10Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       """noop
         |addx 3
         |addx -5
-        |""".stripMargin.split("\n").filter(_.nonEmpty)
+        |""".trimSplit
     lazy val input = puzzleInput("Day10InputSmall.txt").filter(_.nonEmpty)
 
     it("should match the puzzle description") {

@@ -92,7 +92,7 @@ class AdventOfCodeDay7Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
         |8033020 d.log
         |5626152 d.ext
         |7214296 k
-        |""".stripMargin.split("\n")
+        |""".trimSplit
 
     it("should match the puzzle description") {
       // Drop the first artificial Dir

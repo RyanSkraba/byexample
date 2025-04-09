@@ -73,7 +73,7 @@ class AdventOfCodeDay5Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
         |move 3 from 1 to 3
         |move 2 from 2 to 1
         |move 1 from 1 to 2
-        |""".stripMargin.split("\n")
+        |""".stripMargin.split("\n").toSeq
 
     it("should match the puzzle description") {
       val crates = parseCrates(input: _*)

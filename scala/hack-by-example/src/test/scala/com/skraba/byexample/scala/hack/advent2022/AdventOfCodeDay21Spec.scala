@@ -112,7 +112,7 @@ class AdventOfCodeDay21Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         |lgvd: ljgn * ptdq
         |drzm: hmdt - zczc
         |hmdt: 32
-        |""".stripMargin.split("\n").filter(_.nonEmpty)
+        |""".trimSplit
 
     it("should parse monkeys correctly") {
       parse(input.head) shouldBe JobMnk("root", "pppw", "sjmn", '+')
