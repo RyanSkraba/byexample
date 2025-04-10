@@ -18,7 +18,7 @@ class ScalatraGoServer(args: Seq[String], timeout: Duration = 10.seconds) extend
   private[this] val started = "Standalone server started: (.*)\n".r
 
   /** Run a server in the background, capturing the base URI. */
-  val (server: Future[String], base: Uri) = Streamable.closing(new ByteArrayOutputStream()) { out =>
+  private val (server: Future[String], base: Uri) = Streamable.closing(new ByteArrayOutputStream()) { out =>
     (
       Future {
         Console.withOut(out) {

@@ -12,7 +12,7 @@ import org.scalatra.ScalatraServlet
 object ScalatraGo extends DocoptCliGo {
   override lazy val Cli: String = "ScalatraGo"
   override lazy val Version: String = "0.0.1-SNAPSHOT"
-  override lazy val Tasks: Seq[Task] = Seq(HelloWorldTask, ServeJarResourceTask)
+  override lazy val Tasks: Seq[Task] = Seq(HelloWorldTask, ServeJarResourceTask, ServeFileTask)
   override lazy val Doc: String = "A driver to launch a web server.\n\n" + SimpleDoc
 
   /** Internal flag to help turn off any running standalone servers. */
@@ -43,7 +43,7 @@ object ScalatraGo extends DocoptCliGo {
     get("/_health") { true }
 
     get("/_shutdown") {
-      Running = false;
+      Running = false
       "Goodbye"
     }
   }
