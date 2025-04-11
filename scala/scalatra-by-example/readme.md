@@ -7,7 +7,7 @@ in an uber jar.
 Running the driver
 ------------------------------------------------------------------------------
 
-This project includes an [example executable](src/main/java/com/skraba/byexample/scala/markd/MarkdGo.java) that can perform some tasks serving pages.
+This project includes an [example executable](src/main/scala/com/skraba/byexample/scalatra/ScalatraGo.scala) that can perform some tasks serving pages.
 
 ```bash
 # Build and create an alias for using the uber jar.
