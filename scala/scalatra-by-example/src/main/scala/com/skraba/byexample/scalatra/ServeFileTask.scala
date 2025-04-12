@@ -40,7 +40,7 @@ object ServeFileTask extends Task {
       val requestPath = dir + request.getRequestURI.substring(request.getServletPath.length)
 
       Path(requestPath) match {
-        case p if !p.exists => halt(404, "Not found")
+        case p if !p.exists     => halt(404, "Not found")
         case p if p.isDirectory => redirect(request.getRequestURI + "/index.html")
         case p if p.isFile =>
           contentType =
