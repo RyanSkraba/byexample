@@ -94,7 +94,7 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
                         |  git -C <TMP> add link.md &&
                         |      git -C <TMP> difftool --staged
                         |  git -C <TMP> add link.md &&
-                        |      git -C <TMP> commit -m "feat(status): Add 'Example link' to the weekly status"
+                        |      git -C <TMP> commit -m "doc(status): Add 'Example link' to the weekly status"
                         |
                         |""".stripMargin
 
@@ -184,7 +184,7 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
                         |  git -C <TMP> add pr.md &&
                         |      git -C <TMP> difftool --staged
                         |  git -C <TMP> add pr.md &&
-                        |      git -C <TMP> commit -m "feat(status): PR AVRO-4321 Describe the PR"
+                        |      git -C <TMP> commit -m "doc(status): PR AVRO-4321 Describe the PR"
                         |
                         |""".stripMargin
 
@@ -262,7 +262,7 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
                         |  git -C <TMP> add pr.md &&
                         |      git -C <TMP> difftool --staged
                         |  git -C <TMP> add pr.md &&
-                        |      git -C <TMP> commit -m "feat(status): PR AVRO-4321 Describe the PR"
+                        |      git -C <TMP> commit -m "doc(status): PR AVRO-4321 Describe the PR"
                         |
                         |""".stripMargin
 

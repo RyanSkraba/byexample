@@ -292,7 +292,7 @@ def clean(
   writeGtd(
     GettingThingsDone(StatusContents, ProjectParserCfg),
     out,
-    Some("feat(status): Beautify the document"),
+    Some("doc(status): Beautify the document"),
     compressTable = compress.value
   )
 }
@@ -339,7 +339,7 @@ def addWeek(
     gtdUpdated,
     out,
     Some(
-      s"feat(status): $verb new week ${gtdUpdated.topWeek.map(_.title).getOrElse("")}"
+      s"doc(status): $verb new week ${gtdUpdated.topWeek.map(_.title).getOrElse("")}"
     )
   )
 }
@@ -370,7 +370,7 @@ def link(
 
   val gtdUpdated = gtdWithLink.addTopWeekToDo("TODO", s"[$linkText][$linkRef]", MaybeToDo)
 
-  writeGtd(gtdUpdated, out, Some(s"feat(status): Add '$linkText' to the weekly status"))
+  writeGtd(gtdUpdated, out, Some(s"doc(status): Add '$linkText' to the weekly status"))
 }
 
 // ==========================================================================
@@ -419,7 +419,7 @@ def pr(
     TextToToDoStates.getOrElse(status, MaybeToDo)
   )
 
-  writeGtd(gtdUpdated, out, Some(s"feat(status): PR ${fullIssue.orElse(fullPr).getOrElse("")} $description"))
+  writeGtd(gtdUpdated, out, Some(s"doc(status): PR ${fullIssue.orElse(fullPr).getOrElse("")} $description"))
 }
 
 // ==========================================================================
@@ -438,7 +438,7 @@ def stat(
 ): Unit = {
   // TODO: If date is in a YYYY-MM-DD format, then to the correct date
   val gtdUpdated = Gtd.updateTopWeekStats(rowStat, cell, date)
-  writeGtd(gtdUpdated, out, Some(s"feat(status): Update $rowStat"))
+  writeGtd(gtdUpdated, out, Some(s"doc(status): Update $rowStat"))
 }
 
 // ==========================================================================
@@ -466,7 +466,7 @@ def statsToday(
   writeGtd(
     gtdUpdated,
     out,
-    Some(s"feat(status): Update ${stats.grouped(2).map(_.head).mkString(",")}")
+    Some(s"doc(status): Update ${stats.grouped(2).map(_.head).mkString(",")}")
   )
 }
 
