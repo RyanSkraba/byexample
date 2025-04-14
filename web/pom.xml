@@ -15,6 +15,7 @@
 
   <modules>
     <module>webapp-by-example</module>
+    <module>webclient-by-example</module>
   </modules>
 
   <properties>
