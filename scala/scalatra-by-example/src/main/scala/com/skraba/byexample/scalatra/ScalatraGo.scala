@@ -7,6 +7,8 @@ import org.eclipse.jetty.ee10.webapp.WebAppContext
 import org.eclipse.jetty.server.Server
 import org.scalatra.ScalatraServlet
 
+import java.util.concurrent.atomic.AtomicBoolean
+
 /** A driver for running a Scalatra web server.
   */
 object ScalatraGo extends DocoptCliGo {
@@ -14,9 +16,6 @@ object ScalatraGo extends DocoptCliGo {
   override lazy val Version: String = "0.0.1-SNAPSHOT"
   override lazy val Tasks: Seq[Task] = Seq(HelloWorldTask, ServeJarResourceTask, ServeFileTask)
   override lazy val Doc: String = "A driver to launch a web server.\n\n" + SimpleDoc
-
-  /** Internal flag to help turn off any running standalone servers. */
-  private[this] var Running = true
 
   /** Runs a standalone servlet server that serves the single servlet.
     * @param port
@@ -30,11 +29,12 @@ object ScalatraGo extends DocoptCliGo {
     context.setContextPath("/")
     context.addServlet(srvlet, "/*")
     context.setBaseResourceAsString("/")
+    val running = new AtomicBoolean(true)
+    context.setAttribute("__running", running)
     server.setHandler(context)
-    Running = true
     server.start()
     if (port == 0) println(s"Standalone server started: ${server.getURI}")
-    while (Running) Thread.sleep(1000L)
+    while (running.get()) Thread.sleep(1000L)
     server.stop()
   }
 
@@ -43,8 +43,12 @@ object ScalatraGo extends DocoptCliGo {
     get("/_health") { true }
 
     get("/_shutdown") {
-      Running = false
-      "Goodbye"
+      getServletContext.getAttribute("__running") match {
+        case running: AtomicBoolean =>
+          running.set(false)
+          "Goodbye"
+        case other => halt(404, s"Shutdown failed ($other).")
+      }
     }
   }
 }
