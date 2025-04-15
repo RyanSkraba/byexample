@@ -7,10 +7,7 @@ import sttp.model.StatusCodes
 import scala.reflect.io.Directory
 
 /** Unit tests for [[ServeFileTask]]. */
-class ServeFileTaskSpec
-    extends DocoptCliGoSpec(ScalatraGo, Some(ServeFileTask))
-    with BeforeAndAfterAll
-    with StatusCodes {
+class ServeFileTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(ServeFileTask)) with StatusCodes {
 
   /** A local temporary directory for test file storage. */
   val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)

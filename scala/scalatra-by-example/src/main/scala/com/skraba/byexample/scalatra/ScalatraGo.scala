@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 object ScalatraGo extends DocoptCliGo {
   override lazy val Cli: String = "ScalatraGo"
   override lazy val Version: String = "0.0.1-SNAPSHOT"
-  override lazy val Tasks: Seq[Task] = Seq(HelloWorldTask, ServeJarResourceTask, ServeFileTask)
+  override lazy val Tasks: Seq[Task] = Seq(HelloWorldTask, RestTask, ServeJarResourceTask, ServeFileTask)
   override lazy val Doc: String = "A driver to launch a web server.\n\n" + SimpleDoc
 
   /** Runs a standalone servlet server that serves the single servlet.
