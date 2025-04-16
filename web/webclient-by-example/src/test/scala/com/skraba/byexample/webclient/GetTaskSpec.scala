@@ -1,13 +1,13 @@
 package com.skraba.byexample.webclient
 
-import com.skraba.byexample.scalatra.{ScalatraGoServer, ServeJarResourceTask}
+import com.skraba.byexample.scalatra.{ScalatraGoServer, RestTask}
 import com.skraba.docoptcli.DocoptCliGoSpec
 import sttp.model.StatusCodes
 
 /** Unit tests for [[GetTaskSpec]]. */
 class GetTaskSpec extends DocoptCliGoSpec(WebClientGo, Some(GetTask)) with StatusCodes {
 
-  val Srv = new ScalatraGoServer(Seq(ServeJarResourceTask.Cmd))
+  val Srv = new ScalatraGoServer(Seq(RestTask.Cmd))
 
   override def afterAll(): Unit = {
     super.afterAll()
@@ -19,24 +19,24 @@ class GetTaskSpec extends DocoptCliGoSpec(WebClientGo, Some(GetTask)) with Statu
 
     itShouldThrowOnUnknownFlag()
 
-    // TODO: Imcompatible flags, missing arguments
+    itShouldThrowOnMissingOpt(Seq())
+    itShouldThrowOnMissingOpt(Seq("--pekko"))
+    itShouldThrowOnMissingOpt(Seq("--sttp"))
+
+    // TODO: Is this incompatible or missing?
+    itShouldThrowOnMissingOpt(Seq("--pekko", "--sttp"))
+
+    // TODO: Incompatible, not missing
+    itShouldThrowOnMissingOpt(Seq("--pekko", "--sttp", "https://example.com"))
   }
 
   for (cmd <- Seq("--sttp", /* "--pekko" ,*/ "")) {
     describe(s"${Cli.Cli} $TaskCmd ${if (cmd.nonEmpty) s"with $cmd" else "with default"}") {
       it("should get a URI") {
-        val args =
-          if (cmd.nonEmpty) Seq(GetTask.Cmd, cmd, Srv.base.withWholePath("index.html"))
-          else Seq(GetTask.Cmd, Srv.base.withWholePath("index.html"))
-        withGoMatching(args: _*) { case (stdout, stderr) =>
+        val args = if (cmd.nonEmpty) Seq(GetTask.Cmd, cmd) else Seq(GetTask.Cmd)
+        withGoMatching(args :+ Srv.base.withWholePath("product/1"): _*) { case (stdout, stderr) =>
           stderr shouldBe empty
-          stdout shouldBe
-            """<html>
-              |<body>
-              |<h1>Hello world!</h1>
-              |</body>
-              |</html>
-              |""".stripMargin
+          stdout shouldBe """{"id": 1, "name": "one"}"""
         }
       }
     }

@@ -37,8 +37,7 @@ object RestTask extends Task {
       """[
         |  {"id": 1, "name": "one"},
         |  {"id": 2, "name": "two"}
-        |]
-        |""".stripMargin
+        |]""".stripMargin
     }
 
     get("/product/:id") {

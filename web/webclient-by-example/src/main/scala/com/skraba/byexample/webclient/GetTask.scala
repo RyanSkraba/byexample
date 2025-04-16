@@ -31,7 +31,7 @@ object GetTask extends Task {
     val uri = opts.getString("URI")
     Seq("--sttp", "--pekko").find(opts.getBoolean) match {
       case Some("--pekko") => pekkoGet(uri)
-      case _               => println(sttpGet(uri).body)
+      case _               => print(sttpGet(uri).body)
     }
   }
 }
