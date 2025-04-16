@@ -36,8 +36,7 @@ class RestTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(RestTask)) with Stat
         """[
           |  {"id": 1, "name": "one"},
           |  {"id": 2, "name": "two"}
-          |]
-          |""".stripMargin
+          |]""".stripMargin
     }
 
     it("should get individual product 1") {
