@@ -1,7 +1,6 @@
 package com.skraba.byexample.scalatra
 
 import com.skraba.docoptcli.DocoptCliGoSpec
-import org.scalatest.BeforeAndAfterAll
 import sttp.model.StatusCodes
 
 import scala.reflect.io.Directory

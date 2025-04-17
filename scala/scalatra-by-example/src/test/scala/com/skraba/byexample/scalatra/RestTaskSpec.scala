@@ -1,10 +1,7 @@
 package com.skraba.byexample.scalatra
 
 import com.skraba.docoptcli.DocoptCliGoSpec
-import org.scalatest.BeforeAndAfterAll
 import sttp.model.StatusCodes
-
-import scala.reflect.io.Directory
 
 /** Unit tests for [[RestTask]]. */
 class RestTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(RestTask)) with StatusCodes {

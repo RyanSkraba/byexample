@@ -30,7 +30,7 @@ class GetTaskSpec extends DocoptCliGoSpec(WebClientGo, Some(GetTask)) with Statu
     itShouldThrowOnMissingOpt(Seq("--pekko", "--sttp", "https://example.com"))
   }
 
-  for (cmd <- Seq("--sttp", /* "--pekko" ,*/ "")) {
+  for (cmd <- Seq("--sttp", "--pekko", "")) {
     describe(s"${Cli.Cli} $TaskCmd ${if (cmd.nonEmpty) s"with $cmd" else "with default"}") {
       it("should get a URI") {
         val args = if (cmd.nonEmpty) Seq(GetTask.Cmd, cmd) else Seq(GetTask.Cmd)
