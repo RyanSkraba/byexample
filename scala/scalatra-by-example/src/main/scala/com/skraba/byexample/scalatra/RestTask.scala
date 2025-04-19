@@ -2,6 +2,7 @@ package com.skraba.byexample.scalatra
 
 import com.skraba.byexample.scalatra.ScalatraGo.TestableServlet
 import com.skraba.docoptcli.DocoptCliGo.Task
+import play.api.libs.json.{JsArray, Json, OFormat}
 
 import scala.collection.mutable
 
@@ -26,10 +27,8 @@ object RestTask extends Task {
 
   def go(opts: TaskOptions): Unit = ScalatraGo.runStandaloneServer(opts.getInt("--port", 8080), classOf[Srvlet])
 
-  case class Product(id: Int, name: String) {
-    // TODO: JSON binding maybe
-    lazy val json: String = s"""{"id": $id, "name": "$name"}"""
-  }
+  case class Product(id: Int, name: String)
+  private implicit val productFormat: OFormat[Product] = Json.format[Product]
 
   val db: mutable.Map[Int, Product] = mutable.SortedMap(1 -> Product(1, "one"), 2 -> Product(2, "two"))
 
@@ -40,13 +39,12 @@ object RestTask extends Task {
     }
 
     get("/product/") {
-      db.values.map("  " + _.json).mkString("[\n", ",\n", "\n]")
+      JsArray(db.values.map(Json.toJson(_)).toSeq)
     }
 
     get("/product/:id") {
       val paramId = params("id")
-      val id = paramId.toIntOption.getOrElse(halt(404, s"Product $paramId not found"))
-      db.getOrElse(id, halt(404, s"Product $paramId not found")).json
+      Json.toJson(params("id").toIntOption.flatMap(db.get).getOrElse(halt(404, s"Product $paramId not found")))
     }
   }
 }

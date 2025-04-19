@@ -37,6 +37,10 @@
       <artifactId>scalatra-jakarta_${scala.binary.version}</artifactId>
       <version>${scalatra.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.typesafe.play</groupId>
+      <artifactId>play-json_${scala.binary.version}</artifactId>
+    </dependency>
 
     <!-- We want these embedded in the uber jar to run standalone -->
     <dependency>

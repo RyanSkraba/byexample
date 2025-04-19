@@ -1,6 +1,7 @@
 package com.skraba.byexample.scalatra
 
 import com.skraba.docoptcli.DocoptCliGoSpec
+import play.api.libs.json.Json
 import sttp.model.StatusCodes
 
 /** Unit tests for [[RestTask]]. */
@@ -29,23 +30,24 @@ class RestTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(RestTask)) with Stat
     it("should get all products") {
       val response = Srv.get("product/")
       response.code shouldBe Ok
-      response.body shouldBe
+      Json.parse(response.body) shouldBe Json.parse(
         """[
           |  {"id": 1, "name": "one"},
           |  {"id": 2, "name": "two"}
           |]""".stripMargin
+      )
     }
 
     it("should get individual product 1") {
       val response = Srv.get("product/1")
       response.code shouldBe Ok
-      response.body shouldBe """{"id": 1, "name": "one"}"""
+      Json.parse(response.body) shouldBe Json.parse("""{"id": 1, "name": "one"}""")
     }
 
     it("should get individual product 2") {
       val response = Srv.get("product/2")
       response.code shouldBe Ok
-      response.body shouldBe """{"id": 2, "name": "two"}"""
+      Json.parse(response.body) shouldBe Json.parse("""{"id": 2, "name": "two"}""")
     }
 
     it("should return 404 when a product isn't found") {
@@ -53,6 +55,11 @@ class RestTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(RestTask)) with Stat
       response.code shouldBe NotFound
       response.body shouldBe "Product 3 not found"
     }
-  }
 
+    it("should return 404 when an invalid product id is sent") {
+      val response = Srv.get("product/three")
+      response.code shouldBe NotFound
+      response.body shouldBe "Product three not found"
+    }
+  }
 }

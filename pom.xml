@@ -40,6 +40,7 @@
     <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
     <jetty.version>12.0.16</jetty.version>
     <junit5.version>5.11.4</junit5.version>
+    <play-json.version>2.10.3</play-json.version>
     <scala.binary.version>2.13</scala.binary.version>
     <scala.version>2.13.15</scala.version>
     <scalafmt.version>3.8.0</scalafmt.version>
@@ -105,6 +106,11 @@
         <groupId>org.scala-lang</groupId>
         <artifactId>scala-reflect</artifactId>
         <version>${scala.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.typesafe.play</groupId>
+        <artifactId>play-json_${scala.binary.version}</artifactId>
+        <version>${play-json.version}</version>
       </dependency>
 
       <!-- Tests -->

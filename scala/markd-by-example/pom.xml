@@ -20,8 +20,6 @@
     <scalafmt.conf.path>${project.basedir}/../../.scalafmt.conf</scalafmt.conf.path>
     <!-- Launcher class -->
     <exec.mainClass>com.skraba.byexample.scala.markd.MarkdGo</exec.mainClass>
-    <!-- other project dependency versions as properties -->
-    <play-json.version>2.10.3</play-json.version>
   </properties>
 
   <dependencies>
@@ -36,7 +34,6 @@
     <dependency>
       <groupId>com.typesafe.play</groupId>
       <artifactId>play-json_${scala.binary.version}</artifactId>
-      <version>${play-json.version}</version>
     </dependency>
 
     <dependency>
