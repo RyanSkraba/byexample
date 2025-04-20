@@ -50,16 +50,45 @@ class RestTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(RestTask)) with Stat
       Json.parse(response.body) shouldBe Json.parse("""{"id": 2, "name": "two"}""")
     }
 
-    it("should return 404 when a product isn't found") {
-      val response = Srv.get("product/3")
-      response.code shouldBe NotFound
-      response.body shouldBe "Product 3 not found"
+    describe("should return 400") {
+      it("when a product isn't found") {
+        val response = Srv.get("product/3")
+        response.code shouldBe NotFound
+        response.body shouldBe "Product 3 not found"
+      }
+      it("when an invalid product id is sent") {
+        val response = Srv.get("product/three")
+        response.code shouldBe NotFound
+        response.body shouldBe "Product three not found"
+      }
     }
 
-    it("should return 404 when an invalid product id is sent") {
-      val response = Srv.get("product/three")
-      response.code shouldBe NotFound
-      response.body shouldBe "Product three not found"
+    it("should create a product using post") {
+      val response = Srv.post("product/", """{"id": 3, "name": "three"}""")
+      response.code shouldBe Ok
+      response.body shouldBe "1"
+    }
+
+    describe("should return 400") {
+      // TODO: What about conflicting ids?
+      it("when invalid JSON is sent") {
+        val response = Srv.post("product/", """{{{{""")
+        response.code shouldBe BadRequest
+        response.body shouldBe ""
+        // TODO: Better errors?
+      }
+      it("when json is missing an attribute") {
+        val response = Srv.post("product/", """{"id": 3}""")
+        response.code shouldBe BadRequest
+        response.body shouldBe ""
+        // TODO: Better errors?
+      }
+      it("when json is missing another attribute") {
+        val response = Srv.post("product/", """{"name": "four"}""")
+        response.code shouldBe BadRequest
+        response.body shouldBe ""
+        // TODO: should this actually work with an assigned id?
+      }
     }
   }
 }

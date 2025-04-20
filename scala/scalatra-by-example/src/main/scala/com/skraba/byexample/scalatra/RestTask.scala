@@ -5,6 +5,7 @@ import com.skraba.docoptcli.DocoptCliGo.Task
 import play.api.libs.json.{JsArray, Json, OFormat}
 
 import scala.collection.mutable
+import scala.util.Try
 
 /** Command-line driver that launches a server that has a basic REST API. */
 object RestTask extends Task {
@@ -45,6 +46,12 @@ object RestTask extends Task {
     get("/product/:id") {
       val paramId = params("id")
       Json.toJson(params("id").toIntOption.flatMap(db.get).getOrElse(halt(404, s"Product $paramId not found")))
+    }
+
+    post("/product/") {
+      Try {
+        Json.fromJson(Json.parse(request.body)).map(product => db += product.id -> product).map(_ => "1").get
+      }.getOrElse(halt(400))
     }
   }
 }

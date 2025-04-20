@@ -42,4 +42,6 @@ class GetTaskSpec extends DocoptCliGoSpec(WebClientGo, Some(GetTask)) with Statu
       }
     }
   }
+
+  // TODO: Error handlings
 }
