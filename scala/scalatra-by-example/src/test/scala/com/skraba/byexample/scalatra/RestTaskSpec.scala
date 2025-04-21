@@ -38,23 +38,23 @@ class RestTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(RestTask)) with Stat
       )
     }
 
-    it("should get individual product 1") {
-      val response = Srv.get("product/1")
+    it("should get individual product 101") {
+      val response = Srv.get("product/101")
       response.code shouldBe Ok
       Json.parse(response.body) shouldBe Json.parse("""{"id": 1, "name": "one"}""")
     }
 
-    it("should get individual product 2") {
-      val response = Srv.get("product/2")
+    it("should get individual product 102") {
+      val response = Srv.get("product/102")
       response.code shouldBe Ok
       Json.parse(response.body) shouldBe Json.parse("""{"id": 2, "name": "two"}""")
     }
 
-    describe("should return 400") {
+    describe("should return 404") {
       it("when a product isn't found") {
-        val response = Srv.get("product/3")
+        val response = Srv.get("product/103")
         response.code shouldBe NotFound
-        response.body shouldBe "Product 3 not found"
+        response.body shouldBe "Product 103 not found"
       }
       it("when an invalid product id is sent") {
         val response = Srv.get("product/three")
@@ -66,7 +66,7 @@ class RestTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(RestTask)) with Stat
     it("should create a product using post") {
       val response = Srv.post("product/", """{"id": 3, "name": "three"}""")
       response.code shouldBe Ok
-      response.body shouldBe "1"
+      response.body shouldBe "103"
     }
 
     describe("should return 400") {
@@ -88,6 +88,21 @@ class RestTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(RestTask)) with Stat
         response.code shouldBe BadRequest
         response.body shouldBe ""
         // TODO: should this actually work with an assigned id?
+      }
+    }
+
+    it("should update a product using put") {
+      val response = Srv.put("product/102", """{"id": 2, "name": "deux"}""")
+      response.code shouldBe Ok
+      response.body shouldBe "102"
+      Json.parse(Srv.get("product/102").body) shouldBe Json.parse("""{"id": 2, "name": "deux"}""")
+    }
+
+    describe("should return 404 when updating a product") {
+      it("isn't found") {
+        val response = Srv.put("product/104", """{"id": 4, "name": "quatre"}""")
+        response.code shouldBe NotFound
+        response.body shouldBe "Product 104 not found"
       }
     }
   }

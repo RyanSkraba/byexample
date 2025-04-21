@@ -62,6 +62,10 @@ class ScalatraGoServer(args: Seq[String], timeout: Duration = 10.seconds) extend
   def post(path: String, payload: String): Response[String] =
     quickRequest.post(base.withWholePath(path)).body(payload).send(DefaultSyncBackend())
 
+  /** Make a PUT request to the server. */
+  def put(path: String, payload: String): Response[String] =
+    quickRequest.put(base.withWholePath(path)).body(payload).send(DefaultSyncBackend())
+
   /** Request the server be shut down. */
   def shutdown(): Unit = {
     val shutdown = quickRequest.get(uri"$base/_shutdown").send(DefaultSyncBackend())

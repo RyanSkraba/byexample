@@ -31,7 +31,7 @@ object RestTask extends Task {
   case class Product(id: Int, name: String)
   private implicit val productFormat: OFormat[Product] = Json.format[Product]
 
-  val db: mutable.Map[Int, Product] = mutable.SortedMap(1 -> Product(1, "one"), 2 -> Product(2, "two"))
+  val db: mutable.Map[Int, Product] = mutable.SortedMap(101 -> Product(1, "one"), 102 -> Product(2, "two"))
 
   class Srvlet extends TestableServlet {
 
@@ -43,15 +43,24 @@ object RestTask extends Task {
       JsArray(db.values.map(Json.toJson(_)).toSeq)
     }
 
-    get("/product/:id") {
-      val paramId = params("id")
-      Json.toJson(params("id").toIntOption.flatMap(db.get).getOrElse(halt(404, s"Product $paramId not found")))
+    get("/product/:pid") {
+      val pid = params("pid")
+      Json.toJson(params("pid").toIntOption.flatMap(db.get).getOrElse(halt(404, s"Product $pid not found")))
     }
 
     post("/product/") {
-      Try {
-        Json.fromJson(Json.parse(request.body)).map(product => db += product.id -> product).map(_ => "1").get
-      }.getOrElse(halt(400))
+      val product = Try { Json.fromJson(Json.parse(request.body)).get }.getOrElse(halt(400))
+      val nextPid = db.keys.max + 1
+      db += nextPid -> product
+      nextPid.toString
+    }
+
+    put("/product/:pid") {
+      val pid = params("pid")
+      pid.toIntOption.flatMap(db.get).getOrElse(halt(404, s"Product $pid not found"))
+      val product = Try { Json.fromJson(Json.parse(request.body)).get }.getOrElse(halt(400))
+      db += pid.toInt -> product
+      pid.toInt.toString
     }
   }
 }

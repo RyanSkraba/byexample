@@ -35,7 +35,7 @@ class GetTaskSpec extends DocoptCliGoSpec(WebClientGo, Some(GetTask)) with Statu
     describe(s"${Cli.Cli} $TaskCmd ${if (cmd.nonEmpty) s"with $cmd" else "with default"}") {
       it("should get a URI") {
         val args = if (cmd.nonEmpty) Seq(GetTask.Cmd, cmd) else Seq(GetTask.Cmd)
-        withGoMatching(args :+ Srv.base.withWholePath("product/1"): _*) { case (stdout, stderr) =>
+        withGoMatching(args :+ Srv.base.withWholePath("product/101"): _*) { case (stdout, stderr) =>
           stderr shouldBe empty
           Json.parse(stdout) shouldBe Json.parse("""{"id": 1, "name": "one"}""")
         }
