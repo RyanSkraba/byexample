@@ -2,6 +2,7 @@ package com.skraba.byexample.scalatra
 
 import com.skraba.byexample.scalatra.ScalatraGo.TestableServlet
 import com.skraba.docoptcli.DocoptCliGo.Task
+import org.scalatra.NoContent
 import play.api.libs.json.{JsArray, Json, OFormat}
 
 import scala.collection.mutable
@@ -61,6 +62,13 @@ object RestTask extends Task {
       val product = Try { Json.fromJson(Json.parse(request.body)).get }.getOrElse(halt(400))
       db += pid.toInt -> product
       pid.toInt.toString
+    }
+
+    delete("/product/:pid") {
+      val pid = params("pid")
+      pid.toIntOption.flatMap(db.get).getOrElse(halt(404, s"Product $pid not found"))
+      db -= pid.toInt
+      NoContent()
     }
   }
 }

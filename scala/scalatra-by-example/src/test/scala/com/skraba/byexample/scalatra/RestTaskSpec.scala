@@ -105,5 +105,20 @@ class RestTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(RestTask)) with Stat
         response.body shouldBe "Product 104 not found"
       }
     }
+
+    it("should delete a product") {
+      val response = Srv.delete("product/102")
+      response.code shouldBe NoContent
+      response.body shouldBe ""
+    }
+
+    describe("should return 404 when deleting a product") {
+      it("isn't found") {
+        val response = Srv.delete("product/104")
+        response.code shouldBe NotFound
+        response.body shouldBe "Product 104 not found"
+      }
+    }
+
   }
 }

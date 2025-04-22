@@ -66,6 +66,9 @@ class ScalatraGoServer(args: Seq[String], timeout: Duration = 10.seconds) extend
   def put(path: String, payload: String): Response[String] =
     quickRequest.put(base.withWholePath(path)).body(payload).send(DefaultSyncBackend())
 
+  /** Make a DELLETE request to the server. */
+  def delete(path: String): Response[String] = quickRequest.delete(base.withWholePath(path)).send(DefaultSyncBackend())
+
   /** Request the server be shut down. */
   def shutdown(): Unit = {
     val shutdown = quickRequest.get(uri"$base/_shutdown").send(DefaultSyncBackend())
