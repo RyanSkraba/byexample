@@ -26,8 +26,10 @@ class RestTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(RestTask)) with Stat
       response.code shouldBe Ok
       response.body shouldBe "true"
     }
+  }
 
-    it("should get all products") {
+  describe("When getting using the GET method") {
+    it("should return all products") {
       val response = Srv.get("product/")
       response.code shouldBe Ok
       Json.parse(response.body) shouldBe Json.parse(
@@ -50,47 +52,43 @@ class RestTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(RestTask)) with Stat
       Json.parse(response.body) shouldBe Json.parse("""{"id": 2, "name": "two"}""")
     }
 
-    describe("should return 404") {
-      it("when a product isn't found") {
-        val response = Srv.get("product/103")
-        response.code shouldBe NotFound
-        response.body shouldBe "Product 103 not found"
-      }
-      it("when an invalid product id is sent") {
-        val response = Srv.get("product/three")
-        response.code shouldBe NotFound
-        response.body shouldBe "Product three not found"
-      }
+    it("should return 404 when a product isn't found") {
+      val response = Srv.get("product/999")
+      response.code shouldBe NotFound
+      response.body shouldBe "Product 999 not found"
     }
 
-    it("should create a product using post") {
+    it("should return 404 when an invalid product is requested") {
+      val response = Srv.get("product/abc")
+      response.code shouldBe NotFound
+      response.body shouldBe "Product abc not found"
+    }
+  }
+
+  describe("When creating using the POST method") {
+
+    it("should create a product") {
       val response = Srv.post("product/", """{"id": 3, "name": "three"}""")
       response.code shouldBe Ok
       response.body shouldBe "103"
     }
 
-    describe("should return 400") {
-      // TODO: What about conflicting ids?
-      it("when invalid JSON is sent") {
-        val response = Srv.post("product/", """{{{{""")
-        response.code shouldBe BadRequest
-        response.body shouldBe ""
-        // TODO: Better errors?
-      }
-      it("when json is missing an attribute") {
-        val response = Srv.post("product/", """{"id": 3}""")
-        response.code shouldBe BadRequest
-        response.body shouldBe ""
-        // TODO: Better errors?
-      }
-      it("when json is missing another attribute") {
-        val response = Srv.post("product/", """{"name": "four"}""")
-        response.code shouldBe BadRequest
-        response.body shouldBe ""
-        // TODO: should this actually work with an assigned id?
-      }
+    it("when invalid JSON is sent") {
+      val response = Srv.post("product/", """{{{{""")
+      response.code shouldBe BadRequest
+      response.body shouldBe ""
+      // TODO: Better errors?
     }
 
+    it("when json is missing an attribute") {
+      val response = Srv.post("product/", """{"id": 3}""")
+      response.code shouldBe BadRequest
+      response.body shouldBe ""
+      // TODO: Better errors?
+    }
+  }
+
+  describe("When updating using the PUT method") {
     it("should update a product using put") {
       val response = Srv.put("product/102", """{"id": 2, "name": "deux"}""")
       response.code shouldBe Ok
@@ -98,27 +96,52 @@ class RestTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(RestTask)) with Stat
       Json.parse(Srv.get("product/102").body) shouldBe Json.parse("""{"id": 2, "name": "deux"}""")
     }
 
-    describe("should return 404 when updating a product") {
-      it("isn't found") {
-        val response = Srv.put("product/104", """{"id": 4, "name": "quatre"}""")
-        response.code shouldBe NotFound
-        response.body shouldBe "Product 104 not found"
-      }
+    it("when invalid JSON is sent") {
+      val response = Srv.put("product/102", """{{{{""")
+      response.code shouldBe BadRequest
+      response.body shouldBe ""
+      // TODO: Better errors?
+      Json.parse(Srv.get("product/102").body) shouldBe Json.parse("""{"id": 2, "name": "deux"}""")
     }
 
+    it("when json is missing an attribute") {
+      val response = Srv.put("product/102", """{"id": 3}""")
+      response.code shouldBe BadRequest
+      response.body shouldBe ""
+      // TODO: Better errors?
+      Json.parse(Srv.get("product/102").body) shouldBe Json.parse("""{"id": 2, "name": "deux"}""")
+    }
+
+    it("should return 404 when the product isn't found") {
+      val response = Srv.put("product/999", """{"id": 4, "name": "quatre"}""")
+      response.code shouldBe NotFound
+      response.body shouldBe "Product 999 not found"
+    }
+
+    it("should return 404 when an invalid product is requested") {
+      val response = Srv.put("product/abc", """{"id": 4, "name": "quatre"}""")
+      response.code shouldBe NotFound
+      response.body shouldBe "Product abc not found"
+    }
+  }
+
+  describe("When deleting using the DELETE method") {
     it("should delete a product") {
       val response = Srv.delete("product/102")
       response.code shouldBe NoContent
       response.body shouldBe ""
     }
 
-    describe("should return 404 when deleting a product") {
-      it("isn't found") {
-        val response = Srv.delete("product/104")
-        response.code shouldBe NotFound
-        response.body shouldBe "Product 104 not found"
-      }
+    it("should return 404 when the product isn't found") {
+      val response = Srv.delete("product/999")
+      response.code shouldBe NotFound
+      response.body shouldBe "Product 999 not found"
     }
 
+    it("should return 404 when an invalid product is requested") {
+      val response = Srv.delete("product/abc")
+      response.code shouldBe NotFound
+      response.body shouldBe "Product abc not found"
+    }
   }
 }

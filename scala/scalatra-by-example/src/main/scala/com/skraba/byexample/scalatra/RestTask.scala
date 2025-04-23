@@ -2,7 +2,7 @@ package com.skraba.byexample.scalatra
 
 import com.skraba.byexample.scalatra.ScalatraGo.TestableServlet
 import com.skraba.docoptcli.DocoptCliGo.Task
-import org.scalatra.NoContent
+import org.scalatra.{BadRequest, NoContent, NotFound}
 import play.api.libs.json.{JsArray, Json, OFormat}
 
 import scala.collection.mutable
@@ -29,12 +29,15 @@ object RestTask extends Task {
 
   def go(opts: TaskOptions): Unit = ScalatraGo.runStandaloneServer(opts.getInt("--port", 8080), classOf[Srvlet])
 
+  /** The object type stored in the fake database. */
   case class Product(id: Int, name: String)
-  private implicit val productFormat: OFormat[Product] = Json.format[Product]
-
-  val db: mutable.Map[Int, Product] = mutable.SortedMap(101 -> Product(1, "one"), 102 -> Product(2, "two"))
 
   class Srvlet extends TestableServlet {
+
+    /** An in-memory map to use as a database */ */
+    val db: mutable.Map[Int, Product] = mutable.SortedMap(101 -> Product(1, "one"), 102 -> Product(2, "two"))
+
+    private implicit val productFormat: OFormat[Product] = Json.format[Product]
 
     before() {
       contentType = "application/json"
@@ -46,11 +49,11 @@ object RestTask extends Task {
 
     get("/product/:pid") {
       val pid = params("pid")
-      Json.toJson(params("pid").toIntOption.flatMap(db.get).getOrElse(halt(404, s"Product $pid not found")))
+      params("pid").toIntOption.flatMap(db.get).map(Json.toJson(_)).getOrElse(halt(NotFound(s"Product $pid not found")))
     }
 
     post("/product/") {
-      val product = Try { Json.fromJson(Json.parse(request.body)).get }.getOrElse(halt(400))
+      val product = Try { Json.fromJson(Json.parse(request.body)).get }.getOrElse(halt(BadRequest()))
       val nextPid = db.keys.max + 1
       db += nextPid -> product
       nextPid.toString
@@ -59,7 +62,7 @@ object RestTask extends Task {
     put("/product/:pid") {
       val pid = params("pid")
       pid.toIntOption.flatMap(db.get).getOrElse(halt(404, s"Product $pid not found"))
-      val product = Try { Json.fromJson(Json.parse(request.body)).get }.getOrElse(halt(400))
+      val product = Try { Json.fromJson(Json.parse(request.body)).get }.getOrElse(halt(BadRequest()))
       db += pid.toInt -> product
       pid.toInt.toString
     }
