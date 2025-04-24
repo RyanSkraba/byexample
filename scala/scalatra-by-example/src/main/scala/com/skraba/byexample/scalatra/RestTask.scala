@@ -34,7 +34,7 @@ object RestTask extends Task {
 
   class Srvlet extends TestableServlet {
 
-    /** An in-memory map to use as a database */ */
+    /** An in-memory map to use as a database */
     val db: mutable.Map[Int, Product] = mutable.SortedMap(101 -> Product(1, "one"), 102 -> Product(2, "two"))
 
     private implicit val productFormat: OFormat[Product] = Json.format[Product]

@@ -38,13 +38,13 @@ class ServeFileTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(ServeFileTask))
   describe(s"${Cli.Cli} $TaskCmd running as a server") {
     it("should have a health check") {
       val response = Srv.get("/_health")
-      response.code shouldBe Ok
+      response.code shouldBe Ok.code
       response.body shouldBe "true"
     }
 
     ignore("should redirect on /") {
       val response = Srv.get("/")
-      response.code shouldBe Ok
+      response.code shouldBe Ok.code
       response.body shouldBe
         """<html>
           |<body>
@@ -55,7 +55,7 @@ class ServeFileTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(ServeFileTask))
 
     it("should respond to /index.html") {
       val response = Srv.get("/index.html")
-      response.code shouldBe Ok
+      response.code shouldBe Ok.code
       response.body shouldBe
         """<html>
           |<body>
@@ -66,7 +66,7 @@ class ServeFileTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(ServeFileTask))
 
     it("should return 404 when a location isn't found") {
       val response = Srv.get("/notfound")
-      response.code shouldBe NotFound
+      response.code shouldBe NotFound.code
       response.body shouldBe "Not found"
     }
   }

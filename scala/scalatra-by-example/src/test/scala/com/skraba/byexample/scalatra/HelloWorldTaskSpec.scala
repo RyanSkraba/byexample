@@ -22,13 +22,13 @@ class HelloWorldTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(HelloWorldTask
   describe(s"${Cli.Cli} $TaskCmd running as a server") {
     it("should have a health check") {
       val response = Srv.get("/_health")
-      response.code shouldBe Ok
+      response.code shouldBe Ok.code
       response.body shouldBe "true"
     }
 
     it("should greet when requested") {
       val response = Srv.get("/")
-      response.code shouldBe Ok
+      response.code shouldBe Ok.code
       response.body shouldBe "Hello world"
     }
   }

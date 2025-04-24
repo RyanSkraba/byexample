@@ -22,13 +22,13 @@ class ServeJarResourceTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(ServeJar
   describe(s"${Cli.Cli} $TaskCmd running as a server") {
     it("should have a health check") {
       val response = Srv.get("/_health")
-      response.code shouldBe Ok
+      response.code shouldBe Ok.code
       response.body shouldBe "true"
     }
 
     it("should redirect on /") {
       val response = Srv.get("/")
-      response.code shouldBe Ok
+      response.code shouldBe Ok.code
       response.body shouldBe
         """<html>
           |<body>
@@ -39,7 +39,7 @@ class ServeJarResourceTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(ServeJar
 
     it("should respond to /index.html") {
       val response = Srv.get("/index.html")
-      response.code shouldBe Ok
+      response.code shouldBe Ok.code
       response.body shouldBe
         """<html>
           |<body>
@@ -50,7 +50,7 @@ class ServeJarResourceTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(ServeJar
 
     it("should return 404 when a location isn't found") {
       val response = Srv.get("/notfound")
-      response.code shouldBe NotFound
+      response.code shouldBe NotFound.code
       response.body shouldBe "Not found"
     }
   }

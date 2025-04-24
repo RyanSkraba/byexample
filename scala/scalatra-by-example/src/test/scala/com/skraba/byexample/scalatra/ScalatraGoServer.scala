@@ -1,7 +1,8 @@
 package com.skraba.byexample.scalatra
 
+import com.skraba.byexample.scalatra.ScalatraGo.SimpleResponse
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
-import sttp.client4.{DefaultSyncBackend, Response, UriContext, quickRequest}
+import sttp.client4.{DefaultSyncBackend, UriContext, quickRequest}
 import sttp.model.{StatusCodes, Uri}
 
 import java.io.ByteArrayOutputStream
@@ -13,7 +14,9 @@ import scala.reflect.io.Streamable
 import scala.util.{Success, Try}
 
 /** A reusable helper for stopping and starting a server for unit testing. */
-class ScalatraGoServer(args: Seq[String], timeout: Duration = 10.seconds) extends StatusCodes {
+class ScalatraGoServer(args: Seq[String], timeout: Duration = 10.seconds)
+    extends ScalatraGo.SimpleClient
+    with StatusCodes {
 
   private[this] val started = "Standalone server started: (.*)\n".r
 
@@ -56,18 +59,28 @@ class ScalatraGoServer(args: Seq[String], timeout: Duration = 10.seconds) extend
   ) shouldBe "Started"
 
   /** Make a GET request to the server. */
-  def get(path: String): Response[String] = quickRequest.get(base.withWholePath(path)).send(DefaultSyncBackend())
+  def get(path: String): SimpleResponse = {
+    val r = quickRequest.get(base.withWholePath(path)).send(DefaultSyncBackend())
+    SimpleResponse(r.code.code, r.body)
+  }
 
   /** Make a POST request to the server. */
-  def post(path: String, payload: String): Response[String] =
-    quickRequest.post(base.withWholePath(path)).body(payload).send(DefaultSyncBackend())
+  def post(path: String, payload: String): SimpleResponse = {
+    val r = quickRequest.post(base.withWholePath(path)).body(payload).send(DefaultSyncBackend())
+    SimpleResponse(r.code.code, r.body)
+  }
 
   /** Make a PUT request to the server. */
-  def put(path: String, payload: String): Response[String] =
-    quickRequest.put(base.withWholePath(path)).body(payload).send(DefaultSyncBackend())
+  def put(path: String, payload: String): SimpleResponse = {
+    val r = quickRequest.put(base.withWholePath(path)).body(payload).send(DefaultSyncBackend())
+    SimpleResponse(r.code.code, r.body)
+  }
 
   /** Make a DELLETE request to the server. */
-  def delete(path: String): Response[String] = quickRequest.delete(base.withWholePath(path)).send(DefaultSyncBackend())
+  def delete(path: String): SimpleResponse = {
+    val r = quickRequest.delete(base.withWholePath(path)).send(DefaultSyncBackend())
+    SimpleResponse(r.code.code, r.body)
+  }
 
   /** Request the server be shut down. */
   def shutdown(): Unit = {
