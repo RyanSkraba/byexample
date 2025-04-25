@@ -19,21 +19,6 @@ object ScalatraGo extends DocoptCliGo {
 
   case class SimpleResponse(code: Int, body: String)
 
-  trait SimpleClient {
-
-    /** Make a GET request to the server. */
-    def get(path: String): SimpleResponse
-
-    /** Make a POST request to the server. */
-    def post(path: String, payload: String): SimpleResponse
-
-    /** Make a PUT request to the server. */
-    def put(path: String, payload: String): SimpleResponse
-
-    /** Make a DELLETE request to the server. */
-    def delete(path: String): SimpleResponse
-  }
-
   /** Runs a standalone servlet server that serves the single servlet.
     * @param port
     *   The port to run the HTTP server on

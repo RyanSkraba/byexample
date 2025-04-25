@@ -14,9 +14,7 @@ import scala.reflect.io.Streamable
 import scala.util.{Success, Try}
 
 /** A reusable helper for stopping and starting a server for unit testing. */
-class ScalatraGoServer(args: Seq[String], timeout: Duration = 10.seconds)
-    extends ScalatraGo.SimpleClient
-    with StatusCodes {
+class ScalatraGoServer(args: Seq[String], timeout: Duration = 10.seconds) extends StatusCodes {
 
   private[this] val started = "Standalone server started: (.*)\n".r
 
@@ -76,7 +74,7 @@ class ScalatraGoServer(args: Seq[String], timeout: Duration = 10.seconds)
     SimpleResponse(r.code.code, r.body)
   }
 
-  /** Make a DELLETE request to the server. */
+  /** Make a DELETE request to the server. */
   def delete(path: String): SimpleResponse = {
     val r = quickRequest.delete(base.withWholePath(path)).send(DefaultSyncBackend())
     SimpleResponse(r.code.code, r.body)
