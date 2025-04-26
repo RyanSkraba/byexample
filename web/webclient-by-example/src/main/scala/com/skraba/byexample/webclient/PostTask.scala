@@ -3,31 +3,33 @@ package com.skraba.byexample.webclient
 import com.skraba.docoptcli.DocoptCliGo.Task
 
 /** Command-line driver that gets a URI. */
-object GetTask extends Task {
+object PostTask extends Task {
 
-  val Cmd = "get"
+  val Cmd = "post"
 
-  val Description = "Make an HTTP GET request."
+  val Description = "Make an HTTP POST request."
 
   val Doc: String =
     s"""$Description
        |
        |Usage:
-       |  ${WebClientGo.Cli} $Cmd [--sttp|--pekko] URI
+       |  ${WebClientGo.Cli} $Cmd [--sttp|--pekko] URI PAYLOAD
        |
        |Options:
        |  -h --help  Show this screen.
        |  --version  Show version.
        |  --sttp     Make the request with the STTP library (the default).
        |  --pekko    Make the request with the Pekko library.
-       |  URI        The URI to GET.
+       |  URI        The URI to POST.
+       |  PAYLOAD    The payload for the POST request.
        |""".stripMargin.trim
 
   def go(opts: TaskOptions): Unit = {
     val uri = opts.getString("URI")
+    val payload = opts.getString("PAYLOAD")
     Seq("--sttp", "--pekko").find(opts.getBoolean) match {
-      case Some("--pekko") => print(PekkoClient.get(uri).body)
-      case _               => print(SttpClient.get(uri).body)
+      case Some("--pekko") => print(PekkoClient.post(uri, payload).body)
+      case _               => print(SttpClient.post(uri, payload).body)
     }
   }
 }
