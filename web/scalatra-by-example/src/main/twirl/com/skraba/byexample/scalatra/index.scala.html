@@ -1,0 +1,25 @@
+@(submittedText: Option[String] = None)
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TwirlTask</title>
+     <link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+<body>
+<h1>TwirlTask</h1>
+<form method="post" action="/">
+    <textarea name="userText" placeholder="Enter your text here...">@submittedText.getOrElse("")</textarea>
+    <br><br>
+    <button type="submit">Submit Text</button>
+</form>
+
+@submittedText.map { text =>
+<div class="response">
+    <h3>You submitted:</h3>
+    <div class="submitted-text">@text</div>
+    <p><strong>Character count:</strong> @text.length</p>
+</div>
+}
+</body>
+</html>

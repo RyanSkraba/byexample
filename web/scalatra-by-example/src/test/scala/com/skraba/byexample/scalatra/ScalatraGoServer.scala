@@ -3,7 +3,8 @@ package com.skraba.byexample.scalatra
 import com.skraba.byexample.scalatra.ScalatraGo.SimpleResponse
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import sttp.client4.{DefaultSyncBackend, UriContext, quickRequest}
-import sttp.model.{StatusCodes, Uri}
+import sttp.model.MediaType.ApplicationJson
+import sttp.model.{ContentTypeRange, StatusCodes, Uri}
 
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
@@ -63,8 +64,9 @@ class ScalatraGoServer(args: Seq[String], timeout: Duration = 10.seconds) extend
   }
 
   /** Make a POST request to the server. */
-  def post(path: String, payload: String): SimpleResponse = {
-    val r = quickRequest.post(base.withWholePath(path)).body(payload).send(DefaultSyncBackend())
+  def post(path: String, payload: String, contentType: String = ApplicationJson.toString): SimpleResponse = {
+    val r =
+      quickRequest.post(base.withWholePath(path)).contentType(contentType).body(payload).send(DefaultSyncBackend())
     SimpleResponse(r.code.code, r.body)
   }
 

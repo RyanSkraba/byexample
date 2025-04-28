@@ -21,7 +21,9 @@
     <!-- Launcher class -->
     <exec.mainClass>com.skraba.byexample.scalatra.ScalatraGo</exec.mainClass>
     <!-- other project dependency versions as properties -->
+    <plugin.maven.twirl.version>2.0.8</plugin.maven.twirl.version>
     <scalatra.version>3.1.1</scalatra.version>
+    <twirl.version>1.6.9</twirl.version>
   </properties>
 
   <dependencies>
@@ -40,6 +42,12 @@
     <dependency>
       <groupId>com.typesafe.play</groupId>
       <artifactId>play-json_${scala.binary.version}</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.typesafe.play</groupId>
+      <artifactId>twirl-api_2.13</artifactId>
+      <version>${twirl.version}</version>
     </dependency>
 
     <!-- We want these embedded in the uber jar to run standalone -->
@@ -86,6 +94,25 @@
           </execution>
         </executions>
       </plugin>
+
+      <plugin>
+        <groupId>org.playframework.twirl</groupId>
+        <artifactId>twirl-maven-plugin_2.13</artifactId>
+        <version>${plugin.maven.twirl.version}</version>
+        <configuration>
+          <sourceDirectory>src/main/twirl</sourceDirectory>
+        </configuration>
+        <executions>
+          <execution>
+            <id>twirl-compile</id>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+            <phase>generate-sources</phase>
+          </execution>
+        </executions>
+      </plugin>
+
     </plugins>
   </build>
 
