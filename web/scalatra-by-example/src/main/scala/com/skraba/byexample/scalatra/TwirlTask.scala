@@ -1,9 +1,8 @@
 package com.skraba.byexample.scalatra
 
 import com.skraba.byexample.scalatra.ScalatraGo.TestableServlet
+import com.skraba.byexample.scalatra.ServeJarResourceTask.fallbackToJar
 import com.skraba.docoptcli.DocoptCliGo.Task
-
-import java.net.URLConnection
 
 /** Command-line driver that launches a server that serves HTML from a Twirl template. */
 object TwirlTask extends Task {
@@ -26,9 +25,6 @@ object TwirlTask extends Task {
 
   def go(opts: TaskOptions): Unit = ScalatraGo.runStandaloneServer(opts.getInt("--port", 8080), classOf[Srvlet])
 
-  /** The object type stored in the fake database. */
-  case class Product(id: Int, name: String)
-
   class Srvlet extends TestableServlet {
 
     get("/") {
@@ -42,18 +38,6 @@ object TwirlTask extends Task {
       com.skraba.byexample.scalatra.html.index(Some(submittedText))
     }
 
-    notFound {
-      if (request.getMethod != "GET") halt(404, "Unsupported method")
-
-      val requestPath = "Twirl" + request.getRequestURI.substring(request.getServletPath.length)
-
-      Option(getClass.getResourceAsStream(requestPath)) match {
-        case Some(stream) =>
-          contentType =
-            Option(URLConnection.guessContentTypeFromName(request.getRequestURI)).getOrElse("application/octet-stream")
-          stream
-        case None => halt(404, "Not found")
-      }
-    }
+    fallbackToJar(this)
   }
 }

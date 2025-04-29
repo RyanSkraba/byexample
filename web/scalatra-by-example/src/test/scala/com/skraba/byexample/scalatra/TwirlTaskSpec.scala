@@ -27,6 +27,10 @@ class TwirlTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(TwirlTask)) with St
       response.body shouldBe "true"
     }
 
+    it("should serve some resources from the jar") {
+      Srv.get("css/style.css").code shouldBe Ok.code
+    }
+
     it("should return an HTML page with GET") {
       val response = Srv.get("/")
       response.code shouldBe Ok.code

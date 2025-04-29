@@ -2,6 +2,7 @@ package com.skraba.byexample.scalatra
 
 import com.skraba.byexample.scalatra.ScalatraGo.TestableServlet
 import com.skraba.docoptcli.DocoptCliGo.Task
+import org.scalatra.servlet.ServletBase
 
 import java.net.URLConnection
 
@@ -26,23 +27,35 @@ object ServeJarResourceTask extends Task {
 
   def go(opts: TaskOptions): Unit = ScalatraGo.runStandaloneServer(opts.getInt("--port", 8080), classOf[Srvlet])
 
-  class Srvlet extends TestableServlet {
-    get("/") {
-      redirect("/index.html")
-    }
+  /** Applies a notFound that falls back to resource embedded in a jar
+    * @param sb
+    *   The servlet to apply this rule to.
+    * @param rsrcPrefix
+    *   A prefix to apply to the request path before fetching it as a string. If this doesn't start with "/" then the
+    *   context of the servlet's package is used.
+    */
+  def fallbackToJar(sb: ServletBase, rsrcPrefix: Option[String] = None): Unit = {
+    sb.notFound {
+      // Only GET is supported
+      if (sb.request.getMethod != "GET") sb.halt(404, "Unsupported method")
 
-    notFound {
-      if (request.getMethod != "GET") halt(404, "Unsupported method")
+      // The request prefix is prepended to the path being requested
+      val requestPath = rsrcPrefix.getOrElse("/" + sb.getClass.getName.split("(Task)?\\$").head.replace('.', '/')) +
+        sb.request.getRequestURI.substring(sb.request.getServletPath.length)
 
-      val requestPath = "ServeResourceTask" + request.getRequestURI.substring(request.getServletPath.length)
-
-      Option(getClass.getResourceAsStream(requestPath)) match {
+      Option(sb.getClass.getResourceAsStream(requestPath)) match {
         case Some(stream) =>
-          contentType =
-            Option(URLConnection.guessContentTypeFromName(request.getRequestURI)).getOrElse("application/octet-stream")
+          sb.contentType = Option(URLConnection.guessContentTypeFromName(sb.request.getRequestURI))
+            .getOrElse("application/octet-stream")
           stream
-        case None => halt(404, "Not found")
+        case None => sb.halt(404, "Not found")
       }
     }
+  }
+
+  class Srvlet extends TestableServlet {
+    get("/") { redirect("/index.html") }
+
+    fallbackToJar(this)
   }
 }
