@@ -6,6 +6,7 @@
     <groupId>com.skraba.byexample</groupId>
     <artifactId>byexample-scala-aggregator</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <relativePath>../../scala</relativePath>
   </parent>
 
   <artifactId>scalatra-by-example</artifactId>
