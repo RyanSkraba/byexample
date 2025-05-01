@@ -25,7 +25,17 @@ object ScalatraGo extends DocoptCliGo {
     * @param srvlet
     *   The class implementing the servlet
     */
-  def runStandaloneServer(port: Int, srvlet: Class[_ <: Servlet]): Unit = {
+  def runStandaloneServer(port: Int, srvlet: Class[_ <: Servlet]): Unit = runStandaloneServer(port, srvlet, None)
+
+  /** Runs a standalone servlet server that serves the single servlet.
+    * @param port
+    *   The port to run the HTTP server on
+    * @param srvlet
+    *   The class implementing the servlet
+    * @param cfg
+    *   Any configuration object to store in the servlet context
+    */
+  def runStandaloneServer[T](port: Int, srvlet: Class[_ <: Servlet], cfg: T): Unit = {
     val server = new Server(port)
     val context = new WebAppContext()
     context.setContextPath("/")
@@ -33,6 +43,7 @@ object ScalatraGo extends DocoptCliGo {
     context.setBaseResourceAsString("/")
     val running = new AtomicBoolean(true)
     context.setAttribute("__running", running)
+    context.setAttribute("__config", cfg)
     server.setHandler(context)
     server.start()
     if (port == 0) println(s"Standalone server started: ${server.getURI}")
@@ -41,7 +52,10 @@ object ScalatraGo extends DocoptCliGo {
   }
 
   /** A servlet that can shut itself down for testability. */
-  class TestableServlet extends ScalatraServlet {
+  class TestableServlet[T] extends ScalatraServlet {
+
+    lazy val Cfg: T = getServletContext.getAttribute("__config").asInstanceOf[T]
+
     get("/_health") { true }
 
     get("/_shutdown") {

@@ -39,7 +39,7 @@ object ServeJarResourceTask extends Task {
       // Only GET is supported
       if (sb.request.getMethod != "GET") sb.halt(404, "Unsupported method")
 
-      // The request prefix is prepended to the path being requested
+      // The request prefix is prepended to the path being requested, or use the shortened Task class name, if any
       val requestPath = rsrcPrefix.getOrElse("/" + sb.getClass.getName.split("(Task)?\\$").head.replace('.', '/')) +
         sb.request.getRequestURI.substring(sb.request.getServletPath.length)
 
