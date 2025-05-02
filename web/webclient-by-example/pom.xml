@@ -41,11 +41,6 @@
 
     <dependency>
       <groupId>org.apache.pekko</groupId>
-      <artifactId>pekko-actor-typed_${scala.binary.version}</artifactId>
-      <version>${pekko.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.pekko</groupId>
       <artifactId>pekko-http_${scala.binary.version}</artifactId>
       <version>${pekko-http.version}</version>
     </dependency>

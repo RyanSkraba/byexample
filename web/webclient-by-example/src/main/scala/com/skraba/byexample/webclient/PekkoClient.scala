@@ -1,55 +1,54 @@
 package com.skraba.byexample.webclient
 
 import com.skraba.byexample.webclient.WebClientGo.SimpleResponse
-import org.apache.pekko.actor.typed.scaladsl.Behaviors
+import com.typesafe.config.ConfigFactory
 import org.apache.pekko.http.scaladsl.Http
 import org.apache.pekko.http.scaladsl.model._
 import org.apache.pekko.util.ByteString
+import org.apache.pekko.actor.ActorSystem
 
 import java.net.URL
-import scala.concurrent.{Await, ExecutionContextExecutor, Future}
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.{DurationInt, _}
 
 object PekkoClient extends WebClientGo.SimpleClient {
 
+  /** Ensure the actor system doesn't make a peep. */
+  private val pekkoNoLogging = ConfigFactory.parseString("""
+      pekko.loglevel = "WARNING"
+      pekko.stdout-loglevel = "WARNING"
+      """)
+
   /** Make a GET request to the server. */
   override def get(path: String): SimpleResponse = {
-    import org.apache.pekko.actor.typed.ActorSystem
-    implicit val system: ActorSystem[Any] = ActorSystem(Behaviors.empty, "my-system")
-    implicit val ec: ExecutionContextExecutor = system.executionContext
+    implicit val system: ActorSystem = ActorSystem("my", pekkoNoLogging)
+    import system.dispatcher
 
-    val body = Await.result(
+    val get = Await.result(
       Http()
-        .singleRequest(HttpRequest(uri = path))
-        .flatMap(response => response.entity.toStrict(10.seconds))
-        .map(entity => entity.data.utf8String),
-      10.seconds
+        .singleRequest(HttpRequest(method = HttpMethods.GET, uri = new URL(path).toString))
+        .flatMap(response => response.entity.toStrict(10.seconds).map(response.status -> _.data.utf8String)),
+      Duration.Inf
     )
 
-    system.terminate()
-    SimpleResponse(0, body)
+    val result = SimpleResponse(get._1.intValue(), get._2)
+    Await.result(system.terminate(), Duration.Inf)
+    result
   }
 
   /** Make a POST request to the server. */
   override def post(path: String, payload: String): SimpleResponse = {
-    import org.apache.pekko.actor.ActorSystem
-
-    val url = new URL(path)
-
-    implicit val system: ActorSystem = ActorSystem()
+    implicit val system: ActorSystem = ActorSystem("my", pekkoNoLogging)
     import system.dispatcher
 
-    val ct = ContentType.parse("application/vnd.schemaregistry.v1+json").toOption.get
-    val entity = HttpEntity(ct, ByteString(payload))
-    val request = HttpRequest(method = HttpMethods.POST, uri = url.toString, entity = entity)
+    val get = Await.result(
+      Http()
+        .singleRequest(HttpRequest(method = HttpMethods.POST, uri = new URL(path).toString, entity = HttpEntity(ByteString(payload))))
+        .flatMap(response => response.entity.toStrict(10.seconds).map(response.status -> _.data.utf8String)),
+      Duration.Inf
+    )
 
-    val responseFuture: Future[HttpResponse] = Http().singleRequest(request)
-    val response = Await.result(responseFuture, Duration.Inf)
-
-    val bodyFuture: Future[String] = response.entity.dataBytes.runFold(ByteString.empty)(_ ++ _).map(_.utf8String)
-    val responseBody = Await.result(bodyFuture, Duration.Inf)
-
-    val result = SimpleResponse(response.status.intValue(), responseBody)
+    val result = SimpleResponse(get._1.intValue(), get._2)
     Await.result(system.terminate(), Duration.Inf)
     result
   }
