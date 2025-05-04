@@ -5,7 +5,7 @@ import com.skraba.docoptcli.DocoptCliGoSpec
 import play.api.libs.json.Json
 import sttp.model.StatusCodes
 
-/** Unit tests for [[PostTaskSpec]]. */
+/** Unit tests for [[PostTask]]. */
 class PostTaskSpec extends DocoptCliGoSpec(WebClientGo, Some(PostTask)) with StatusCodes {
 
   val Srv = new ScalatraGoServer(Seq(RestTask.Cmd))
