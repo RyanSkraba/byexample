@@ -1,0 +1,50 @@
+package com.skraba.byexample.webclient
+
+import com.skraba.byexample.scalatra.{RestTask, ScalatraGoServer}
+import com.skraba.docoptcli.DocoptCliGoSpec
+import play.api.libs.json.Json
+import sttp.model.StatusCodes
+
+/** Unit tests for [[DeleteTask]]. */
+class DeleteTaskSpec extends DocoptCliGoSpec(WebClientGo, Some(DeleteTask)) with StatusCodes {
+
+  val Srv = new ScalatraGoServer(Seq(RestTask.Cmd))
+
+  override def afterAll(): Unit = {
+    super.afterAll()
+    Srv.shutdown()
+  }
+
+  describe(s"${Cli.Cli} $TaskCmd command line") {
+    itShouldThrowOnHelpAndVersionFlags()
+
+    itShouldThrowOnUnknownFlag()
+
+    itShouldThrowOnMissingOpt(Seq())
+    itShouldThrowOnMissingOpt(Seq("--pekko"))
+    itShouldThrowOnMissingOpt(Seq("--sttp"))
+
+    // TODO: Is this incompatible or missing?
+    itShouldThrowOnMissingOpt(Seq("--pekko", "--sttp"))
+
+    // TODO: Incompatible, not missing
+    itShouldThrowOnMissingOpt(Seq("--pekko", "--sttp", "https://example.com"))
+  }
+
+  for (cmd <- Seq("--sttp", "--pekko", "")) {
+    describe(s"${Cli.Cli} $TaskCmd ${if (cmd.nonEmpty) s"with $cmd" else "with default"}") {
+      // Create the product so we can delete it
+      val product = SttpClient.post(Srv.base.withWholePath("product/").toString(), """{"id": 9, "name": "nine"}""")
+      it("should get a URI") {
+        val preargs = if (cmd.nonEmpty) Seq(TaskCmd, cmd) else Seq(TaskCmd)
+        val postargs = Seq(Srv.base.withWholePath(s"product/${product.body}"))
+        withGoMatching(preargs ++ postargs: _*) { case (stdout, stderr) =>
+          stderr shouldBe empty
+          stdout shouldBe empty
+        }
+      }
+    }
+  }
+
+  // TODO: Error handlings
+}
