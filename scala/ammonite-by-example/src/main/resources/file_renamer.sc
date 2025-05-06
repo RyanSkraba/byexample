@@ -3,8 +3,6 @@
 /** A user script concentrating on file operations */
 import mainargs.{Flag, arg, main}
 
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import os.Path
 
 import scala.concurrent.duration.DurationInt
@@ -72,6 +70,8 @@ def cameraphone(
     dstSub: Option[String] = None,
     @arg(doc = "When autocreating the destination subdirectory, a suffix after the date (Default: Cameraphone)")
     dstSuffix: String = " Cameraphone",
+    @arg(doc = "The location where the phone is mounted in the filesystem (Default: /run/user/UID/gvfs)")
+    phoneMountDir: Option[Path] = None,
     @arg(doc = "A substring to search for when finding where the phone might be mounted")
     phoneTag: Option[String] = None,
     @arg(doc = "True if no files should actually be copied or moved")
@@ -87,10 +87,11 @@ def cameraphone(
     dst = dst,
     dstSub = dstSub,
     dstSuffix = dstSuffix,
+    phoneMountDir = phoneMountDir,
     phoneTag = phoneTag,
     dryRun = dryRun.value,
     // Turn verbose on by default, use noVerbose to deactivate
-    cfg = cfgGroup.withVerbose(!noVerbose.value)
+    console = cfgGroup.withVerbose(!noVerbose.value)
   )
 
 @arg(doc = "Backs up screenshots from the connected phone")
