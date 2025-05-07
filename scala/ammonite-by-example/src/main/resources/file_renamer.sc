@@ -111,6 +111,8 @@ def screenshot(
     dstSub: Option[String] = None,
     @arg(doc = "When autocreating the destination subdirectory, a suffix after the date (Default: Cameraphone)")
     dstSuffix: String = " Screenshots",
+    @arg(doc = "The location where the phone is mounted in the filesystem (Default: /run/user/UID/gvfs)")
+    phoneMountDir: Option[Path] = None,
     @arg(doc = "A substring to search for when finding where the phone might be mounted")
     phoneTag: Option[String] = None,
     @arg(doc = "True if no files should actually be copied or moved")
@@ -128,6 +130,7 @@ def screenshot(
     dst = dst,
     dstSub = dstSub,
     dstSuffix = dstSuffix,
+    phoneMountDir = phoneMountDir,
     phoneTag = phoneTag,
     dryRun = dryRun,
     noVerbose = noVerbose,
