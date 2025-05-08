@@ -13,7 +13,8 @@ object MarkdGo extends DocoptCliGo {
 
   override lazy val Version: String = "0.0.1-SNAPSHOT"
 
-  override lazy val Tasks: Seq[Task] = Seq(BeautifyTask, DateCountdownTask, BuildFailureReportTask, SortTableTask)
+  override lazy val Tasks: Seq[Task] =
+    Seq(BeautifyTask, DateCountdownTask, BuildFailureReportTask, SortTableTask, QueryTask)
 
   override lazy val Doc: String = "A driver for the various markdown utilities.\n\n" + SimpleDoc
 
