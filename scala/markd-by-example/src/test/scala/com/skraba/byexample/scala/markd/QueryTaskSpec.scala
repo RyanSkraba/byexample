@@ -28,10 +28,22 @@ class QueryTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(QueryTask)) {
       !Four""".stripMargin('!'))
 
   describe("The basic scenario") {
+
     it("should read from a file") {
       withGoMatching(TaskCmd, "--query", "#One/Two/Three", Basic) { case (stdout, stderr) =>
         stderr shouldBe empty
         stdout shouldBe "Four"
+      }
+    }
+
+    it("should read from stdin") {
+      Using(Basic.inputStream()) { in =>
+        Console.withIn(in) {
+          withGoMatching(TaskCmd, "--query", "#One/Two/Three", "-") { case (stdout, stderr) =>
+            stderr shouldBe empty
+            stdout shouldBe "Four"
+          }
+        }
       }
     }
   }

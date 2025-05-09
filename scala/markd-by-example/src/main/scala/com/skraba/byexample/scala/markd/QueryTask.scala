@@ -23,7 +23,7 @@ object QueryTask extends DocoptCliGo.Task {
        |  -h --help      Show this screen.
        |  --version      Show version.
        |  --fail         Fail instead of returning empty.
-       |  FILE           File to query
+       |  FILE           File to query or '-' for STDIN
        |  --query=QUERY  A query specification
        |
        |By default, if the query can't be satisfied, no text is returned and the
@@ -43,9 +43,12 @@ object QueryTask extends DocoptCliGo.Task {
     val query: String = opts.getString("--query")
 
     val file: String = opts.getString("FILE")
-    val md = Header.parse(File(file).slurp())
+    val md = Header.parse(
+      if (file == "-") Iterator.continually(Console.in.readLine()).takeWhile(_ != null).mkString("\n")
+      else File(file).slurp()
+    )
 
-    // For now only nested headers are supported.
+    // For now only nested headers are supported
     if (query.startsWith("#")) {
       query.tail
         .split("/")
