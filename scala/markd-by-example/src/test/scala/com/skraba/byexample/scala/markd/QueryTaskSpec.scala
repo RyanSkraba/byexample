@@ -22,26 +22,42 @@ class QueryTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(QueryTask)) {
   }
 
   val Basic: File = File(Tmp / "basic.md")
-  Basic.writeAll("""# One
-      !## Two
-      !### Three
-      !Four""".stripMargin('!'))
+  Basic.writeAll("""# A
+      !## B
+      !Text in A.B
+      !### C
+      !Text in A.B.C
+      !### C2
+      !Text in A.B.C2
+      !## B2
+      !Text in A.B2
+      !""".stripMargin('!'))
 
   describe("The basic scenario") {
-
     it("should read from a file") {
-      withGoMatching(TaskCmd, "--query", "#One/Two/Three", Basic) { case (stdout, stderr) =>
+      withGoMatching(TaskCmd, "--query", "#A/B/C", Basic) { case (stdout, stderr) =>
         stderr shouldBe empty
-        stdout shouldBe "Four"
+        stdout shouldBe "Text in A.B.C"
       }
     }
 
     it("should read from stdin") {
       Using(Basic.inputStream()) { in =>
         Console.withIn(in) {
-          withGoMatching(TaskCmd, "--query", "#One/Two/Three", "-") { case (stdout, stderr) =>
+          withGoMatching(TaskCmd, "--query", "#A/B/C", "-") { case (stdout, stderr) =>
             stderr shouldBe empty
-            stdout shouldBe "Four"
+            stdout shouldBe "Text in A.B.C"
+          }
+        }
+      }
+    }
+
+    it("should fail with un unrecognized query") {
+      Using(Basic.inputStream()) { in =>
+        Console.withIn(in) {
+          withGoMatching(TaskCmd, "--query", "!!A/B/C", "-") { case (stdout, stderr) =>
+            stderr shouldBe empty
+            stdout shouldBe "Text in A.B.C"
           }
         }
       }
