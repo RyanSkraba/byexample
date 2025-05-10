@@ -49,18 +49,11 @@ class QueryTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(QueryTask)) {
             stdout shouldBe "Text in A.B.C"
           }
         }
-      }
+      }.get
     }
 
     it("should fail with un unrecognized query") {
-      Using(Basic.inputStream()) { in =>
-        Console.withIn(in) {
-          withGoMatching(TaskCmd, "--query", "!!A/B/C", "-") { case (stdout, stderr) =>
-            stderr shouldBe empty
-            stdout shouldBe "Text in A.B.C"
-          }
-        }
-      }
+      interceptGo[RuntimeException](TaskCmd, "--query", "A/B/C", Basic).getMessage shouldBe "Unrecognized query: A/B/C"
     }
   }
 }

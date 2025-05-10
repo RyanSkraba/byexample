@@ -54,10 +54,12 @@ object QueryTask extends DocoptCliGo.Task {
         .split("/")
         .zipWithIndex
         .toSeq
-        .foldLeft(Option(md)) { case (Some(acc), (txt: String, idx: Int)) =>
-          acc.collectFirstRecursive {
-            case h @ Header(title, level, _) if title == txt && level == idx + 1 => h.copy(level = 0)
-          }
+        .foldLeft(Option(md)) {
+          case (None, _) => None
+          case (Some(acc), (txt: String, idx: Int)) =>
+            acc.collectFirstRecursive {
+              case h @ Header(title, level, _) if title == txt && level == idx + 1 => h.copy(level = 0)
+            }
         }
         .map(_.build().toString.trim)
         .foreach(print)
