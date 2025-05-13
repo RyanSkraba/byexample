@@ -23,8 +23,7 @@ class QueryTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(QueryTask)) {
     itShouldThrowOnMissingOpt(Seq("file"))
   }
 
-  val BasicTxt: String =
-    """# A
+  val BasicMd: Header = Header.parse("""# A
       !## B
       !Text in A.B
       !### C
@@ -33,7 +32,7 @@ class QueryTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(QueryTask)) {
       !Text in A.B.C2
       !## B2
       !Text in A.B2
-      !""".stripMargin('!')
+      !""".stripMargin('!'))
 
   val Basic: File = File(Tmp / "basic.md")
   Basic.writeAll(BasicTxt)
@@ -62,30 +61,31 @@ class QueryTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(QueryTask)) {
     }
   }
 
-  describe("More complex queries") {
+  describe("The QueryTask.query method") {
 
-    /** Shortcut for running the task with STDIN
-      * @param query
-      *   The specific query to execute
-      * @param markdown
-      *   The markdown text to read
-      * @return
-      *   the result of applying the query to the text
-      */
-    def queryTask(query: String, markdown: String): String =
-      Using(new ByteArrayInputStream(markdown.getBytes(StandardCharsets.UTF_8))) { in =>
-        Console.withIn(in) {
-          withGoMatching(TaskCmd, "--query", query, "-") { case (stdout, stderr) =>
-            stderr shouldBe empty
-            stdout
-          }
-        }
-      }.get
-
-    it("should read extract entire sections") {
-      queryTask("A.B.C", BasicTxt) shouldBe "Text in A.B.C"
-      queryTask("A.B.C2", BasicTxt) shouldBe "Text in A.B.C2"
-      queryTask("A.B", BasicTxt) shouldBe
+    it("should extract elements from the section") {
+      QueryTask.query(".", BasicMd) shouldBe BasicMd
+      QueryTask.query("A", BasicMd).build().toString shouldBe
+        """B
+          |------------------------------------------------------------------------------
+          |
+          |Text in A.B
+          |
+          |### C
+          |
+          |Text in A.B.C
+          |
+          |### C2
+          |
+          |Text in A.B.C2
+          |
+          |B2
+          |------------------------------------------------------------------------------
+          |
+          |Text in A.B2
+          |""".stripMargin
+      QueryTask.query("A.B.C", BasicMd) shouldBe Header("C", 0, List(Paragraph("Text in A.B.C")))
+      QueryTask.query("A.B", BasicMd).build().toString shouldBe
         """Text in A.B
           |
           |### C
@@ -95,8 +95,14 @@ class QueryTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(QueryTask)) {
           |### C2
           |
           |Text in A.B.C2
-          |""".stripMargin.trim
-      queryTask(".A.B2", BasicTxt) shouldBe "Text in A.B2"
+          |""".stripMargin
     }
+
+    it("should return empty on unmatched paths") {
+      QueryTask.query("X", BasicMd) shouldBe Paragraph("")
+      QueryTask.query("A.X", BasicMd) shouldBe Paragraph("")
+      QueryTask.query("A.B.XX", BasicMd) shouldBe Paragraph("")
+    }
+
   }
 }
