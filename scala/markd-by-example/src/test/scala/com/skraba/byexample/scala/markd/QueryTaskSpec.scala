@@ -35,7 +35,7 @@ class QueryTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(QueryTask)) {
       !""".stripMargin('!'))
 
   val Basic: File = File(Tmp / "basic.md")
-  Basic.writeAll(BasicTxt)
+  Basic.writeAll(BasicMd.build().toString)
 
   describe("The basic scenario") {
     it("should read from a file") {
