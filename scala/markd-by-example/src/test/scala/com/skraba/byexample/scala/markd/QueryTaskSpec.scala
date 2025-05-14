@@ -39,7 +39,7 @@ class QueryTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(QueryTask)) {
 
   describe("The basic scenario") {
     it("should read from a file") {
-      withGoMatching(TaskCmd, "--query", "A.B.C", Basic) { case (stdout, stderr) =>
+      withGoMatching(TaskCmd, "--query", "A.B.C*", Basic) { case (stdout, stderr) =>
         stderr shouldBe empty
         stdout shouldBe "Text in A.B.C"
       }
@@ -48,7 +48,7 @@ class QueryTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(QueryTask)) {
     it("should read from stdin") {
       Using(Basic.inputStream()) { in =>
         Console.withIn(in) {
-          withGoMatching(TaskCmd, "--query", "A.B.C", "-") { case (stdout, stderr) =>
+          withGoMatching(TaskCmd, "--query", "A.B.C*", "-") { case (stdout, stderr) =>
             stderr shouldBe empty
             stdout shouldBe "Text in A.B.C"
           }
@@ -64,8 +64,11 @@ class QueryTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(QueryTask)) {
   describe("The QueryTask.query method") {
 
     it("should extract elements from the section") {
-      QueryTask.query(".", BasicMd) shouldBe BasicMd
-      QueryTask.query("A", BasicMd).build().toString shouldBe
+      QueryTask.query(".", BasicMd) shouldBe List(BasicMd)
+      QueryTask.query(".*", BasicMd) shouldBe BasicMd.mds
+      QueryTask.query("*", BasicMd) shouldBe BasicMd.mds
+
+      Header("", 0, QueryTask.query("A*", BasicMd)).build().toString shouldBe
         """B
           |------------------------------------------------------------------------------
           |
@@ -84,8 +87,9 @@ class QueryTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(QueryTask)) {
           |
           |Text in A.B2
           |""".stripMargin
-      QueryTask.query("A.B.C", BasicMd) shouldBe Header("C", 0, List(Paragraph("Text in A.B.C")))
-      QueryTask.query("A.B", BasicMd).build().toString shouldBe
+
+      QueryTask.query("A.B.C*", BasicMd) shouldBe List(Paragraph("Text in A.B.C"))
+      Header("", 0, QueryTask.query("A.B*", BasicMd)).build().toString shouldBe
         """Text in A.B
           |
           |### C
@@ -99,9 +103,10 @@ class QueryTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(QueryTask)) {
     }
 
     it("should return empty on unmatched paths") {
-      QueryTask.query("X", BasicMd) shouldBe Paragraph("")
-      QueryTask.query("A.X", BasicMd) shouldBe Paragraph("")
-      QueryTask.query("A.B.XX", BasicMd) shouldBe Paragraph("")
+      QueryTask.query("X", BasicMd) shouldBe empty
+      QueryTask.query("X*", BasicMd) shouldBe empty
+      QueryTask.query("A.X", BasicMd) shouldBe empty
+      QueryTask.query("A.B.XX", BasicMd) shouldBe empty
     }
 
   }

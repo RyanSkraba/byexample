@@ -33,7 +33,7 @@ object QueryTask extends DocoptCliGo.Task {
        |
        |Examples:
        |
-       |  ${MarkdGo.Cli} $Cmd --query One.Two.Three markd.md
+       |  ${MarkdGo.Cli} $Cmd --query One.Two.Three\\* markd.md
        |
        |Find the level one header with the name "One", with a subheader named "Two" and
        |a third-level header named "Three" and return its contents.
@@ -41,7 +41,7 @@ object QueryTask extends DocoptCliGo.Task {
 
   def go(opts: TaskOptions): Unit = {
 
-    val queryx: String = opts.getString("--query")
+    val qx: String = opts.getString("--query")
 
     val file: String = opts.getString("FILE")
     val md = Header.parse(
@@ -49,26 +49,27 @@ object QueryTask extends DocoptCliGo.Task {
       else File(file).slurp()
     )
 
-    print(query(queryx, md).build().toString.trim)
+    print(query(qx, md).map(_.build().toString.trim).mkString)
 
 //      sys.error(s"Unrecognized query: $query")
   }
 
-  def query(query: String, md: Markd): Markd = {
-    val HeaderRegex: Regex = raw"^(?<head>[^.]+)(?<extra>\[[^.]])?.?(?<rest>.*)$$".r
+  def query(query: String, md: Markd): Seq[Markd] = {
+    val HeaderRegex: Regex = raw"^(?<head>[^.*]+)(?<extra>\[[^.]])?\.?(?<rest>[^*]*\*?)$$".r
 
-    def queryInternal(in: (String, Option[Markd])): (String, Option[Markd]) = in match {
-      case (query, md) if query.head == '.' => (query.tail, md)
-      case (HeaderRegex(head, _, rest), Some(h: Header)) =>
-        (rest, h.mds.collectFirst { case h @ Header(title, _, _) if title == head => h.copy(level = 0) })
+    def queryInternal(in: (String, Seq[Markd])): (String, Seq[Markd]) = in match {
+      case ("*", Seq(md: MultiMarkd[_])) => ("", md.mds)
+      case (q, md) if q.head == '.'      => (q.tail, md)
+      case (HeaderRegex(head, _, rest), Seq(h: Header)) =>
+        (rest, h.mds.collectFirst { case h @ Header(title, _, _) if title == head => h }.toSeq)
     }
 
     LazyList
-      .iterate((query, Option(md))) { queryInternal }
+      .iterate((query, Seq(md))) { queryInternal }
       .dropWhile(acc => acc._1.nonEmpty && acc._2.nonEmpty)
       .head match {
-      case ("", Some(md)) => md
-      case (_, None)      => Paragraph("")
+      case ("", md)   => md
+      case (_, Seq()) => Seq()
     }
   }
 }
