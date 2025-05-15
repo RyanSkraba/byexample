@@ -15,8 +15,8 @@ object PekkoClient extends WebClientGo.SimpleClient {
 
   /** Ensure the actor system doesn't make a peep. */
   private val pekkoNoLogging = ConfigFactory.parseString("""
-      pekko.loglevel = "WARNING"
-      pekko.stdout-loglevel = "WARNING"
+      pekko.loglevel = "OFF"
+      pekko.stdout-loglevel = "OFF"
       """)
 
   /** Makes a single HTTP request using the Pekko actor system.
