@@ -25,13 +25,13 @@ class QueryTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(QueryTask)) {
 
   val BasicMd: Header = Header.parse("""# A
       !## B
-      !Text in A.B
+      !Hello AB
       !### C
-      !Text in A.B.C
+      !Hello ABC
       !### C2
-      !Text in A.B.C2
+      !Hello ABC2
       !## B2
-      !Text in A.B2
+      !Hello AB2
       !""".stripMargin('!'))
 
   val Basic: File = File(Tmp / "basic.md")
@@ -39,75 +39,83 @@ class QueryTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(QueryTask)) {
 
   describe("The basic scenario") {
     it("should read from a file") {
-      withGoMatching(TaskCmd, "--query", "A.B.C*", Basic) { case (stdout, stderr) =>
+      withGoMatching(TaskCmd, "--query", "A.B.C[*]", Basic) { case (stdout, stderr) =>
         stderr shouldBe empty
-        stdout shouldBe "Text in A.B.C"
+        stdout shouldBe "Hello ABC"
       }
     }
 
     it("should read from stdin") {
       Using(Basic.inputStream()) { in =>
         Console.withIn(in) {
-          withGoMatching(TaskCmd, "--query", "A.B.C*", "-") { case (stdout, stderr) =>
+          withGoMatching(TaskCmd, "--query", "A.B.C[*]", "-") { case (stdout, stderr) =>
             stderr shouldBe empty
-            stdout shouldBe "Text in A.B.C"
+            stdout shouldBe "Hello ABC"
           }
         }
       }.get
     }
 
-    ignore("should fail with un unrecognized query") {
-      interceptGo[RuntimeException](TaskCmd, "--query", "A.B.C", Basic).getMessage shouldBe "Unrecognized query: A.B.C"
+    it("should fail with un unrecognized query") {
+      interceptGo[RuntimeException](
+        TaskCmd,
+        "--query",
+        "A.B.C[",
+        Basic
+      ).getMessage shouldBe "Unrecognized query: A.B.C["
     }
   }
 
   describe("The QueryTask.query method") {
 
-    it("should extract elements from the section") {
-      QueryTask.query(".", BasicMd) shouldBe List(BasicMd)
-      QueryTask.query(".*", BasicMd) shouldBe BasicMd.mds
-      QueryTask.query("*", BasicMd) shouldBe BasicMd.mds
+    def para(in: String) = List(Paragraph(in))
 
-      Header("", 0, QueryTask.query("A*", BasicMd)).build().toString shouldBe
+    it("should return itself with '.'") { QueryTask.query(".", BasicMd) shouldBe List(BasicMd) }
+    it("should return its children with '.[*]'") { QueryTask.query(".[*]", BasicMd) shouldBe BasicMd.mds }
+    it("should return its children with '[*]'") { QueryTask.query("[*]", BasicMd) shouldBe BasicMd.mds }
+
+    it("should find a paragraph 'A.B.C[*]'") { QueryTask.query("A.B.C[*]", BasicMd) shouldBe para("Hello ABC") }
+    it("should find a paragraph 'A.B.C2[*]'") { QueryTask.query("A.B.C2[*]", BasicMd) shouldBe para("Hello ABC2") }
+
+    for (unmatched<-Seq("X",".X",  "X[*]", ".X[*]", ".A.X", ".A.B.X"))
+      it(s"should return empty on unmatched path: '$unmatched'") {
+        QueryTask.query(unmatched, BasicMd) shouldBe empty
+      }
+
+    it("do other queries") {
+      Header("", 0, QueryTask.query("A[*]", BasicMd)).build().toString shouldBe
         """B
           |------------------------------------------------------------------------------
           |
-          |Text in A.B
+          |Hello AB
           |
           |### C
           |
-          |Text in A.B.C
+          |Hello ABC
           |
           |### C2
           |
-          |Text in A.B.C2
+          |Hello ABC2
           |
           |B2
           |------------------------------------------------------------------------------
           |
-          |Text in A.B2
+          |Hello AB2
           |""".stripMargin
 
-      QueryTask.query("A.B.C*", BasicMd) shouldBe List(Paragraph("Text in A.B.C"))
-      Header("", 0, QueryTask.query("A.B*", BasicMd)).build().toString shouldBe
-        """Text in A.B
+      Header("", 0, QueryTask.query("A.B[*]", BasicMd)).build().toString shouldBe
+        """Hello AB
           |
           |### C
           |
-          |Text in A.B.C
+          |Hello ABC
           |
           |### C2
           |
-          |Text in A.B.C2
+          |Hello ABC2
           |""".stripMargin
     }
 
-    it("should return empty on unmatched paths") {
-      QueryTask.query("X", BasicMd) shouldBe empty
-      QueryTask.query("X*", BasicMd) shouldBe empty
-      QueryTask.query("A.X", BasicMd) shouldBe empty
-      QueryTask.query("A.B.XX", BasicMd) shouldBe empty
-    }
 
   }
 }

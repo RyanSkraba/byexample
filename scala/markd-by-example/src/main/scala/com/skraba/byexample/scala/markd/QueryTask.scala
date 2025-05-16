@@ -42,26 +42,26 @@ object QueryTask extends DocoptCliGo.Task {
   def go(opts: TaskOptions): Unit = {
 
     val qx: String = opts.getString("--query")
-
     val file: String = opts.getString("FILE")
+
     val md = Header.parse(
       if (file == "-") Iterator.continually(Console.in.readLine()).takeWhile(_ != null).mkString("\n")
       else File(file).slurp()
     )
 
     print(query(qx, md).map(_.build().toString.trim).mkString)
-
-//      sys.error(s"Unrecognized query: $query")
   }
 
   def query(query: String, md: Markd): Seq[Markd] = {
-    val HeaderRegex: Regex = raw"^(?<head>[^.*]+)(?<extra>\[[^.]])?\.?(?<rest>[^*]*\*?)$$".r
+
+    val QueryRegex: Regex = raw"^(?<sep>\.*)(?<token>[^.\[]*)(?<rest>(\[(?<index>[^]]+)])?.*)$$".r
 
     def queryInternal(in: (String, Seq[Markd])): (String, Seq[Markd]) = in match {
-      case ("*", Seq(md: MultiMarkd[_])) => ("", md.mds)
-      case (q, md) if q.head == '.'      => (q.tail, md)
-      case (HeaderRegex(head, _, rest), Seq(h: Header)) =>
-        (rest, h.mds.collectFirst { case h @ Header(title, _, _) if title == head => h }.toSeq)
+      case ("[*]", Seq(md: MultiMarkd[_])) => ("", md.mds)
+      case (q, md) if q.head == '.'        => (q.tail, md)
+      case (QueryRegex(sep, token, rest, _*), Seq(h: MultiMarkd[_])) if token.nonEmpty =>
+        (rest, h.mds.collectFirst { case h @ Header(title, _, _) if title == token => h }.toSeq)
+      case _ => sys.error(s"Unrecognized query: $query")
     }
 
     LazyList
