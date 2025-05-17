@@ -33,10 +33,38 @@ object QueryTask extends DocoptCliGo.Task {
        |
        |Examples:
        |
-       |  ${MarkdGo.Cli} $Cmd --query One.Two.Three\\* markd.md
+       |  ${MarkdGo.Cli} $Cmd --query One.Two.Three[*] markd.md
        |
        |Find the level one header with the name "One", with a subheader named "Two" and
        |a third-level header named "Three" and return its contents.
+       |
+       |  ${MarkdGo.Cli} $Cmd --query Top markd.md
+       |
+       |Find and return the level one header with the title "Top"
+       |
+       |TODO:
+       |  ${MarkdGo.Cli} $Cmd --query Weekly..2025-02-14 markd.md
+       |
+       |Find the level one header with the title "Weekly" and return the first
+       |subheader named "2025-02-14" at any level inside
+       |
+       |TODO:
+       |  ${MarkdGo.Cli} $Cmd --query "Weekly[0]" markd.md
+       |
+       |Find the level one header with the title "Weekly" and return the first element
+       |it contains.
+       |
+       |TODO:
+       |  ${MarkdGo.Cli} $Cmd --query "Weekly[code][0]" markd.md
+       |
+       |Find the level one header with the title "Weekly" and return the first
+       |code block it contains.
+       |TODO:
+       |  ${MarkdGo.Cli} $Cmd --query "Weekly!To Do" markd.md
+       |
+       |Find the level one header with the title "Weekly" and return the To Do table
+       |that   it contains.
+       |
        |""".stripMargin.trim
 
   def go(opts: TaskOptions): Unit = {

@@ -77,7 +77,7 @@ class QueryTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(QueryTask)) {
     it("should find a paragraph 'A.B.C[*]'") { QueryTask.query("A.B.C[*]", BasicMd) shouldBe para("Hello ABC") }
     it("should find a paragraph 'A.B.C2[*]'") { QueryTask.query("A.B.C2[*]", BasicMd) shouldBe para("Hello ABC2") }
 
-    for (unmatched<-Seq("X",".X",  "X[*]", ".X[*]", ".A.X", ".A.B.X"))
+    for (unmatched <- Seq("X", ".X", "X[*]", ".X[*]", ".A.X", ".A.B.X"))
       it(s"should return empty on unmatched path: '$unmatched'") {
         QueryTask.query(unmatched, BasicMd) shouldBe empty
       }
@@ -115,7 +115,6 @@ class QueryTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(QueryTask)) {
           |Hello ABC2
           |""".stripMargin
     }
-
 
   }
 }
