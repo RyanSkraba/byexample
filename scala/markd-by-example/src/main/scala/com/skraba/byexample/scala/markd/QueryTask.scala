@@ -1,9 +1,8 @@
 package com.skraba.byexample.scala.markd
 
 import com.skraba.docoptcli.DocoptCliGo
+import com.tinfoiled.markd.{Header, Markd, MultiMarkd}
 
-import java.io.InputStreamReader
-import scala.io.Source
 import scala.reflect.io.File
 import scala.util.matching.Regex
 

@@ -1,6 +1,7 @@
 package com.skraba.byexample.scala.markd
 
 import com.skraba.docoptcli.DocoptCliGoSpec
+import com.tinfoiled.markd._
 
 /** Unit tests for [[DateCountdownTask]] */
 class DatecountTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(DateCountdownTask)) {

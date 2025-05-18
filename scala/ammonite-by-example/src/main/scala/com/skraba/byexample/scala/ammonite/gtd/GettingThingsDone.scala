@@ -1,7 +1,7 @@
 package com.skraba.byexample.scala.ammonite.gtd
 
 import com.skraba.byexample.scala.ammonite.gtd.GettingThingsDone._
-import com.skraba.byexample.scala.markd._
+import com.tinfoiled.markd._
 
 import java.time.format.DateTimeFormatter
 import java.time.{DayOfWeek, LocalDate, ZoneId, ZoneOffset}

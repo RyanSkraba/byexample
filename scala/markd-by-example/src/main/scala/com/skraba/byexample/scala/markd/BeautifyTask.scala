@@ -1,6 +1,7 @@
 package com.skraba.byexample.scala.markd
 
 import com.skraba.docoptcli.DocoptCliGo
+import com.tinfoiled.markd.{Header, ParserCfg}
 
 /** Command-line driver for beautifying a markdown file.
   */

@@ -1,7 +1,7 @@
 package com.skraba.byexample.scala.markd
-
 import com.skraba.docoptcli.DocoptCliGo
 import com.skraba.docoptcli.DocoptCliGo.Task
+import com.tinfoiled.markd._
 
 import scala.reflect.io.{Directory, File, Path}
 

@@ -1,9 +1,8 @@
 package com.skraba.byexample.scala.markd
 
 import com.skraba.docoptcli.DocoptCliGoSpec
+import com.tinfoiled.markd.{Header, Paragraph}
 
-import java.io.ByteArrayInputStream
-import java.nio.charset.StandardCharsets
 import scala.reflect.io.{Directory, File}
 import scala.util.Using
 

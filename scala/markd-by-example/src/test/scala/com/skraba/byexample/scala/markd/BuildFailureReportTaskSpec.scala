@@ -1,5 +1,4 @@
 package com.skraba.byexample.scala.markd
-
 import com.skraba.docoptcli.DocoptCliGoSpec
 
 import java.time.LocalDate

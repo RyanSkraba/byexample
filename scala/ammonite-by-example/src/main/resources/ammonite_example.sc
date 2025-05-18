@@ -10,6 +10,7 @@
   */
 import mainargs.{Flag, Leftover, arg, main}
 import ujson.Obj
+import $ivy.`com.tinfoiled:markd:0.0.1`, com.tinfoiled.markd._
 
 import java.time.format.DateTimeFormatter
 import java.time.{DayOfWeek, LocalDate}
@@ -23,13 +24,11 @@ import scala.util.matching.Regex
 // from local maven).
 import $file.local_import_util
 local_import_util.load("ammonite-by-example")
-local_import_util.load("markd-by-example")
 local_import_util.load("scala-by-example")
 
 @
 import com.skraba.byexample.scala.ammonite.ConsoleCfg
 import com.skraba.byexample.scala.ammonite.gtd.GettingThingsDone
-import com.skraba.byexample.scala.markd._
 
 // ==========================================================================
 // Top level variables available to the script

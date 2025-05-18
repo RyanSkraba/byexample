@@ -1,11 +1,11 @@
 package com.skraba.byexample.scala.ammonite.git
 
-import com.skraba.byexample.scala.ammonite.git.CherryPickerReport._
-import com.skraba.byexample.scala.markd._
-import com.skraba.docoptcli.AnsiConsole
+import com.tinfoiled.markd.{Align, Header, LinkRef, Table, TableRow}
 import os.CommandResult
 
 import scala.util.{Success, Try}
+import com.skraba.byexample.scala.ammonite.git.CherryPickerReport._
+import com.skraba.docoptcli.AnsiConsole
 
 case class CherryPickerReport(
     lBranch: String,

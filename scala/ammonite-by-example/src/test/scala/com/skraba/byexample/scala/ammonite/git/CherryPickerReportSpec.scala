@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.ammonite.git
 
-import com.skraba.byexample.scala.markd.Header
+import com.tinfoiled.markd.Header
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 import os.CommandResult

@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.markd
-
 import com.skraba.docoptcli.DocoptCliGo
+import com.tinfoiled.markd._
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter

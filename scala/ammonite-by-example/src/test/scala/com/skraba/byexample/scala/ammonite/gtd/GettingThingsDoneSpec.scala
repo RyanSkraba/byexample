@@ -1,7 +1,7 @@
 package com.skraba.byexample.scala.ammonite.gtd
 
 import com.skraba.byexample.scala.ammonite.gtd.GettingThingsDone._
-import com.skraba.byexample.scala.markd.{Comment, Header, Paragraph}
+import com.tinfoiled.markd.{Comment, Header, Paragraph}
 import org.scalatest.OptionValues._
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers

@@ -20,6 +20,8 @@
     <scalafmt.conf.path>${project.basedir}/../../.scalafmt.conf</scalafmt.conf.path>
     <!-- Launcher class -->
     <exec.mainClass>com.skraba.byexample.scala.markd.MarkdGo</exec.mainClass>
+    <!-- other project dependency versions as properties -->
+    <markd.version>0.0.1</markd.version>
   </properties>
 
   <dependencies>
@@ -30,10 +32,10 @@
       <version>${project.version}</version>
     </dependency>
 
-    <!-- Necessary for prettifying JSON code blocks -->
     <dependency>
-      <groupId>com.typesafe.play</groupId>
-      <artifactId>play-json_${scala.binary.version}</artifactId>
+      <groupId>com.tinfoiled</groupId>
+      <artifactId>markd</artifactId>
+      <version>${markd.version}</version>
     </dependency>
 
     <dependency>

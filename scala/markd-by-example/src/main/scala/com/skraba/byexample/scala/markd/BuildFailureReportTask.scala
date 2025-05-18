@@ -1,6 +1,7 @@
 package com.skraba.byexample.scala.markd
 
 import com.skraba.docoptcli.DocoptCliGo
+import com.tinfoiled.markd._
 import play.api.libs.json.{JsArray, Json}
 
 import java.time.LocalDate
