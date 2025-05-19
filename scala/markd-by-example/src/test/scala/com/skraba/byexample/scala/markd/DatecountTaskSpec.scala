@@ -1,12 +1,11 @@
 package com.skraba.byexample.scala.markd
-
-import com.skraba.docoptcli.DocoptCliGoSpec
+import com.tinfoiled.docopt4s.testkit.MultiTaskMainSpec
 import com.tinfoiled.markd._
 
 /** Unit tests for [[DateCountdownTask]] */
-class DatecountTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(DateCountdownTask)) {
+class DatecountTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(DateCountdownTask)) {
 
-  describe(s"${Cli.Cli} $TaskCmd command line") {
+  describe(s"${Main.Name} $TaskCmd command line") {
 
     itShouldThrowOnHelpAndVersionFlags()
 

@@ -49,12 +49,11 @@ def load(
     .dropWhile(_.baseName != "byexample")
     .head / "scala" / a / "target"
 
-  // Load it from the maven path if it exists.
-  if (os.exists(DepRoot / "classes"))
-    interp.load.cp(DepRoot / "classes")
-  else if (os.exists(DepRoot / Jar))
-    interp.load.cp(DepRoot / Jar)
-  else {
+  if (os.exists(DepRoot / "classes")) interp.load.cp(DepRoot / "classes")
+
+  if (os.exists(DepRoot / Jar)) interp.load.cp(DepRoot / Jar)
+
+  if (!os.exists(DepRoot / "classes") && !os.exists(DepRoot / Jar)) {
     // Load it directly into the classpath here though
     val repoJar =
       localM2 / "com" / "skraba" / "byexample" / a / v / Jar

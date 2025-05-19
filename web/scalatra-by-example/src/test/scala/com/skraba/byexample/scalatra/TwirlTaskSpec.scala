@@ -1,11 +1,11 @@
 package com.skraba.byexample.scalatra
 
-import com.skraba.docoptcli.DocoptCliGoSpec
+import com.tinfoiled.docopt4s.testkit.MultiTaskMainSpec
 import sttp.model.MediaType.ApplicationXWwwFormUrlencoded
 import sttp.model.StatusCodes
 
 /** Unit tests for [[TwirlTask]]. */
-class TwirlTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(TwirlTask)) with StatusCodes {
+class TwirlTaskSpec extends MultiTaskMainSpec(ScalatraGo, Some(TwirlTask)) with StatusCodes {
 
   val Srv = new ScalatraGoServer(Seq(TaskCmd))
 
@@ -14,13 +14,13 @@ class TwirlTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(TwirlTask)) with St
     Srv.shutdown()
   }
 
-  describe(s"${Cli.Cli} $TaskCmd command line") {
+  describe(s"${Main.Name} $TaskCmd command line") {
     itShouldThrowOnHelpAndVersionFlags()
 
     itShouldThrowOnUnknownFlag()
   }
 
-  describe(s"${Cli.Cli} $TaskCmd running as a server") {
+  describe(s"${Main.Name} $TaskCmd running as a server") {
     it("should have a health check") {
       val response = Srv.get("_health")
       response.code shouldBe Ok.code

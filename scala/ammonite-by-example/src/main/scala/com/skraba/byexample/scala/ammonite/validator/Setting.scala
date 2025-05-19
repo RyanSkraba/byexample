@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.ammonite.validator
 
-import com.skraba.docoptcli.AnsiConsole
+import com.tinfoiled.docopt4s.AnsiConsole
 
 /** A setting configures a named value, like a variable or context or configuration. There are many libraries that do
   * this. This is mine for ammonite.

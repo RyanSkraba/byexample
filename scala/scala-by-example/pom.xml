@@ -21,13 +21,14 @@
     <!-- Launcher class -->
     <exec.mainClass>com.skraba.byexample.scala.ScalaGo</exec.mainClass>
     <!-- other project dependency versions as properties -->
+    <markd.version>0.0.1</markd.version>
   </properties>
 
   <dependencies>
     <!-- {{Insert dependencies for specific project.}} -->
     <dependency>
-      <groupId>com.offbytwo</groupId>
-      <artifactId>docopt</artifactId>
+      <groupId>com.tinfoiled</groupId>
+      <artifactId>docopt4s</artifactId>
     </dependency>
     <dependency>
       <groupId>org.scala-lang</groupId>
@@ -39,21 +40,18 @@
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-compiler</artifactId>
     </dependency>
+
+    <!-- Necessary for prettifying JSON code blocks -->
+    <dependency>
+      <groupId>com.tinfoiled</groupId>
+      <artifactId>markd</artifactId>
+      <version>${markd.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.tinfoiled</groupId>
+      <artifactId>docopt4s-testkit</artifactId>
+    </dependency>
+
   </dependencies>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>test-jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
 </project>

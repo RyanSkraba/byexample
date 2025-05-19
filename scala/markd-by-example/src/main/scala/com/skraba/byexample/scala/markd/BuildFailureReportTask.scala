@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.markd
 
-import com.skraba.docoptcli.DocoptCliGo
+import com.tinfoiled.docopt4s.Task
 import com.tinfoiled.markd._
 import play.api.libs.json.{JsArray, Json}
 
@@ -398,7 +398,7 @@ class ByFailureOutput(report: BuildFailureReport) {
     ).build().toString
   }
 }
-object BuildFailureReportTask extends DocoptCliGo.Task {
+object BuildFailureReportTask extends Task {
 
   val Cmd = "buildfail"
 
@@ -408,7 +408,7 @@ object BuildFailureReportTask extends DocoptCliGo.Task {
     s"""Summarize a markdown report on build failures.
        |
        |Usage:
-       |  ${MarkdGo.Cli} $Cmd FILE [options]
+       |  ${MarkdGo.Name} $Cmd FILE [options]
        |
        |Options:
        |  -h --help         Show this screen.

@@ -1,7 +1,7 @@
 package com.skraba.byexample.scala.ammonite.video
 
 import com.skraba.byexample.scala.ammonite.FileMaker
-import com.skraba.docoptcli.AnsiConsole
+import com.tinfoiled.docopt4s.AnsiConsole
 
 /** A card is an image that should be applied to the beginning or the end of a video.
   * @param genSvg

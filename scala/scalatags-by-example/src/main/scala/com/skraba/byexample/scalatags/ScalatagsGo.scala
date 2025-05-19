@@ -3,7 +3,7 @@ package com.skraba.byexample.scalatags
 import com.skraba.byexample.scalatags.countdown.CountdownTask
 import com.skraba.byexample.scalatags.duolingo.cn.DuolingoCnCheatsheetTask
 import com.skraba.byexample.scalatags.palette.PaletteTask
-import org.docopt.{Docopt, DocoptExitException}
+import com.tinfoiled.docopt4s.shaded.docoptjava.{Docopt, DocoptExitException}
 
 import scala.jdk.CollectionConverters._
 

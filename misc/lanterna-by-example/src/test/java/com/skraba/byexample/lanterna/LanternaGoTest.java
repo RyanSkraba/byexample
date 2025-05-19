@@ -4,7 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.docopt.DocoptExitException;
+import com.tinfoiled.docopt4s.shaded.docoptjava.DocoptExitException;
 import org.junit.jupiter.api.Test;
 
 /** TODO: How can the colourful, rich text examples be tested? */

@@ -1,7 +1,7 @@
 package com.skraba.byexample.scalatra
 
 import com.skraba.byexample.scalatra.ScalatraGo.TestableServlet
-import com.skraba.docoptcli.DocoptCliGo.Task
+import com.tinfoiled.docopt4s.Task
 import org.scalatra.{BadRequest, NoContent, NotFound}
 import play.api.libs.json.{JsArray, Json, OFormat}
 
@@ -19,7 +19,7 @@ object RestTask extends Task {
     s"""$Description
        |
        |Usage:
-       |  ${ScalatraGo.Cli} $Cmd [options]
+       |  ${ScalatraGo.Name} $Cmd [options]
        |
        |Options:
        |  -h --help    Show this screen.

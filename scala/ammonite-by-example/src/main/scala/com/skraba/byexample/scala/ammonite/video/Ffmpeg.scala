@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.ammonite.video
 
-import com.skraba.docoptcli.AnsiConsole
+import com.tinfoiled.docopt4s.AnsiConsole
 
 /** Encapsulates file operations using the ffmpeg tool for video operations on a file. This was tested with;
   *

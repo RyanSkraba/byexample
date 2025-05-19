@@ -1,11 +1,11 @@
 package com.skraba.byexample.scala.markd
 
-import com.skraba.docoptcli.DocoptCliGoSpec
+import com.tinfoiled.docopt4s.testkit.MultiTaskMainSpec
 
 import scala.reflect.io.{Directory, File}
 
 /** Unit tests for [[BeautifyTask]] */
-class BeautifyTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BeautifyTask)) {
+class BeautifyTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(BeautifyTask)) {
 
   /** A local temporary directory for test file storage. */
   val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
@@ -15,7 +15,7 @@ class BeautifyTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BeautifyTask)) {
     try { Tmp.deleteRecursively() }
     catch { case ex: Exception => ex.printStackTrace() }
 
-  describe(s"${Cli.Cli} $TaskCmd command line") {
+  describe(s"${Main.Name} $TaskCmd command line") {
 
     itShouldThrowOnHelpAndVersionFlags()
 
@@ -24,7 +24,7 @@ class BeautifyTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BeautifyTask)) {
     itShouldThrowOnMissingOpt(Seq.empty)
   }
 
-  describe(s"${Cli.Cli} $TaskCmd beautify basic scenario") {
+  describe(s"${Main.Name} $TaskCmd beautify basic scenario") {
 
     /** Generate a scenario with some files to beautify. */
     def scenario(tag: String): Directory = {

@@ -2,9 +2,9 @@ package com.skraba.byexample.scala;
 
 import static scala.Predef.println;
 
+import com.tinfoiled.docopt4s.shaded.docoptjava.Docopt;
+import com.tinfoiled.docopt4s.shaded.docoptjava.DocoptExitException;
 import java.util.Map;
-import org.docopt.Docopt;
-import org.docopt.DocoptExitException;
 
 /**
  * A Java application that can use scala code.
@@ -112,7 +112,10 @@ public class JavaScalaGo {
     }
   }
 
-  /** {@link org.docopt.DocoptExitException} constructors are protected. */
+  /**
+   * {@link com.tinfoiled.docopt4s.shaded.docoptjava.DocoptExitException} constructors are
+   * protected.
+   */
   public static class InternalDocoptException extends RuntimeException {
 
     private final String docopt;

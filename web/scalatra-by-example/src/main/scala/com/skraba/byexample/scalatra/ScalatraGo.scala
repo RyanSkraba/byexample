@@ -1,7 +1,6 @@
 package com.skraba.byexample.scalatra
 
-import com.skraba.docoptcli.DocoptCliGo
-import com.skraba.docoptcli.DocoptCliGo.Task
+import com.tinfoiled.docopt4s.{MultiTaskMain, Task}
 import jakarta.servlet.Servlet
 import org.eclipse.jetty.ee10.webapp.WebAppContext
 import org.eclipse.jetty.server.Server
@@ -11,8 +10,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 /** A driver for running a Scalatra web server.
   */
-object ScalatraGo extends DocoptCliGo {
-  override lazy val Cli: String = "ScalatraGo"
+object ScalatraGo extends MultiTaskMain {
+  override lazy val Name: String = "ScalatraGo"
   override lazy val Version: String = "0.0.1-SNAPSHOT"
   override lazy val Tasks: Seq[Task] = Seq(HelloWorldTask, RestTask, ServeJarResourceTask, ServeFileTask, TwirlTask)
   override lazy val Doc: String = "A driver to launch a web server.\n\n" + SimpleDoc

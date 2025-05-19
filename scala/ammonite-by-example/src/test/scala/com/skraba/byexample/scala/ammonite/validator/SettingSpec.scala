@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.ammonite.validator
 
-import com.skraba.docoptcli.AnsiConsole
+import com.tinfoiled.docopt4s.AnsiConsole
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers

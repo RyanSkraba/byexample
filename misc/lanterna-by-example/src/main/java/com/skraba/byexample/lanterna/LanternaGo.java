@@ -12,10 +12,10 @@ import com.skraba.byexample.lanterna.progress.BarProgress;
 import com.skraba.byexample.lanterna.progress.PercentProgress;
 import com.skraba.byexample.lanterna.progress.ProgressMonitor;
 import com.skraba.byexample.misc.ClrsCc;
+import com.tinfoiled.docopt4s.shaded.docoptjava.Docopt;
+import com.tinfoiled.docopt4s.shaded.docoptjava.DocoptExitException;
 import java.io.IOException;
 import java.util.*;
-import org.docopt.Docopt;
-import org.docopt.DocoptExitException;
 
 /** Some examples of rich console applications using the Lanterna library. */
 public class LanternaGo {
@@ -101,7 +101,10 @@ public class LanternaGo {
     }
   }
 
-  /** {@link org.docopt.DocoptExitException} constructors are protected. */
+  /**
+   * {@link com.tinfoiled.docopt4s.shaded.docoptjava.DocoptExitException} constructors are
+   * protected.
+   */
   public static class InternalDocoptException extends RuntimeException {
 
     private final String docopt;

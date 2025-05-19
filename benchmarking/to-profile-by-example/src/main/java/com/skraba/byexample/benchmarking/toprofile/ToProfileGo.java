@@ -1,12 +1,12 @@
 package com.skraba.byexample.benchmarking.toprofile;
 
+import com.tinfoiled.docopt4s.shaded.docoptjava.Docopt;
+import com.tinfoiled.docopt4s.shaded.docoptjava.DocoptExitException;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import org.docopt.Docopt;
-import org.docopt.DocoptExitException;
 
 /**
  * Counts and prints prime numbers.
@@ -101,7 +101,10 @@ public class ToProfileGo {
     }
   }
 
-  /** {@link org.docopt.DocoptExitException} constructors are protected. */
+  /**
+   * {@link com.tinfoiled.docopt4s.shaded.docoptjava.DocoptExitException} constructors are
+   * protected.
+   */
   public static class InternalDocoptException extends RuntimeException {
 
     private final String docopt;

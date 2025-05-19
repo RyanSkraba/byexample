@@ -1,10 +1,10 @@
 package com.skraba.byexample.webclient
 
-import com.skraba.docoptcli.DocoptCliGo
-import com.skraba.docoptcli.DocoptCliGo.Task
+import com.tinfoiled.docopt4s.MultiTaskMain
+import com.tinfoiled.docopt4s.Task
 
 /** A driver for running a Scalatra web server. */
-object WebClientGo extends DocoptCliGo {
+object WebClientGo extends MultiTaskMain {
 
   case class SimpleResponse(code: Int, body: String)
 
@@ -23,7 +23,7 @@ object WebClientGo extends DocoptCliGo {
     def delete(path: String): SimpleResponse
   }
 
-  override lazy val Cli: String = "WebClientGo"
+  override lazy val Name: String = "WebClientGo"
   override lazy val Version: String = "0.0.1-SNAPSHOT"
   override lazy val Tasks: Seq[Task] = Seq(GetTask, PostTask, PutTask, DeleteTask)
   override lazy val Doc: String = "A driver to demonstrate http calls.\n\n" + SimpleDoc

@@ -1,17 +1,17 @@
 package com.skraba.byexample.scala.markd
-import com.skraba.docoptcli.DocoptCliGoSpec
+import com.tinfoiled.docopt4s.testkit.MultiTaskMainSpec
 import com.tinfoiled.markd._
 
 import scala.reflect.io.{Directory, File}
 
 /** Unit tests for [[SortTableTask]] */
-class SortTableTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(SortTableTask)) {
+class SortTableTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(SortTableTask)) {
 
   /** A local temporary directory for test file storage. */
   val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
   // TODO(rskraba): Tmp should be in the DocoptCliGoSpec
 
-  describe(s"${Cli.Cli} $TaskCmd command line") {
+  describe(s"${Main.Name} $TaskCmd command line") {
     itShouldThrowOnHelpAndVersionFlags()
 
     itShouldThrowOnUnknownFlag()

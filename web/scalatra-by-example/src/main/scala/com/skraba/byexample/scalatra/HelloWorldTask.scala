@@ -1,7 +1,7 @@
 package com.skraba.byexample.scalatra
 
 import com.skraba.byexample.scalatra.ScalatraGo.TestableServlet
-import com.skraba.docoptcli.DocoptCliGo.Task
+import com.tinfoiled.docopt4s.Task
 
 /** Command-line driver that launches a server that says hello. */
 object HelloWorldTask extends Task {
@@ -14,7 +14,7 @@ object HelloWorldTask extends Task {
     s"""$Description
        |
        |Usage:
-       |  ${ScalatraGo.Cli} $Cmd [options]
+       |  ${ScalatraGo.Name} $Cmd [options]
        |
        |Options:
        |  -h --help    Show this screen.

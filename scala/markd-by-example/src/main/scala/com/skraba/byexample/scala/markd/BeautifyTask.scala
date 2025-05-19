@@ -1,11 +1,11 @@
 package com.skraba.byexample.scala.markd
 
-import com.skraba.docoptcli.DocoptCliGo
+import com.tinfoiled.docopt4s.Task
 import com.tinfoiled.markd.{Header, ParserCfg}
 
 /** Command-line driver for beautifying a markdown file.
   */
-object BeautifyTask extends DocoptCliGo.Task {
+object BeautifyTask extends Task {
 
   val Cmd = "beautify"
 
@@ -15,7 +15,7 @@ object BeautifyTask extends DocoptCliGo.Task {
     s"""Beautify a markdown file.
        |
        |Usage:
-       |  ${MarkdGo.Cli} $Cmd [options] FILE...
+       |  ${MarkdGo.Name} $Cmd [options] FILE...
        |
        |Options:
        |  -h --help       Show this screen.

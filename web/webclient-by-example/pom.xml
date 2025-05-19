@@ -28,9 +28,8 @@
   <dependencies>
     <!-- {{Insert dependencies for specific project.}} -->
     <dependency>
-      <groupId>com.skraba.byexample</groupId>
-      <artifactId>scala-by-example</artifactId>
-      <version>${project.version}</version>
+      <groupId>com.tinfoiled</groupId>
+      <artifactId>docopt4s</artifactId>
     </dependency>
 
     <dependency>
@@ -60,14 +59,6 @@
     <dependency>
       <groupId>com.skraba.byexample</groupId>
       <artifactId>scalatra-by-example</artifactId>
-      <version>${project.version}</version>
-      <classifier>tests</classifier>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>com.skraba.byexample</groupId>
-      <artifactId>scala-by-example</artifactId>
       <version>${project.version}</version>
       <classifier>tests</classifier>
       <scope>test</scope>

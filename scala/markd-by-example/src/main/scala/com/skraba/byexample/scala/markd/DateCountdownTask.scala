@@ -1,5 +1,5 @@
 package com.skraba.byexample.scala.markd
-import com.skraba.docoptcli.DocoptCliGo
+import com.tinfoiled.docopt4s.Task
 import com.tinfoiled.markd._
 
 import java.time.LocalDate
@@ -8,7 +8,7 @@ import java.time.temporal.ChronoUnit
 import scala.util.Try
 import scala.util.matching.Regex
 
-object DateCountdownTask extends DocoptCliGo.Task {
+object DateCountdownTask extends Task {
 
   val Cmd = "datecount"
 
@@ -18,7 +18,7 @@ object DateCountdownTask extends DocoptCliGo.Task {
     s"""Look for tables with dates in a countdown format and fix them.
        |
        |Usage:
-       |    ${MarkdGo.Cli} $Cmd FILE...
+       |    ${MarkdGo.Name} $Cmd FILE...
        |
        |Options:
        |  -h --help       Show this screen.

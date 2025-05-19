@@ -1,5 +1,5 @@
 package com.skraba.byexample.scala.markd
-import com.skraba.docoptcli.DocoptCliGo
+import com.tinfoiled.docopt4s.Task
 import com.tinfoiled.markd._
 
 import scala.util.Try
@@ -7,7 +7,7 @@ import scala.util.matching.Regex
 
 /** Command-line driver for sorting a table in a Markdown file.
   */
-object SortTableTask extends DocoptCliGo.Task {
+object SortTableTask extends Task {
 
   val Cmd = "sortTable"
 
@@ -17,7 +17,7 @@ object SortTableTask extends DocoptCliGo.Task {
     s"""Find a table in the markdown file and sort it.
        |
        |Usage:
-       |  ${MarkdGo.Cli} $Cmd FILE TABLE [COL...] [--ignore] [-]
+       |  ${MarkdGo.Name} $Cmd FILE TABLE [COL...] [--ignore] [-]
        |
        |Options:
        |  -h --help  Show this screen.

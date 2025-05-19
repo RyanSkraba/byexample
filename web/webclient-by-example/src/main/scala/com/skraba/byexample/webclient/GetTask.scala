@@ -1,6 +1,6 @@
 package com.skraba.byexample.webclient
 
-import com.skraba.docoptcli.DocoptCliGo.Task
+import com.tinfoiled.docopt4s.Task
 
 /** Command-line driver that gets a URI. */
 object GetTask extends Task {
@@ -13,7 +13,7 @@ object GetTask extends Task {
     s"""$Description
        |
        |Usage:
-       |  ${WebClientGo.Cli} $Cmd [--sttp|--pekko] URI
+       |  ${WebClientGo.Name} $Cmd [--sttp|--pekko] URI
        |
        |Options:
        |  -h --help  Show this screen.

@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.ammonite.validator
 
-import com.skraba.docoptcli.AnsiConsole
+import com.tinfoiled.docopt4s.AnsiConsole
 
 /** [[StatusMessage]]s are generated as a consequence of running checks. They can be warnings, errors or just messages.
   */

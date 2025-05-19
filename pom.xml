@@ -35,7 +35,7 @@
     <!-- Dependencies -->
     <ammonite.version>3.0.0</ammonite.version>
     <assertj.version>3.27.0</assertj.version>
-    <docopt.version>0.6.0.20150202</docopt.version>
+    <docopt4s.version>0.0.1</docopt4s.version>
     <hamcrest.version>3.0</hamcrest.version>
     <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
     <jetty.version>12.0.16</jetty.version>
@@ -77,9 +77,9 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>com.offbytwo</groupId>
-        <artifactId>docopt</artifactId>
-        <version>${docopt.version}</version>
+        <groupId>com.tinfoiled</groupId>
+        <artifactId>docopt4s</artifactId>
+        <version>${docopt4s.version}</version>
       </dependency>
       <dependency>
         <groupId>jakarta.servlet</groupId>
@@ -119,6 +119,11 @@
         <artifactId>core_2.13</artifactId>
         <version>${sttp.version}</version>
         <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.tinfoiled</groupId>
+        <artifactId>docopt4s-testkit</artifactId>
+        <version>${docopt4s.version}</version>
       </dependency>
       <dependency>
         <groupId>org.assertj</groupId>

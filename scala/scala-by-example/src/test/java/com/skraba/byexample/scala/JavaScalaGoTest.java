@@ -5,7 +5,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.skraba.byexample.scala.scalatest.StdoutSpec;
-import org.docopt.DocoptExitException;
+import com.tinfoiled.docopt4s.shaded.docoptjava.DocoptExitException;
 import org.junit.jupiter.api.Test;
 import scala.PartialFunction;
 import scala.Tuple3;

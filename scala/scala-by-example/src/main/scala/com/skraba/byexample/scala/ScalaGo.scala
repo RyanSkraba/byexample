@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala
 
-import org.docopt.{Docopt, DocoptExitException}
+import com.tinfoiled.docopt4s.shaded.docoptjava.{Docopt, DocoptExitException}
 
 import scala.jdk.CollectionConverters._
 
@@ -64,7 +64,7 @@ object ScalaGo {
     // All of the command is executed in the go method, and this wraps DocOpt and exceptions for
     // console feedback.
     try {
-      go(args.toSeq: _*)
+      go(args: _*)
     } catch {
       case ex: DocoptExitException =>
         Option(if (ex.getExitCode == 0) System.out else System.err)

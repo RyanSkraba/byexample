@@ -3,7 +3,6 @@
 /** A user script for interacting with status sheets and task lists. */
 
 import mainargs.{Flag, arg, main}
-import $ivy.`com.tinfoiled:markd:0.0.1`, com.tinfoiled.markd._
 
 import java.time.{Instant, LocalDate}
 import scala.io.AnsiColor._
@@ -14,13 +13,13 @@ import scala.util.matching.Regex
 // from local maven).
 import $file.local_import_util
 local_import_util.load("ammonite-by-example")
-local_import_util.load("scala-by-example")
 
 @
 import com.skraba.byexample.scala.ammonite.ConsoleCfg
 import com.skraba.byexample.scala.ammonite.gtd.GettingThingsDone._
 import com.skraba.byexample.scala.ammonite.gtd.ThunderbirdMailbox.getNumberOfMessagesFromMailbox
 import com.skraba.byexample.scala.ammonite.gtd._
+import com.tinfoiled.markd._
 
 // ==========================================================================
 // Top level variables available to the script

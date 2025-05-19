@@ -24,9 +24,8 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.offbytwo</groupId>
-      <artifactId>docopt</artifactId>
-      <version>${docopt.version}</version>
+      <groupId>com.tinfoiled</groupId>
+      <artifactId>docopt4s</artifactId>
     </dependency>
   </dependencies>
 </project>

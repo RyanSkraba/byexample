@@ -1,11 +1,11 @@
 package com.skraba.byexample.scalatra
 
-import com.skraba.docoptcli.DocoptCliGoSpec
+import com.tinfoiled.docopt4s.testkit.MultiTaskMainSpec
 import play.api.libs.json.Json
 import sttp.model.StatusCodes
 
 /** Unit tests for [[RestTask]]. */
-class RestTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(RestTask)) with StatusCodes {
+class RestTaskSpec extends MultiTaskMainSpec(ScalatraGo, Some(RestTask)) with StatusCodes {
 
   val Srv = new ScalatraGoServer(Seq(TaskCmd))
 
@@ -14,13 +14,13 @@ class RestTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(RestTask)) with Stat
     Srv.shutdown()
   }
 
-  describe(s"${Cli.Cli} $TaskCmd command line") {
+  describe(s"${Main.Name} $TaskCmd command line") {
     itShouldThrowOnHelpAndVersionFlags()
 
     itShouldThrowOnUnknownFlag()
   }
 
-  describe(s"${Cli.Cli} $TaskCmd running as a server") {
+  describe(s"${Main.Name} $TaskCmd running as a server") {
     it("should have a health check") {
       val response = Srv.get("_health")
       response.code shouldBe Ok.code

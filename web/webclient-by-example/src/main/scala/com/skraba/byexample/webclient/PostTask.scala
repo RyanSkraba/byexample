@@ -1,6 +1,6 @@
 package com.skraba.byexample.webclient
 
-import com.skraba.docoptcli.DocoptCliGo.Task
+import com.tinfoiled.docopt4s.Task
 
 /** Command-line driver that posts to a URI. */
 object PostTask extends Task {
@@ -13,7 +13,7 @@ object PostTask extends Task {
     s"""$Description
        |
        |Usage:
-       |  ${WebClientGo.Cli} $Cmd [--sttp|--pekko] URI PAYLOAD
+       |  ${WebClientGo.Name} $Cmd [--sttp|--pekko] URI PAYLOAD
        |
        |Options:
        |  -h --help  Show this screen.

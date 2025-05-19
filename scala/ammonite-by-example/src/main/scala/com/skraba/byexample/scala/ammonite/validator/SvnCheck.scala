@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.ammonite.validator
 
-import com.skraba.docoptcli.AnsiConsole
+import com.tinfoiled.docopt4s.AnsiConsole
 
 /** SVN management for the release: checking out, updating and fetching information.
   *

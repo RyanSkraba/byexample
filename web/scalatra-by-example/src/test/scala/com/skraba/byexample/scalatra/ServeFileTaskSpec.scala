@@ -1,12 +1,12 @@
 package com.skraba.byexample.scalatra
 
-import com.skraba.docoptcli.DocoptCliGoSpec
+import com.tinfoiled.docopt4s.testkit.MultiTaskMainSpec
 import sttp.model.StatusCodes
 
 import scala.reflect.io.Directory
 
 /** Unit tests for [[ServeFileTask]]. */
-class ServeFileTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(ServeFileTask)) with StatusCodes {
+class ServeFileTaskSpec extends MultiTaskMainSpec(ScalatraGo, Some(ServeFileTask)) with StatusCodes {
 
   /** A local temporary directory for test file storage. */
   val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
@@ -29,13 +29,13 @@ class ServeFileTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(ServeFileTask))
     catch { case ex: Exception => ex.printStackTrace() }
   }
 
-  describe(s"${Cli.Cli} $TaskCmd command line") {
+  describe(s"${Main.Name} $TaskCmd command line") {
     itShouldThrowOnHelpAndVersionFlags()
 
     itShouldThrowOnUnknownFlag()
   }
 
-  describe(s"${Cli.Cli} $TaskCmd running as a server") {
+  describe(s"${Main.Name} $TaskCmd running as a server") {
     it("should have a health check") {
       val response = Srv.get("/_health")
       response.code shouldBe Ok.code

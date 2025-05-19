@@ -1,7 +1,7 @@
 package com.skraba.byexample.scala
 
 import com.skraba.byexample.scala.ScalaGoSpec.{withScalaGo, withScalaGoMatch}
-import org.docopt.DocoptExitException
+import com.tinfoiled.docopt4s.shaded.docoptjava.DocoptExitException
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}

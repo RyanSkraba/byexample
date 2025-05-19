@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.ammonite
 
-import com.skraba.docoptcli.AnsiConsole
+import com.tinfoiled.docopt4s.AnsiConsole
 import os.Path
 
 import java.time.LocalDate

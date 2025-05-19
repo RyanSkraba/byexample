@@ -1,11 +1,11 @@
 package com.skraba.byexample.webclient
 
 import com.skraba.byexample.scalatra.{RestTask, ScalatraGoServer}
-import com.skraba.docoptcli.DocoptCliGoSpec
+import com.tinfoiled.docopt4s.testkit.MultiTaskMainSpec
 import sttp.model.StatusCodes
 
 /** Unit tests for [[PutTask]]. */
-class PutTaskSpec extends DocoptCliGoSpec(WebClientGo, Some(PutTask)) with StatusCodes {
+class PutTaskSpec extends MultiTaskMainSpec(WebClientGo, Some(PutTask)) with StatusCodes {
 
   val Srv = new ScalatraGoServer(Seq(RestTask.Cmd))
 
@@ -14,7 +14,7 @@ class PutTaskSpec extends DocoptCliGoSpec(WebClientGo, Some(PutTask)) with Statu
     Srv.shutdown()
   }
 
-  describe(s"${Cli.Cli} $TaskCmd command line") {
+  describe(s"${Main.Name} $TaskCmd command line") {
     itShouldThrowOnHelpAndVersionFlags()
 
     itShouldThrowOnUnknownFlag()
@@ -34,7 +34,7 @@ class PutTaskSpec extends DocoptCliGoSpec(WebClientGo, Some(PutTask)) with Statu
   }
 
   for (cmd <- Seq("--sttp", "--pekko", "")) {
-    describe(s"${Cli.Cli} $TaskCmd ${if (cmd.nonEmpty) s"with $cmd" else "with default"}") {
+    describe(s"${Main.Name} $TaskCmd ${if (cmd.nonEmpty) s"with $cmd" else "with default"}") {
       it("should get a URI") {
         val preargs = if (cmd.nonEmpty) Seq(TaskCmd, cmd) else Seq(TaskCmd)
         val postargs = Seq(Srv.base.withWholePath("product/101").toString, """{"id": 1, "name": "uno"}""")

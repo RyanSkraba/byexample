@@ -1,7 +1,7 @@
 package com.skraba.byexample.scalatags
 
 import com.skraba.byexample.scalatags.ScalatagsGo.{InternalDocoptException, go}
-import org.docopt.DocoptExitException
+import com.tinfoiled.docopt4s.shaded.docoptjava.DocoptExitException
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 

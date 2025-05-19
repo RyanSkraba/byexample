@@ -1,10 +1,10 @@
 package com.skraba.byexample.scalatra
 
-import com.skraba.docoptcli.DocoptCliGoSpec
+import com.tinfoiled.docopt4s.testkit.MultiTaskMainSpec
 import sttp.model.StatusCodes
 
 /** Unit tests for [[HelloWorldTask]]. */
-class HelloWorldTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(HelloWorldTask)) with StatusCodes {
+class HelloWorldTaskSpec extends MultiTaskMainSpec(ScalatraGo, Some(HelloWorldTask)) with StatusCodes {
 
   val Srv = new ScalatraGoServer(Seq(TaskCmd))
 
@@ -13,13 +13,13 @@ class HelloWorldTaskSpec extends DocoptCliGoSpec(ScalatraGo, Some(HelloWorldTask
     Srv.shutdown()
   }
 
-  describe(s"${Cli.Cli} $TaskCmd command line") {
+  describe(s"${Main.Name} $TaskCmd command line") {
     itShouldThrowOnHelpAndVersionFlags()
 
     itShouldThrowOnUnknownFlag()
   }
 
-  describe(s"${Cli.Cli} $TaskCmd running as a server") {
+  describe(s"${Main.Name} $TaskCmd running as a server") {
     it("should have a health check") {
       val response = Srv.get("/_health")
       response.code shouldBe Ok.code

@@ -5,7 +5,7 @@ import os.CommandResult
 
 import scala.util.{Success, Try}
 import com.skraba.byexample.scala.ammonite.git.CherryPickerReport._
-import com.skraba.docoptcli.AnsiConsole
+import com.tinfoiled.docopt4s.AnsiConsole
 
 case class CherryPickerReport(
     lBranch: String,

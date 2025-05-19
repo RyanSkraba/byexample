@@ -1,12 +1,11 @@
 package com.skraba.byexample.webclient
 
 import com.skraba.byexample.scalatra.{RestTask, ScalatraGoServer}
-import com.skraba.docoptcli.DocoptCliGoSpec
-import play.api.libs.json.Json
+import com.tinfoiled.docopt4s.testkit.MultiTaskMainSpec
 import sttp.model.StatusCodes
 
 /** Unit tests for [[DeleteTask]]. */
-class DeleteTaskSpec extends DocoptCliGoSpec(WebClientGo, Some(DeleteTask)) with StatusCodes {
+class DeleteTaskSpec extends MultiTaskMainSpec(WebClientGo, Some(DeleteTask)) with StatusCodes {
 
   val Srv = new ScalatraGoServer(Seq(RestTask.Cmd))
 
@@ -15,7 +14,7 @@ class DeleteTaskSpec extends DocoptCliGoSpec(WebClientGo, Some(DeleteTask)) with
     Srv.shutdown()
   }
 
-  describe(s"${Cli.Cli} $TaskCmd command line") {
+  describe(s"${Main.Name} $TaskCmd command line") {
     itShouldThrowOnHelpAndVersionFlags()
 
     itShouldThrowOnUnknownFlag()
@@ -32,7 +31,7 @@ class DeleteTaskSpec extends DocoptCliGoSpec(WebClientGo, Some(DeleteTask)) with
   }
 
   for (cmd <- Seq("--sttp", "--pekko", "")) {
-    describe(s"${Cli.Cli} $TaskCmd ${if (cmd.nonEmpty) s"with $cmd" else "with default"}") {
+    describe(s"${Main.Name} $TaskCmd ${if (cmd.nonEmpty) s"with $cmd" else "with default"}") {
       // Create the product so we can delete it
       val product = SttpClient.post(Srv.base.withWholePath("product/").toString(), """{"id": 9, "name": "nine"}""")
       it("should get a URI") {

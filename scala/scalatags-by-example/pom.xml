@@ -37,8 +37,8 @@
     </dependency>
     -->
     <dependency>
-      <groupId>com.offbytwo</groupId>
-      <artifactId>docopt</artifactId>
+      <groupId>com.tinfoiled</groupId>
+      <artifactId>docopt4s</artifactId>
     </dependency>
     <dependency>
       <groupId>org.scala-lang</groupId>

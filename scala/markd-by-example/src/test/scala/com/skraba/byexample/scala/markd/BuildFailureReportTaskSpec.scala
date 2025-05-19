@@ -1,12 +1,12 @@
 package com.skraba.byexample.scala.markd
-import com.skraba.docoptcli.DocoptCliGoSpec
+import com.tinfoiled.docopt4s.testkit.MultiTaskMainSpec
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import scala.reflect.io.{Directory, File}
 
 /** Unit tests for [[BuildFailureReportTask]] */
-class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFailureReportTask)) {
+class BuildFailureReportTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(BuildFailureReportTask)) {
 
   /** A local temporary directory for test file storage. */
   val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
@@ -16,7 +16,7 @@ class BuildFailureReportTaskSpec extends DocoptCliGoSpec(MarkdGo, Some(BuildFail
     try { Tmp.deleteRecursively() }
     catch { case ex: Exception => ex.printStackTrace() }
 
-  describe(s"${Cli.Cli} $TaskCmd command line") {
+  describe(s"${Main.Name} $TaskCmd command line") {
     itShouldThrowOnHelpAndVersionFlags()
 
     itShouldThrowOnUnknownFlag()

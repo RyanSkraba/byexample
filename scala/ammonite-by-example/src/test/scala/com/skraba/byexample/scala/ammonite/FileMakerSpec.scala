@@ -1,7 +1,7 @@
 package com.skraba.byexample.scala.ammonite
 
 import com.skraba.byexample.scala.ammonite.OsPathScalaRelectIOConverters._
-import com.skraba.docoptcli.AnsiConsole
+import com.tinfoiled.docopt4s.AnsiConsole
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.OptionValues._
 import org.scalatest.funspec.AnyFunSpecLike

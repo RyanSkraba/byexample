@@ -4,12 +4,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.tinfoiled.docopt4s.shaded.docoptjava.DocoptExitException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.docopt.DocoptExitException;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for {@link ToProfileGo}. */

@@ -2,13 +2,13 @@ package com.skraba.byexample.webclient
 
 import com.skraba.byexample.webclient.WebClientGo.SimpleResponse
 import com.typesafe.config.ConfigFactory
+import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.http.scaladsl.Http
 import org.apache.pekko.http.scaladsl.model._
 import org.apache.pekko.util.ByteString
-import org.apache.pekko.actor.ActorSystem
 
 import java.net.URL
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Await
 import scala.concurrent.duration.{DurationInt, _}
 
 object PekkoClient extends WebClientGo.SimpleClient {

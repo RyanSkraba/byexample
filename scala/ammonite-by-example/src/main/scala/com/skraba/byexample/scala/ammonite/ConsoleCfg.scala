@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.ammonite
 
-import com.skraba.docoptcli.AnsiConsole
+import com.tinfoiled.docopt4s.AnsiConsole
 import mainargs._
 
 /** A configurable, colourful mechanism for interacting with the user via the terminal.

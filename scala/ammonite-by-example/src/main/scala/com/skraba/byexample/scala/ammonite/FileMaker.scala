@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.ammonite
 
-import com.skraba.docoptcli.AnsiConsole
+import com.tinfoiled.docopt4s.AnsiConsole
 
 /** A [[FileMaker]] is used to generate a file and provide output to the console, checking whether it exists before
   * running the code to create it.

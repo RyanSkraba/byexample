@@ -1,7 +1,7 @@
 package com.skraba.byexample.scalatra
 
 import com.skraba.byexample.scalatra.ScalatraGo.TestableServlet
-import com.skraba.docoptcli.DocoptCliGo.Task
+import com.tinfoiled.docopt4s.Task
 import org.scalatra.servlet.ServletBase
 
 import java.net.URLConnection
@@ -17,7 +17,7 @@ object ServeJarResourceTask extends Task {
     s"""$Description
        |
        |Usage:
-       |  ${ScalatraGo.Cli} $Cmd [--port=PORT]
+       |  ${ScalatraGo.Name} $Cmd [--port=PORT]
        |
        |Options:
        |  -h --help    Show this screen.

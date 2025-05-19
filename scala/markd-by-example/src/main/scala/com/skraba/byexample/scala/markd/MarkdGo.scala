@@ -1,15 +1,14 @@
 package com.skraba.byexample.scala.markd
-import com.skraba.docoptcli.DocoptCliGo
-import com.skraba.docoptcli.DocoptCliGo.Task
+import com.tinfoiled.docopt4s.{Task, DocoptException, MultiTaskMain}
 import com.tinfoiled.markd._
 
 import scala.reflect.io.{Directory, File, Path}
 
 /** A driver for the various utilities that use the [[Markd]] model.
   */
-object MarkdGo extends DocoptCliGo {
+object MarkdGo extends MultiTaskMain {
 
-  override lazy val Cli: String = "MarkdGo"
+  override lazy val Name: String = "MarkdGo"
 
   override lazy val Version: String = "0.0.1-SNAPSHOT"
 
@@ -31,7 +30,7 @@ object MarkdGo extends DocoptCliGo {
       case f: File if f.exists => Some(f)
       case d: Directory if d.exists =>
         d.walkFilter(p => p.isDirectory || """.*\.md$""".r.findFirstIn(p.name).isDefined).map(_.toFile)
-      case p => throw new InternalDocoptException(s"The file ${p.name} doesn't exist.")
+      case p => throw new DocoptException(s"The file ${p.name} doesn't exist.")
     }
     .foreach(fn)
 }

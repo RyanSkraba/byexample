@@ -3,7 +3,6 @@
 /** Some ammonite scala scripts that demonstrate using git. */
 
 import mainargs.{Flag, arg, main}
-import $ivy.`com.tinfoiled:markd:0.0.1`, com.tinfoiled.markd._
 
 import java.time.{DayOfWeek, LocalDateTime}
 import java.time.format.DateTimeFormatter
@@ -16,13 +15,12 @@ import scala.util._
 // from local maven).
 import $file.local_import_util
 local_import_util.load("ammonite-by-example")
-local_import_util.load("scala-by-example")
 
 @
 import com.skraba.byexample.scala.ammonite.ConsoleCfg
 import com.skraba.byexample.scala.ammonite.git.CherryPickerReport
 import com.skraba.byexample.scala.ammonite.git.Commit.getDateFromRepo
-import com.tinfoiled.markd._
+import com.tinfoiled.markd.Header
 
 // ==========================================================================
 // Top level variables available to the script

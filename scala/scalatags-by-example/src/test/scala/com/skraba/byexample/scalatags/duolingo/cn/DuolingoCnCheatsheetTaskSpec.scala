@@ -2,7 +2,7 @@ package com.skraba.byexample.scalatags.duolingo.cn
 
 import com.skraba.byexample.scalatags.ScalatagsGoSpec.{withScalatagsGo, withScalatagsGoMatch}
 import com.skraba.byexample.scalatags.duolingo.cn.CheatsheetSpec.assumeCheatsheetNetwork
-import org.docopt.DocoptExitException
+import com.tinfoiled.docopt4s.shaded.docoptjava.DocoptExitException
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
