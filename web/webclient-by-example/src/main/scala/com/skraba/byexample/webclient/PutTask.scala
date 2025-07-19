@@ -1,6 +1,6 @@
 package com.skraba.byexample.webclient
 
-import com.tinfoiled.docopt4s.Task
+import com.tinfoiled.docopt4s.{Docopt, Task}
 
 /** Command-line driver that puts to a URI. */
 object PutTask extends Task {
@@ -24,10 +24,10 @@ object PutTask extends Task {
        |  PAYLOAD    The payload for the PUT request.
        |""".stripMargin.trim
 
-  def go(opts: TaskOptions): Unit = {
-    val uri = opts.getString("URI")
-    val payload = opts.getString("PAYLOAD")
-    Seq("--sttp", "--pekko").find(opts.getBoolean) match {
+  def go(opt: Docopt): Unit = {
+    val uri = opt.string.get("URI")
+    val payload = opt.string.get("PAYLOAD")
+    Seq("--sttp", "--pekko").find(opt.flag) match {
       case Some("--pekko") => print(PekkoClient.put(uri, payload).body)
       case _               => print(SttpClient.put(uri, payload).body)
     }

@@ -19,6 +19,8 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
   /** The path containing ammonite scripts. */
   val ScriptPath: Path = find("/ammonite_example.sc")
 
+  // TODO: TmpDir from docopts4s
+
   /** A local temporary directory for test file storage. */
   val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
 

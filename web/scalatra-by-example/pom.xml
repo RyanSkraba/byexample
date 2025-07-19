@@ -31,7 +31,7 @@
     <!-- {{Insert dependencies for specific project.}} -->
     <dependency>
       <groupId>com.tinfoiled</groupId>
-      <artifactId>docopt4s</artifactId>
+      <artifactId>docopt4s_${scala.binary.version}</artifactId>
     </dependency>
 
     <dependency>
@@ -69,7 +69,7 @@
     <!-- tests -->
     <dependency>
       <groupId>com.tinfoiled</groupId>
-      <artifactId>docopt4s-testkit</artifactId>
+      <artifactId>docopt4s-testkit_${scala.binary.version}</artifactId>
     </dependency>
     <dependency>
       <groupId>com.softwaremill.sttp.client4</groupId>

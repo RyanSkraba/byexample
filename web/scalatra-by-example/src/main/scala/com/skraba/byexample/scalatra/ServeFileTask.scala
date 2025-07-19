@@ -1,7 +1,7 @@
 package com.skraba.byexample.scalatra
 
 import com.skraba.byexample.scalatra.ScalatraGo.TestableServlet
-import com.tinfoiled.docopt4s.Task
+import com.tinfoiled.docopt4s.{Docopt, Task}
 import org.scalatra.servlet.ServletBase
 
 import java.net.URLConnection
@@ -27,9 +27,9 @@ object ServeFileTask extends Task {
        |  --dir=DIR    Directory to serve (Default: .)
        |""".stripMargin.trim
 
-  def go(opts: TaskOptions): Unit = {
-    val dir = Directory(opts.getString("--dir"))
-    ScalatraGo.runStandaloneServer(opts.getInt("--port", 8080), classOf[Srvlet], dir)
+  def go(opt: Docopt): Unit = {
+    val dir = opt.dir.get("--dir")
+    ScalatraGo.runStandaloneServer(opt.int.getOr("--port", 8080), classOf[Srvlet], dir)
   }
 
   /** Applies a notFound that falls back to a static file resource.

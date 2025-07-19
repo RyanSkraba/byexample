@@ -26,7 +26,7 @@
   <dependencies>
     <dependency>
       <groupId>com.tinfoiled</groupId>
-      <artifactId>docopt4s</artifactId>
+      <artifactId>docopt4s_${scala.binary.version}</artifactId>
     </dependency>
     <dependency>
       <groupId>com.googlecode.lanterna</groupId>

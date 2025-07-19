@@ -2,7 +2,7 @@ package com.skraba.byexample.scalatra
 
 import com.skraba.byexample.scalatra.ScalatraGo.TestableServlet
 import com.skraba.byexample.scalatra.ServeJarResourceTask.fallbackToJar
-import com.tinfoiled.docopt4s.Task
+import com.tinfoiled.docopt4s.{Docopt, Task}
 
 /** Command-line driver that launches a server that serves HTML from a Twirl template. */
 object TwirlTask extends Task {
@@ -23,7 +23,7 @@ object TwirlTask extends Task {
        |  --port=PORT  Port (Default: 8080)
        |""".stripMargin.trim
 
-  def go(opts: TaskOptions): Unit = ScalatraGo.runStandaloneServer(opts.getInt("--port", 8080), classOf[Srvlet])
+  def go(opt: Docopt): Unit = ScalatraGo.runStandaloneServer(opt.int.getOr("--port", 8080), classOf[Srvlet])
 
   class Srvlet extends TestableServlet {
 

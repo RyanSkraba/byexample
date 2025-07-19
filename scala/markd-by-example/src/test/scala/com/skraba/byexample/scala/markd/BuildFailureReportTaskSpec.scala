@@ -1,35 +1,27 @@
 package com.skraba.byexample.scala.markd
-import com.tinfoiled.docopt4s.testkit.MultiTaskMainSpec
+import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, TmpDir}
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import scala.reflect.io.{Directory, File}
+import scala.reflect.io.File
 
 /** Unit tests for [[BuildFailureReportTask]] */
-class BuildFailureReportTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(BuildFailureReportTask)) {
-
-  /** A local temporary directory for test file storage. */
-  val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
-
-  /** Delete temporary resources after the script. */
-  override protected def afterAll(): Unit =
-    try { Tmp.deleteRecursively() }
-    catch { case ex: Exception => ex.printStackTrace() }
+class BuildFailureReportTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(BuildFailureReportTask)) with TmpDir {
 
   describe(s"${Main.Name} $TaskCmd command line") {
     itShouldThrowOnHelpAndVersionFlags()
 
     itShouldThrowOnUnknownFlag()
 
-    itShouldThrowOnMissingOpt(Seq.empty)
-    itShouldThrowOnMissingOpt(Seq("--days", "1"))
-    itShouldThrowOnMissingOpt(Seq("--all"))
+    itShouldThrowOnIncompleteArgs(Seq.empty)
+    itShouldThrowOnIncompleteArgs(Seq("--days", "1"))
+    itShouldThrowOnIncompleteArgs(Seq("--all"))
 
-    itShouldThrowOnMissingOptValue(Seq("--days"))
-    itShouldThrowOnMissingOptValue(Seq("--until"))
-    itShouldThrowOnMissingOptValue(Seq("--after"))
-    itShouldThrowOnMissingOptValue(Seq("--add-fails"))
-    itShouldThrowOnMissingOptValue(Seq("--main-version"))
+    itShouldThrowOnMissingFlagValue(Seq("--days"))
+    itShouldThrowOnMissingFlagValue(Seq("--until"))
+    itShouldThrowOnMissingFlagValue(Seq("--after"))
+    itShouldThrowOnMissingFlagValue(Seq("--add-fails"))
+    itShouldThrowOnMissingFlagValue(Seq("--main-version"))
   }
 
   describe("Parsing build titles") {

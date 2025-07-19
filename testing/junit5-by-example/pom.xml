@@ -22,6 +22,7 @@
   </properties>
 
   <dependencies>
+    <!-- Tests -->
     <dependency>
       <groupId>com.skraba.byexample</groupId>
       <artifactId>scala-by-example</artifactId>

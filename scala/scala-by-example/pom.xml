@@ -28,7 +28,7 @@
     <!-- {{Insert dependencies for specific project.}} -->
     <dependency>
       <groupId>com.tinfoiled</groupId>
-      <artifactId>docopt4s</artifactId>
+      <artifactId>docopt4s_${scala.binary.version}</artifactId>
     </dependency>
     <dependency>
       <groupId>org.scala-lang</groupId>
@@ -47,11 +47,6 @@
       <artifactId>markd</artifactId>
       <version>${markd.version}</version>
     </dependency>
-    <dependency>
-      <groupId>com.tinfoiled</groupId>
-      <artifactId>docopt4s-testkit</artifactId>
-    </dependency>
-
   </dependencies>
 
 </project>

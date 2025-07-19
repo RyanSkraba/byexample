@@ -2,10 +2,11 @@ package com.skraba.byexample.webclient
 
 import com.skraba.byexample.scalatra.{RestTask, ScalatraGoServer}
 import com.tinfoiled.docopt4s.testkit.MultiTaskMainSpec
+import org.scalatest.BeforeAndAfterAll
 import sttp.model.StatusCodes
 
 /** Unit tests for [[PutTask]]. */
-class PutTaskSpec extends MultiTaskMainSpec(WebClientGo, Some(PutTask)) with StatusCodes {
+class PutTaskSpec extends MultiTaskMainSpec(WebClientGo, Some(PutTask)) with StatusCodes with BeforeAndAfterAll {
 
   val Srv = new ScalatraGoServer(Seq(RestTask.Cmd))
 
@@ -19,18 +20,18 @@ class PutTaskSpec extends MultiTaskMainSpec(WebClientGo, Some(PutTask)) with Sta
 
     itShouldThrowOnUnknownFlag()
 
-    itShouldThrowOnMissingOpt(Seq())
-    itShouldThrowOnMissingOpt(Seq("--pekko"))
-    itShouldThrowOnMissingOpt(Seq("--pekko", "https://example.com"))
-    itShouldThrowOnMissingOpt(Seq("--sttp"))
-    itShouldThrowOnMissingOpt(Seq("--sttp", "https://example.com"))
+    itShouldThrowOnIncompleteArgs(Seq())
+    itShouldThrowOnIncompleteArgs(Seq("--pekko"))
+    itShouldThrowOnIncompleteArgs(Seq("--pekko", "https://example.com"))
+    itShouldThrowOnIncompleteArgs(Seq("--sttp"))
+    itShouldThrowOnIncompleteArgs(Seq("--sttp", "https://example.com"))
 
     // TODO: Is this incompatible or missing?
-    itShouldThrowOnMissingOpt(Seq("--pekko", "--sttp"))
-    itShouldThrowOnMissingOpt(Seq("--pekko", "--sttp", "https://example.com"))
+    itShouldThrowOnIncompleteArgs(Seq("--pekko", "--sttp"))
+    itShouldThrowOnIncompleteArgs(Seq("--pekko", "--sttp", "https://example.com"))
 
     // TODO: Incompatible, not missing
-    itShouldThrowOnMissingOpt(Seq("--pekko", "--sttp", "https://example.com", "payload"))
+    itShouldThrowOnIncompleteArgs(Seq("--pekko", "--sttp", "https://example.com", "payload"))
   }
 
   for (cmd <- Seq("--sttp", "--pekko", "")) {

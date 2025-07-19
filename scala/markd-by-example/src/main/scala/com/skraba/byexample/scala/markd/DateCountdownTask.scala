@@ -1,5 +1,5 @@
 package com.skraba.byexample.scala.markd
-import com.tinfoiled.docopt4s.Task
+import com.tinfoiled.docopt4s.{Docopt, Task}
 import com.tinfoiled.markd._
 
 import java.time.LocalDate
@@ -37,9 +37,9 @@ object DateCountdownTask extends Task {
        |Other cells will not be modified.
        |""".stripMargin.trim
 
-  def go(opts: TaskOptions): Unit = {
+  def go(opt: Docopt): Unit = {
 
-    val files: Iterable[String] = opts.getStrings("FILE")
+    val files: Iterable[String] = opt.strings.get("FILE")
 
     MarkdGo.processMd(files) { f =>
       f.writeAll(

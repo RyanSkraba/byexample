@@ -1,11 +1,12 @@
 package com.skraba.byexample.scalatra
 
 import com.tinfoiled.docopt4s.testkit.MultiTaskMainSpec
+import org.scalatest.BeforeAndAfterAll
 import play.api.libs.json.Json
 import sttp.model.StatusCodes
 
 /** Unit tests for [[RestTask]]. */
-class RestTaskSpec extends MultiTaskMainSpec(ScalatraGo, Some(RestTask)) with StatusCodes {
+class RestTaskSpec extends MultiTaskMainSpec(ScalatraGo, Some(RestTask)) with StatusCodes with BeforeAndAfterAll {
 
   val Srv = new ScalatraGoServer(Seq(TaskCmd))
 

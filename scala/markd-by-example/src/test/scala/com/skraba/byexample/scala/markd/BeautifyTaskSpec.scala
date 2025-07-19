@@ -1,19 +1,11 @@
 package com.skraba.byexample.scala.markd
 
-import com.tinfoiled.docopt4s.testkit.MultiTaskMainSpec
+import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, TmpDir}
 
 import scala.reflect.io.{Directory, File}
 
 /** Unit tests for [[BeautifyTask]] */
-class BeautifyTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(BeautifyTask)) {
-
-  /** A local temporary directory for test file storage. */
-  val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
-
-  /** Delete temporary resources after the script. */
-  override protected def afterAll(): Unit =
-    try { Tmp.deleteRecursively() }
-    catch { case ex: Exception => ex.printStackTrace() }
+class BeautifyTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(BeautifyTask)) with TmpDir {
 
   describe(s"${Main.Name} $TaskCmd command line") {
 
@@ -21,7 +13,7 @@ class BeautifyTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(BeautifyTask)) {
 
     itShouldThrowOnUnknownFlag()
 
-    itShouldThrowOnMissingOpt(Seq.empty)
+    itShouldThrowOnIncompleteArgs(Seq.empty)
   }
 
   describe(s"${Main.Name} $TaskCmd beautify basic scenario") {

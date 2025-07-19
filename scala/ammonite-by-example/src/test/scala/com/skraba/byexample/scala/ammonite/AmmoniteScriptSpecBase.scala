@@ -28,6 +28,8 @@ abstract class AmmoniteScriptSpecBase(ScriptPath: File) extends AnyFunSpecLike w
   /** A default AnsiConsole for testing output. */
   val Ansi: AnsiConsole = AnsiConsole()
 
+  // TODO: TmpDir from docopts4s
+
   /** A local temporary directory for test file storage. */
   val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
 

@@ -21,6 +21,7 @@
     <scalafmt.conf.path>${project.basedir}/../../.scalafmt.conf</scalafmt.conf.path>
     <!-- Launcher class -->
     <exec.mainClass>com.skraba.byexample.webclient.WebClientGo</exec.mainClass>
+    <!-- other project dependency versions as properties -->
     <pekko.version>1.1.3</pekko.version>
     <pekko-http.version>1.1.0</pekko-http.version>
   </properties>
@@ -29,7 +30,7 @@
     <!-- {{Insert dependencies for specific project.}} -->
     <dependency>
       <groupId>com.tinfoiled</groupId>
-      <artifactId>docopt4s</artifactId>
+      <artifactId>docopt4s-testkit_${scala.binary.version}</artifactId>
     </dependency>
 
     <dependency>

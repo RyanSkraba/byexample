@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.markd
 
-import com.tinfoiled.docopt4s.Task
+import com.tinfoiled.docopt4s.{Docopt, Task}
 import com.tinfoiled.markd.{Header, Markd, MultiMarkd}
 
 import scala.reflect.io.File
@@ -66,10 +66,10 @@ object QueryTask extends Task {
        |
        |""".stripMargin.trim
 
-  def go(opts: TaskOptions): Unit = {
+  def go(opt: Docopt): Unit = {
 
-    val qx: String = opts.getString("--query")
-    val file: String = opts.getString("FILE")
+    val qx: String = opt.string.get("--query")
+    val file: String = opt.string.get("FILE")
 
     val md = Header.parse(
       if (file == "-") Iterator.continually(Console.in.readLine()).takeWhile(_ != null).mkString("\n")

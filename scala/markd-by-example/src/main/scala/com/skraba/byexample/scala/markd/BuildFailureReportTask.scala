@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.markd
 
-import com.tinfoiled.docopt4s.Task
+import com.tinfoiled.docopt4s.{Docopt, Task}
 import com.tinfoiled.markd._
 import play.api.libs.json.{JsArray, Json}
 
@@ -451,19 +451,19 @@ object BuildFailureReportTask extends Task {
        |
        |""".stripMargin.trim
 
-  def go(opts: TaskOptions): Unit = {
+  def go(opt: Docopt): Unit = {
 
-    val files: String = opts.getString("FILE")
+    val files: String = opt.string.get("FILE")
     // If --all is present, ignore the --day parameter to include ALL days.
-    val filterDays: Int = if (opts.getBoolean("--all")) Int.MaxValue else opts.getInt("--days", 1)
-    val filterAfter: Option[String] = opts.getStringOption("--after")
-    val filterUntil: Option[String] = opts.getStringOption("--until")
-    val asMarkdownMsg: Boolean = opts.getBoolean("--markdown-msg")
-    val asHtml: Boolean = opts.getBoolean("--html")
+    val filterDays: Int = if (opt.flag("--all")) Int.MaxValue else opt.int.getOr("--days", 1)
+    val filterAfter: Option[String] = opt.string.getOption("--after")
+    val filterUntil: Option[String] = opt.string.getOption("--until")
+    val asMarkdownMsg: Boolean = opt.flag("--markdown-msg")
+    val asHtml: Boolean = opt.flag("--html")
 
     // Whether to modify the document by adding any new failed build before processing.
-    val addFails: Option[String] = opts.getStringOption("--add-fails")
-    val mainVersion: Option[String] = opts.getStringOption("--main-version")
+    val addFails: Option[String] = opt.string.getOption("--add-fails")
+    val mainVersion: Option[String] = opt.string.getOption("--main-version")
 
     MarkdGo.processMd(Seq(files)) { f =>
       // Modify the file with new build failures on request

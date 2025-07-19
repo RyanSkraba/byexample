@@ -1,12 +1,16 @@
 package com.skraba.byexample.scalatra
 
 import com.tinfoiled.docopt4s.testkit.MultiTaskMainSpec
+import org.scalatest.BeforeAndAfterAll
 import sttp.model.StatusCodes
 
 import scala.reflect.io.Directory
 
 /** Unit tests for [[ServeFileTask]]. */
-class ServeFileTaskSpec extends MultiTaskMainSpec(ScalatraGo, Some(ServeFileTask)) with StatusCodes {
+class ServeFileTaskSpec
+    extends MultiTaskMainSpec(ScalatraGo, Some(ServeFileTask))
+    with StatusCodes
+    with BeforeAndAfterAll {
 
   /** A local temporary directory for test file storage. */
   val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)

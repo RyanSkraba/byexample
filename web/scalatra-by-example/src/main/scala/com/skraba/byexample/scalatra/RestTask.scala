@@ -1,7 +1,7 @@
 package com.skraba.byexample.scalatra
 
 import com.skraba.byexample.scalatra.ScalatraGo.TestableServlet
-import com.tinfoiled.docopt4s.Task
+import com.tinfoiled.docopt4s.{Docopt, Task}
 import org.scalatra.{BadRequest, NoContent, NotFound}
 import play.api.libs.json.{JsArray, Json, OFormat}
 
@@ -27,7 +27,7 @@ object RestTask extends Task {
        |  --port=PORT  Port (Default: 8080)
        |""".stripMargin.trim
 
-  def go(opts: TaskOptions): Unit = ScalatraGo.runStandaloneServer(opts.getInt("--port", 8080), classOf[Srvlet])
+  def go(opt: Docopt): Unit = ScalatraGo.runStandaloneServer(opt.int.getOr("--port", 8080), classOf[Srvlet])
 
   /** The object type stored in the fake database. */
   case class Product(id: Int, name: String)

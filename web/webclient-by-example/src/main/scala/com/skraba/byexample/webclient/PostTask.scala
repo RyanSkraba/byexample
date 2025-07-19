@@ -1,6 +1,6 @@
 package com.skraba.byexample.webclient
 
-import com.tinfoiled.docopt4s.Task
+import com.tinfoiled.docopt4s.{Docopt, Task}
 
 /** Command-line driver that posts to a URI. */
 object PostTask extends Task {
@@ -24,10 +24,10 @@ object PostTask extends Task {
        |  PAYLOAD    The payload for the POST request.
        |""".stripMargin.trim
 
-  def go(opts: TaskOptions): Unit = {
-    val uri = opts.getString("URI")
-    val payload = opts.getString("PAYLOAD")
-    Seq("--sttp", "--pekko").find(opts.getBoolean) match {
+  def go(opt: Docopt): Unit = {
+    val uri = opt.string.get("URI")
+    val payload = opt.string.get("PAYLOAD")
+    Seq("--sttp", "--pekko").find(opt.flag) match {
       case Some("--pekko") => print(PekkoClient.post(uri, payload).body)
       case _               => print(SttpClient.post(uri, payload).body)
     }

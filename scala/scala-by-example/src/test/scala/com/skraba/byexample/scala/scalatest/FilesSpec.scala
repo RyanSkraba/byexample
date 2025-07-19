@@ -14,6 +14,8 @@ import scala.util.Properties
   */
 class FilesSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 
+  // TODO: TmpDir from docopts4s
+
   /** A local temporary directory for test file storage. */
   val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
 

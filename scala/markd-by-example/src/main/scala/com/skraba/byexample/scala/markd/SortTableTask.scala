@@ -1,5 +1,5 @@
 package com.skraba.byexample.scala.markd
-import com.tinfoiled.docopt4s.Task
+import com.tinfoiled.docopt4s.{Docopt, Task}
 import com.tinfoiled.markd._
 
 import scala.util.Try
@@ -102,14 +102,14 @@ object SortTableTask extends Task {
     }
   }
 
-  def go(opts: TaskOptions): Unit = {
+  def go(opt: Docopt): Unit = {
 
-    val file: String = opts.getString("FILE")
-    val tableArg: String = opts.getString("TABLE")
-    val ignore: Boolean = opts.getBoolean("--ignore")
+    val file: String = opt.string.get("FILE")
+    val tableArg: String = opt.string.get("TABLE")
+    val ignore: Boolean = opt.flag("--ignore")
 
     val (stdout, sortByArgs) = {
-      val cols = opts.getStrings("COL")
+      val cols = opt.strings.get("COL")
       if (cols.lastOption.contains("-")) (true, cols.init)
       else (false, cols)
     }

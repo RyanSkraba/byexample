@@ -18,8 +18,8 @@ class QueryTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(QueryTask)) {
 
     itShouldThrowOnUnknownFlag()
 
-    itShouldThrowOnMissingOpt(Seq.empty)
-    itShouldThrowOnMissingOpt(Seq("file"))
+    itShouldThrowOnIncompleteArgs(Seq.empty)
+    itShouldThrowOnIncompleteArgs(Seq("file"))
   }
 
   val BasicMd: Header = Header.parse("""# A

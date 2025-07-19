@@ -1,11 +1,12 @@
 package com.skraba.byexample.scalatra
 
 import com.tinfoiled.docopt4s.testkit.MultiTaskMainSpec
+import org.scalatest.BeforeAndAfterAll
 import sttp.model.MediaType.ApplicationXWwwFormUrlencoded
 import sttp.model.StatusCodes
 
 /** Unit tests for [[TwirlTask]]. */
-class TwirlTaskSpec extends MultiTaskMainSpec(ScalatraGo, Some(TwirlTask)) with StatusCodes {
+class TwirlTaskSpec extends MultiTaskMainSpec(ScalatraGo, Some(TwirlTask)) with StatusCodes with BeforeAndAfterAll {
 
   val Srv = new ScalatraGoServer(Seq(TaskCmd))
 

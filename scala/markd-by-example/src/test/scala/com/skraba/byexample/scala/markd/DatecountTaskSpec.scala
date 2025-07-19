@@ -11,7 +11,7 @@ class DatecountTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(DateCountdownTas
 
     itShouldThrowOnUnknownFlag()
 
-    itShouldThrowOnMissingOpt(Seq.empty)
+    itShouldThrowOnIncompleteArgs(Seq.empty)
   }
 
   describe("The DateCountdownTask process method") {

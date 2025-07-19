@@ -9,6 +9,8 @@ import scala.reflect.io.Directory
 /** Test the [[SvnCheck]]. */
 class SvnCheckSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterAll {
 
+  // TODO: TmpDir from docopts4s
+
   /** A local temporary directory for test file storage. */
   val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
 

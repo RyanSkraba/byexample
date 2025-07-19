@@ -7,6 +7,8 @@ import scala.reflect.io.{Directory, File}
 /** Unit tests for [[SortTableTask]] */
 class SortTableTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(SortTableTask)) {
 
+  // TODO: TmpDir from docopts4s
+
   /** A local temporary directory for test file storage. */
   val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
   // TODO(rskraba): Tmp should be in the DocoptCliGoSpec
@@ -16,8 +18,8 @@ class SortTableTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(SortTableTask)) 
 
     itShouldThrowOnUnknownFlag()
 
-    itShouldThrowOnMissingOpt(Seq.empty)
-    itShouldThrowOnMissingOpt(Seq("file"))
+    itShouldThrowOnIncompleteArgs(Seq.empty)
+    itShouldThrowOnIncompleteArgs(Seq("file"))
   }
 
   /** Helper to extract a column from a matching table. */
@@ -190,7 +192,12 @@ class SortTableTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(SortTableTask)) 
     describe("when sorting a missing table") {
 
       it(s"should fail when specifying a missing table") {
-        interceptGoIAEx(TaskCmd, Basic, "Missing", "-").getMessage shouldBe s"Table not found: 'Missing'"
+        interceptGo[IllegalArgumentException](
+          TaskCmd,
+          Basic,
+          "Missing",
+          "-"
+        ).getMessage shouldBe s"Table not found: 'Missing'"
       }
 
       it(s"should ignore when specifying a missing table") {
@@ -338,7 +345,12 @@ class SortTableTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(SortTableTask)) 
 
     for (table <- Seq("A:3", "A:-1", "A:99")) {
       it(s"should fail when specifying missing table number $table") {
-        interceptGoIAEx(TaskCmd, Multi, table, "-").getMessage shouldBe s"Bad table specifier: '$table'"
+        interceptGo[IllegalArgumentException](
+          TaskCmd,
+          Multi,
+          table,
+          "-"
+        ).getMessage shouldBe s"Bad table specifier: '$table'"
         Multi.slurp() shouldBe MultiTable
       }
 

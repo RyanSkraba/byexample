@@ -89,7 +89,7 @@ public class JavaScalaGo {
 
   /** Main entry point to the application. */
   public static void main(String[] args) {
-    // All of the command is executed in the go method, and this wraps DocOpt and exceptions for
+    // The command is executed in the go method, and this wraps DocOpt and exceptions for
     // console feedback.
     try {
       go(args);

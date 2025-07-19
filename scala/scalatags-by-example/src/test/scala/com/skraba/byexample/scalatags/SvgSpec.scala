@@ -14,6 +14,8 @@ import scala.reflect.io._
   */
 class SvgSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterAll {
 
+  // TODO: TmpDir from docopts4s
+
   /** A local temporary directory for test file storage. */
   val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
 

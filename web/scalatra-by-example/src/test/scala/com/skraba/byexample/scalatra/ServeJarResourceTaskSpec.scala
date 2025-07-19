@@ -1,10 +1,14 @@
 package com.skraba.byexample.scalatra
 
 import com.tinfoiled.docopt4s.testkit.MultiTaskMainSpec
+import org.scalatest.BeforeAndAfterAll
 import sttp.model.StatusCodes
 
 /** Unit tests for [[ServeJarResourceTask]]. */
-class ServeJarResourceTaskSpec extends MultiTaskMainSpec(ScalatraGo, Some(ServeJarResourceTask)) with StatusCodes {
+class ServeJarResourceTaskSpec
+    extends MultiTaskMainSpec(ScalatraGo, Some(ServeJarResourceTask))
+    with BeforeAndAfterAll
+    with StatusCodes {
 
   val Srv = new ScalatraGoServer(Seq(TaskCmd))
 

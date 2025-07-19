@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.markd
 
-import com.tinfoiled.docopt4s.Task
+import com.tinfoiled.docopt4s.{Docopt, Task}
 import com.tinfoiled.markd.{Header, ParserCfg}
 
 /** Command-line driver for beautifying a markdown file.
@@ -26,12 +26,12 @@ object BeautifyTask extends Task {
        |  FILE            File(s) to beautify.
        |""".stripMargin.trim
 
-  def go(opts: TaskOptions): Unit = {
+  def go(opt: Docopt): Unit = {
 
-    val files: Iterable[String] = opts.getStrings("FILE")
-    val cfg: ParserCfg = new ParserCfg(sortLinkRefs = opts.getBoolean("--sortLinkRefs"))
-    val dryRun: Boolean = opts.getBoolean("--dryRun")
-    val verbose: Boolean = dryRun || opts.getBoolean("--verbose")
+    val files: Iterable[String] = opt.strings.get("FILE")
+    val cfg: ParserCfg = new ParserCfg(sortLinkRefs = opt.flag("--sortLinkRefs"))
+    val dryRun: Boolean = opt.flag("--dryRun")
+    val verbose: Boolean = dryRun || opt.flag("--verbose")
 
     MarkdGo.processMd(files) { f =>
       {

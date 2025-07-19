@@ -35,7 +35,7 @@
     <!-- Dependencies -->
     <ammonite.version>3.0.0</ammonite.version>
     <assertj.version>3.27.0</assertj.version>
-    <docopt4s.version>0.0.1</docopt4s.version>
+    <docopt4s.version>0.0.4</docopt4s.version>
     <hamcrest.version>3.0</hamcrest.version>
     <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
     <jetty.version>12.0.16</jetty.version>
@@ -78,7 +78,7 @@
     <dependencies>
       <dependency>
         <groupId>com.tinfoiled</groupId>
-        <artifactId>docopt4s</artifactId>
+        <artifactId>docopt4s_${scala.binary.version}</artifactId>
         <version>${docopt4s.version}</version>
       </dependency>
       <dependency>
@@ -122,7 +122,7 @@
       </dependency>
       <dependency>
         <groupId>com.tinfoiled</groupId>
-        <artifactId>docopt4s-testkit</artifactId>
+        <artifactId>docopt4s-testkit_${scala.binary.version}</artifactId>
         <version>${docopt4s.version}</version>
       </dependency>
       <dependency>

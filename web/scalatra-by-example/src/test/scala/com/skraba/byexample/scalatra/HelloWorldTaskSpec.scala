@@ -1,10 +1,14 @@
 package com.skraba.byexample.scalatra
 
 import com.tinfoiled.docopt4s.testkit.MultiTaskMainSpec
+import org.scalatest.BeforeAndAfterAll
 import sttp.model.StatusCodes
 
 /** Unit tests for [[HelloWorldTask]]. */
-class HelloWorldTaskSpec extends MultiTaskMainSpec(ScalatraGo, Some(HelloWorldTask)) with StatusCodes {
+class HelloWorldTaskSpec
+    extends MultiTaskMainSpec(ScalatraGo, Some(HelloWorldTask))
+    with BeforeAndAfterAll
+    with StatusCodes {
 
   val Srv = new ScalatraGoServer(Seq(TaskCmd))
 

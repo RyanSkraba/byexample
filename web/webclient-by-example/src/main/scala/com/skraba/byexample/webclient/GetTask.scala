@@ -1,6 +1,6 @@
 package com.skraba.byexample.webclient
 
-import com.tinfoiled.docopt4s.Task
+import com.tinfoiled.docopt4s.{Docopt, Task}
 
 /** Command-line driver that gets a URI. */
 object GetTask extends Task {
@@ -23,9 +23,9 @@ object GetTask extends Task {
        |  URI        The URI to GET.
        |""".stripMargin.trim
 
-  def go(opts: TaskOptions): Unit = {
-    val uri = opts.getString("URI")
-    Seq("--sttp", "--pekko").find(opts.getBoolean) match {
+  def go(opt: Docopt): Unit = {
+    val uri = opt.string.get("URI")
+    Seq("--sttp", "--pekko").find(opt.flag) match {
       case Some("--pekko") => print(PekkoClient.get(uri).body)
       case _               => print(SttpClient.get(uri).body)
     }
