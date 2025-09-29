@@ -158,7 +158,7 @@ object ProjectParserCfg extends ParserCfg {
   val GitHubLinkRefRegex: Regex = "^([^/]+/[^/]+#)(\\d+)$".r
 
   /** Group JIRA together by the project. */
-  override def linkSorter(): PartialFunction[LinkRef, (String, LinkRef)] = {
+  /* TODO! override */ def linkSorter(): PartialFunction[LinkRef, (String, LinkRef)] = {
     case l @ LinkRef(JiraLinkRefRegex(tag, num), url, title) =>
       PrjTasks.find(_._2.issueRef == tag) match {
         case Some((_, prj)) =>
@@ -492,7 +492,7 @@ def statsDaily(out: ConsoleCfg): Unit = {
     _.mds
       .drop(1)
       .collect {
-        case TableRow(Seq(rowHead, UnreadEmail(filename, _, refiner))) =>
+        case TableRow(rowHead, UnreadEmail(filename, _, refiner)) =>
           Seq(
             rowHead,
             getNumberOfMessagesFromMailbox(
@@ -501,7 +501,7 @@ def statsDaily(out: ConsoleCfg): Unit = {
               Option(refiner).getOrElse("")
             ).toString
           )
-        case TableRow(Seq(rowHead, GitHubOpenPR(spec))) =>
+        case TableRow(rowHead, GitHubOpenPR(spec)) =>
           val prsResponse = requests.get(
             s"https://api.github.com/search/issues?q=repo:$spec%20state:open%20is:pr"
           )
@@ -582,8 +582,8 @@ def statExtract(
       println(
         Table(
           Seq.fill(3)(Align.LEFT),
-          TableRow.from("Date", "Stat", "Value") +: stats.map { case (date, stat, value) =>
-            TableRow.from(date.format(Pattern), stat, value)
+          TableRow("Date", "Stat", "Value") +: stats.map { case (date, stat, value) =>
+            TableRow(date.format(Pattern), stat, value)
           }
         ).build().toString
       )
@@ -591,8 +591,8 @@ def statExtract(
       println(
         Table(
           Seq.fill(2)(Align.LEFT),
-          TableRow.from("Date", "Value") +: stats.map { case (date, _, value) =>
-            TableRow.from(date.format(Pattern), value)
+          TableRow("Date", "Value") +: stats.map { case (date, _, value) =>
+            TableRow(date.format(Pattern), value)
           }
         ).build().toString
       )
@@ -645,9 +645,9 @@ def todoExtract(
     println(
       Table(
         Seq.fill(4)(Align.LEFT),
-        TableRow.from("Date", "State", "Category", "Notes") +: tasks
+        TableRow("Date", "State", "Category", "Notes") +: tasks
           .map { case (date, state, category, notes) =>
-            TableRow.from(date.format(Pattern), state.txt, category, notes)
+            TableRow(date.format(Pattern), state.txt, category, notes)
           }
       ).build().toString
     )
@@ -666,12 +666,11 @@ def week(
     verbose: Flag
 ): Unit = {
   // Read the existing document.
-  val gtd = Header.parse(os.read(StatusFile), ProjectParserCfg)
-  val topWeek: Seq[Markd] = gtd.mds.flatMap {
-    case h @ Header(title, 1, _) if title.startsWith(H1Weeklies) =>
+  val gtd = Markd.parse(os.read(StatusFile), ProjectParserCfg)
+  val topWeek: Seq[MarkdNode] = gtd.mds.flatMap {
+    case h @ Header(1, title, _*) if title.startsWith(H1Weeklies) =>
       h.mds.find {
-        case Header(title, 2, _) if week.map(title.startsWith).getOrElse(title.length >= 10) =>
-          true
+        case Header(2, title, _*) if week.map(title.startsWith).getOrElse(title.length >= 10) =>          true
         case _ => false
       }
     case _ => None

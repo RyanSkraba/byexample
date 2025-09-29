@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.ammonite.git
 
-import com.tinfoiled.markd.{Align, Header, LinkRef, Table, TableRow}
+import com.tinfoiled.markd.{Align, Header, LinkRef, Markd, Table, TableRow}
 import os.CommandResult
 
 import scala.util.{Success, Try}
@@ -13,7 +13,7 @@ case class CherryPickerReport(
     left: Seq[Commit],
     right: Seq[Commit],
     issuesUrl: Option[String] = None,
-    doc: Header = Header(0, ""),
+    doc: Markd = Markd(),
     out: AnsiConsole = AnsiConsole(plain = false, verbose = false)
 ) {
 
@@ -66,8 +66,8 @@ case class CherryPickerReport(
     // Create a clean commit table based on the current information, the full commit hash and subject
     val clean: Table = Table(
       Seq.fill(3)(Align.LEFT),
-      TableRow.from("Commit", "Subject", "Notes") +: cmts.map(cmt =>
-        TableRow.from(
+      TableRow("Commit", "Subject", "Notes") +: cmts.map(cmt =>
+        TableRow(
           cmt.commit,
           if (cmt.subject.length < 100) cmt.subject
           else cmt.subject.take(97) + "..."
@@ -82,7 +82,7 @@ case class CherryPickerReport(
         clean.copy(mds = clean.mds.map { row =>
           val cmtHash = row.head
           val originalRow =
-            tbl.collectFirstRecursive { case r: TableRow if refersTo(cmtHash, r.head) => r }.getOrElse(TableRow.from())
+            tbl.collectFirstRecursive { case r: TableRow if refersTo(cmtHash, r.head) => r }.getOrElse(TableRow())
           row.updated(2, originalRow(2))
         })
     }
@@ -100,36 +100,35 @@ case class CherryPickerReport(
     }
   }
 
-  def toDoc: Header = {
+  def toDoc: Markd = {
     // Generate the entire document
     val preIssues = doc
       .mapFirstIn(ifNotFound = Header(1, "CherryPickerReport")) {
         case h1: Header if h1.title == "CherryPickerReport" =>
           h1.mapFirstIn(ifNotFound = // TODO Table.from without alignments
-            Seq(Table.from(Seq.fill(2)(Align.LEFT), TableRow.from(ConfigTable, "")))
+            Seq(Table.from(Seq.fill(2)(Align.LEFT), TableRow(ConfigTable, "")))
           ) {
             case tbl: Table if tbl.title.startsWith(ConfigTable) =>
               tbl
-                .mapFirstIn(ifNotFound = TableRow.from("Left", "")) {
-                  case row if row.head == "Left" =>
-                    row.copy(cells = row.cells.updated(1, lBranch))
+                .mapFirstIn(ifNotFound = TableRow("Left", "")) {
+                  case row if row.head == "Left" => TableRow(row.cells.updated(1, lBranch): _*)
                 }
-                .mapFirstIn(ifNotFound = TableRow.from("Left N", "")) {
-                  case row if row.head == "Left N" => row.copy(cells = row.cells.updated(1, left.size.toString))
+                .mapFirstIn(ifNotFound = TableRow("Left N", "")) {
+                  case row if row.head == "Left N" => TableRow(cells = row.cells.updated(1, left.size.toString): _*)
                 }
-                .mapFirstIn(ifNotFound = TableRow.from("Left Dups", "")) {
+                .mapFirstIn(ifNotFound = TableRow("Left Dups", "")) {
                   case row if row.head == "Left Dups" =>
-                    row.copy(cells = row.cells.updated(1, leftSubjects.count(p => p._2.size > 1).toString))
+                    TableRow(cells = row.cells.updated(1, leftSubjects.count(p => p._2.size > 1).toString): _*)
                 }
-                .mapFirstIn(ifNotFound = TableRow.from("Right", "")) {
-                  case row if row.head == "Right" => row.copy(cells = row.cells.updated(1, rBranch))
+                .mapFirstIn(ifNotFound = TableRow("Right", "")) {
+                  case row if row.head == "Right" => TableRow(cells = row.cells.updated(1, rBranch): _*)
                 }
-                .mapFirstIn(ifNotFound = TableRow.from("Right N", "")) {
-                  case row if row.head == "Right N" => row.copy(cells = row.cells.updated(1, right.size.toString))
+                .mapFirstIn(ifNotFound = TableRow("Right N", "")) {
+                  case row if row.head == "Right N" => TableRow(cells = row.cells.updated(1, right.size.toString): _*)
                 }
-                .mapFirstIn(ifNotFound = TableRow.from("Right Dups", "")) {
+                .mapFirstIn(ifNotFound = TableRow("Right Dups", "")) {
                   case row if row.head == "Right Dups" =>
-                    row.copy(cells = row.cells.updated(1, rightSubjects.count(p => p._2.size > 1).toString))
+                    TableRow(cells = row.cells.updated(1, rightSubjects.count(p => p._2.size > 1).toString): _*)
                 }
           }
       }
@@ -158,7 +157,7 @@ case class CherryPickerReport(
         val preTxt: String = preIssues.build().toString
 
         // Replaces all issue tags that aren't already surrounded by square brackets with ones that are
-        val post = Header.parse(s"(?<!\\[)\\b$tag-\\d+(?<!])".r.replaceAllIn(preTxt, "[$0]"))
+        val post = Markd.parse(s"(?<!\\[)\\b$tag-\\d+(?<!])".r.replaceAllIn(preTxt, "[$0]"))
 
         // Find all of the issues numbers that are referred to in the doc.
         val issueRegex = s"\\b$tag-(\\d+)\\b".r
@@ -270,8 +269,7 @@ object CherryPickerReport {
     *   A markdown document containing the cherry-pick report
     * @return
     */
-  def fromDoc(doc: Header): CherryPickerReport = {
-
+  def fromDoc(doc: Markd): CherryPickerReport = {
     val (lBranch, rBranch, issues: Option[String]) = doc
       .collectFirstRecursive {
         case tbl: Table if tbl.title.startsWith(ConfigTable) =>
@@ -282,7 +280,6 @@ object CherryPickerReport {
           )
       }
       .getOrElse(("", "", None))
-
     CherryPickerReport(lBranch, rBranch, Seq.empty, Seq.empty, issuesUrl = issues, doc = doc)
   }
 }

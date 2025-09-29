@@ -24,7 +24,7 @@ class SortTableTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(SortTableTask)) 
 
   /** Helper to extract a column from a matching table. */
   def extractColumns(in: String, extract: String = "Original", title: String = "To Sort"): Seq[Any] =
-    Header
+    Markd
       .parse(in)
       .collectFirstRecursive({
         case tbl: Table if tbl.title == title =>
@@ -36,10 +36,8 @@ class SortTableTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(SortTableTask)) 
   def extractColumn(in: String, extract: String = "Original", title: String = "To Sort"): String =
     extractColumns(in, extract, title).map(_.toString).mkString("|")
 
-  def generateTable(title: String, rows: Any*): Table = Table.from(
-    Seq.fill(1)(Align.LEFT),
-    TableRow.from(title) +: rows.map(_.toString).map(TableRow.from(_)): _*
-  )
+  def generateTable(title: String, rows: Any*): Table =
+    Table.from(Seq.fill(1)(Align.LEFT), TableRow(title) +: rows.map(_.toString).map(TableRow(_)): _*)
 
   val Basic: File = File(Tmp / "basic.md")
   Basic.writeAll("""To Sort | A | B | Original

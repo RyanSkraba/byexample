@@ -130,7 +130,7 @@ object SortTableTask extends Task {
 
     MarkdGo.processMd(Seq(file)) { f =>
       {
-        val md = Header.parse(f.slurp())
+        val md = Markd.parse(f.slurp())
         var count = 0
         val sorted = md.replaceRecursively({
           case tbl: Table if tbl.title == table && (tableNum.isEmpty || tableNum.contains(count)) =>

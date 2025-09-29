@@ -1,7 +1,7 @@
 package com.skraba.byexample.scala.markd
 
 import com.tinfoiled.docopt4s.testkit.MultiTaskMainSpec
-import com.tinfoiled.markd.{Header, Paragraph}
+import com.tinfoiled.markd.{Header, Markd, Paragraph}
 
 import scala.reflect.io.{Directory, File}
 import scala.util.Using
@@ -22,7 +22,7 @@ class QueryTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(QueryTask)) {
     itShouldThrowOnIncompleteArgs(Seq("file"))
   }
 
-  val BasicMd: Header = Header.parse("""# A
+  val BasicMd: Markd = Markd.parse("""# A
       !## B
       !Hello AB
       !### C
@@ -82,7 +82,7 @@ class QueryTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(QueryTask)) {
       }
 
     it("do other queries") {
-      Header("", 0, QueryTask.query("A[*]", BasicMd)).build().toString shouldBe
+      Markd(QueryTask.query("A[*]", BasicMd): _*).build().toString shouldBe
         """B
           |------------------------------------------------------------------------------
           |
@@ -102,7 +102,7 @@ class QueryTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(QueryTask)) {
           |Hello AB2
           |""".stripMargin
 
-      Header("", 0, QueryTask.query("A.B[*]", BasicMd)).build().toString shouldBe
+      Markd(QueryTask.query("A.B[*]", BasicMd): _*).build().toString shouldBe
         """Hello AB
           |
           |### C

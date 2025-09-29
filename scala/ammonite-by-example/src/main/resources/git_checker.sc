@@ -20,7 +20,7 @@ local_import_util.load("ammonite-by-example")
 import com.skraba.byexample.scala.ammonite.ConsoleCfg
 import com.skraba.byexample.scala.ammonite.git.CherryPickerReport
 import com.skraba.byexample.scala.ammonite.git.Commit.getDateFromRepo
-import com.tinfoiled.markd.Header
+import com.tinfoiled.markd.Markd
 
 // ==========================================================================
 // Top level variables available to the script
@@ -87,11 +87,11 @@ def releaseCherryPickPrep(
   // If there's a status document, merge it with the current state
   val updated = statusDoc match {
     case Some(path) if os.exists(path) =>
-      CherryPickerReport.fromDoc(Header.parse(os.read(path))).update(current)
+      CherryPickerReport.fromDoc(Markd.parse(os.read(path))).update(current)
     case _ => current
   }
 
-  val cleaned = Header.parse(updated.toDoc.build().toString)
+  val cleaned = Markd.parse(updated.toDoc.build().toString)
   val txt = cleaned.build().toString
   if (out.verbose.value || statusDoc.isEmpty) println(txt)
 

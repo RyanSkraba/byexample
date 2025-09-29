@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.ammonite.git
 
-import com.tinfoiled.markd.Header
+import com.tinfoiled.markd.Markd
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 import os.CommandResult
@@ -21,7 +21,7 @@ class CherryPickerReportSpec extends AnyFunSpecLike with Matchers {
         )
 
       val y = CherryPickerReport.fromDoc(
-        Header.parse(
+        Markd.parse(
           """| Project Info |                                            |
            |--------------|--------------------------------------------|
            | Issues       | https://issues.apache.org/jira/browse/AVRO |

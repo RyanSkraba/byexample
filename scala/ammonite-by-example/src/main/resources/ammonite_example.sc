@@ -255,19 +255,10 @@ private def calendarize(
         week.get(_).map(_.toString).getOrElse(default)
       )
     }
-    .map(TableRow.from)
+    .map(TableRow.apply)
   Table.from(
     Seq.fill(8)(Align.LEFT),
-    TableRow.from(
-      "",
-      "Sun",
-      "Mon",
-      "Tue",
-      "Wed",
-      "Thu",
-      "Fri",
-      "Sat"
-    ) +: rows: _*
+    TableRow("", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat") +: rows: _*
   )
 }
 

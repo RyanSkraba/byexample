@@ -43,11 +43,9 @@ object DateCountdownTask extends Task {
 
     MarkdGo.processMd(files) { f =>
       f.writeAll(
-        Header
+        Markd
           .parse(f.slurp())
-          .replaceRecursively { case tbl: Table =>
-            process(tbl)
-          }
+          .replaceRecursively { case tbl: Table => process(tbl) }
           .build()
           .toString
       )
@@ -113,7 +111,7 @@ object DateCountdownTask extends Task {
 
     // For every single cell, if it has been parsed, then rewrite either the t number or the date according to the T0 value
     val mds = tbl.mds.zipWithIndex.map { row =>
-      TableRow.from(row._1.cells.zipWithIndex.map {
+      TableRow(row._1.cells.zipWithIndex.map {
         case (cell, col) if col < tbl.colSize && parsed.isDefinedAt(row._2) && parsed(row._2).isDefinedAt(col) =>
           parsed(row._2)(col)
             .map { x =>

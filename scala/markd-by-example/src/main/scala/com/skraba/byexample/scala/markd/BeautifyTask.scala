@@ -1,7 +1,7 @@
 package com.skraba.byexample.scala.markd
 
 import com.tinfoiled.docopt4s.{Docopt, Task}
-import com.tinfoiled.markd.{Header, ParserCfg}
+import com.tinfoiled.markd.{Markd, ParserCfg}
 
 /** Command-line driver for beautifying a markdown file.
   */
@@ -36,7 +36,7 @@ object BeautifyTask extends Task {
     MarkdGo.processMd(files) { f =>
       {
         val original = f.slurp()
-        val md = Header.parse(original, cfg)
+        val md = Markd.parse(original, cfg)
         val rewritten = md.build().toString()
         val modified = original != rewritten
 

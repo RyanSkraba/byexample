@@ -1,7 +1,7 @@
 package com.skraba.byexample.scala.markd
 
 import com.tinfoiled.docopt4s.{Docopt, Task}
-import com.tinfoiled.markd.{Header, Markd, MultiMarkd}
+import com.tinfoiled.markd.{Header, Markd, MarkdContainer, MarkdNode}
 
 import scala.reflect.io.File
 import scala.util.matching.Regex
@@ -71,7 +71,7 @@ object QueryTask extends Task {
     val qx: String = opt.string.get("--query")
     val file: String = opt.string.get("FILE")
 
-    val md = Header.parse(
+    val md = Markd.parse(
       if (file == "-") Iterator.continually(Console.in.readLine()).takeWhile(_ != null).mkString("\n")
       else File(file).slurp()
     )
@@ -79,15 +79,15 @@ object QueryTask extends Task {
     print(query(qx, md).map(_.build().toString.trim).mkString)
   }
 
-  def query(query: String, md: Markd): Seq[Markd] = {
+  def query(query: String, md: MarkdNode): Seq[MarkdNode] = {
 
     val QueryRegex: Regex = raw"^(?<sep>\.*)(?<token>[^.\[]*)(?<rest>(\[(?<index>[^]]+)])?.*)$$".r
 
-    def queryInternal(in: (String, Seq[Markd])): (String, Seq[Markd]) = in match {
-      case ("[*]", Seq(md: MultiMarkd[_])) => ("", md.mds)
-      case (q, md) if q.head == '.'        => (q.tail, md)
-      case (QueryRegex(sep, token, rest, _*), Seq(h: MultiMarkd[_])) if token.nonEmpty =>
-        (rest, h.mds.collectFirst { case h @ Header(title, _, _) if title == token => h }.toSeq)
+    def queryInternal(in: (String, Seq[MarkdNode])): (String, Seq[MarkdNode]) = in match {
+      case ("[*]", Seq(md: MarkdContainer[_])) => ("", md.mds)
+      case (q, md) if q.head == '.'            => (q.tail, md)
+      case (QueryRegex(sep, token, rest, _*), Seq(h: MarkdContainer[_])) if token.nonEmpty =>
+        (rest, h.mds.collectFirst { case h @ Header(_, title, _*) if title == token => h }.toSeq)
       case _ => sys.error(s"Unrecognized query: $query")
     }
 

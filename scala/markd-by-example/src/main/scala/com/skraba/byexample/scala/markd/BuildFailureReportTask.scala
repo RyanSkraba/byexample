@@ -138,7 +138,7 @@ case class FailedStep(
   *   A String to compare to day titles (the second level headers) to only include those that are less than or equal to.
   */
 class BuildFailureReport(
-    val doc: Header,
+    val doc: Markd,
     filterDays: Int,
     filterAfter: Option[String],
     filterUntil: Option[String]
@@ -159,7 +159,7 @@ class BuildFailureReport(
   /** The section containing the build failures reports. */
   private lazy val buildFailureSection: Header = doc
     .collectFirstRecursive {
-      case section @ Header(title, 1, _) if title.toLowerCase.matches(raw".*\bbuild failures\b.*") => section
+      case section @ Header(1, title, _*) if title.toLowerCase.matches(raw".*\bbuild failures\b.*") => section
     }
     .getOrElse {
       throw new IllegalArgumentException("Can't find failure report")
@@ -167,11 +167,11 @@ class BuildFailureReport(
 
   /** All of the documented failures contained in the build failure report. */
   lazy val all: Seq[FailedStep] = buildFailureSection.mds
-    .collect { case daily @ Header(_, 2, _) => daily }
+    .collect { case daily @ Header(2, _, _*) => daily }
     .zipWithIndex
-    .flatMap { case (daily @ Header(investigateDate, _, _)) -> investigateOrder =>
+    .flatMap { case (daily @ Header(2, investigateDate, _*)) -> investigateOrder =>
       daily.mds
-        .collect { case buildDetails @ Header(buildTitle, 3, _) =>
+        .collect { case buildDetails @ Header(3, buildTitle, _*) =>
           val base = FailedStep(investigateDate, investigateOrder).addBuildInfo(buildTitle)
           (buildDetails.mds.collect {
             case p: Paragraph => p
@@ -270,12 +270,14 @@ class BuildFailureReport(
       val investigateDate = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(LocalDate.now())
       // The section includes all of the new failures
       val newBuildFailures = newRuns.map(run => Header(3, run.buildFailureTitleMd, Paragraph("TODO")))
-      val newDoc = doc.mapFirstIn() {
+      val newDoc: Markd = doc.mapFirstIn() {
         case section: Header if section == buildFailureSection =>
           section.prepend(investigateDate, newBuildFailures: _*)
       }
 
-      new BuildFailureReport(newDoc, filterDays, filterAfter, filterUntil)
+      // TODO: Why is this necessary?
+      // new BuildFailureReport(newDoc, filterDays, filterAfter, filterUntil)
+      new BuildFailureReport(Markd(newDoc.mds: _*), filterDays, filterAfter, filterUntil)
     }
   }
 }
@@ -370,15 +372,15 @@ class HtmlOutput(report: BuildFailureReport) {
 class ByIssueOutput(report: BuildFailureReport) {
   override def toString: String = {
     Header(
-      "By Issue",
       1,
+      "By Issue",
       report.allStepsByIssue.map { case issue -> steps =>
         Header(
           2,
           if (issue.isEmpty) "Unknown" else issue + " " + report.IssueTemplate.format(issue),
           Paragraph(steps.map(_.notifDetail).mkString("\n"))
         )
-      }.toSeq
+      }.toSeq: _*
     ).build().toString
   }
 }
@@ -386,15 +388,15 @@ class ByIssueOutput(report: BuildFailureReport) {
 class ByFailureOutput(report: BuildFailureReport) {
   override def toString: String = {
     Header(
-      "By Failure",
       1,
+      "By Failure",
       report.allStepsByBuild.map { steps =>
         Header(
           2,
           steps.head.notifBuildMd,
           Paragraph(steps.map(_.notifDetailMd).mkString("\n"))
         )
-      }.toSeq
+      }: _*
     ).build().toString
   }
 }
@@ -467,7 +469,7 @@ object BuildFailureReportTask extends Task {
 
     MarkdGo.processMd(Seq(files)) { f =>
       // Modify the file with new build failures on request
-      val report0 = new BuildFailureReport(Header.parse(f.slurp()), filterDays, filterAfter, filterUntil)
+      val report0 = new BuildFailureReport(Markd.parse(f.slurp()), filterDays, filterAfter, filterUntil)
       val report = addFails
         .map { repo =>
           val rep = report0.addNewFailures(repo, mainVersion)
