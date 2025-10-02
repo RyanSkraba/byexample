@@ -389,11 +389,11 @@ object GettingThingsDone {
   /** The structure of an empty Stats table, used to collect weekly statistics.
     */
   lazy val TableStatsEmpty: Table =
-    Table.from(Seq.fill(8)(Align.LEFT), TableRow(TableStats, "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))
+    Table(Seq.fill(8)(Align.LEFT), TableRow(TableStats, "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))
 
   /** The structure of an empty To Do table, used to collect stats. */
   lazy val TableToDoEmpty: Table =
-    Table.from(Seq(Align.LEFT, Align.LEFT), TableRow(TableToDo, "Notes " + AllStates.map(_.txt).mkString))
+    Table(Seq(Align.LEFT, Align.LEFT), TableRow(TableToDo, "Notes " + AllStates.map(_.txt).mkString))
 
   /** The header with the weekly statuses. */
   val H1Weeklies: String = "Weekly Status"

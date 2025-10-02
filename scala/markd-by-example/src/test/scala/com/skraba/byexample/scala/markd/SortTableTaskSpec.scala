@@ -37,7 +37,7 @@ class SortTableTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(SortTableTask)) 
     extractColumns(in, extract, title).map(_.toString).mkString("|")
 
   def generateTable(title: String, rows: Any*): Table =
-    Table.from(Seq.fill(1)(Align.LEFT), TableRow(title) +: rows.map(_.toString).map(TableRow(_)): _*)
+    Table(Seq.fill(1)(Align.LEFT), TableRow(title) +: rows.map(_.toString).map(TableRow(_)): _*)
 
   val Basic: File = File(Tmp / "basic.md")
   Basic.writeAll("""To Sort | A | B | Original

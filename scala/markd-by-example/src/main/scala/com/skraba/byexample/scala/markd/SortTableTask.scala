@@ -76,7 +76,7 @@ object SortTableTask extends Task {
               .sortBy(_._1)(if (ascending) Ordering.String else Ordering.String.reverse)
           }
 
-        tbl.copy(mds = tbl.mds.head +: rows.map(_._2))
+        Table(tbl.aligns, tbl.mds.head +: rows.map(_._2): _*)
       }
     }
   }

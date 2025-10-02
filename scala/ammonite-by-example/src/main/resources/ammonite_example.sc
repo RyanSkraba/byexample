@@ -256,10 +256,7 @@ private def calendarize(
       )
     }
     .map(TableRow.apply)
-  Table.from(
-    Seq.fill(8)(Align.LEFT),
-    TableRow("", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat") +: rows: _*
-  )
+  Table(Seq.fill(8)(Align.LEFT), TableRow("", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat") +: rows: _*)
 }
 
 /** An experiment to decorate a git contribution calendar with private information.

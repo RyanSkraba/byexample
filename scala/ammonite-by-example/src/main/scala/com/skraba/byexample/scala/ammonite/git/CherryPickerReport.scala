@@ -72,31 +72,41 @@ case class CherryPickerReport(
           if (cmt.subject.length < 100) cmt.subject
           else cmt.subject.take(97) + "..."
         )
-      )
+      ): _*
     )
 
     // Update the actual table in two steps, first by replacing it with the "clean one" above, but copying the notes over).
     val h1WithCleaned = h1.mapFirstIn(ifNotFound = clean) {
       case tbl: Table if tbl == clean => clean
       case tbl: Table if tbl.title == "Commit" =>
-        clean.copy(mds = clean.mds.map { row =>
-          val cmtHash = row.head
-          val originalRow =
-            tbl.collectFirstRecursive { case r: TableRow if refersTo(cmtHash, r.head) => r }.getOrElse(TableRow())
-          row.updated(2, originalRow(2))
-        })
+        Table(
+          clean.aligns,
+          clean.mds.map { row =>
+            val cmtHash = row.head
+            val originalRow =
+              tbl.collectFirstRecursive { case r: TableRow if refersTo(cmtHash, r.head) => r }.getOrElse(TableRow())
+            row.updated(2, originalRow(2))
+          }: _*
+        )
     }
 
     // And in the second step update the rows with additional interesting information
     h1WithCleaned.mapFirstIn() {
       // In the second stepd
       case tbl: Table if tbl.title == "Commit" =>
-        tbl.copy(mds = tbl.mds.map {
-          case headerRow if headerRow == tbl(0) => headerRow
-          case r =>
-            val commit = cmts.find(_.commit == r.head).get
-            Some(r).map(rowUpdateBump(commit)).map(rowUpdatePossibleCherryPick(commit)(otherSubjects)).map(rowTrim).get
-        })
+        Table(
+          tbl.aligns,
+          tbl.mds.map {
+            case headerRow if headerRow == tbl(0) => headerRow
+            case r =>
+              val commit = cmts.find(_.commit == r.head).get
+              Some(r)
+                .map(rowUpdateBump(commit))
+                .map(rowUpdatePossibleCherryPick(commit)(otherSubjects))
+                .map(rowTrim)
+                .get
+          }: _*
+        )
     }
   }
 
@@ -106,7 +116,7 @@ case class CherryPickerReport(
       .mapFirstIn(ifNotFound = Header(1, "CherryPickerReport")) {
         case h1: Header if h1.title == "CherryPickerReport" =>
           h1.mapFirstIn(ifNotFound = // TODO Table.from without alignments
-            Seq(Table.from(Seq.fill(2)(Align.LEFT), TableRow(ConfigTable, "")))
+            Seq(Table(Seq.fill(2)(Align.LEFT), TableRow(ConfigTable, "")))
           ) {
             case tbl: Table if tbl.title.startsWith(ConfigTable) =>
               tbl

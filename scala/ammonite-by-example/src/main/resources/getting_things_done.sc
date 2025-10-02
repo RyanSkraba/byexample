@@ -158,7 +158,7 @@ object ProjectParserCfg extends ParserCfg {
   val GitHubLinkRefRegex: Regex = "^([^/]+/[^/]+#)(\\d+)$".r
 
   /** Group JIRA together by the project. */
-  /* TODO! override */ def linkSorter(): PartialFunction[LinkRef, (String, LinkRef)] = {
+  override def linkSorter(): PartialFunction[LinkRef, (String, LinkRef)] = {
     case l @ LinkRef(JiraLinkRefRegex(tag, num), url, title) =>
       PrjTasks.find(_._2.issueRef == tag) match {
         case Some((_, prj)) =>
@@ -584,7 +584,7 @@ def statExtract(
           Seq.fill(3)(Align.LEFT),
           TableRow("Date", "Stat", "Value") +: stats.map { case (date, stat, value) =>
             TableRow(date.format(Pattern), stat, value)
-          }
+          }: _*
         ).build().toString
       )
     } else {
@@ -593,7 +593,7 @@ def statExtract(
           Seq.fill(2)(Align.LEFT),
           TableRow("Date", "Value") +: stats.map { case (date, _, value) =>
             TableRow(date.format(Pattern), value)
-          }
+          }: _*
         ).build().toString
       )
     }
@@ -648,7 +648,7 @@ def todoExtract(
         TableRow("Date", "State", "Category", "Notes") +: tasks
           .map { case (date, state, category, notes) =>
             TableRow(date.format(Pattern), state.txt, category, notes)
-          }
+          }: _*
       ).build().toString
     )
   }
@@ -670,8 +670,8 @@ def week(
   val topWeek: Seq[MarkdNode] = gtd.mds.flatMap {
     case h @ Header(1, title, _*) if title.startsWith(H1Weeklies) =>
       h.mds.find {
-        case Header(2, title, _*) if week.map(title.startsWith).getOrElse(title.length >= 10) =>          true
-        case _ => false
+        case Header(2, title, _*) if week.map(title.startsWith).getOrElse(title.length >= 10) => true
+        case _                                                                                => false
       }
     case _ => None
   }

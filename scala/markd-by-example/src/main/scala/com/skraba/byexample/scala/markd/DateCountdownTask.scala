@@ -131,7 +131,7 @@ object DateCountdownTask extends Task {
         case (cell, _) => cell
       }: _*)
     }
-    tbl.copy(mds = mds)
+    Table(tbl.aligns, mds: _*)
   }
 
 }
