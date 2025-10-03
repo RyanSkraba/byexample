@@ -1,7 +1,7 @@
 By Example
 ==============================================================================
 
-![Java CI](https://github.com/RyanSkraba/byexample/workflows/Java%20CI/badge.svg)
+[![Java CI with Maven](https://github.com/RyanSkraba/byexample/actions/workflows/maven.yml/badge.svg)](https://github.com/RyanSkraba/byexample/actions/workflows/maven.yml)
 
 Various blueprints, how to's, examples, use cases, patterns, templates, models and somesuch
 whatnots.
