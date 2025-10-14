@@ -21,7 +21,7 @@
     <!-- Launcher class -->
     <exec.mainClass>com.skraba.byexample.scala.ScalaGo</exec.mainClass>
     <!-- other project dependency versions as properties -->
-    <markd.version>0.0.1</markd.version>
+    <markd.version>0.0.4</markd.version>
   </properties>
 
   <dependencies>
@@ -44,7 +44,7 @@
     <!-- Necessary for prettifying JSON code blocks -->
     <dependency>
       <groupId>com.tinfoiled</groupId>
-      <artifactId>markd</artifactId>
+      <artifactId>markd_${scala.binary.version}</artifactId>
       <version>${markd.version}</version>
     </dependency>
   </dependencies>
