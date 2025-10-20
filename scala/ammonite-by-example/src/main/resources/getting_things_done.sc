@@ -4,6 +4,7 @@
 
 import mainargs.{Flag, arg, main}
 
+import java.nio.charset.StandardCharsets
 import java.time.{Instant, LocalDate}
 import scala.io.AnsiColor._
 import scala.util.matching.Regex
@@ -205,7 +206,9 @@ private def writeGtd(
   val asText = ProjectParserCfg.clean(gtd.h0).build().toString
   val after = if (compressTable) asText.replaceAll(" +( \\|)", "$1") else asText
 
-  os.write.over(StatusFile, after)
+  // We convert the string to bytes immediately, in order to avoid splitting emojis and writing
+  // them incorrectly (the debugging code follows).
+  os.write.over(StatusFile, after.getBytes(StandardCharsets.UTF_8))
 
   gitStatus
     .map(msg => s"""${out.green("Commit:")}
@@ -390,7 +393,7 @@ def pr(
     out: ConsoleCfg
 ): Unit = {
   // Use the project configuration for the tag, or create a default one for ASF projects
-  val prj = PrjTasks.get(tag).getOrElse(PrjTask.asf(tag))
+  val prj = PrjTasks.getOrElse(tag, PrjTask.asf(tag))
 
   // The reference and task snippets to add to the file.
   val fullIssue = if (issueNum != "0" && issueNum != "") Some(prj.issueRefOf(issueNum)) else None
