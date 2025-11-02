@@ -15,23 +15,19 @@ class PutTaskSpec extends MultiTaskMainSpec(WebClientGo, Some(PutTask)) with Sta
     Srv.shutdown()
   }
 
-  describe(s"${Main.Name} $TaskCmd command line") {
-    itShouldThrowOnHelpAndVersionFlags()
-
-    itShouldThrowOnUnknownFlag()
-
-    itShouldThrowOnIncompleteArgs(Seq())
-    itShouldThrowOnIncompleteArgs(Seq("--pekko"))
-    itShouldThrowOnIncompleteArgs(Seq("--pekko", "https://example.com"))
-    itShouldThrowOnIncompleteArgs(Seq("--sttp"))
-    itShouldThrowOnIncompleteArgs(Seq("--sttp", "https://example.com"))
-
+  describe(s"Standard $MainName $TaskCmd command line help, versions and exceptions") {
+    itShouldHandleHelpAndVersionFlags()
+    itShouldThrowOnUnknownOptKey()
+    itShouldThrowOnIncompleteArgs()
+    itShouldThrowOnIncompleteArgs("--pekko")
+    itShouldThrowOnIncompleteArgs("--pekko", "https://example.com")
+    itShouldThrowOnIncompleteArgs("--sttp")
+    itShouldThrowOnIncompleteArgs("--sttp", "https://example.com")
     // TODO: Is this incompatible or missing?
-    itShouldThrowOnIncompleteArgs(Seq("--pekko", "--sttp"))
-    itShouldThrowOnIncompleteArgs(Seq("--pekko", "--sttp", "https://example.com"))
-
+    itShouldThrowOnIncompatibleOpts("--pekko", "--sttp")
+    itShouldThrowOnIncompatibleOpts("--pekko", "--sttp", "https://example.com")
     // TODO: Incompatible, not missing
-    itShouldThrowOnIncompleteArgs(Seq("--pekko", "--sttp", "https://example.com", "payload"))
+    itShouldThrowOnIncompleteArgs("--pekko", "--sttp", "https://example.com", "payload")
   }
 
   for (cmd <- Seq("--sttp", "--pekko", "")) {

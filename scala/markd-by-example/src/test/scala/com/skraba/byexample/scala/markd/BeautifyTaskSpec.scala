@@ -7,13 +7,10 @@ import scala.reflect.io.{Directory, File}
 /** Unit tests for [[BeautifyTask]] */
 class BeautifyTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(BeautifyTask)) with TmpDir {
 
-  describe(s"${Main.Name} $TaskCmd command line") {
-
-    itShouldThrowOnHelpAndVersionFlags()
-
-    itShouldThrowOnUnknownFlag()
-
-    itShouldThrowOnIncompleteArgs(Seq.empty)
+  describe(s"Standard $MainName $TaskCmd command line help, versions and exceptions") {
+    itShouldHandleHelpAndVersionFlags()
+    itShouldThrowOnUnknownOptKey()
+    itShouldThrowOnIncompleteArgs()
   }
 
   describe(s"${Main.Name} $TaskCmd beautify basic scenario") {

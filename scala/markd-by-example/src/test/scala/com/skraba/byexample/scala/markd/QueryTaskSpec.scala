@@ -1,25 +1,22 @@
 package com.skraba.byexample.scala.markd
 
-import com.tinfoiled.docopt4s.testkit.MultiTaskMainSpec
+import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, TmpDir}
 import com.tinfoiled.markd.{Header, Markd, Paragraph}
 
 import scala.reflect.io.{Directory, File}
 import scala.util.Using
 
 /** Unit tests for [[QueryTask]] */
-class QueryTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(QueryTask)) {
+class QueryTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(QueryTask)) with TmpDir {
 
-  /** A local temporary directory for test file storage. */
-  val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
-  // TODO(rskraba): Tmp should be in the DocoptCliGoSpec
-
-  describe(s"${Main.Name} $TaskCmd command line") {
-    itShouldThrowOnHelpAndVersionFlags()
-
-    itShouldThrowOnUnknownFlag()
-
-    itShouldThrowOnIncompleteArgs(Seq.empty)
-    itShouldThrowOnIncompleteArgs(Seq("file"))
+  describe(s"Standard $MainName $TaskCmd command line help, versions and exceptions") {
+    itShouldHandleHelpAndVersionFlags()
+    itShouldThrowOnUnknownOptKey()
+    itShouldThrowOnIncompleteArgs()
+    itShouldThrowOnIncompleteArgs("--query", "..B")
+    itShouldThrowOnIncompleteArgs("filename.md")
+    itShouldThrowOnIncompleteArgs("-")
+    itShouldThrowOnMissingOptValue("filename.md", "--query")
   }
 
   val BasicMd: Markd = Markd.parse("""# A
@@ -38,19 +35,13 @@ class QueryTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(QueryTask)) {
 
   describe("The basic scenario") {
     it("should read from a file") {
-      withGoMatching(TaskCmd, "--query", "A.B.C[*]", Basic) { case (stdout, stderr) =>
-        stderr shouldBe empty
-        stdout shouldBe "Hello ABC"
-      }
+      withGoStdout(TaskCmd, "--query", "A.B.C[*]", Basic) shouldBe "Hello ABC"
     }
 
     it("should read from stdin") {
       Using(Basic.inputStream()) { in =>
         Console.withIn(in) {
-          withGoMatching(TaskCmd, "--query", "A.B.C[*]", "-") { case (stdout, stderr) =>
-            stderr shouldBe empty
-            stdout shouldBe "Hello ABC"
-          }
+          withGoStdout(TaskCmd, "--query", "A.B.C[*]", "-") shouldBe "Hello ABC"
         }
       }.get
     }

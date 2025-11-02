@@ -8,20 +8,17 @@ import scala.reflect.io.File
 /** Unit tests for [[BuildFailureReportTask]] */
 class BuildFailureReportTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(BuildFailureReportTask)) with TmpDir {
 
-  describe(s"${Main.Name} $TaskCmd command line") {
-    itShouldThrowOnHelpAndVersionFlags()
-
-    itShouldThrowOnUnknownFlag()
-
-    itShouldThrowOnIncompleteArgs(Seq.empty)
-    itShouldThrowOnIncompleteArgs(Seq("--days", "1"))
-    itShouldThrowOnIncompleteArgs(Seq("--all"))
-
-    itShouldThrowOnMissingFlagValue(Seq("--days"))
-    itShouldThrowOnMissingFlagValue(Seq("--until"))
-    itShouldThrowOnMissingFlagValue(Seq("--after"))
-    itShouldThrowOnMissingFlagValue(Seq("--add-fails"))
-    itShouldThrowOnMissingFlagValue(Seq("--main-version"))
+  describe(s"Standard $MainName $TaskCmd command line help, versions and exceptions") {
+    itShouldHandleHelpAndVersionFlags()
+    itShouldThrowOnUnknownOptKey()
+    itShouldThrowOnIncompleteArgs()
+    itShouldThrowOnIncompleteArgs("--days", "1")
+    itShouldThrowOnIncompleteArgs("--all")
+    itShouldThrowOnMissingOptValue("filename.md", "--days")
+    itShouldThrowOnMissingOptValue("filename.md", "--until")
+    itShouldThrowOnMissingOptValue("filename.md", "--after")
+    itShouldThrowOnMissingOptValue("filename.md", "--add-fails")
+    itShouldThrowOnMissingOptValue("filename.md", "--main-version")
   }
 
   describe("Parsing build titles") {

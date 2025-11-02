@@ -35,7 +35,7 @@
     <!-- Dependencies -->
     <ammonite.version>3.0.0</ammonite.version>
     <assertj.version>3.27.0</assertj.version>
-    <docopt4s.version>0.0.5</docopt4s.version>
+    <docopt4s.version>0.0.6</docopt4s.version>
     <hamcrest.version>3.0</hamcrest.version>
     <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
     <jetty.version>12.0.16</jetty.version>

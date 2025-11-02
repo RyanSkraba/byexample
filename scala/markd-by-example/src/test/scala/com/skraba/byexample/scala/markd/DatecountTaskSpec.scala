@@ -5,13 +5,10 @@ import com.tinfoiled.markd._
 /** Unit tests for [[DateCountdownTask]] */
 class DatecountTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(DateCountdownTask)) {
 
-  describe(s"${Main.Name} $TaskCmd command line") {
-
-    itShouldThrowOnHelpAndVersionFlags()
-
-    itShouldThrowOnUnknownFlag()
-
-    itShouldThrowOnIncompleteArgs(Seq.empty)
+  describe(s"Standard $MainName $TaskCmd command line help, versions and exceptions") {
+    itShouldHandleHelpAndVersionFlags()
+    itShouldThrowOnUnknownOptKey()
+    itShouldThrowOnIncompleteArgs()
   }
 
   describe("The DateCountdownTask process method") {

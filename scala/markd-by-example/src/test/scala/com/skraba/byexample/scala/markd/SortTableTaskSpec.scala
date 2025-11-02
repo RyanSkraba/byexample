@@ -1,25 +1,17 @@
 package com.skraba.byexample.scala.markd
-import com.tinfoiled.docopt4s.testkit.MultiTaskMainSpec
+import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, TmpDir}
 import com.tinfoiled.markd._
 
 import scala.reflect.io.{Directory, File}
 
 /** Unit tests for [[SortTableTask]] */
-class SortTableTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(SortTableTask)) {
+class SortTableTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(SortTableTask)) with TmpDir {
 
-  // TODO: TmpDir from docopts4s
-
-  /** A local temporary directory for test file storage. */
-  val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
-  // TODO(rskraba): Tmp should be in the DocoptCliGoSpec
-
-  describe(s"${Main.Name} $TaskCmd command line") {
-    itShouldThrowOnHelpAndVersionFlags()
-
-    itShouldThrowOnUnknownFlag()
-
-    itShouldThrowOnIncompleteArgs(Seq.empty)
-    itShouldThrowOnIncompleteArgs(Seq("file"))
+  describe(s"Standard $MainName $TaskCmd command line help, versions and exceptions") {
+    itShouldHandleHelpAndVersionFlags()
+    itShouldThrowOnUnknownOptKey()
+    itShouldThrowOnIncompleteArgs()
+    itShouldThrowOnIncompleteArgs("filename.md")
   }
 
   /** Helper to extract a column from a matching table. */

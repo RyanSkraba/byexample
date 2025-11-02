@@ -17,10 +17,9 @@ class ServeJarResourceTaskSpec
     Srv.shutdown()
   }
 
-  describe(s"${Main.Name} $TaskCmd command line") {
-    itShouldThrowOnHelpAndVersionFlags()
-
-    itShouldThrowOnUnknownFlag()
+  describe(s"Standard $MainName $TaskCmd command line help, versions and exceptions") {
+    // TODO: when it exists: itShouldHandleHelpAndVersionFlags()
+    itShouldThrowOnUnknownOptKey()
   }
 
   describe(s"${Main.Name} $TaskCmd running as a server") {

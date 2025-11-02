@@ -16,20 +16,16 @@ class GetTaskSpec extends MultiTaskMainSpec(WebClientGo, Some(GetTask)) with Sta
     Srv.shutdown()
   }
 
-  describe(s"${Main.Name} $TaskCmd command line") {
-    itShouldThrowOnHelpAndVersionFlags()
-
-    itShouldThrowOnUnknownFlag()
-
-    itShouldThrowOnIncompleteArgs(Seq())
-    itShouldThrowOnIncompleteArgs(Seq("--pekko"))
-    itShouldThrowOnIncompleteArgs(Seq("--sttp"))
-
+  describe(s"Standard $MainName $TaskCmd command line help, versions and exceptions") {
+    itShouldHandleHelpAndVersionFlags()
+    itShouldThrowOnUnknownOptKey()
+    itShouldThrowOnIncompleteArgs()
+    itShouldThrowOnIncompleteArgs("--pekko")
+    itShouldThrowOnIncompleteArgs("--sttp")
     // TODO: Is this incompatible or missing?
-    itShouldThrowOnIncompleteArgs(Seq("--pekko", "--sttp"))
-
+    itShouldThrowOnIncompatibleOpts("--pekko", "--sttp")
     // TODO: Incompatible, not missing
-    itShouldThrowOnIncompleteArgs(Seq("--pekko", "--sttp", "https://example.com"))
+    itShouldThrowOnIncompleteArgs("--pekko", "--sttp", "https://example.com")
   }
 
   for (cmd <- Seq("--sttp", "--pekko", "")) {
