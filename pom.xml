@@ -40,14 +40,14 @@
     <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
     <jetty.version>12.0.16</jetty.version>
     <junit5.version>5.11.4</junit5.version>
-    <play-json.version>2.10.3</play-json.version>
+    <play-json.version>2.10.6</play-json.version>
     <scala.binary.version>2.13</scala.binary.version>
     <scala.version>2.13.15</scala.version>
     <scalafmt.version>3.8.0</scalafmt.version>
     <scalatest.version>3.2.19</scalatest.version>
     <slf4j.version>2.0.16</slf4j.version>
     <sttp.version>4.0.9</sttp.version>
-    <testcontainers.version>1.20.4</testcontainers.version>
+    <testcontainers.version>2.0.2</testcontainers.version>
 
     <!-- The main class that can be overridden in subprojects -->
     <exec.mainClass>com.skraba.byexample.ToDoGo</exec.mainClass>
@@ -404,7 +404,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-report-plugin</artifactId>
-        <version>${plugin.report.surefire.maven.version}</version>
       </plugin>
     </plugins>
   </reporting>
