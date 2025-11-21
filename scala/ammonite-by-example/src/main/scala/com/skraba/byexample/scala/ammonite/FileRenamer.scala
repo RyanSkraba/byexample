@@ -1,13 +1,16 @@
 package com.skraba.byexample.scala.ammonite
 
 import com.tinfoiled.docopt4s.AnsiConsole
-import os.Path
+import os.{Path, home}
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import scala.util.{Failure, Try}
 
 /** Utilities and helpers for renaming files in my ammonite scripts. */
 object FileRenamer {
+
+  class MissingPhoneDirException() extends RuntimeException("Unable to find pics storage.")
 
   /** @param phoneTag
     *   A substring that must be in the path of the phone (i.e. SAMSUNG or the phone model).
@@ -19,7 +22,7 @@ object FileRenamer {
       .map(os.list(_).filter(_.toString.contains(phoneTag.getOrElse(""))))
       .flatMap(_.headOption)
       .flatMap(os.list(_).headOption)
-      .getOrElse(throw new RuntimeException("Unable to find pics storage."))
+      .getOrElse(throw new MissingPhoneDirException())
   }
 
   /** Copies files from a directory, usually a phone, into the local hard disk. On the phone, files are moved into a
@@ -82,20 +85,28 @@ object FileRenamer {
         val mounted: Seq[Path] = gvfs.toSeq.flatMap(os.list)
         // if there's more than one phone connected, then do each one individually.
         if (mounted.size > 1) {
+          // Ignore MissingPhoneDirException if at least one did succeed
+          var atLeastOneSuccess = false
           for (phone <- mounted)
-            cameraphone(
-              deviceRootDir,
-              deviceBackedupSubDir,
-              deviceRelPath,
-              extension,
-              dst,
-              dstSub,
-              dstSuffix,
-              phoneMountDir,
-              phoneTag = Some(phone.baseName),
-              dryRun,
-              console
-            )
+            try {
+              cameraphone(
+                deviceRootDir,
+                deviceBackedupSubDir,
+                deviceRelPath,
+                extension,
+                dst,
+                dstSub,
+                dstSuffix,
+                phoneMountDir,
+                phoneTag = Some(phone.baseName),
+                dryRun,
+                console
+              )
+              atLeastOneSuccess = true
+            } catch {
+              case ex: MissingPhoneDirException if atLeastOneSuccess || phone != mounted.last => None
+              case ex                                                                         => throw ex
+            }
           return
         }
       case _ =>

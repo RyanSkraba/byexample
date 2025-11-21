@@ -1,5 +1,7 @@
 package com.skraba.byexample.scala.ammonite
 
+import com.skraba.byexample.scala.ammonite.FileRenamer.MissingPhoneDirException
+
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import scala.Console._
@@ -173,14 +175,15 @@ class FileRenamerScriptSpec extends AmmoniteScriptSpecBase("/file_renamer.sc") {
       (dst / "Copied" / "image1.jpg").toFile.slurp() shouldBe "image1.jpg"
     }
 
-    it("should copy files from more than one phone if connected") {
-      // Set up a scenario
-      val (src, dst) = createSrcDst("multiphone", "gvfs/phone1/Drive/DCIM/Camera", Seq("a1.jpg", "a2.jpg"))
-      createSrcDst("multiphone", "gvfs/phone2/Disk/DCIM/Camera", Seq("b1.jpg"))
+    describe("When two phones are connected") {
+      it("should copy files from more than one phone when both connected") {
+        // Set up a scenario
+        val (src, dst) = createSrcDst("multiphone", "gvfs/phone1/Drive/DCIM/Camera", Seq("a1.jpg", "a2.jpg"))
+        createSrcDst("multiphone", "gvfs/phone2/Disk/DCIM/Camera", Seq("b1.jpg"))
 
-      val stdout = cameraphone(src, dst)("--plain", "--dryRun", "--phoneMountDir", src / "gvfs", "--dst", dst)
-      stdout shouldBe
-        """<SRC>/gvfs/phone1/Drive
+        val stdout = cameraphone(src, dst)("--plain", "--dryRun", "--phoneMountDir", src / "gvfs", "--dst", dst)
+        stdout shouldBe
+          """<SRC>/gvfs/phone1/Drive
           |There are 2 files in <SRC>/DCIM/Camera.
           |  jpg: 2
           |cp <SRC>/gvfs/phone1/Drive/DCIM/Camera/a1.jpg <DST>/<YYYYMMDD> Cameraphone/a1.jpg
@@ -194,9 +197,9 @@ class FileRenamerScriptSpec extends AmmoniteScriptSpecBase("/file_renamer.sc") {
           |mv <SRC>/gvfs/phone2/Disk/DCIM/Camera/b1.jpg <SRC>/gvfs/phone2/Disk/DCIM/Camera/backedup<YYYYMM>/b1.jpg
           |""".stripMargin
 
-      val stdout2 = cameraphone(src, dst)("--plain", "--phoneMountDir", src / "gvfs", "--dst", dst)
-      stdout2 shouldBe
-        """<SRC>/gvfs/phone1/Drive
+        val stdout2 = cameraphone(src, dst)("--plain", "--phoneMountDir", src / "gvfs", "--dst", dst)
+        stdout2 shouldBe
+          """<SRC>/gvfs/phone1/Drive
           |There are 2 files in <SRC>/DCIM/Camera.
           |  jpg: 2
           |<DST>/<YYYYMMDD> Cameraphone/a1.jpg...
@@ -207,12 +210,59 @@ class FileRenamerScriptSpec extends AmmoniteScriptSpecBase("/file_renamer.sc") {
           |<DST>/<YYYYMMDD>-2 Cameraphone/b1.jpg...
           |""".stripMargin
 
-      (src / "gvfs" / "phone1" / "Drive" / "DCIM" / "Camera").toDirectory.files shouldBe empty
-      (src / "gvfs" / "phone1" / "Drive" / "DCIM" / "Camera").toDirectory.dirs should have size 1
-      (src / "gvfs" / "phone1" / "Drive" / "DCIM" / "Camera").toDirectory.dirs.toSeq.head.files should have size 2
-      (src / "gvfs" / "phone2" / "Disk" / "DCIM" / "Camera").toDirectory.files shouldBe empty
-      (src / "gvfs" / "phone2" / "Disk" / "DCIM" / "Camera").toDirectory.dirs should have size 1
-      (src / "gvfs" / "phone2" / "Disk" / "DCIM" / "Camera").toDirectory.dirs.toSeq.head.files should have size 1
+        (src / "gvfs" / "phone1" / "Drive" / "DCIM" / "Camera").toDirectory.files shouldBe empty
+        (src / "gvfs" / "phone1" / "Drive" / "DCIM" / "Camera").toDirectory.dirs should have size 1
+        (src / "gvfs" / "phone1" / "Drive" / "DCIM" / "Camera").toDirectory.dirs.toSeq.head.files should have size 2
+        (src / "gvfs" / "phone2" / "Disk" / "DCIM" / "Camera").toDirectory.files shouldBe empty
+        (src / "gvfs" / "phone2" / "Disk" / "DCIM" / "Camera").toDirectory.dirs should have size 1
+        (src / "gvfs" / "phone2" / "Disk" / "DCIM" / "Camera").toDirectory.dirs.toSeq.head.files should have size 1
+      }
+
+      it("should copy files from one phone if the other is disconnected") {
+        // Set up a scenario
+        val (src, dst) = createSrcDst("multiphone_one", "gvfs/phone1/Drive/DCIM/Camera", Seq("a1.jpg", "a2.jpg"))
+        (Tmp / "multiphone_one" / "src/gvfs/phone2").createDirectory(failIfExists = true)
+
+        val stdout = cameraphone(src, dst)("--plain", "--dryRun", "--phoneMountDir", src / "gvfs", "--dst", dst)
+        stdout shouldBe
+          """<SRC>/gvfs/phone1/Drive
+          |There are 2 files in <SRC>/DCIM/Camera.
+          |  jpg: 2
+          |cp <SRC>/gvfs/phone1/Drive/DCIM/Camera/a1.jpg <DST>/<YYYYMMDD> Cameraphone/a1.jpg
+          |mv <SRC>/gvfs/phone1/Drive/DCIM/Camera/a1.jpg <SRC>/gvfs/phone1/Drive/DCIM/Camera/backedup<YYYYMM>/a1.jpg
+          |cp <SRC>/gvfs/phone1/Drive/DCIM/Camera/a2.jpg <DST>/<YYYYMMDD> Cameraphone/a2.jpg
+          |mv <SRC>/gvfs/phone1/Drive/DCIM/Camera/a2.jpg <SRC>/gvfs/phone1/Drive/DCIM/Camera/backedup<YYYYMM>/a2.jpg
+          |""".stripMargin
+
+        val stdout2 = cameraphone(src, dst)("--plain", "--phoneMountDir", src / "gvfs", "--dst", dst)
+        stdout2 shouldBe
+          """<SRC>/gvfs/phone1/Drive
+          |There are 2 files in <SRC>/DCIM/Camera.
+          |  jpg: 2
+          |<DST>/<YYYYMMDD> Cameraphone/a1.jpg...
+          |<DST>/<YYYYMMDD> Cameraphone/a2.jpg...
+          |""".stripMargin
+
+        (src / "gvfs" / "phone1" / "Drive" / "DCIM" / "Camera").toDirectory.files shouldBe empty
+        (src / "gvfs" / "phone1" / "Drive" / "DCIM" / "Camera").toDirectory.dirs should have size 1
+        (src / "gvfs" / "phone1" / "Drive" / "DCIM" / "Camera").toDirectory.dirs.toSeq.head.files should have size 2
+        (src / "gvfs" / "phone2").toDirectory.files shouldBe empty
+        (src / "gvfs" / "phone2").toDirectory.dirs shouldBe empty
+      }
+
+      it("should fail files if both phones are disconnected") {
+        // Set up a scenario
+        val src = (Tmp / "multiphone_none" / "src").toDirectory
+        val dst = (Tmp / "multiphone_none" / "dst").toDirectory
+        (src / "gvfs/phone1").createDirectory(failIfExists = true)
+        (src / "gvfs/phone2").createDirectory(failIfExists = true)
+        withScript("cameraphone", "--plain", "--dryRun", "--phoneMountDir", src / "gvfs", "--dst", dst) {
+          case (result, stdout, stderr) =>
+            result shouldBe false
+            stdout shouldBe empty
+            stderr should include("MissingPhoneDirException: Unable to find pics storage.")
+        }
+      }
     }
   }
 
