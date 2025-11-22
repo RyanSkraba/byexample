@@ -533,9 +533,14 @@ object Ffmpeg {
 
   /** Determine if all of the commands have been installed. */
   lazy val enabled: Boolean = {
-    import scala.sys.process._
-    try { s"$FfmpegCmd -version".! == 0 && s"$FfprobeCmd -version".! == 0 && s"$InkscapeCmd --version".! == 0 }
-    catch { case _: Exception => false }
+    if (sys.env.getOrElse("BYEXAMPLE_FFMPEG_DISABLE", "false").toBoolean) false
+    else {
+      import scala.sys.process._
+      try { s"$FfmpegCmd -version".! == 0 && s"$FfprobeCmd -version".! == 0 && s"$InkscapeCmd --version".! == 0 }
+      catch {
+        case _: Exception => false
+      }
+    }
   }
 
   /** @param loFrequency
