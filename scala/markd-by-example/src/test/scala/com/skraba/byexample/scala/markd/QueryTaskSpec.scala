@@ -38,6 +38,15 @@ class QueryTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(QueryTask)) with Tmp
       withGoStdout(TaskCmd, "--query", "A.B.C[*]", Basic) shouldBe "Hello ABC"
     }
 
+    it("should provide verbose information") {
+      withGoStdout(TaskCmd, "--verbose", "--query", "A.B.C[*]", Basic) shouldBe
+        """Query |A.B.C[*] Markd
+        |Query A|.B.C[*] Markd
+        |Query B|.C[*] Header
+        |Query C[*] Header
+        |Hello ABC""".stripMargin
+    }
+
     it("should read from stdin") {
       Using(Basic.inputStream()) { in =>
         Console.withIn(in) {
@@ -54,5 +63,6 @@ class QueryTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(QueryTask)) with Tmp
         Basic
       ).getMessage shouldBe "Unrecognized query: A.B.C["
     }
+
   }
 }

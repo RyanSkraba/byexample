@@ -1,11 +1,11 @@
 package com.skraba.byexample.scala.markd
 
 import com.tinfoiled.docopt4s.{Docopt, Task}
+import com.tinfoiled.markd.ql.MarkdQL
 import com.tinfoiled.markd.ql.MarkdQL.query
-import com.tinfoiled.markd.{Header, Markd, MarkdContainer, MarkdNode}
+import com.tinfoiled.markd.Markd
 
 import scala.reflect.io.File
-import scala.util.matching.Regex
 
 /** Extracts text from a markdown file. */
 object QueryTask extends Task {
@@ -18,10 +18,11 @@ object QueryTask extends Task {
     s"""$Description
        |
        |Usage:
-       |  ${MarkdGo.Name} $Cmd --query QUERY (FILE|-)
+       |  ${MarkdGo.Name} $Cmd --query QUERY [options] (FILE|-)
        |
        |Options:
        |  -h --help      Show this screen.
+       |  --verbose      Enable verbose logging
        |  --version      Show version.
        |  --fail         Fail instead of returning empty.
        |  FILE           File to query or '-' for STDIN
@@ -42,13 +43,11 @@ object QueryTask extends Task {
        |
        |Find and return the level one header with the title "Top"
        |
-       |TODO:
        |  ${MarkdGo.Name} $Cmd --query Weekly..2025-02-14 markd.md
        |
        |Find the level one header with the title "Weekly" and return the first
        |subheader named "2025-02-14" at any level inside
        |
-       |TODO:
        |  ${MarkdGo.Name} $Cmd --query "Weekly[0]" markd.md
        |
        |Find the level one header with the title "Weekly" and return the first element
@@ -59,12 +58,11 @@ object QueryTask extends Task {
        |
        |Find the level one header with the title "Weekly" and return the first
        |code block it contains.
-       |TODO:
+       |
        |  ${MarkdGo.Name} $Cmd --query "Weekly!To Do" markd.md
        |
        |Find the level one header with the title "Weekly" and return the To Do table
-       |that   it contains.
-       |
+       |that it contains.
        |""".stripMargin.trim
 
   def go(opt: Docopt): Unit = {
@@ -76,6 +74,26 @@ object QueryTask extends Task {
       if (file == "-") Iterator.continually(Console.in.readLine()).takeWhile(_ != null).mkString("\n")
       else File(file).slurp()
     )
+
+    if (opt.flag("--verbose")) {
+      val (inProgress, _) = LazyList.iterate(MarkdQL.Query(rest = qx, mds = Seq(md))) { _.next }.span(!_.isDone)
+      for (query <- inProgress) {
+        print("Query ")
+        if (query.regex) print("(regex) ")
+        if (query.recursive) print("(recursive) ")
+        print(s"${query.separator}${query.token}")
+        if (query.index.nonEmpty) print(s"[${query.index}]")
+        if (query.rest.nonEmpty) print(s"|${query.rest}")
+        if (query.mds.size > 1) print(s"mds.size=${query.mds.size} mds.head=")
+        // TODO: Improve verbose info about currently matched classes
+        query.mds match {
+          case Seq()   =>
+          case Seq(md) => print(s" ${md.getClass.getSimpleName}")
+          case md      => print(s" md[0/${md.size}]=${md.getClass.getSimpleName}")
+        }
+        println()
+      }
+    }
 
     print(query(qx, md).map(_.build().toString.trim).mkString)
   }
