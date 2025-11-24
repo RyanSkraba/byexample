@@ -40,10 +40,10 @@ class QueryTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(QueryTask)) with Tmp
 
     it("should provide verbose information") {
       withGoStdout(TaskCmd, "--verbose", "--query", "A.B.C[*]", Basic) shouldBe
-        """Query |A.B.C[*] Markd
-        |Query A|.B.C[*] Markd
-        |Query B|.C[*] Header
-        |Query C[*] Header
+        """Query ┇A.B.C[*] → Markd
+        |Query A┇.B.C[*] → Markd
+        |Query B┇.C[*] → Header
+        |Query C[*] → Header
         |Hello ABC""".stripMargin
     }
 

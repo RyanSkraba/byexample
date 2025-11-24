@@ -83,13 +83,12 @@ object QueryTask extends Task {
         if (query.recursive) print("(recursive) ")
         print(s"${query.separator}${query.token}")
         if (query.index.nonEmpty) print(s"[${query.index}]")
-        if (query.rest.nonEmpty) print(s"|${query.rest}")
-        if (query.mds.size > 1) print(s"mds.size=${query.mds.size} mds.head=")
+        if (query.rest.nonEmpty) print(s"┇${query.rest}")
         // TODO: Improve verbose info about currently matched classes
         query.mds match {
           case Seq()   =>
-          case Seq(md) => print(s" ${md.getClass.getSimpleName}")
-          case md      => print(s" md[0/${md.size}]=${md.getClass.getSimpleName}")
+          case Seq(md) => print(s" → ${md.getClass.getSimpleName}")
+          case md      => print(s" → md[0/${md.size}]=${md.getClass.getSimpleName}")
         }
         println()
       }
