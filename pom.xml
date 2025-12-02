@@ -55,7 +55,7 @@
     <!-- Plugins -->
     <plugin.clean.maven.version>3.3.2</plugin.clean.maven.version>
     <plugin.compiler.maven.version>3.12.1</plugin.compiler.maven.version>
-    <plugin.deploy.maven.version>3.1.1</plugin.deploy.maven.version>
+    <plugin.deploy.maven.version>3.1.4</plugin.deploy.maven.version>
     <plugin.enforcer.maven.version>3.4.1</plugin.enforcer.maven.version>
     <plugin.enforcer.required.maven.version>3.5.0</plugin.enforcer.required.maven.version>
     <plugin.failsafe.maven.version>3.2.5</plugin.failsafe.maven.version>
