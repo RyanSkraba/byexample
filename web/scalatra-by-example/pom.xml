@@ -22,7 +22,7 @@
     <!-- Launcher class -->
     <exec.mainClass>com.skraba.byexample.scalatra.ScalatraGo</exec.mainClass>
     <!-- other project dependency versions as properties -->
-    <plugin.maven.twirl.version>2.0.8</plugin.maven.twirl.version>
+    <plugin.maven.twirl.version>2.0.9</plugin.maven.twirl.version>
     <scalatra.version>3.1.1</scalatra.version>
     <twirl.version>1.6.9</twirl.version>
   </properties>
