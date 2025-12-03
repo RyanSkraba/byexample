@@ -260,7 +260,7 @@ class FileRenamerScriptSpec extends AmmoniteScriptSpecBase("/file_renamer.sc") {
           case (result, stdout, stderr) =>
             result shouldBe false
             stdout shouldBe empty
-            stderr should include("MissingPhoneDirException: Unable to find pics storage.")
+            stderr should include(s"MissingPhoneDirException: Unable to find pics storage (${src / "gvfs"} phone2).")
         }
       }
     }

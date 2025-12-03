@@ -10,7 +10,7 @@ import scala.util.{Failure, Try}
 /** Utilities and helpers for renaming files in my ammonite scripts. */
 object FileRenamer {
 
-  class MissingPhoneDirException() extends RuntimeException("Unable to find pics storage.")
+  class MissingPhoneDirException(root: String) extends RuntimeException(s"Unable to find pics storage ($root).")
 
   /** @param phoneTag
     *   A substring that must be in the path of the phone (i.e. SAMSUNG or the phone model).
@@ -22,7 +22,7 @@ object FileRenamer {
       .map(os.list(_).filter(_.toString.contains(phoneTag.getOrElse(""))))
       .flatMap(_.headOption)
       .flatMap(os.list(_).headOption)
-      .getOrElse(throw new MissingPhoneDirException())
+      .getOrElse(throw new MissingPhoneDirException(Seq(gvfs, phoneTag).flatten.mkString(" ")))
   }
 
   /** Copies files from a directory, usually a phone, into the local hard disk. On the phone, files are moved into a
@@ -184,7 +184,5 @@ object FileRenamer {
         console.vPrintln(".")
       }
     }
-
   }
-
 }
