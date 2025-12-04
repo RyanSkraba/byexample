@@ -7,8 +7,7 @@ import os.CommandResult
 
 import scala.util.Try
 
-/** Unit tests for [[CherryPickerReport]]
-  */
+/** Unit tests for [[CherryPickerReport]] */
 class CherryPickerReportSpec extends AnyFunSpecLike with Matchers {
 
   describe("Test") {

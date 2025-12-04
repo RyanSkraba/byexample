@@ -33,8 +33,7 @@ case class CherryPickerReport(
   /** Rerun this report using the updated commits. */
   def update(current: CherryPickerReport): CherryPickerReport = copy(left = current.left, right = current.right)
 
-  /** If the commit describes a dependabot bump, then update the notes in the table row with the word Bump.
-    */
+  /** If the commit describes a dependabot bump, then update the notes in the table row with the word Bump. */
   private[this] def rowUpdateBump(cmt: Commit)(row: TableRow): TableRow =
     if (cmt.isBump && !row(2).toLowerCase.contains("bump")) row.updated(2, "Bump " + row(2))
     else row
@@ -55,8 +54,7 @@ case class CherryPickerReport(
       .updated(0, s"[${row.head.take(CommitHashSize)}]")
       .updated(1, if (row(1).length < 100) row(1) else row(1).take(97) + "...")
 
-  /** Generate a commit table for the given header, integrating the given list of commits with any existing notes.
-    */
+  /** Generate a commit table for the given header, integrating the given list of commits with any existing notes. */
   private[this] def addTableOfCommits(
       h1: Header,
       cmts: Seq[Commit],

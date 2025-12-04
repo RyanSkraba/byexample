@@ -9,19 +9,16 @@ import org.scalatest.matchers.should.Matchers
 import java.time.format.DateTimeFormatter
 import java.time.{DayOfWeek, LocalDate}
 
-/** Unit tests for [[GettingThingsDone]]
-  */
+/** Unit tests for [[GettingThingsDone]] */
 class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
 
-  /** Next monday, which is the default week start when initializing the statuses.
-    */
+  /** Next monday, which is the default week start when initializing the statuses. */
   val defaultNextWeekStart: String = nextWeekStart(None)
 
   /** The default day of the week. */
   val todayDayOfWeek: String = LocalDate.now.getDayOfWeek.toString.take(3).toLowerCase.capitalize
 
-  /** A function to prepend a comment with a given text to the contents of the header.
-    */
+  /** A function to prepend a comment with a given text to the contents of the header. */
   def preComment(text: String = "Hi")(h: Header): Header = h.copyMds(Comment(text) +: h.mds)
 
   /** Some text to be parsed into an status document. */

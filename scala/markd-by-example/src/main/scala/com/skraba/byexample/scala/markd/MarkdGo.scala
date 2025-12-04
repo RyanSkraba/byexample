@@ -4,8 +4,7 @@ import com.tinfoiled.markd._
 
 import scala.reflect.io.{Directory, File, Path}
 
-/** A driver for the various utilities that use the [[Markd]] model.
-  */
+/** A driver for the various utilities that use the [[Markd]] model. */
 object MarkdGo extends MultiTaskMain {
 
   override lazy val Name: String = "MarkdGo"

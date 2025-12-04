@@ -3,8 +3,7 @@ package com.skraba.byexample.scala.markd
 import com.tinfoiled.docopt4s.{Docopt, Task}
 import com.tinfoiled.markd.{Markd, ParserCfg}
 
-/** Command-line driver for beautifying a markdown file.
-  */
+/** Command-line driver for beautifying a markdown file. */
 object BeautifyTask extends Task {
 
   val Cmd = "beautify"

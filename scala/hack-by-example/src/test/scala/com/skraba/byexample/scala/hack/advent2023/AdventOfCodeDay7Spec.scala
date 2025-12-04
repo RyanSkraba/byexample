@@ -40,8 +40,7 @@ class AdventOfCodeDay7Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
         case _            => 0 // Pair
       }
 
-      /** Map the cards to a sortable string so the stronger values come later.
-        */
+      /** Map the cards to a sortable string so the stronger values come later. */
       lazy val p1Rank: String = cards
         .map("23456789TJQKA".indexOf(_).toChar)
         .map(_ + 'a' - '0')
@@ -71,8 +70,7 @@ class AdventOfCodeDay7Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
         case _                                 => 0 // Pair
       }
 
-      /** Map the cards to a sortable string so the stronger values come later.
-        */
+      /** Map the cards to a sortable string so the stronger values come later. */
       lazy val p2Rank: String = cards
         .map("J23456789TQKA".indexOf(_).toChar)
         .map(_ + 'a' - '0')

@@ -17,8 +17,7 @@ class ApplyAndUnapplySpec extends AnyFunSpecLike with Matchers {
 
   object Person {
 
-    /** A custom apply to create an anonymous person, with the age rounded down to the decade.
-      */
+    /** A custom apply to create an anonymous person, with the age rounded down to the decade. */
     def apply(birthYear: Int): Person =
       Person("Anonymous", birthYear / 10 * 10)
   }

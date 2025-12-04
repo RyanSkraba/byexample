@@ -4,9 +4,9 @@
 
 import mainargs.{Flag, arg, main}
 
-import java.time.{DayOfWeek, LocalDateTime}
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import java.time.{DayOfWeek, LocalDateTime}
 import scala.io.AnsiColor._
 import scala.util._
 
@@ -244,7 +244,7 @@ def ghContrib(
 // ==========================================================================
 // Git from the command line to rewrite the last date
 
-/** Everything necessary too rewrite a git date from the command-line. */
+/** Everything necessary to rewrite a git date from the command-line. */
 @main
 def rewriteDate(
     cmd: String = "next1day",
@@ -262,18 +262,10 @@ def rewriteDate(
     "RFC1123" -> DateTimeFormatter.RFC_1123_DATE_TIME,
     "yyyyMMddHHmmss" -> DateTimeFormatter.ofPattern("yyyyMMddHHmmss"),
     "yyyy-MM-dd HH:mm:ss" -> DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"),
-    "Git default" -> DateTimeFormatter.ofPattern(
-      "[EEE ]MMM dd HH:mm:ss yyyy[ Z]"
-    ),
-    "Git default-like 1" -> DateTimeFormatter.ofPattern(
-      "[EEE ]dd MMM HH:mm:ss yyyy[ Z]"
-    ),
-    "Git default-like 3" -> DateTimeFormatter.ofPattern(
-      "[EEE ]MMM dd yyyy HH:mm:ss[ Z]"
-    ),
-    "Git default-like 2" -> DateTimeFormatter.ofPattern(
-      "[EEE ]dd MMM yyyy HH:mm:ss[ Z]"
-    )
+    "Git default" -> DateTimeFormatter.ofPattern("[EEE ]MMM dd HH:mm:ss yyyy[ Z]"),
+    "Git default-like 1" -> DateTimeFormatter.ofPattern("[EEE ]dd MMM HH:mm:ss yyyy[ Z]"),
+    "Git default-like 3" -> DateTimeFormatter.ofPattern("[EEE ]MMM dd yyyy HH:mm:ss[ Z]"),
+    "Git default-like 2" -> DateTimeFormatter.ofPattern("[EEE ]dd MMM yyyy HH:mm:ss[ Z]")
   )
 
   val baseDate = Try(cmd match {
@@ -287,10 +279,7 @@ def rewriteDate(
     // recent date of that day with the current time
     case cmd if Try(DayOfWeek.valueOf(cmd.toUpperCase())).isSuccess =>
       val now = LocalDateTime.now()
-      now.plusDays(
-        (DayOfWeek.valueOf(cmd.toUpperCase).ordinal() -
-          now.getDayOfWeek.ordinal() - 7) % 7
-      )
+      now.plusDays((DayOfWeek.valueOf(cmd.toUpperCase).ordinal() - now.getDayOfWeek.ordinal() - 7) % 7)
 
     // Otherwise try and parse the command using a variety of formatters.
     case _ =>
@@ -310,33 +299,22 @@ def rewriteDate(
   // Create a GPG script that can fake the system time from an environment variable.
   val gpgWithRewrite = os.root / "tmp" / "gpgWithRewrite.sh"
   if (!os.exists(gpgWithRewrite)) {
-    os.write(
-      gpgWithRewrite,
-      "#!/bin/sh\ngpg --faked-system-time \"$GPG_FAKED_DATE!\" $@"
-    )
+    os.write(gpgWithRewrite, "#!/bin/sh\ngpg --faked-system-time \"$GPG_FAKED_DATE!\" $@")
     os.perms.set(gpgWithRewrite, os.PermSet.fromString("rwxrwxrwx"))
   }
 
   // Get an adjusted, fuzzed date off of the base date.
   val fuzzedDate = baseDate.map(bd => {
     val adjusted = cmd match {
-      case RelativeCommand("next" | "add", time, "min" | "mins") =>
-        bd.plusMinutes(time.toInt)
-      case RelativeCommand("sub", time, "min" | "mins") =>
-        bd.minusMinutes(time.toInt)
-      case RelativeCommand("next" | "add", time, "hour" | "hours") =>
-        bd.plusHours(time.toInt)
-      case RelativeCommand("sub", time, "hour" | "hours") =>
-        bd.minusHours(time.toInt)
-      case RelativeCommand("next" | "add", time, "day" | "days") =>
-        bd.plusDays(time.toInt)
-      case RelativeCommand("sub", time, "day" | "days") =>
-        bd.minusDays(time.toInt)
-      case RelativeCommand("next" | "add", time, "week" | "weeks") =>
-        bd.plusWeeks(time.toInt)
-      case RelativeCommand("sub", time, "week" | "weeks") =>
-        bd.minusWeeks(time.toInt)
-      case _ => bd
+      case RelativeCommand("next" | "add", time, "min" | "mins")   => bd.plusMinutes(time.toInt)
+      case RelativeCommand("sub", time, "min" | "mins")            => bd.minusMinutes(time.toInt)
+      case RelativeCommand("next" | "add", time, "hour" | "hours") => bd.plusHours(time.toInt)
+      case RelativeCommand("sub", time, "hour" | "hours")          => bd.minusHours(time.toInt)
+      case RelativeCommand("next" | "add", time, "day" | "days")   => bd.plusDays(time.toInt)
+      case RelativeCommand("sub", time, "day" | "days")            => bd.minusDays(time.toInt)
+      case RelativeCommand("next" | "add", time, "week" | "weeks") => bd.plusWeeks(time.toInt)
+      case RelativeCommand("sub", time, "week" | "weeks")          => bd.minusWeeks(time.toInt)
+      case _                                                       => bd
     }
 
     import ChronoUnit.SECONDS
@@ -344,8 +322,7 @@ def rewriteDate(
     val fuzzDev = (15 * 60d) min (fuzz * adjustedDiff)
     val fuzzSeconds = (fuzzDev * Random.nextGaussian()).toLong
 
-    val fuzzed =
-      bd.plusSeconds(adjustedDiff + fuzzSeconds)
+    val fuzzed = bd.plusSeconds(adjustedDiff + fuzzSeconds)
 
     out.vPrintln {
       val fuzzedDiff = bd.until(fuzzed, SECONDS)
@@ -366,8 +343,7 @@ def rewriteDate(
       println(s"$RED${BOLD}Unexpected command: $cmd")
     },
     fuzzed => {
-      val fakedDate =
-        fuzzed.atZone(java.time.ZoneId.systemDefault()).toEpochSecond.toString
+      val fakedDate = fuzzed.atZone(java.time.ZoneId.systemDefault()).toEpochSecond.toString
       out.vPrintln(
         s"""$BOLD${BLUE}GPG_FAKED_DATE="$fakedDate" GIT_COMMITTER_DATE="$fuzzed" git -c "gpg.program=$gpgWithRewrite" commit --amend --no-edit --date $fuzzed$RESET
              |""".stripMargin

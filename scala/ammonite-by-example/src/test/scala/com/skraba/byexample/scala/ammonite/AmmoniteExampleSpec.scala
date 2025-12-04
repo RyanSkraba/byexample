@@ -12,8 +12,7 @@ import scala.io.AnsiColor.{BOLD, RESET, YELLOW}
 import scala.reflect.io._
 import scala.util.Properties
 
-/** Testing ammonite scripts can be a bit tricky!
-  */
+/** Testing ammonite scripts can be a bit tricky! */
 class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
 
   /** The path containing ammonite scripts. */

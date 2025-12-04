@@ -7,8 +7,7 @@ import org.scalatest.matchers.should.Matchers
 
 import scala.reflect.io.{Directory, File}
 
-/** Unit tests for the [[CountdownTask]] CLI.
-  */
+/** Unit tests for the [[CountdownTask]] CLI. */
 class CountdownTaskSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterAll {
 
   /** A resource in this maven project, discoverable on the classpath. */

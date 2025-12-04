@@ -379,15 +379,13 @@ object GettingThingsDone {
   /** A date pattern */
   val Pattern: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.from(ZoneOffset.UTC))
 
-  /** The name of the statistics table, the value found in the upper left column.
-    */
+  /** The name of the statistics table, the value found in the upper left column. */
   val TableStats: String = "Stats"
 
   /** The name of the tasks table, the value found in the upper left column. */
   val TableToDo: String = "To Do"
 
-  /** The structure of an empty Stats table, used to collect weekly statistics.
-    */
+  /** The structure of an empty Stats table, used to collect weekly statistics. */
   lazy val TableStatsEmpty: Table =
     Table(Seq.fill(8)(Align.LEFT), TableRow(TableStats, "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))
 
@@ -494,8 +492,7 @@ object GettingThingsDone {
   /** The task is a candidate for this week. */
   case object MaybeToDo extends ToDoState("🔶")
 
-  /** The task wasn't done and will not be done. It was rejected, unnecessary or just a bad idea.
-    */
+  /** The task wasn't done and will not be done. It was rejected, unnecessary or just a bad idea. */
   case object StoppedToDo extends ToDoState("🟥", complete = true)
 
   /** The task is still valid but is waiting on some external factor. */
@@ -510,8 +507,7 @@ object GettingThingsDone {
     def apply(category: String): ToDoState = AllStates.find(tds => category.startsWith(tds.txt)).getOrElse(NoToDoState)
   }
 
-  /** Calculate either next Monday or the monday 7 days after the Date in the String.
-    */
+  /** Calculate either next Monday or the monday 7 days after the Date in the String. */
   def nextWeekStart(date: Option[String], dow: DayOfWeek = DayOfWeek.MONDAY): String = {
     // Use the time classes to find the next date.
     import java.time.LocalDate._

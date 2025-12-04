@@ -43,8 +43,7 @@ class AdventOfCodeDay15Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       }.sum
     }
 
-    /** This implementation applies the rules sequentially to the boxes as an accumulator.
-      */
+    /** This implementation applies the rules sequentially to the boxes as an accumulator. */
     def part2a(in: String*): Long = {
       focusingPower(
         in.head.split(",").foldLeft(Seq.fill(256)(Seq[(String, Int)]())) { (boxes, cmdStr) =>

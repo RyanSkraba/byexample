@@ -12,14 +12,12 @@ import scala.reflect.io.File
 
 object Svg {
 
-  /** Useful pointer to qualify attribute names, since they can conflict with common variables.
-    */
+  /** Useful pointer to qualify attribute names, since they can conflict with common variables. */
   val Attrs: scalatags.Text.svgAttrs.type = scalatags.Text.svgAttrs
 
   val XmlNs = attr("xmlns") := "https://www.w3.org/2000/svg"
 
-  /** The Apache2 license header [[https://www.apache.org/licenses/LICENSE-2.0#apply]]
-    */
+  /** The Apache2 license header [[https://www.apache.org/licenses/LICENSE-2.0#apply]] */
   val Apache2: String =
     s"""  Licensed to the Apache Software Foundation (ASF) under one or more
        |  contributor license agreements.  See the NOTICE file distributed with

@@ -8,8 +8,7 @@ import org.scalatest.matchers.should.Matchers
 
 import scala.xml.XML
 
-/** Unit tests for the [[DuolingoCnCheatsheetTask]] CLI.
-  */
+/** Unit tests for the [[DuolingoCnCheatsheetTask]] CLI. */
 class DuolingoCnCheatsheetTaskSpec extends AnyFunSpecLike with Matchers {
 
   describe("ScalatagsGo cheatsheet valid commands") {

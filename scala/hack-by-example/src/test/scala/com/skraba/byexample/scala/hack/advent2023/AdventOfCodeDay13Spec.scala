@@ -23,8 +23,7 @@ class AdventOfCodeDay13Spec extends AnyFunSpecLike with Matchers with BeforeAndA
 
   object Solution {
 
-    /** Given a position and an array size, generates ranges that reflect around the position.
-      */
+    /** Given a position and an array size, generates ranges that reflect around the position. */
     def reflects(in: Int, size: Int): Iterable[(Int, Int)] = {
       if (in < size / 2)
         (in to 0 by -1).zip(in + 1 until size)

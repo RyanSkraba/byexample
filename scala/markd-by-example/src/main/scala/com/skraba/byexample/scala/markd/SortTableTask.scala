@@ -5,8 +5,7 @@ import com.tinfoiled.markd._
 import scala.util.Try
 import scala.util.matching.Regex
 
-/** Command-line driver for sorting a table in a Markdown file.
-  */
+/** Command-line driver for sorting a table in a Markdown file. */
 object SortTableTask extends Task {
 
   val Cmd = "sortTable"

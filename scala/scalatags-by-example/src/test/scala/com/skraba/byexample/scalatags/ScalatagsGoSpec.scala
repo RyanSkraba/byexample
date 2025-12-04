@@ -9,8 +9,7 @@ import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
 import scala.reflect.io.Streamable
 
-/** Unit tests for the CLI in the [[ScalatagsGo]] project.
-  */
+/** Unit tests for the CLI in the [[ScalatagsGo]] project. */
 class ScalatagsGoSpec extends AnyFunSpecLike with Matchers {
 
   describe("ScalatagsGo docopt check") {
