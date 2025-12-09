@@ -23,7 +23,7 @@ class CheatsheetSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers
 
   describe("A VocabGroup") {
 
-    val allVocab: Map[String, Vocab] = Cheatsheet.All.vocab.map(v => (v.cn, v)).toMap
+    lazy val allVocab: Map[String, Vocab] = Cheatsheet.All.vocab.map(v => (v.cn, v)).toMap
 
     it("should write a pretty group of words") {
       assumeCheatsheetNetwork()
