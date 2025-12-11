@@ -1,24 +1,15 @@
 package com.skraba.byexample.scalatags.duolingo.cn
 
 import com.skraba.byexample.scalatags.Svg
+import com.tinfoiled.docopt4s.testkit.TmpDir
 import org.scalactic.source.Position
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.{BeforeAndAfterAll, Tag}
+import org.scalatest.Tag
 
-import scala.reflect.io.{Directory, File}
+import scala.reflect.io.File
 
-class CheatsheetSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
-
-  // TODO: TmpDir from docopts4s
-
-  /** A local temporary directory for test file storage. */
-  val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
-
-  /** Delete temporary resources after the script. */
-  override protected def afterAll(): Unit =
-    try { Tmp.deleteRecursively() }
-    catch { case ex: Exception => ex.printStackTrace() }
+class CheatsheetSpec extends AnyFunSpecLike with Matchers with TmpDir {
 
   /** Disabling unit tests that require network to continue. */
   class RequiresCheatsheetItWork() extends ItWord {

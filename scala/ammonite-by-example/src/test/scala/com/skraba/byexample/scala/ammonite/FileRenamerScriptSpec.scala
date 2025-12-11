@@ -1,7 +1,5 @@
 package com.skraba.byexample.scala.ammonite
 
-import com.skraba.byexample.scala.ammonite.FileRenamer.MissingPhoneDirException
-
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import scala.Console._

@@ -53,6 +53,12 @@
       <version>${ammonite.version}</version>
       <scope>provided</scope>
     </dependency>
+
+    <!-- Tests -->
+    <dependency>
+      <groupId>com.tinfoiled</groupId>
+      <artifactId>docopt4s-testkit_${scala.binary.version}</artifactId>
+    </dependency>
   </dependencies>
 
 </project>
