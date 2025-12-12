@@ -1,24 +1,12 @@
 package com.skraba.byexample.scala.ammonite.video
 
 import com.skraba.byexample.scala.ammonite.OsPathScalaRelectIOConverters._
-import org.scalatest.BeforeAndAfterAll
+import com.tinfoiled.docopt4s.testkit.TmpDir
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-import scala.reflect.io.Directory
-
 /** Test the [[Card]] class. */
-class CardSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
-
-  // TODO: TmpDir from docopts4s
-
-  /** A local temporary directory for test file storage. */
-  val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
-
-  /** Delete temporary resources after the script. */
-  override protected def afterAll(): Unit =
-    try { Tmp.deleteRecursively() }
-    catch { case ex: Exception => ex.printStackTrace() }
+class CardSpec extends AnyFunSpecLike with Matchers with TmpDir {
 
   describe("Create a basic svg file using the card") {
     it("should create the files as needed") {

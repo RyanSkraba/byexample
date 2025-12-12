@@ -2,22 +2,18 @@ package com.skraba.byexample.scala.ammonite.video
 
 import com.skraba.byexample.scala.ammonite.OsPathScalaRelectIOConverters._
 import com.skraba.byexample.scala.ammonite.video.Ffmpeg._
+import com.tinfoiled.docopt4s.testkit.TmpDir
 import org.scalactic.source.Position
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.{BeforeAndAfterAll, Tag}
+import org.scalatest.Tag
 
 import java.nio.file.StandardCopyOption
 import scala.reflect.io.{Directory, File}
 import scala.util.Properties
 
 /** Test the [[Ffmpeg]] class. */
-class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
-
-  // TODO: TmpDir from docopts4s
-
-  /** A local temporary directory for test file storage. */
-  val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
+class FfmpegSpec extends AnyFunSpecLike with Matchers with TmpDir {
 
   /** Create a temporary directory that will be shared and not deleted between runs. Be careful, this can have
     * unintended side effects.
@@ -41,7 +37,7 @@ class FfmpegSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
         )
       })
       // Delete the temporary directory
-      Tmp.deleteRecursively()
+      super.afterAll()
     } catch { case ex: Exception => ex.printStackTrace() }
 
   /** Generated sequence of frames. */
