@@ -1,19 +1,10 @@
 package com.skraba.byexample.scalatra
 
-import com.tinfoiled.docopt4s.testkit.MultiTaskMainSpec
-import org.scalatest.BeforeAndAfterAll
+import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, TmpDir}
 import sttp.model.StatusCodes
 
-import scala.reflect.io.Directory
-
 /** Unit tests for [[ServeFileTask]]. */
-class ServeFileTaskSpec
-    extends MultiTaskMainSpec(ScalatraGo, Some(ServeFileTask))
-    with StatusCodes
-    with BeforeAndAfterAll {
-
-  /** A local temporary directory for test file storage. */
-  val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
+class ServeFileTaskSpec extends MultiTaskMainSpec(ScalatraGo, Some(ServeFileTask)) with StatusCodes with TmpDir {
 
   {
     (Tmp / "index.html").toFile.writeAll("""<html>
@@ -27,10 +18,8 @@ class ServeFileTaskSpec
   val Srv = new ScalatraGoServer(Seq(TaskCmd, "--dir", Tmp.toString))
 
   override def afterAll(): Unit = {
-    super.afterAll()
     Srv.shutdown()
-    try { Tmp.deleteRecursively() }
-    catch { case ex: Exception => ex.printStackTrace() }
+    super.afterAll()
   }
 
   describe(s"Standard $MainName $TaskCmd command line help, versions and exceptions") {

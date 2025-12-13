@@ -1,33 +1,20 @@
 package com.skraba.byexample.scalatags.countdown
 
 import com.skraba.byexample.scalatags.ScalatagsGoSpec.withScalatagsGoMatch
-import org.scalatest.BeforeAndAfterAll
+import com.tinfoiled.docopt4s.testkit.TmpDir
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-import scala.reflect.io.{Directory, File}
+import scala.reflect.io.File
 
 /** Unit tests for the [[CountdownTask]] CLI. */
-class CountdownTaskSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterAll {
+class CountdownTaskSpec extends AnyFunSpecLike with Matchers with TmpDir {
 
   /** A resource in this maven project, discoverable on the classpath. */
   val TemplateFile: File = {
-    val uri = Thread
-      .currentThread()
-      .getContextClassLoader
-      .getResource("timer.svg")
+    val uri = Thread.currentThread().getContextClassLoader.getResource("timer.svg")
     if (uri.getProtocol == "file") Some(File(uri.getFile)) else None
   }.getOrElse(fail("Can't find template resource 'timer.svg'"))
-
-  // TODO: TmpDir from docopts4s
-
-  /** A local temporary directory for test file storage. */
-  val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
-
-  /** Delete temporary resources after the script. */
-  override protected def afterAll(): Unit =
-    try { Tmp.deleteRecursively() }
-    catch { case ex: Exception => ex.printStackTrace() }
 
   describe("CountdownTaskSpec simple test") {
     it("should run") {
@@ -46,7 +33,7 @@ class CountdownTaskSpec extends AnyFunSpecLike with Matchers with BeforeAndAfter
         "--frameRate",
         "1",
         TemplateFile.toString
-      ) { case (stdout, stderr) =>
+      ) { case (_, stderr) =>
         stderr shouldBe ""
         tmpDir.files.toSeq should have size 4
         for (f <- tmpDir.files) {
@@ -66,13 +53,13 @@ class CountdownTaskSpec extends AnyFunSpecLike with Matchers with BeforeAndAfter
         "--dstVideo",
         (tmpDir / "timer.mp4").toString,
         TemplateFile.toString
-      ) { case (stdout, stderr) =>
+      ) { case (_, stderr) =>
         stderr shouldBe ""
         // Length = WarmUp + Duration + Cooldown (2 + 300 + 30 by default)
         // Frames = FrameRate * Length
         // Total = (Frames + 1) * 2 [two files per frame] + 1 video file
         tmpDir.files.toSeq should have size (30 * (2 + 300 + 30) * 2 + 2 + 1)
-        (tmpDir / "timer.mp4")
+        tmpDir / "timer.mp4"
       }
     }
   }

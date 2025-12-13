@@ -47,6 +47,12 @@
       <artifactId>markd_${scala.binary.version}</artifactId>
       <version>${markd.version}</version>
     </dependency>
+
+    <!-- Tests -->
+    <dependency>
+      <groupId>com.tinfoiled</groupId>
+      <artifactId>docopt4s-testkit_${scala.binary.version}</artifactId>
+    </dependency>
   </dependencies>
 
 </project>

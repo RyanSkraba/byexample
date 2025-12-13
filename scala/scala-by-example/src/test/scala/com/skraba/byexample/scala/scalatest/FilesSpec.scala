@@ -1,6 +1,6 @@
 package com.skraba.byexample.scala.scalatest
 
-import org.scalatest.BeforeAndAfterAll
+import com.tinfoiled.docopt4s.testkit.TmpDir
 import org.scalatest.OptionValues.convertOptionToValuable
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
@@ -12,12 +12,9 @@ import scala.util.Properties
 /** Matchers and assertions on files. ScalaTest doesn't help much, but it's pretty easy to use existing methods and
   * tools.
   */
-class FilesSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
+class FilesSpec extends AnyFunSpecLike with Matchers with TmpDir {
 
-  // TODO: TmpDir from docopts4s
-
-  /** A local temporary directory for test file storage. */
-  val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
+  // TODO: should this be added to docopts4s ?
 
   /** Create a temporary directory that will be shared and not deleted between runs. Be careful, this can have
     * unintended side effects.
@@ -41,7 +38,7 @@ class FilesSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
         )
       })
       // Delete the temporary directory
-      Tmp.deleteRecursively()
+      super.afterAll()
     } catch { case ex: Exception => ex.printStackTrace() }
 
   /** A resource in this maven project, discoverable on the classpath. */
