@@ -5,7 +5,7 @@ import com.tinfoiled.docopt4s.testkit.MultiTaskMainSpec
 /** Unit tests for [[MarkdGo]] */
 class MarkdGoSpec extends MultiTaskMainSpec(MarkdGo) {
   describe(s"Standard $MainName command line help, versions and exceptions") {
-    itShouldHandleHelpAndVersionFlags()
+    itShouldHandleVersionNoArgsAndHelpFlags()
     itShouldThrowOnMissingTaskCommand("--debug")
     itShouldThrowOnUnknownTaskCommand()
   }

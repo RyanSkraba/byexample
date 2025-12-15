@@ -8,7 +8,7 @@ import scala.reflect.io.{Directory, File}
 class BeautifyTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(BeautifyTask)) with TmpDir {
 
   describe(s"Standard $MainName $TaskCmd command line help, versions and exceptions") {
-    itShouldHandleHelpAndVersionFlags()
+    itShouldHandleVersionNoArgsAndHelpFlags()
     itShouldThrowOnUnknownOptKey()
     itShouldThrowOnIncompleteArgs()
   }

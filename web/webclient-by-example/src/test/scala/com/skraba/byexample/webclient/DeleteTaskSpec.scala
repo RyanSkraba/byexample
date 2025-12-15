@@ -16,7 +16,7 @@ class DeleteTaskSpec extends MultiTaskMainSpec(WebClientGo, Some(DeleteTask)) wi
   }
 
   describe(s"Standard $MainName $TaskCmd command line help, versions and exceptions") {
-    itShouldHandleHelpAndVersionFlags()
+    itShouldHandleVersionNoArgsAndHelpFlags()
     itShouldThrowOnUnknownOptKey()
     itShouldThrowOnIncompleteArgs()
     itShouldThrowOnIncompleteArgs("--pekko")

@@ -6,7 +6,7 @@ import com.tinfoiled.markd._
 class DatecountTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(DateCountdownTask)) {
 
   describe(s"Standard $MainName $TaskCmd command line help, versions and exceptions") {
-    itShouldHandleHelpAndVersionFlags()
+    itShouldHandleVersionNoArgsAndHelpFlags()
     itShouldThrowOnUnknownOptKey()
     itShouldThrowOnIncompleteArgs()
   }

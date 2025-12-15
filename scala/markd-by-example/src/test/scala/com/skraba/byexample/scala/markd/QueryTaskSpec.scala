@@ -10,7 +10,7 @@ import scala.util.Using
 class QueryTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(QueryTask)) with TmpDir {
 
   describe(s"Standard $MainName $TaskCmd command line help, versions and exceptions") {
-    itShouldHandleHelpAndVersionFlags()
+    itShouldHandleVersionNoArgsAndHelpFlags()
     itShouldThrowOnUnknownOptKey()
     itShouldThrowOnIncompleteArgs()
     itShouldThrowOnIncompleteArgs("--query", "..B")

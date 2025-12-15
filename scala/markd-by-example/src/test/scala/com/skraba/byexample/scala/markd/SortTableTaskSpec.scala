@@ -8,7 +8,7 @@ import scala.reflect.io.{Directory, File}
 class SortTableTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(SortTableTask)) with TmpDir {
 
   describe(s"Standard $MainName $TaskCmd command line help, versions and exceptions") {
-    itShouldHandleHelpAndVersionFlags()
+    itShouldHandleVersionNoArgsAndHelpFlags()
     itShouldThrowOnUnknownOptKey()
     itShouldThrowOnIncompleteArgs()
     itShouldThrowOnIncompleteArgs("filename.md")

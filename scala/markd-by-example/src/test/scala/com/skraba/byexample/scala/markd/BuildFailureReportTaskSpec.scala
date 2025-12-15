@@ -9,7 +9,7 @@ import scala.reflect.io.File
 class BuildFailureReportTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(BuildFailureReportTask)) with TmpDir {
 
   describe(s"Standard $MainName $TaskCmd command line help, versions and exceptions") {
-    itShouldHandleHelpAndVersionFlags()
+    itShouldHandleVersionNoArgsAndHelpFlags()
     itShouldThrowOnUnknownOptKey()
     itShouldThrowOnIncompleteArgs()
     itShouldThrowOnIncompleteArgs("--days", "1")

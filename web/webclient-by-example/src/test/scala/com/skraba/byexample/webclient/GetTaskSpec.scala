@@ -17,7 +17,7 @@ class GetTaskSpec extends MultiTaskMainSpec(WebClientGo, Some(GetTask)) with Sta
   }
 
   describe(s"Standard $MainName $TaskCmd command line help, versions and exceptions") {
-    itShouldHandleHelpAndVersionFlags()
+    itShouldHandleVersionNoArgsAndHelpFlags()
     itShouldThrowOnUnknownOptKey()
     itShouldThrowOnIncompleteArgs()
     itShouldThrowOnIncompleteArgs("--pekko")
