@@ -59,7 +59,7 @@ object RestTask extends Task {
           db += nextPid -> product
           nextPid.toString
         case Success(JsError(_)) => halt(BadRequest("Incomplete JSON"))
-        case Failure(_) => halt(BadRequest("Invalid JSON"))
+        case Failure(_)          => halt(BadRequest("Invalid JSON"))
       }
     }
 
@@ -71,7 +71,7 @@ object RestTask extends Task {
           db += pid.toInt -> product
           pid.toInt.toString
         case Success(JsError(_)) => halt(BadRequest("Incomplete JSON"))
-        case Failure(_) => halt(BadRequest("Invalid JSON"))
+        case Failure(_)          => halt(BadRequest("Invalid JSON"))
       }
     }
 
