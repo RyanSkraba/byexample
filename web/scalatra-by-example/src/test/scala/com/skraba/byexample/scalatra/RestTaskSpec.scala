@@ -76,14 +76,14 @@ class RestTaskSpec extends MultiTaskMainSpec(ScalatraGo, Some(RestTask)) with St
     it("when invalid JSON is sent") {
       val response = Srv.post("product/", """{{{{""")
       response.code shouldBe BadRequest.code
-      response.body shouldBe ""
+      response.body shouldBe "Invalid JSON"
       // TODO: Better errors?
     }
 
     it("when json is missing an attribute") {
       val response = Srv.post("product/", """{"id": 3}""")
       response.code shouldBe BadRequest.code
-      response.body shouldBe ""
+      response.body shouldBe "Incomplete JSON"
       // TODO: Better errors?
     }
   }
@@ -99,15 +99,14 @@ class RestTaskSpec extends MultiTaskMainSpec(ScalatraGo, Some(RestTask)) with St
     it("when invalid JSON is sent") {
       val response = Srv.put("product/102", """{{{{""")
       response.code shouldBe BadRequest.code
-      response.body shouldBe ""
-      // TODO: Better errors?
+      response.body shouldBe "Invalid JSON"
       Json.parse(Srv.get("product/102").body) shouldBe Json.parse("""{"id": 2, "name": "deux"}""")
     }
 
     it("when json is missing an attribute") {
       val response = Srv.put("product/102", """{"id": 3}""")
       response.code shouldBe BadRequest.code
-      response.body shouldBe ""
+      response.body shouldBe "Incomplete JSON"
       // TODO: Better errors?
       Json.parse(Srv.get("product/102").body) shouldBe Json.parse("""{"id": 2, "name": "deux"}""")
     }

@@ -3,10 +3,10 @@ package com.skraba.byexample.scalatra
 import com.skraba.byexample.scalatra.ScalatraGo.TestableServlet
 import com.tinfoiled.docopt4s.{Docopt, Task}
 import org.scalatra.{BadRequest, NoContent, NotFound}
-import play.api.libs.json.{JsArray, Json, OFormat}
+import play.api.libs.json.{JsArray, JsError, JsSuccess, Json, OFormat}
 
 import scala.collection.mutable
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 /** Command-line driver that launches a server that has a basic REST API. */
 object RestTask extends Task {
@@ -53,18 +53,26 @@ object RestTask extends Task {
     }
 
     post("/product/") {
-      val product = Try { Json.fromJson(Json.parse(request.body)).get }.getOrElse(halt(BadRequest()))
-      val nextPid = db.keys.max + 1
-      db += nextPid -> product
-      nextPid.toString
+      Try { Json.fromJson(Json.parse(request.body)) } match {
+        case Success(JsSuccess(product, _)) =>
+          val nextPid = db.keys.max + 1
+          db += nextPid -> product
+          nextPid.toString
+        case Success(JsError(_)) => halt(BadRequest("Incomplete JSON"))
+        case Failure(_) => halt(BadRequest("Invalid JSON"))
+      }
     }
 
     put("/product/:pid") {
       val pid = params("pid")
       pid.toIntOption.flatMap(db.get).getOrElse(halt(404, s"Product $pid not found"))
-      val product = Try { Json.fromJson(Json.parse(request.body)).get }.getOrElse(halt(BadRequest()))
-      db += pid.toInt -> product
-      pid.toInt.toString
+      Try { Json.fromJson(Json.parse(request.body)) } match {
+        case Success(JsSuccess(product, _)) =>
+          db += pid.toInt -> product
+          pid.toInt.toString
+        case Success(JsError(_)) => halt(BadRequest("Incomplete JSON"))
+        case Failure(_) => halt(BadRequest("Invalid JSON"))
+      }
     }
 
     delete("/product/:pid") {
