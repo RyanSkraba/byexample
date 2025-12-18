@@ -181,7 +181,7 @@ object AdventUtils {
         .foreach { basic =>
           val dst = (rsrcRoot / s"advent$year").toDirectory
           dst.createDirectory(force = true)
-          for (day <- 0 to 25 if !(dst / s"Day${day}Input.txt").exists)
+          for (day <- 0 to 12 if !(dst / s"Day${day}Input.txt").exists)
             (dst / s"Day${day}Input.txt").toFile.writeAll(basic)
         }
     }
