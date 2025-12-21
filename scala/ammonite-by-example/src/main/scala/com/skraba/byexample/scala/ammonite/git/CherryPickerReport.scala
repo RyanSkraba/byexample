@@ -26,9 +26,7 @@ case class CherryPickerReport(
   lazy val leftSubjects: Map[String, Seq[Commit]] = left.groupBy(_.subject)
   lazy val rightSubjects: Map[String, Seq[Commit]] = right.groupBy(_.subject)
 
-  lazy val IssuesTag: Option[String] = issuesUrl.map {
-    _.reverse.dropWhile(_ == '/').takeWhile(_.isUpper).reverse
-  }
+  lazy val IssuesTag: Option[String] = issuesUrl.map { _.reverse.dropWhile(_ == '/').takeWhile(_.isUpper).reverse }
 
   /** Rerun this report using the updated commits. */
   def update(current: CherryPickerReport): CherryPickerReport = copy(left = current.left, right = current.right)
@@ -113,9 +111,7 @@ case class CherryPickerReport(
     val preIssues = doc
       .mapFirstIn(ifNotFound = Header(1, "CherryPickerReport")) {
         case h1: Header if h1.title == "CherryPickerReport" =>
-          h1.mapFirstIn(ifNotFound = // TODO Table.from without alignments
-            Seq(Table(Seq.fill(2)(Align.LEFT), TableRow(ConfigTable, "")))
-          ) {
+          h1.mapFirstIn(ifNotFound = Seq(Table(2, ConfigTable, ""))) {
             case tbl: Table if tbl.title.startsWith(ConfigTable) =>
               tbl
                 .mapFirstIn(ifNotFound = TableRow("Left", "")) {
