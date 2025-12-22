@@ -87,7 +87,6 @@ case class GettingThingsDone(h0: Markd, cfg: Option[Markd]) {
     *   The entire document with only the function applied to the weekly statuses.
     */
   def updateWeeklies(fn: Header => Header): GettingThingsDone = {
-    // TODO, why the Markd wrapper?
     copy(h0 = h0.mapFirstIn(ifNotFound = Header(1, H1Weeklies)) {
       case weeklies @ Header(1, title, _*) if title.startsWith(H1Weeklies) => fn(weeklies)
     })
@@ -435,9 +434,7 @@ object GettingThingsDone {
               Comment(" " + gtdConfigSection.build().toString + "\n")
           }
         }
-        // TODO: Why error with h0.Self?
-        //        GettingThingsDone(reformatted, Some(gtdConfigSection))
-        GettingThingsDone(Markd(reformatted.mds: _*), Some(gtdConfigSection))
+        GettingThingsDone(reformatted, Some(gtdConfigSection))
     }
 
     gtdWithConfig.getOrElse(GettingThingsDone(h0, None))
