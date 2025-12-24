@@ -172,8 +172,7 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
       (stdout, Output.slurp().replaceAll(TodayLink, "<TODAY>"))
     }
 
-    // TODO: Restore with override LinkSorter
-    ignore("should create a doc with PRs") {
+    it("should create a doc with PRs") {
       // Create a basic file with a known top date
       val output = Output.toFile
       output.writeAll("""# Weekly Status
@@ -240,8 +239,7 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
           |""".stripMargin
     }
 
-    // TODO: Don't ignore with override linksorter
-    ignore("should read PrjTask information from a doc") {
+    it("should read PrjTask information from a doc") {
       // Create a basic file with a known top date and an existing project configuration
       val output = Output.toFile
       output.writeAll("""# Weekly Status
