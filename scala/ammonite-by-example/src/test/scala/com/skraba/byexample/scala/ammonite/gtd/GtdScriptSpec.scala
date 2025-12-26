@@ -10,6 +10,8 @@ import scala.reflect.io.File
 /** Test the getting_things_done.sc script. */
 class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
 
+  (Tmp / ".git").createDirectory()
+
   /** A file with a basic scenario. */
   val Basic: File = (Tmp / "basic_gtd.md").createFile()
   Basic.writeAll(
@@ -46,7 +48,6 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
       */
     def clean(args: String*): String = {
       sys.props("GTD_TAG") = "BASIC"
-      sys.props("BASIC_STATUS_REPO") = Tmp.toString
       sys.props("BASIC_STATUS_FILE") = Basic.toString
       withScript2("clean")(args: _*) { case (result, stdout, stderr) =>
         stderr shouldBe empty
@@ -77,7 +78,6 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
 
     def link(args: String*): (String, String) = {
       sys.props("GTD_TAG") = "BASIC"
-      sys.props("BASIC_STATUS_REPO") = Tmp.toString
       sys.props("BASIC_STATUS_FILE") = Output.toString
       val stdout = withTaskSuccess()("link")(args: _*)
       (stdout, Output.slurp().replaceAll(TodayLink, "<TODAY>"))
@@ -166,7 +166,6 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
 
     def pr(args: String*): (String, String) = {
       sys.props("GTD_TAG") = "BASIC"
-      sys.props("BASIC_STATUS_REPO") = Tmp.toString
       sys.props("BASIC_STATUS_FILE") = Output.toString
       val stdout = withTaskSuccess()("pr")(args: _*)
       (stdout, Output.slurp().replaceAll(TodayLink, "<TODAY>"))

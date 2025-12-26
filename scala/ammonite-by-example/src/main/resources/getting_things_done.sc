@@ -26,21 +26,17 @@ import com.tinfoiled.markd._
 // Top level variables available to the script
 
 /** A tag used to distinguish between documents. */
-val StatusTag: String = sys.props.get("GTD_TAG").orElse(sys.env.get("GTD_TAG")).getOrElse("GTD")
-
-/** Git root directory for the status file. */
-val StatusRepo: os.Path = sys.props
-  .get(s"${StatusTag}_STATUS_REPO")
-  .orElse(sys.env.get(s"${StatusTag}_STATUS_REPO"))
-  .map(os.Path(_))
-  .getOrElse(os.home / "Documents")
+lazy val StatusTag: String = sys.props.get("GTD_TAG").orElse(sys.env.get("GTD_TAG")).getOrElse("GTD")
 
 /** The actual status file to update. */
-val StatusFile: os.Path = sys.props
+lazy val StatusFile: os.Path = sys.props
   .get(s"${StatusTag}_STATUS_FILE")
   .orElse(sys.env.get(s"${StatusTag}_STATUS_FILE"))
   .map(os.Path(_))
-  .getOrElse(StatusRepo / "todo" / "status.md")
+  .getOrElse(os.home / "Documents" / "todo" / "status.md")
+
+/** Git root directory for the status file. */
+lazy val StatusRepo = LazyList.iterate(StatusFile)(_ / os.up).find(d => os.exists(d / ".git") && (d / os.up != d)).flatMap(d => if (os.exists(d / ".git")) Some(d) else Some((os.home / "Documents"))).get
 
 lazy val StatusContents = os.read(StatusFile)
 
