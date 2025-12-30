@@ -371,6 +371,7 @@
                 <include>src/main/scala/**/*.scala</include>
                 <include>src/test/java/**/*.scala</include>
                 <include>src/test/scala/**/*.scala</include>
+                <include>src/**/*.sc</include>
               </includes>
               <scalafmt>
                 <file>${project.basedir}/${project.relBaseDir}/.scalafmt.conf</file>

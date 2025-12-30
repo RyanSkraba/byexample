@@ -79,19 +79,19 @@ def cameraphone(
     noVerbose: Flag = Flag(false),
     cfgGroup: ConsoleCfg
 ): Unit = FileRenamer.cameraphone(
-    deviceRootDir = deviceRootDir,
-    deviceBackedupSubDir = deviceBackedupSubDir,
-    deviceRelPath = deviceRelPath,
-    extension = extension,
-    dst = dst,
-    dstSub = dstSub,
-    dstSuffix = dstSuffix,
-    phoneMountDir = phoneMountDir,
-    phoneTag = phoneTag,
-    dryRun = dryRun.value,
-    // Turn verbose on by default, use noVerbose to deactivate
-    console = cfgGroup.withVerbose(!noVerbose.value)
-  )
+  deviceRootDir = deviceRootDir,
+  deviceBackedupSubDir = deviceBackedupSubDir,
+  deviceRelPath = deviceRelPath,
+  extension = extension,
+  dst = dst,
+  dstSub = dstSub,
+  dstSuffix = dstSuffix,
+  phoneMountDir = phoneMountDir,
+  phoneTag = phoneTag,
+  dryRun = dryRun.value,
+  // Turn verbose on by default, use noVerbose to deactivate
+  console = cfgGroup.withVerbose(!noVerbose.value)
+)
 
 @arg(doc = "Backs up screenshots from the connected phone")
 @main

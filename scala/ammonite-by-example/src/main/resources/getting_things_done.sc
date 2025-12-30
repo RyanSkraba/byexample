@@ -36,7 +36,11 @@ lazy val StatusFile: os.Path = sys.props
   .getOrElse(os.home / "Documents" / "todo" / "status.md")
 
 /** Git root directory for the status file. */
-lazy val StatusRepo = LazyList.iterate(StatusFile)(_ / os.up).find(d => os.exists(d / ".git") && (d / os.up != d)).flatMap(d => if (os.exists(d / ".git")) Some(d) else Some((os.home / "Documents"))).get
+lazy val StatusRepo = LazyList
+  .iterate(StatusFile)(_ / os.up)
+  .find(d => os.exists(d / ".git") && (d / os.up != d))
+  .flatMap(d => if (os.exists(d / ".git")) Some(d) else Some((os.home / "Documents")))
+  .get
 
 lazy val StatusContents = os.read(StatusFile)
 
