@@ -39,7 +39,7 @@ lazy val StatusFile: os.Path = sys.props
 lazy val StatusRepo = LazyList
   .iterate(StatusFile)(_ / os.up)
   .find(d => os.exists(d / ".git") && (d / os.up != d))
-  .flatMap(d => if (os.exists(d / ".git")) Some(d) else Some((os.home / "Documents")))
+  .map(d => if (os.exists(d / ".git")) d else os.home / "Documents")
   .get
 
 lazy val StatusContents = os.read(StatusFile)
