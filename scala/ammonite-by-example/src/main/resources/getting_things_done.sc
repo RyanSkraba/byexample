@@ -203,7 +203,7 @@ private def writeGtd(
     gitStatus: Option[String] = None,
     compressTable: Boolean = false
 ): Unit = {
-  val asText = ProjectParserCfg.clean(gtd.h0).build().toString
+  val asText = ProjectParserCfg.clean(gtd.md).build().toString
   val after = if (compressTable) asText.replaceAll(" +( \\|)", "$1") else asText
 
   // We convert the string to bytes immediately, in order to avoid splitting emojis and writing
@@ -227,7 +227,7 @@ private def writeGtd(
            |  The file already contained the characters ??""".stripMargin)
 
     // These are very likely to occur together
-    if (gtd.h0.build().toString.contains("??"))
+    if (gtd.md.build().toString.contains("??"))
       println(s"""${RED_B}Warning:$RESET
            |  The built text contains ??""".stripMargin)
     if (after.contains("??"))

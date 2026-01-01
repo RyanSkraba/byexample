@@ -68,11 +68,11 @@ import scala.util.matching.Regex
   *
   * }}}
   */
-case class GettingThingsDone(h0: Markd, cfg: Option[Markd]) {
+case class GettingThingsDone(md: Markd, cfg: Option[Markd]) {
 
   /** The top heading (H1) section containing all of the weekly statuses. */
   lazy val weeklies: Option[Header] =
-    h0.mds.collectFirst { case weeklies @ Header(1, title, _*) if title.startsWith(H1Weeklies) => weeklies }
+    md.mds.collectFirst { case weeklies @ Header(1, title, _*) if title.startsWith(H1Weeklies) => weeklies }
 
   /** The last weekly status. */
   lazy val topWeek: Option[Header] =
@@ -87,7 +87,7 @@ case class GettingThingsDone(h0: Markd, cfg: Option[Markd]) {
     *   The entire document with only the function applied to the weekly statuses.
     */
   def updateWeeklies(fn: Header => Header): GettingThingsDone = {
-    copy(h0 = h0.mapFirstIn(ifNotFound = Header(1, H1Weeklies)) {
+    copy(md = md.mapFirstIn(ifNotFound = Header(1, H1Weeklies)) {
       case weeklies @ Header(1, title, _*) if title.startsWith(H1Weeklies) => fn(weeklies)
     })
   }
@@ -102,7 +102,7 @@ case class GettingThingsDone(h0: Markd, cfg: Option[Markd]) {
     *   The entire document with the function applied to that top-level section.
     */
   def updateHeader1(name: String)(fn: Header => Header): GettingThingsDone =
-    copy(h0 = h0.mapFirstIn(ifNotFound = Header(1, name)) { case h1 @ Header(1, `name`, _*) => fn(h1) })
+    copy(md = md.mapFirstIn(ifNotFound = Header(1, name)) { case h1 @ Header(1, `name`, _*) => fn(h1) })
 
   /** Helper function to update only the last week section of the statuses document, adding one if necessary.
     *
@@ -455,7 +455,7 @@ object GettingThingsDone {
       .addTopWeekToDo("Pro", "**Another task** With some [details][YYYYMMDD-1] ")
 
     // Extract the Table as text.
-    val tableToDoExampleComment = tableToDoExample.h0.mds
+    val tableToDoExampleComment = tableToDoExample.md.mds
       .collectFirst { case Header(_, _, Header(_, _, tb: Table)) => tb }
       .map("\n" + _.build().toString)
       .map(Comment)
