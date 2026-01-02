@@ -32,7 +32,10 @@ lazy val StatusTag: String = sys.props.get("GTD_TAG").orElse(sys.env.get("GTD_TA
 lazy val StatusFile: os.Path = sys.props
   .get(s"${StatusTag}_STATUS_FILE")
   .orElse(sys.env.get(s"${StatusTag}_STATUS_FILE"))
+  .toSeq
+  .flatMap(_.split(':'))
   .map(os.Path(_))
+  .find(os.exists)
   .getOrElse(os.home / "Documents" / "todo" / "status.md")
 
 /** Git root directory for the status file. */

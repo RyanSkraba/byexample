@@ -13,8 +13,8 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
   (Tmp / ".git").createDirectory()
 
   /** A file with a basic scenario. */
-  val Basic: File = (Tmp / "basic_gtd.md").createFile()
-  Basic.writeAll(
+  val Original: File = (Tmp / "original_gtd.md").createFile()
+  Original.writeAll(
     """# Weekly Status
       !## 2023-01-02
       !
@@ -23,6 +23,9 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
       !| A | One |
       !""".stripMargin('!')
   )
+
+  val Basic: File = (Tmp / "basic_gtd.md").createFile()
+  Basic.writeAll(Original.slurp())
 
   /** The default linkRef used for links generated today. */
   val TodayLink: String = GettingThingsDone.Pattern.format(Instant.now).replaceAll("-", "")
@@ -47,8 +50,7 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
       *   stdout
       */
     def clean(args: String*): String = {
-      sys.props("GTD_TAG") = "BASIC"
-      sys.props("BASIC_STATUS_FILE") = Basic.toString
+      Basic.writeAll(Original.slurp())
       withScript2("clean")(args: _*) { case (result, stdout, stderr) =>
         stderr shouldBe empty
         result shouldBe true
@@ -57,6 +59,27 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
     }
 
     it("should clean the basic scenario") {
+      sys.props("GTD_TAG") = "BASIC"
+      sys.props(s"BASIC_STATUS_FILE") = Basic.toString
+      // TODO: Check the output of clean()
+      clean()
+      Basic.slurp() shouldBe
+        """Weekly Status
+          !==============================================================================
+          !
+          !2023-01-02
+          !------------------------------------------------------------------------------
+          !
+          !| To Do | Notes |
+          !|-------|-------|
+          !| A     | One   |
+          !""".stripMargin('!')
+    }
+
+    it("should clean the basic scenario with multiple choices for status doc") {
+      sys.props("GTD_TAG") = "BASIC"
+      sys.props(s"BASIC_STATUS_FILE") = s"/no-exists/a/b/c:$Basic"
+      // TODO: Check the output of clean()
       clean()
       Basic.slurp() shouldBe
         """Weekly Status
