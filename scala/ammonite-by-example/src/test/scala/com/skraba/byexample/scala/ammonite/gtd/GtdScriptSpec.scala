@@ -54,45 +54,34 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
       withScript2("clean")(args: _*) { case (result, stdout, stderr) =>
         stderr shouldBe empty
         result shouldBe true
-        stdout
+        stdout.replaceAll(Tmp.toString(), "<TMP>")
       }
     }
 
-    it("should clean the basic scenario") {
-      sys.props("GTD_TAG") = "BASIC"
-      sys.props(s"BASIC_STATUS_FILE") = Basic.toString
-      // TODO: Check the output of clean()
-      clean()
-      Basic.slurp() shouldBe
-        """Weekly Status
-          !==============================================================================
-          !
-          !2023-01-02
-          !------------------------------------------------------------------------------
-          !
-          !| To Do | Notes |
-          !|-------|-------|
-          !| A     | One   |
-          !""".stripMargin('!')
-    }
-
-    it("should clean the basic scenario with multiple choices for status doc") {
-      sys.props("GTD_TAG") = "BASIC"
-      sys.props(s"BASIC_STATUS_FILE") = s"/no-exists/a/b/c:$Basic"
-      // TODO: Check the output of clean()
-      clean()
-      Basic.slurp() shouldBe
-        """Weekly Status
-          !==============================================================================
-          !
-          !2023-01-02
-          !------------------------------------------------------------------------------
-          !
-          !| To Do | Notes |
-          !|-------|-------|
-          !| A     | One   |
-          !""".stripMargin('!')
-    }
+    for (statusFile <- Seq(Basic.toString, s"/no-exists/a/b/c:$Basic", s"$Basic:/no-exists/a/b/c"))
+      it(s"should clean the basic scenario with statusFile: $statusFile".replaceAll(Tmp.toString(), "<TMP>")) {
+        sys.props("GTD_TAG") = "BASIC"
+        sys.props(s"BASIC_STATUS_FILE") = Basic.toString
+        clean("--plain") shouldBe
+          """Commit:
+            |  git -C <TMP> add basic_gtd.md &&
+            |      git -C <TMP> difftool --staged
+            |  git -C <TMP> add basic_gtd.md &&
+            |      git -C <TMP> commit -m "doc(status): Beautify the document"
+            |
+            |""".stripMargin
+        Basic.slurp() shouldBe
+          """Weekly Status
+            !==============================================================================
+            !
+            !2023-01-02
+            !------------------------------------------------------------------------------
+            !
+            !| To Do | Notes |
+            !|-------|-------|
+            !| A     | One   |
+            !""".stripMargin('!')
+      }
   }
 
   describe(s"Running $ScriptName link") {
