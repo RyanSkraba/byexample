@@ -67,10 +67,15 @@ import scala.util.matching.Regex
   * | Pro        | **Another task** With some [details][YYYYMMDD-1]             |
   *
   * }}}
+  *
+  * @param md
+  *   The markdown document that contains the Getting Things Done information
+  * @param cfg
+  *   An optional section that can be used to configure the document
   */
 case class GettingThingsDone(md: Markd, cfg: Option[Markd]) {
 
-  /** The top heading (H1) section containing all of the weekly statuses. */
+  /** The top heading (H1) section containing all of the weekly statuses.  Each week is an H2 child inside. */
   lazy val weeklies: Option[Header] =
     md.mds.collectFirst { case weeklies @ Header(1, title, _*) if title.startsWith(H1Weeklies) => weeklies }
 
