@@ -108,6 +108,36 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     }
   }
 
+  describe("Getting information about weekly statuses") {
+    it("should find nothing where none exists") {
+      val empty = GettingThingsDone("")
+      empty.md shouldBe Markd()
+      empty.weeklies shouldBe None
+      empty.topWeek shouldBe None
+    }
+
+    // TODO: " Weekly Status "
+    for (title <- Seq("Weekly Status", "Weekly StatusX", "Weekly Status XYZ"))
+      it(s"should find weeklies when it does exist, but not a top week: $title") {
+        val gtd = GettingThingsDone(s"""
+       |# Distraction
+       |# $title
+       |# Red Herring""".stripMargin)
+        gtd.weeklies.value shouldBe Header(1, title.trim)
+        gtd.topWeek shouldBe None
+      }
+
+    it("should find weeklies and a top week when it exists") {
+      val gtd = GettingThingsDone("""
+         |# Distraction
+         |# Weekly Status
+         |## Top week
+         |# Red Herring""".stripMargin)
+      gtd.weeklies.value.title shouldBe "Weekly Status"
+      gtd.topWeek.value shouldBe Header(2, "Top week")
+    }
+  }
+
   describe(s"Updating a top-level section") {
 
     it("should add itself to an empty document") {
