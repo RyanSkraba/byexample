@@ -8,12 +8,12 @@ import java.time.{DayOfWeek, LocalDate, ZoneId, ZoneOffset}
 import scala.util.Try
 import scala.util.matching.Regex
 
-/** A markdown document that helps organising yourself.
+/** A Markdown document that helps with task organisation.
+  *
+  * The {{{getting_things_done.sc}}} ammonite script uses this class to provide a CLI.
   *
   * The document can contain any number of headers and sections using the [[Markd]] model, but provides some additional
   * semantics.
-  *
-  * The {{{getting_things_done.sc}}} ammonite script uses this class to provide a CLI.
   *
   * =Weekly Status (a.k.a. weeklies)=
   *
@@ -75,13 +75,17 @@ import scala.util.matching.Regex
   */
 case class GettingThingsDone(md: Markd, cfg: Option[Markd]) {
 
-  /** The top heading (H1) section containing all of the weekly statuses.  Each week is an H2 child inside. */
+  /** The top heading (H1) section containing all the weekly statuses. Each week exists as a child of this element. */
   lazy val weeklies: Option[Header] =
     md.mds.collectFirst { case weeklies @ Header(1, title, _*) if title.startsWith(H1Weeklies) => weeklies }
 
-  /** The last weekly status. */
+  /** The most recent weekly status (i.e. the first H2 child of [[weeklies]] that matches an ISO date YYYY-MM-DD if one
+    * exists, or the first child otherwise).
+    */
   lazy val topWeek: Option[Header] =
-    weeklies.flatMap(_.mds.collectFirst { case weekly @ Header(2, title, _*) => weekly })
+    weeklies
+      .flatMap(_.mds.collectFirst { case weekly @ Header(2, H2WeeklyRegex(_, _, _), _*) => weekly })
+      .orElse(weeklies.flatMap(_.mds.collectFirst { case weekly @ Header(2, _, _*) => weekly }))
 
   /** Helper function to update only the weekly statuses section of the document, adding the top-level section if
     * necessary. All weekly statuses should be contained in returned section.
@@ -399,6 +403,9 @@ object GettingThingsDone {
 
   /** The header with the weekly statuses. */
   val H1Weeklies: String = "Weekly Status"
+
+  /** The header with the weekly statuses. */
+  val H2WeeklyRegex: Regex = raw"^(\d{4})-(\d{1,2})-(\d{1,2})(.*)$$".r
 
   /** A tag for a configuration comment, which can be found anywhere in the document */
   val CommentConfig: String = "Getting Things Done configuration"
