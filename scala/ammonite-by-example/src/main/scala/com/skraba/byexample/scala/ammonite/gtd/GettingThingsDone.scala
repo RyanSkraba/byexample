@@ -84,7 +84,7 @@ case class GettingThingsDone(md: Markd, cfg: Option[Markd]) {
     */
   lazy val topWeek: Option[Header] =
     weeklies
-      .flatMap(_.mds.collectFirst { case weekly @ Header(2, H2WeeklyRegex(_, _, _), _*) => weekly })
+      .flatMap(_.mds.collectFirst { case weekly @ Header(2, H2WeeklyRegex(_, _, _, _), _*) => weekly })
       .orElse(weeklies.flatMap(_.mds.collectFirst { case weekly @ Header(2, _, _*) => weekly }))
 
   /** Helper function to update only the weekly statuses section of the document, adding the top-level section if
