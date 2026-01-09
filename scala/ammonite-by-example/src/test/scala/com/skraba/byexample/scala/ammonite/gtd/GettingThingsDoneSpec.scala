@@ -162,15 +162,18 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         gtd.topWeek.value shouldBe Header(2, title)
       }
 
-    it("should find weeklies and a top week when it exists") {
-      val gtd = GettingThingsDone("""
-         |# Distraction
-         |# Weekly Status
-         |## Top week
-         |# Red Herring""".stripMargin)
-      gtd.weeklies.value.title shouldBe "Weekly Status"
-      gtd.topWeek.value shouldBe Header(2, "Top week")
-    }
+    for (title <- Seq("Stuff2026-01-05", "Stuff 2026-01-05"))
+      it(s"should find weeklies and a top non-date week when it exists: $title") {
+        val gtd = GettingThingsDone(s"""
+           |# Distraction
+           |# Weekly Status
+           |## Top week
+           |## $title
+           |## Bottom week
+           |# Red Herring""".stripMargin)
+        gtd.weeklies.value.title shouldBe "Weekly Status"
+        gtd.topWeek.value shouldBe Header(2, "Top week")
+      }
   }
 
   describe(s"Updating a top-level section") {
