@@ -87,6 +87,23 @@ case class GettingThingsDone(md: Markd, cfg: Option[Markd]) {
       .flatMap(_.mds.collectFirst { case weekly @ Header(2, H2WeeklyRegex(_, _, _, _), _*) => weekly })
       .orElse(weeklies.flatMap(_.mds.collectFirst { case weekly @ Header(2, _, _*) => weekly }))
 
+  /** Helper function to update or add a top-level section (Header 1) that exactly matches the given name. If it isn't
+    * present, it will be added to the bottom of the document.
+    * @param name
+    *   The name of the top level section
+    * @param iff
+    *   An optional function to apply to the header to determine whether it is the header we want (by default, the
+    *   header must be top-level and its title must match the given name exactly).
+    * @param fn
+    *   A function to apply to the section.
+    * @return
+    *   The entire document with the function applied to that top-level section.
+    */
+  def updateHeader1(name: String, iff: Option[Header => Boolean] = None)(fn: Header => Header): GettingThingsDone = {
+    val headerFn: Header => Boolean = iff.getOrElse(_.title == name)
+    copy(md = md.mapFirstIn(ifNotFound = Header(1, name)) { case h1 @ Header(1, _, _*) if headerFn(h1) => fn(h1) })
+  }
+
   /** Helper function to update only the weekly statuses section of the document, adding the top-level section if
     * necessary. All weekly statuses should be contained in returned section.
     *
@@ -95,23 +112,8 @@ case class GettingThingsDone(md: Markd, cfg: Option[Markd]) {
     * @return
     *   The entire document with only the function applied to the weekly statuses.
     */
-  def updateWeeklies(fn: Header => Header): GettingThingsDone = {
-    copy(md = md.mapFirstIn(ifNotFound = Header(1, H1Weeklies)) {
-      case weeklies @ Header(1, title, _*) if title.startsWith(H1Weeklies) => fn(weeklies)
-    })
-  }
-
-  /** Helper function to update or add a top-level section (Header 1) that exactly matches the given name. If it isn't
-    * present, it will be added to the bottom of the document.
-    * @param name
-    *   The name of the top level section
-    * @param fn
-    *   A function to apply to the section.
-    * @return
-    *   The entire document with the function applied to that top-level section.
-    */
-  def updateHeader1(name: String)(fn: Header => Header): GettingThingsDone =
-    copy(md = md.mapFirstIn(ifNotFound = Header(1, name)) { case h1 @ Header(1, `name`, _*) => fn(h1) })
+  def updateWeeklies(fn: Header => Header): GettingThingsDone =
+    updateHeader1(H1Weeklies, iff = Some(_.title.startsWith(H1Weeklies)))(fn)
 
   /** Helper function to update only the last week section of the statuses document, adding one if necessary.
     *
