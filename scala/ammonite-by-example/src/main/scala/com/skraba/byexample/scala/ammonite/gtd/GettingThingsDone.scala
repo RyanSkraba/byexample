@@ -122,12 +122,14 @@ case class GettingThingsDone(md: Markd, cfg: Option[Markd]) {
     * @return
     *   The entire document with only the function applied to the last week.
     */
-  def updateTopWeek(fn: Header => Header): GettingThingsDone =
-    updateWeeklies { weeklies =>
-      weeklies.mapFirstIn(ifNotFound = Seq(Header(2, GettingThingsDone.nextWeekStart(None)))) {
-        case topWeek @ Header(2, _, _*) => fn(topWeek)
+  def updateTopWeek(fn: Header => Header): GettingThingsDone = {
+    lazy val ifNo = Seq(Header(2, GettingThingsDone.nextWeekStart(None)))
+    updateWeeklies {
+      _.mapFirstIn(ifNotFound = ifNo) {
+        case top: Header if topWeek.contains(top) || ifNo.contains(top) => fn(top)
       }
     }
+  }
 
   /** Update a statistics table in the top week.
     * @param rowHead
