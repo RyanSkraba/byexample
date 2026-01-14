@@ -330,6 +330,28 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         Header(1, "H1 Three", Paragraph("3"))
       )
     }
+
+    it("should add the update the latest date week where it exists") {
+      val existing = GettingThingsDone(original.replace("H1 Two", s"$H1Weeklies\n## Top week\n## 2026-01-12"))
+      existing.weeklies.value shouldBe
+        Header(1, H1Weeklies, Header(2, "Top week"), Header(2, "2026-01-12", Paragraph("2")))
+      existing.topWeek.value shouldBe Header(2, "2026-01-12", Paragraph("2"))
+      existing.md shouldBe Markd(
+        Header(1, "H1 One", Paragraph("1")),
+        Header(1, H1Weeklies, Header(2, "Top week"), Header(2, "2026-01-12", Paragraph("2"))),
+        Header(1, "H1 Three", Paragraph("3"))
+      )
+
+      val updated = existing.updateTopWeek(preComment("update"))
+      updated.weeklies.value shouldBe
+        Header(1, H1Weeklies, Header(2, "Top week"), Header(2, "2026-01-12", Comment("update"), Paragraph("2")))
+      updated.topWeek.value shouldBe Header(2, "2026-01-12", Comment("update"), Paragraph("2"))
+      updated.md shouldBe Markd(
+        Header(1, "H1 One", Paragraph("1")),
+        Header(1, H1Weeklies, Header(2, "Top week"), Header(2, "2026-01-12", Comment("update"), Paragraph("2"))),
+        Header(1, "H1 Three", Paragraph("3"))
+      )
+    }
   }
 
   describe(s"Updating statistics") {
