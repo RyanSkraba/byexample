@@ -84,15 +84,24 @@ case class PrjTask(
   /** The URL used to construct the link to the issue number. If this contains a %s, the issue number will replace it,
     * otherwise the issue number is appended.
     */
-  val issueLink: String = issueLinkOpt.getOrElse(s"https://issues.apache.org/jira/browse/${tag.toUpperCase}-")
+  val issueLink: String = issueLinkOpt.getOrElse(
+    if (issueRef.endsWith("#") && issueRef.count(_ == '/') == 1) s"https://github.com/${issueRef.dropRight(1)}/issues/"
+    else s"https://issues.apache.org/jira/browse/${tag.toUpperCase}-"
+  )
 
   /** The user-visible way the PR is references in the To Do list. */
-  val prRef: String = prRefOpt.getOrElse(s"apache/${tag.toLowerCase}#")
+  val prRef: String = prRefOpt.getOrElse(
+    if (issueRef.endsWith("#") && issueRef.count(_ == '/') == 1) issueRef
+    else s"apache/${tag.toLowerCase}#"
+  )
 
   /** The URL used to construct the link to the PR. If this contains a %s, the PR number will replace it, otherwise the
     * PR number is appended.
     */
-  val prLink: String = prLinkOpt.getOrElse(s"https://github.com/apache/${tag.toLowerCase}/pull/")
+  val prLink: String = prLinkOpt.getOrElse(
+    if (prRef.endsWith("#") && prRef.count(_ == '/') == 1) s"https://github.com/${prRef.dropRight(1)}/pull/"
+    else s"https://github.com/apache/${tag.toLowerCase}/pull/"
+  )
 
   private def replace(tmpl: String, in: String): String = if (tmpl.contains("%s")) tmpl.format(in) else tmpl + in
   def issueRefOf(in: String) = replace(issueRef, in)
