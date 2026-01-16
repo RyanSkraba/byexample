@@ -57,7 +57,7 @@ lazy val Gtd = GettingThingsDone(StatusContents, ProjectParserCfg)
   *   The title of the project to use in the weekly To Do, usually in CamelCase. If it's not explicitly present, this is
   *   created from the tag.
   * @param issueRefOpt
-  *   The text to use for an reference to an issue on this project. If it's not explicitly present, this is created from
+  *   The text to use for a reference to an issue on this project. If it's not explicitly present, this is created from
   *   the tag.
   * @param issueLinkOpt
   *   The URL to use for an issue on this project. If it's not explicitly present, this is created from the tag.
@@ -75,6 +75,9 @@ case class PrjTask(
     prLinkOpt: Option[String]
 ) {
 
+  /** @return true if the reference looks like a GitHub reference (org/repo#) */
+  private def looksLikeGitHub(ref: String): Boolean = ref.endsWith("#") && ref.count(_ == '/') == 1
+
   /** The title of the project to use in the weekly To Do list. */
   val title: String = titleOpt.getOrElse(tag.toLowerCase.capitalize)
 
@@ -85,13 +88,13 @@ case class PrjTask(
     * otherwise the issue number is appended.
     */
   val issueLink: String = issueLinkOpt.getOrElse(
-    if (issueRef.endsWith("#") && issueRef.count(_ == '/') == 1) s"https://github.com/${issueRef.dropRight(1)}/issues/"
+    if (looksLikeGitHub(issueRef)) s"https://github.com/${issueRef.dropRight(1)}/issues/"
     else s"https://issues.apache.org/jira/browse/${tag.toUpperCase}-"
   )
 
   /** The user-visible way the PR is references in the To Do list. */
   val prRef: String = prRefOpt.getOrElse(
-    if (issueRef.endsWith("#") && issueRef.count(_ == '/') == 1) issueRef
+    if (looksLikeGitHub(issueRef)) issueRef
     else s"apache/${tag.toLowerCase}#"
   )
 
@@ -99,7 +102,7 @@ case class PrjTask(
     * PR number is appended.
     */
   val prLink: String = prLinkOpt.getOrElse(
-    if (prRef.endsWith("#") && prRef.count(_ == '/') == 1) s"https://github.com/${prRef.dropRight(1)}/pull/"
+    if (looksLikeGitHub(prRef)) s"https://github.com/${prRef.dropRight(1)}/pull/"
     else s"https://github.com/apache/${tag.toLowerCase}/pull/"
   )
 
