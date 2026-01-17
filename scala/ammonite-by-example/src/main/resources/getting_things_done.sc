@@ -60,11 +60,12 @@ lazy val Gtd = GettingThingsDone(StatusContents, ProjectParserCfg)
   *   The text to use for a reference to an issue on this project. If it's not explicitly present, this is created from
   *   the tag.
   * @param issueLinkOpt
-  *   The URL to use for an issue on this project. If it's not explicitly present, this is created from the tag.
+  *   The URL to use for an issue on this project. If it's not explicitly present, this is created from the tag. If the
+  *   issue ref ends with a #, we assume it is a GitHub link.
   * @param prRefOpt
   *   The text to use for a reference to a PR on this project.
   * @param prLinkOpt
-  *   The URL to use for a PR on this project.
+  *   The URL to use for a PR on this project. If the PR ref ends with a #, we assume it is a GitHub link.
   */
 case class PrjTask(
     tag: String,
@@ -80,6 +81,7 @@ case class PrjTask(
 
   /** The title of the project to use in the weekly To Do list. */
   val title: String = titleOpt.getOrElse(tag.toLowerCase.capitalize)
+  bye
 
   /** The user-visible way this issue is referenced in the To Do list. */
   val issueRef: String = issueRefOpt.getOrElse(tag.toUpperCase + "-")
