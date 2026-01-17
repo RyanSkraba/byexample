@@ -81,7 +81,6 @@ case class PrjTask(
 
   /** The title of the project to use in the weekly To Do list. */
   val title: String = titleOpt.getOrElse(tag.toLowerCase.capitalize)
-  bye
 
   /** The user-visible way this issue is referenced in the To Do list. */
   val issueRef: String = issueRefOpt.getOrElse(tag.toUpperCase + "-")
