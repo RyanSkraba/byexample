@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;
 
 /** Tests and assertions for collection classes. */
@@ -62,5 +64,8 @@ class CollectionsTest {
         Stream.of("Apple", "Banana", "Carrot", "Dog")
             .collect(Collectors.toMap(String::toLowerCase, String::length));
     assertThat(myMap).containsEntry("apple", 5);
+    assertThat(myMap).containsKey("apple");
+    assertThat(myMap).containsValue(5);
+    assertThat(myMap).hasEntrySatisfying("apple", v -> assertThat(v).isEqualTo(5));
   }
 }
