@@ -37,7 +37,6 @@ class BasicTest {
 
     // Careful with casting
     assertThat(value).isNotEqualTo(0x12).isEqualTo((byte) 0x12).isGreaterThan((byte) 0x00);
-    //noinspection AssertBetweenInconvertibleTypes
     assertThat(boxed).isNotEqualTo(0x12).isEqualTo((byte) 0x12).isGreaterThan((byte) 0x00);
   }
 
