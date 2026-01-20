@@ -11,6 +11,7 @@
 
   <modules>
     <module>benchmarking</module>
+    <module>json</module>
     <module>misc</module>
     <module>scala</module>
     <module>testing</module>
