@@ -3,7 +3,7 @@ package com.skraba.byexample.json.base
 import java.io.{ByteArrayInputStream, InputStream}
 import java.nio.charset.StandardCharsets
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object JsonTestResources {
 
