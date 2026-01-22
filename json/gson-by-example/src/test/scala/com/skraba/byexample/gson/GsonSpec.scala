@@ -5,10 +5,8 @@ import com.skraba.byexample.json.base._
 
 import java.io.InputStreamReader
 
-/** Base class to demonstrate how to do things in Scala */
+/** Scala example of using Gson */
 class GsonSpec extends JsonSpecBase {
-
-  // TODO: Can we share an interface between Scala and Java?
 
   override def testParseStringIntoJson(): Unit = {
     val json = JsonParser.parseString(JsonTestResources.JsonSimpleString)

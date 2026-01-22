@@ -1,12 +1,24 @@
 package com.skraba.byexample.json.base
 
+import com.skraba.byexample.json.base.JsonTestResources._
+
 import java.io.{ByteArrayInputStream, InputStream}
 import java.nio.charset.StandardCharsets
-
 import scala.jdk.CollectionConverters._
 
-object JsonTestResources {
+/** Create test resources in the form of the expected "base type" that a JSON SDK expects.
+  * @param parse
+  *   A function that parses an arbitrary JSON string into the base type.
+  * @tparam T
+  *   The base type that the JSON SDK returns when parsing a generic String. If there is no base type, you can use Any.
+  */
+case class JsonTestResources[T](parse: String => T) {
+  def JsonObject = parse(JsonSimpleString)
+  def JsonBooleanTrue = parse("true")
+  def JsonBooleanFalse: T = parse("false")
+}
 
+object JsonTestResources {
   val JsonSimpleString: String =
     """{
       |  "id": 1,

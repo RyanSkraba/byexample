@@ -1,6 +1,7 @@
 package com.skraba.byexample.json.gson;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -10,27 +11,76 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.skraba.byexample.json.base.JsonTestBase;
+import com.skraba.byexample.json.base.JsonTestResources;
 import com.skraba.byexample.json.base.JsonTestResources$;
 import java.io.InputStreamReader;
 import org.junit.jupiter.api.Test;
 
-/** Unit tests for */
+/** Unit tests for GSON */
 class GsonTest implements JsonTestBase {
+
+  private final JsonTestResources$ JSON_RESOURCES = JsonTestResources$.MODULE$;
+  private final JsonTestResources<JsonElement> JSON =
+      new JsonTestResources<>(JsonParser::parseString);
 
   @Test
   public void testParseStringIntoJson() {
-    JsonElement json = JsonParser.parseString(JsonTestResources$.MODULE$.JsonSimpleString());
-    JsonObject map = json.getAsJsonObject();
 
-    assertThat(map.size()).isEqualTo(3);
-    assertThat(map.get("id").getAsInt()).isEqualTo(1);
-    assertThat(map.get("name").getAsString()).isEqualTo("one");
-    assertThat(map.get("translations").getAsJsonArray())
+    // Get the JSON object
+    JsonElement json = JsonParser.parseString(JSON_RESOURCES.JsonSimpleString());
+
+    // JsonElement is the parent type
+    assertThat(json.isJsonArray()).isFalse();
+    assertThat(json.isJsonObject()).isTrue();
+    assertThat(json.isJsonPrimitive()).isFalse();
+    assertThat(json.isJsonNull()).isFalse();
+
+    // Each of those has a get that only succeeds if it is the correct type
+    JsonObject obj = json.getAsJsonObject();
+    assertThatThrownBy(json::getAsJsonArray)
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessageStartingWith("Not a JSON Array");
+
+    // Accessing fields in a JsonObject as a map
+    assertThat(obj.asMap())
+        .hasSize(3)
+        .containsEntry("id", new JsonPrimitive(1))
+        .containsEntry("name", new JsonPrimitive("one"))
+        .hasEntrySatisfying(
+            "translations", arr -> assertThat(arr.getAsJsonArray().asList()).hasSize(2));
+
+    // But we can also get the types
+    // This works if it's the right type or an array containing a single element of the right type
+    assertThat(JSON.JsonBooleanFalse().getAsBoolean()).isFalse();
+    assertThat(JSON.JsonBooleanTrue().getAsBoolean()).isTrue();
+    // assertThat(....getAsNumber).isEqualTo(xxx);
+    // assertThat(....getAsString).isEqualTo(xxx);
+    // assertThat(....getAsDouble).isEqualTo(xxx);
+    // assertThat(....getAsFloat).isEqualTo(xxx);
+    // assertThat(....getAsLong).isEqualTo(xxx);
+    // assertThat(....getAsInt).isEqualTo(xxx);
+    // assertThat(....getAsByte).isEqualTo(xxx);
+    // assertThat(....getAsCharacter).isEqualTo(xxx);
+    // assertThat(....getAsBigDecimal).isEqualTo(xxx);
+    // assertThat(....getAsBigInteger).isEqualTo(xxx);
+    // assertThat(....getAsShort).isEqualTo(xxx);
+
+    // assertThat(....toString).isEqualTo(xxx);
+
+    assertThat(obj.size()).isEqualTo(3);
+
+    // Primitives are all JsonPrimitive
+    assertThat(obj.get("id")).isEqualTo(new JsonPrimitive(1));
+    assertThat(obj.get("id").getAsInt()).isEqualTo(1);
+    assertThat(obj.get("name")).isEqualTo(new JsonPrimitive("one"));
+    assertThat(obj.get("name").getAsString()).isEqualTo("one");
+
+    assertThat(obj.get("translations").getAsJsonArray())
         .hasSize(2)
         .extracting(JsonElement::getAsJsonObject)
         .satisfiesExactly(
-            obj -> assertThat(obj.get("fr")).isEqualTo(new JsonPrimitive("un")),
-            obj -> assertThat(obj.get("es")).isEqualTo(new JsonPrimitive("uno")));
+            x -> assertThat(x.get("fr")).isEqualTo(new JsonPrimitive("un")),
+            x -> assertThat(x.get("es")).isEqualTo(new JsonPrimitive("uno")));
   }
 
   @Test
