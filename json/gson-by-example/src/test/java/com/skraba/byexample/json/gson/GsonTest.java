@@ -51,20 +51,23 @@ class GsonTest implements JsonTestBase {
 
     // But we can also get the types
     // This works if it's the right type or an array containing a single element of the right type
-    assertThat(JSON.JsonBooleanFalse().getAsBoolean()).isFalse();
-    assertThat(JSON.JsonBooleanTrue().getAsBoolean()).isTrue();
-    // assertThat(....getAsNumber).isEqualTo(xxx);
-    // assertThat(....getAsString).isEqualTo(xxx);
-    // assertThat(....getAsDouble).isEqualTo(xxx);
-    // assertThat(....getAsFloat).isEqualTo(xxx);
-    // assertThat(....getAsLong).isEqualTo(xxx);
-    // assertThat(....getAsInt).isEqualTo(xxx);
-    // assertThat(....getAsByte).isEqualTo(xxx);
-    // assertThat(....getAsCharacter).isEqualTo(xxx);
-    // assertThat(....getAsBigDecimal).isEqualTo(xxx);
-    // assertThat(....getAsBigInteger).isEqualTo(xxx);
-    // assertThat(....getAsShort).isEqualTo(xxx);
+    assertThat(JSON.BTrue().getAsBoolean()).isTrue();
+    assertThat(JSON.BArr1True().getAsBoolean()).isTrue();
 
+    assertThat(JSON.IOne().getAsNumber())
+        .isNotEqualTo(1)
+        .satisfies(n -> assertThat(n.intValue()).isEqualTo(1));
+    assertThat(JSON.IOne().getAsDouble()).isOne();
+    assertThat(JSON.IOne().getAsFloat()).isOne();
+    assertThat(JSON.IOne().getAsLong()).isOne();
+    assertThat(JSON.IOne().getAsInt()).isOne();
+    assertThat(JSON.IOne().getAsByte()).isOne();
+    assertThat(JSON.IOne().getAsBigDecimal()).isOne();
+    assertThat(JSON.IOne().getAsBigInteger()).isOne();
+    assertThat(JSON.IOne().getAsShort()).isOne();
+
+    // assertThat(....getAsString).isEqualTo(xxx);
+    // assertThat(....getAsCharacter).isEqualTo(xxx);
     // assertThat(....toString).isEqualTo(xxx);
 
     assertThat(obj.size()).isEqualTo(3);
