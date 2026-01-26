@@ -37,17 +37,18 @@ Toolkits
 
 They're all tied for first place.
 
-| Name    | Notes |
-|---------|-------|
-| GSON    | TODO  |
-| Jackson | TODO  |
-| ujson   | TODO  |
+| Name                      | Notes                                                                                                 |
+|---------------------------|-------------------------------------------------------------------------------------------------------|
+| [GSON](./gson-by-example) | [🏠 Home][GSON Home] Google's JSON library to convert POJOs into JSON and back.  In maintenance mode. |
+| Jackson                   | TODO                                                                                                  |
+| ujson                     | TODO                                                                                                  |
 
 <--
 * json4s 
 * jsonp   
 * play-json   
 * yaml isn't json but json is yaml
+-->
 
 <!--
 To do
@@ -60,3 +61,5 @@ To do
 * Create interface for "how to" (read, write, add field, remove field, modify field)
 * Reading and writing JSON line
 -->
+
+[GSON Home]: https://github.com/google/gson
