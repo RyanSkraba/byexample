@@ -19,100 +19,56 @@ case class JsonTestResources[T](parse: String => T) {
   def Obj = parse(JsonSimpleString)
 
   // Booleans
-  lazy val BTrue: T = parse(JsonStrings("BTrue"))
-  lazy val BFalse: T = parse(JsonStrings("BFalse"))
-  lazy val BArr1True: T = parse(JsonStrings("BArr1True"))
-  lazy val BArr1False: T = parse(JsonStrings("BArr1False"))
-  lazy val BArr: T = parse(JsonStrings("BArr"))
-  lazy val BArrTruthy: T = parse(JsonStrings("BArrTruthy"))
-  lazy val BArrFalsey: T = parse(JsonStrings("BArrFalsey"))
+  lazy val BTrue: T = parse("true")
+  lazy val BFalse: T = parse("false")
+  lazy val BArr1True: T = parse("[true]")
+  lazy val BArr1False: T = parse("[true]")
+  lazy val BArr: T = parse("[true, false]")
+  lazy val BArrTruthy: T = parse("[True, tRue, TRUE, true]")
+  lazy val BArrFalsey: T = parse("[False, fAlse, FALSE, false]")
 
   // Integers
-  lazy val IMin: T = parse(JsonStrings("IMin"))
-  lazy val INegOne: T = parse(JsonStrings("INegOne"))
-  lazy val IZero: T = parse(JsonStrings("IZero"))
-  lazy val IOne: T = parse(JsonStrings("IOne"))
-  lazy val IMax: T = parse(JsonStrings("IMax"))
-  lazy val IArr1: T = parse(JsonStrings("IArr1"))
-  lazy val IArr: T = parse(JsonStrings("IArr"))
+  lazy val IMin: T = parse(Int.MinValue.toString)
+  lazy val INegOne: T = parse("-1")
+  lazy val IZero: T = parse("0")
+  lazy val IOne: T = parse("1")
+  lazy val IMax: T = parse(Int.MaxValue.toString)
+  lazy val IArr1: T = parse(s"[${Int.MaxValue.toString}]")
+  lazy val IArr: T = parse(s"[${Int.MinValue.toString}, -1, 0, 1, 12345, ${Int.MaxValue.toString}]")
 
   // Longs
-  lazy val LMin: T = parse(JsonStrings("LMin"))
-  lazy val LMax: T = parse(JsonStrings("LMax"))
-  lazy val LArr1: T = parse(JsonStrings("LArr1"))
-  lazy val LArr: T = parse(JsonStrings("LArr"))
+  lazy val LMin: T = parse(Long.MinValue.toString)
+  lazy val LMax: T = parse(Long.MaxValue.toString)
+  lazy val LArr1: T = parse(s"[${Long.MaxValue.toString}]")
+  lazy val LArr: T = parse(s"[${Long.MinValue.toString}, -1, 0, 1, 12345678910, ${Long.MaxValue.toString}]")
 
   // Floats
-  lazy val FMinInf: T = parse(JsonStrings("FMinInf"))
-  lazy val FMin: T = parse(JsonStrings("FMin"))
-  lazy val FNegOne: T = parse(JsonStrings("FNegOne"))
-  lazy val FZero: T = parse(JsonStrings("FZero"))
-  lazy val FOne: T = parse(JsonStrings("FOne"))
-  lazy val FMinPos: T = parse(JsonStrings("FMinPos"))
-  lazy val FMax: T = parse(JsonStrings("FMax"))
-  lazy val FInf: T = parse(JsonStrings("FInf"))
-  lazy val FArr1: T = parse(JsonStrings("FArr1"))
-  lazy val FArr: T = parse(JsonStrings("FArr"))
+  lazy val FMinInf: T = parse(Float.NegativeInfinity.toString)
+  lazy val FMin: T = parse(Float.MinValue.toString)
+  lazy val FNegOne: T = parse("-1.0")
+  lazy val FZero: T = parse("0.0")
+  lazy val FOne: T = parse("1.0")
+  lazy val FMinPos: T = parse(Float.MinPositiveValue.toString)
+  lazy val FMax: T = parse(Float.MaxValue.toString)
+  lazy val FInf: T = parse(Float.PositiveInfinity.toString)
+  lazy val FArr1: T = parse(s"[${Float.MaxValue.toString}]")
+  lazy val FArr: T = parse(s"[${Float.MinValue.toString}, -1, 0, 1, 12345, ${Float.MaxValue.toString}]")
 
   // Doubles
-  lazy val DMinInf: T = parse(JsonStrings("DMinInf"))
-  lazy val DMin: T = parse(JsonStrings("DMin"))
-  lazy val DMinPos: T = parse(JsonStrings("DMinPos"))
-  lazy val DMax: T = parse(JsonStrings("DMax"))
-  lazy val DInf: T = parse(JsonStrings("DInf"))
-  lazy val DArr1: T = parse(JsonStrings("DArr1"))
-  lazy val DArr: T = parse(JsonStrings("DArr"))
+  lazy val DMinInf: T = parse(Double.NegativeInfinity.toString)
+  lazy val DMin: T = parse(Double.MinValue.toString)
+  lazy val DMinPos: T = parse(Double.MinPositiveValue.toString)
+  lazy val DMax: T = parse(Double.MaxValue.toString)
+  lazy val DInf: T = parse(Double.PositiveInfinity.toString)
+  lazy val DArr1: T = parse(s"[${Double.MaxValue.toString}]")
+  lazy val DArr: T = parse(s"[${Double.MinValue.toString}, -1, 0, 1, 12345, ${Double.MaxValue.toString}]")
 }
 
 /** Constants to reuse as strings containing JSON data. */
 object JsonTestResources {
 
-  val JsonStrings: Map[String, String] = Map(
-    // Booleans
-    "BTrue" -> "true",
-    "BFalse" -> "false",
-    "BArr1True" -> "[true]",
-    "BArr1False" -> "[true]",
-    "BArr" -> "[true, false]",
-    "BArrTruthy" -> "[True, tRue, TRUE, true",
-    "BArrFalsey" -> "[False, fAlse, FALSE, false",
-
-    // Integers
-    "IMin" -> Int.MinValue.toString,
-    "INegOne" -> "-1",
-    "IZero" -> "0",
-    "IOne" -> "1",
-    "IMax" -> Int.MaxValue.toString,
-    "IArr1" -> s"[${Int.MaxValue.toString}]",
-    "IArr" -> s"[${Int.MinValue.toString}, -1, 0, 1, 12345, ${Int.MaxValue.toString}]",
-
-    // Longs
-    "LMin" -> Long.MinValue.toString,
-    "LMax" -> Long.MaxValue.toString,
-    "LArr1" -> s"[${Long.MaxValue.toString}]",
-    "LArr" -> s"[${Long.MinValue.toString}, -1, 0, 1, 12345678910, ${Long.MaxValue.toString}]",
-
-    // Floats
-    "FMinInf" -> Float.NegativeInfinity.toString,
-    "FMin" -> Float.MinValue.toString,
-    "FNegOne" -> "-1.0",
-    "FZero" -> "0.0",
-    "FOne" -> "1.0",
-    "FMinPos" -> Float.MinPositiveValue.toString,
-    "FMax" -> Float.MaxValue.toString,
-    "FInf" -> Float.PositiveInfinity.toString,
-    "FArr1" -> s"[${Float.MaxValue.toString}]",
-    "FArr" -> s"[${Float.MinValue.toString}, -1, 0, 1, 12345, ${Float.MaxValue.toString}]",
-
-    // Doubles
-    "DMinInf" -> Double.NegativeInfinity.toString,
-    "DMin" -> Double.MinValue.toString,
-    "DMinPos" -> Double.MinPositiveValue.toString,
-    "DMax" -> Double.MaxValue.toString,
-    "DInf" -> Double.PositiveInfinity.toString,
-    "DArr1" -> s"[${Double.MaxValue.toString}]",
-    "DArr" -> s"[${Double.MinValue.toString}, -1, 0, 1, 12345, ${Double.MaxValue.toString}]"
-  )
+  /** JSON string representations, to be parsed into JSON data. */
+  val JsonStrings: JsonTestResources[String] = JsonTestResources(identity)
 
   val JsonSimpleString: String =
     """{
