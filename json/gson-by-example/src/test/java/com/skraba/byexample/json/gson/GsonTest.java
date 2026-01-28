@@ -24,6 +24,7 @@ class GsonTest implements JsonTestBase {
       new JsonTestResources<>(JsonParser::parseString);
 
   @Test
+  @Override
   public void testParseStringIntoJson() {
 
     // Get the JSON object
@@ -84,6 +85,65 @@ class GsonTest implements JsonTestBase {
         .satisfiesExactly(
             x -> assertThat(x.get("fr")).isEqualTo(new JsonPrimitive("un")),
             x -> assertThat(x.get("es")).isEqualTo(new JsonPrimitive("uno")));
+  }
+
+  @Test
+  public void testParseBoolean() {
+    // Bare true and false strings are interpreted as true or false booleans
+    assertThat(JSON.BTrue().getAsBoolean()).isTrue();
+    assertThat(JSON.BFalse().getAsBoolean()).isFalse();
+    // So are arrays that contain a single value
+    assertThat(JSON.BArr1True().getAsBoolean()).isTrue();
+    assertThat(JSON.BArr1False().getAsBoolean()).isFalse();
+
+    // Arrays of booleans of the same type, even if the case is different
+    assertThat(JSON.BArr1True().getAsJsonArray()).containsExactly(new JsonPrimitive(true));
+    assertThat(JSON.BArrTruthy().getAsJsonArray()).containsOnly(new JsonPrimitive(true));
+    assertThat(JSON.BArr1False().getAsJsonArray()).containsExactly(new JsonPrimitive(false));
+    assertThat(JSON.BArrFalsey().getAsJsonArray()).containsOnly(new JsonPrimitive(false));
+
+    // An array of both boolean values
+    assertThat(JSON.BArr().getAsJsonArray())
+        .containsExactly(new JsonPrimitive(true), new JsonPrimitive(false));
+  }
+
+  @Test
+  public void testParseInteger() {
+    // Integers within the Java bounds are find
+    assertThat(JSON.IMin().getAsInt()).isEqualTo(Integer.MIN_VALUE);
+    assertThat(JSON.INegOne().getAsInt()).isEqualTo(-1);
+    assertThat(JSON.IZero().getAsInt()).isZero();
+    assertThat(JSON.IOne().getAsInt()).isOne();
+    assertThat(JSON.IMax().getAsInt()).isEqualTo(Integer.MAX_VALUE);
+
+    // An array with a single value can be an integer
+    assertThat(JSON.IArr1().getAsInt()).isEqualTo(Integer.MAX_VALUE);
+
+    // Arrays of multiple ints
+    assertThat(JSON.IArr1().getAsJsonArray()).containsExactly(new JsonPrimitive(Integer.MAX_VALUE));
+    assertThat(JSON.IArr().getAsJsonArray())
+        .containsExactly(
+            new JsonPrimitive(Integer.MIN_VALUE),
+            new JsonPrimitive(-1),
+            new JsonPrimitive(0),
+            new JsonPrimitive(1),
+            new JsonPrimitive(12345),
+            new JsonPrimitive(Integer.MAX_VALUE));
+
+    // Parsing an out-of-bounds long
+    assertThat(JSON.LMin().getAsInt()).isZero();
+    assertThat(JSON.LMax().getAsInt()).isEqualTo(-1);
+
+    // Parsing an out-of-bounds double
+    assertThat(JSON.DMin().getAsInt()).isZero();
+    assertThat(JSON.DMax().getAsInt()).isZero();
+
+    // Parsing in-bounds float
+    assertThat(JSON.FZero().getAsInt()).isZero();
+
+    // Parsing an out-of-bounds float
+    assertThat(JSON.FMin().getAsInt()).isEqualTo(Integer.MIN_VALUE);
+    assertThat(JSON.FMax().getAsInt()).isEqualTo(Integer.MIN_VALUE);
   }
 
   @Test
