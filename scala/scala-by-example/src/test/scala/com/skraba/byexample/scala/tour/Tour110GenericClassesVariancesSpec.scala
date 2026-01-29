@@ -37,7 +37,7 @@ class Tour110GenericClassesVariancesSpec extends AnyFunSpecLike with Matchers {
         }
       }
 
-      // As a collection, it can can take subtypes without futzing with variance.
+      // As a collection, it can take subtypes without futzing with variance.
       val stack = new Stack[Int]
       stack.push(1)
       stack.push('a')

@@ -147,7 +147,7 @@ object CountdownTask {
       *   When true, image files are generated and any existing image files are overwritten. When false, if an image
       *   file is necessary and already exists, it is used directly.
       * @param dstClean
-      *   When true, removes all of the the SVG and PNG files in the directory.
+      *   When true, removes all of the SVG and PNG files in the directory.
       */
     def write(dstVideo: Option[File], overwritePng: Boolean = true, dstClean: Boolean = false): Unit = {
       for (f <- 0 to framesTotal) {

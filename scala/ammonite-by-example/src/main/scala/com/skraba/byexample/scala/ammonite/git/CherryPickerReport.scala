@@ -247,12 +247,12 @@ object CherryPickerReport {
     false
   }
 
-  /** Given a git repo and two branchs (left and right), produces a report of how the branches have diverged.
+  /** Given a git repo and two branches (left and right), produces a report of how the branches have diverged.
     *
     * @param repo
     *   The root directory of the git repo on the local disk.
     * @param lTag
-    *   The name of the left banch (usually main)
+    *   The name of the left branch (usually main)
     * @param rTag
     *   The name of the right branch (usually branch-1.x)
     * @return

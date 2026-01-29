@@ -91,7 +91,7 @@ case class Ffmpeg(
     * ffprobe -loglevel error -select_streams v:0 -show_entries packet=pts_time,flags -of csv=print_section=0 input.mp4
     * }}}
     *
-    * The `-read_intervals` flat takes the following formats:
+    * The `-read_intervals` flag takes the following formats:
     *   - `0:10%0:20,1:10%1:20` : Two ten second intervals
     *     - `%100` : The first 100 seconds of the stream
     *     - `0:10%+0:20` : From 10s to 30s

@@ -10,7 +10,7 @@ import scala.collection.mutable
 
 /** =Advent of Code 2023 Day 23 Solutions in scala=
   *
-  * Input: A 2D map with forests (`#`) and paths (`.`) as well as some contraints that where the path can only be taken
+  * Input: A 2D map with forests (`#`) and paths (`.`) as well as some constraints on where the path can only be taken
   * in one direction (`^` `v` * `<` `>`).
   *
   * Part 1: Find the longest path that goes from the upper row to the bottom row that doesn't visit the same spot twice,

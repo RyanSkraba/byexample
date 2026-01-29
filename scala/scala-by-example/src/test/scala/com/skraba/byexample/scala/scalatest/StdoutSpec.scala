@@ -18,7 +18,7 @@ class StdoutSpec extends AnyFunSpecLike with Matchers {
 
     it("should match stdout and stderr using withConsoleMatch") {
       withConsoleMatch {
-        // Run any arbritrary code here.
+        // Run any arbitrary code here.
         Console.out.println("Hello")
         System.out.println("NOT CAPTURED!") // TODO: This is capturable in other ways
         println("World")

@@ -159,7 +159,7 @@ public class ToProfileGo {
    * @param onlySexy Only consume primes that are sexy (differ in 6 by another prime).
    * @param f a consumer that is called when a prime is found, after filtering.
    * @return all of the primes found, regardless of which were consumed.
-   * @link <a href="https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes">Sieve of Erasthenes</a>
+   * @link <a href="https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes">Sieve of Eratosthenes</a>
    */
   public static Set<Integer> sieveOfEratosthenes(
       int max, boolean onlySuper, boolean onlyHappy, boolean onlySexy, Consumer<Integer> f) {

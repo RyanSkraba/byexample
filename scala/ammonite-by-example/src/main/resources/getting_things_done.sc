@@ -200,7 +200,7 @@ object ProjectParserCfg extends ParserCfg {
   }
 }
 
-/** Some text that maps to to do task states */
+/** Some text that maps to to-do task states */
 val TextToToDoStates: Map[String, GettingThingsDone.ToDoState] =
   Map("MERGED" -> DoneToDo, "FIXED" -> DoneToDo, "DONE" -> DoneToDo)
 
