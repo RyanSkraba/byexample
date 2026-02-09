@@ -8,3 +8,5 @@
 **/.gradle
 **/build
 **/dependency-reduced-pom.xml
+.metals/
+.vscode/
