@@ -62,10 +62,21 @@ case class JsonTestResources[T](parse: String => T) {
   lazy val DInf: T = parse(Double.PositiveInfinity.toString)
   lazy val DArr1: T = parse(s"[${Double.MaxValue.toString}]")
   lazy val DArr: T = parse(s"[${Double.MinValue.toString}, -1, 0, 1, 12345, ${Double.MaxValue.toString}]")
+
+  // Strings
+  lazy val STrue: T = parse(q("True"))
+  lazy val STRue: T = parse(q("TRue"))
+  lazy val Sfalse: T = parse(q("false"))
+  lazy val SZero: T = parse(q("0"))
+  lazy val SOne: T = parse(q("1"))
+  lazy val SZeroPointZero: T = parse(q("0.0"))
+  lazy val SOnePointZero: T = parse(q("1.0"))
 }
 
 /** Constants to reuse as strings containing JSON data. */
 object JsonTestResources {
+
+  def q(in: String): String = s"\"$in\""
 
   /** JSON string representations, to be parsed into JSON data. */
   val JsonStrings: JsonTestResources[String] = JsonTestResources(identity)

@@ -133,6 +133,7 @@ class GsonTest implements JsonTestBase {
     // Parsing an out-of-bounds long
     assertThat(JSON.LMin().getAsInt()).isZero();
     assertThat(JSON.LMax().getAsInt()).isEqualTo(-1);
+    assertThat(JSON.LArr1().getAsInt()).isEqualTo(-1);
 
     // Parsing an out-of-bounds double
     assertThat(JSON.DMin().getAsInt()).isZero();
