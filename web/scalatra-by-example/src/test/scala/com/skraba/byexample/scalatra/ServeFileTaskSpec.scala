@@ -2,12 +2,13 @@ package com.skraba.byexample.scalatra
 
 import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, TmpDir}
 import sttp.model.StatusCodes
+import com.tinfoiled.docopt4s.FsPath._
 
 /** Unit tests for [[ServeFileTask]]. */
 class ServeFileTaskSpec extends MultiTaskMainSpec(ScalatraGo, Some(ServeFileTask)) with StatusCodes with TmpDir {
 
   {
-    (Tmp / "index.html").toFile.writeAll("""<html>
+    (Tmp / "index.html").writeAll("""<html>
         |<body>
         |<h1>Hello world!</h1>
         |</body>

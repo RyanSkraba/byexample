@@ -8,7 +8,7 @@ import scala.util.matching.Regex
 /** Command-line driver for sorting a table in a Markdown file. */
 object SortTableTask extends Task {
 
-  val Cmd = "sortTable"
+  override val Cmd = "sortTable"
 
   val Description = "Find a table in the markdown file and sort it."
 

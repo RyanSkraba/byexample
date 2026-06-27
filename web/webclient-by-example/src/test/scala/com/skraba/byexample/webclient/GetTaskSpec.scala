@@ -32,7 +32,7 @@ class GetTaskSpec extends MultiTaskMainSpec(WebClientGo, Some(GetTask)) with Sta
     describe(s"${Main.Name} $TaskCmd ${if (cmd.nonEmpty) s"with $cmd" else "with default"}") {
       it("should get a URI") {
         val preargs = if (cmd.nonEmpty) Seq(TaskCmd, cmd) else Seq(TaskCmd)
-        val postargs = Seq(Srv.base.withWholePath("product/101"))
+        val postargs = Seq(Srv.base.withWholePath("product/101").toString)
         withGoMatching(preargs ++ postargs: _*) { case (stdout, stderr) =>
           stderr shouldBe empty
           Json.parse(stdout) shouldBe Json.parse("""{"id": 1, "name": "one"}""")

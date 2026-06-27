@@ -9,7 +9,7 @@ import java.net.URLConnection
 /** Command-line driver that launches a server that serves resources in the JAR. */
 object ServeJarResourceTask extends Task {
 
-  val Cmd = "servejar"
+  override val Cmd = "servejar"
 
   val Description = "Run a server that serves resources embedded in the jar."
 

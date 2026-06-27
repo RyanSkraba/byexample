@@ -7,7 +7,7 @@ import com.tinfoiled.docopt4s.{Docopt, Task}
 /** Command-line driver that launches a server that serves HTML from a Twirl template. */
 object TwirlTask extends Task {
 
-  val Cmd = "twirl"
+  override val Cmd = "twirl"
 
   val Description = "Run a server that serves a Twirl template."
 

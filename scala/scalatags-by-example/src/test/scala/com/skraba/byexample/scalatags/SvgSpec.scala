@@ -2,6 +2,7 @@ package com.skraba.byexample.scalatags
 
 import com.skraba.byexample.scalatags.Svg.Attrs
 import com.tinfoiled.docopt4s.testkit.TmpDir
+import com.tinfoiled.docopt4s.FsPath._
 import org.scalatest.OptionValues._
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
@@ -17,16 +18,16 @@ class SvgSpec extends AnyFunSpecLike with Matchers with TmpDir {
 
     it("should write an svg tag unwrapped") {
       val svgContents = svg(Attrs.width := 100)
-      val dst = Tmp / File("svg_toFile_unwrapped.svg")
+      val dst = Tmp / "svg_toFile_unwrapped.svg"
       Svg.toFile(dst, svgContents, 99, 99)
-      dst.jfile should exist
+      dst.toFile should exist
       val dstContents = dst.safeSlurp()
       dstContents.value shouldBe """<?xml version="1.0"?><svg width="100"></svg>"""
     }
 
     it("should wrap a group tag") {
       val svgContents = g(Attrs.width := 100)
-      val dst = Tmp / File("svg_toFile_wrapped.svg")
+      val dst = Tmp / "svg_toFile_wrapped.svg"
       Svg.toFile(dst, svgContents, 99, 99)
       val dstContents = dst.safeSlurp()
       dstContents.value shouldBe

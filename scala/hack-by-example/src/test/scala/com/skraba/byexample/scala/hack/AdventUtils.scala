@@ -175,7 +175,7 @@ object AdventUtils {
         .filter(_.name == "Day0Input.txt")
         .filter(_.isFile)
         .map(_.toFile)
-        .sortBy(_.toString())
+        .sortBy(_.toString)
         .lastOption
         .map(_.slurp())
         .foreach { basic =>
@@ -193,7 +193,7 @@ object AdventUtils {
         .filter(_.name == "AdventOfCodeDay0Spec.scala")
         .filter(_.isFile)
         .map(_.toFile)
-        .sortBy(_.toString())
+        .sortBy(_.toString)
         .lastOption
 
       day0code

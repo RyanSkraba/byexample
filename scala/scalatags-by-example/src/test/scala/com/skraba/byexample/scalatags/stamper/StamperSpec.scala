@@ -7,6 +7,7 @@ import scalatags.Text.implicits._
 import scalatags.Text.svgAttrs._
 import scalatags.Text.svgTags._
 
+import java.nio.file.Paths
 import scala.reflect.io.File
 
 class StamperSpec extends AnyFunSpecLike with Matchers {
@@ -202,7 +203,7 @@ class StamperSpec extends AnyFunSpecLike with Matchers {
       val plan =
         g(circle.history: _*)(extra.history: _*)(transform := "translate(12,0)")
 
-      Svg.toFile(File("/tmp/plan.svg"), plan)
+      Svg.toFile(Paths.get("/tmp/plan.svg"), plan)
     }
 
     it("should draw circles on a grid") {
@@ -353,7 +354,7 @@ class StamperSpec extends AnyFunSpecLike with Matchers {
         )
 
       Svg.toFile(
-        File("/tmp/circles.svg"),
+        Paths.get("/tmp/circles.svg"),
         scalatags.Text.svgTags.frag(
           Svg.inkscapeLayer(1, "Background")(background),
           Svg.inkscapeLayer(2, "Circles")(plan),

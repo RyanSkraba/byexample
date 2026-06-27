@@ -6,9 +6,10 @@ import scalatags.Text.svgTags.{g, svg, text}
 import scalatags.Text.tags.attr
 import scalatags.generic
 import scalatags.text.Builder
+import com.tinfoiled.docopt4s.FsPath._
 
 import java.io.BufferedWriter
-import scala.reflect.io.File
+import java.nio.file.Path
 
 object Svg {
 
@@ -75,7 +76,7 @@ object Svg {
     *   The height of the document and viewbox.
     */
   def toFile(
-      f: File,
+      f: Path,
       svgContents: Modifier,
       viewBoxDx: Int = 100,
       viewBoxDy: Int = 100,
@@ -108,7 +109,7 @@ object Svg {
     *
     * @param dx
     *   The number of pixels right to translate.
-    * @param label
+    * @param dy
     *   The number of pixels down to translate.
     * @return
     *   The attribute to add to a tag.

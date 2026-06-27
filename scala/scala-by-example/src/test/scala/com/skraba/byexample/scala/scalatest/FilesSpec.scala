@@ -1,13 +1,13 @@
 package com.skraba.byexample.scala.scalatest
 
 import com.tinfoiled.docopt4s.testkit.TmpDir
+import com.tinfoiled.docopt4s.FsPath._
 import org.scalatest.OptionValues.convertOptionToValuable
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-import java.nio.file.StandardCopyOption
-import scala.reflect.io.{Directory, File, Streamable}
-import scala.util.Properties
+import java.nio.file.{Path, Paths, StandardCopyOption, StandardOpenOption}
+import scala.util.{Properties, Using}
 
 /** Matchers and assertions on files. ScalaTest doesn't help much, but it's pretty easy to use existing methods and
   * tools.
@@ -19,10 +19,10 @@ class FilesSpec extends AnyFunSpecLike with Matchers with TmpDir {
   /** Create a temporary directory that will be shared and not deleted between runs. Be careful, this can have
     * unintended side effects.
     */
-  val CachedTmp: Directory = (Directory(Properties.tmpDir) / getClass.getSimpleName).createDirectory()
+  val CachedTmp: Path = (Paths.get(Properties.tmpDir) / getClass.getSimpleName).createDirectory(failIfExists = false)
 
   /** If this is not None, retain the last [[Tmp]] here. */
-  val SaveLastTmp: Option[Directory] = Some(CachedTmp / "last").map(_.toDirectory)
+  val SaveLastTmp: Option[Path] = Some(CachedTmp / "last")
 
   /** Delete temporary resources after the script. */
   override protected def afterAll(): Unit =
@@ -31,8 +31,8 @@ class FilesSpec extends AnyFunSpecLike with Matchers with TmpDir {
       SaveLastTmp.map(last => {
         last.deleteRecursively()
         java.nio.file.Files.move(
-          Tmp.jfile.toPath,
-          last.jfile.toPath,
+          Tmp,
+          last,
           StandardCopyOption.ATOMIC_MOVE,
           StandardCopyOption.REPLACE_EXISTING
         )
@@ -42,27 +42,27 @@ class FilesSpec extends AnyFunSpecLike with Matchers with TmpDir {
     } catch { case ex: Exception => ex.printStackTrace() }
 
   /** A resource in this maven project, discoverable on the classpath. */
-  val SrcTestResource: Option[File] = {
+  val SrcTestResource: Option[Path] = {
     val uri = Thread
       .currentThread()
       .getContextClassLoader
       .getResource(getClass.getPackageName.replace('.', '/') + s"/greeting.txt")
-    if (uri.getProtocol == "file") Some(File(uri.getFile)) else None
+    if (uri.getProtocol == "file") Some(Paths.get(uri.getFile)) else None
   }
 
   describe("Filesystem operations") {
     val Basic = (Tmp / "basic").createDirectory()
-    File(Basic / "count").writeAll("1;one\n2;two\n")
+    (Basic / "count").writeAll("1;one\n2;two\n")
     (Basic / "subdir1").createDirectory()
     (Basic / "subdir2").createDirectory()
 
     it("should list files in a directory") {
-      Basic.files.map(_.name).toSeq should contain only "count"
-      Basic.dirs.map(_.name).toSeq should contain allOf ("subdir1", "subdir2")
+      Basic.files.map(_.name) should contain only "count"
+      Basic.dirs.map(_.name) should contain allOf ("subdir1", "subdir2")
     }
 
     it("should create and append to a file") {
-      Streamable.closing(Basic.resolve("newFile").createFile(true).bufferedWriter()) { out =>
+      Using.resource(Basic.resolve("newFile").bufferedWriter(StandardOpenOption.CREATE_NEW)) { out =>
         out.write("1;one\n2;two\n")
       }
 
@@ -75,20 +75,20 @@ class FilesSpec extends AnyFunSpecLike with Matchers with TmpDir {
       myFile.isFile shouldBe true
       myFile.canRead shouldBe true
       myFile.canWrite shouldBe true
-      myFile.toFile.length shouldBe 12
+      myFile.length shouldBe 12
 
-      myFile.jfile should exist
-      myFile.jfile shouldBe readable
-      myFile.jfile shouldBe writable
+      myFile should exist
+      myFile shouldBe readable
+      myFile shouldBe writable
 
       // Now append using the buffered writer
-      Streamable.closing(myFile.bufferedWriter(append = true)) { out =>
+      Using.resource(myFile.toPath.bufferedWriter(StandardOpenOption.APPEND)) { out =>
         out.write("3;three\n4;four\n")
       }
-      myFile.toFile.length shouldBe 27
+      myFile.length shouldBe 27
 
       // Reading using a source
-      val contents = Streamable.closing(scala.io.Source.fromFile(myFile.toAbsolute.toString())) { out =>
+      val contents = Using.resource(scala.io.Source.fromFile(myFile.getAbsoluteFile.toString)) { out =>
         out.getLines().toList
       }
       contents.length shouldBe 4
@@ -96,10 +96,10 @@ class FilesSpec extends AnyFunSpecLike with Matchers with TmpDir {
     }
 
     it("should read from a file") {
-      val count = File(Basic / "count")
+      val count = Basic / "count"
 
       // Using a source
-      val contents = Streamable.closing(scala.io.Source.fromFile(count.jfile)) { out =>
+      val contents = Using.resource(scala.io.Source.fromFile(count.toFile)) { out =>
         out.getLines().toList
       }
       contents should contain inOrderOnly ("1;one", "2;two")
@@ -107,7 +107,7 @@ class FilesSpec extends AnyFunSpecLike with Matchers with TmpDir {
       // Other reads
       count.slurp() shouldBe "1;one\n2;two\n"
       count.safeSlurp() shouldBe Some("1;one\n2;two\n")
-      File(Basic / "noFile").safeSlurp() shouldBe None
+      (Basic / "noFile").safeSlurp() shouldBe None
       count.lines().toList should contain inOrderOnly ("1;one", "2;two")
     }
 

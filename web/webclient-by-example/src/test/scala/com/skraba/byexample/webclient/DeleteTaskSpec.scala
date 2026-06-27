@@ -30,10 +30,10 @@ class DeleteTaskSpec extends MultiTaskMainSpec(WebClientGo, Some(DeleteTask)) wi
   for (cmd <- Seq("--sttp", "--pekko", "")) {
     describe(s"${Main.Name} $TaskCmd ${if (cmd.nonEmpty) s"with $cmd" else "with default"}") {
       // Create the product so we can delete it
-      val product = SttpClient.post(Srv.base.withWholePath("product/").toString(), """{"id": 9, "name": "nine"}""")
+      val product = SttpClient.post(Srv.base.withWholePath("product/").toString, """{"id": 9, "name": "nine"}""")
       it("should get a URI") {
         val preargs = if (cmd.nonEmpty) Seq(TaskCmd, cmd) else Seq(TaskCmd)
-        val postargs = Seq(Srv.base.withWholePath(s"product/${product.body}"))
+        val postargs = Seq(Srv.base.withWholePath(s"product/${product.body}").toString)
         withGoMatching(preargs ++ postargs: _*) { case (stdout, stderr) =>
           stderr shouldBe empty
           stdout shouldBe empty

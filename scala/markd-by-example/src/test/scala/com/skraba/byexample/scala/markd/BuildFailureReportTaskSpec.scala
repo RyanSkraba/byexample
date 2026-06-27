@@ -1,9 +1,9 @@
 package com.skraba.byexample.scala.markd
 import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, TmpDir}
+import com.tinfoiled.docopt4s.FsPath._
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import scala.reflect.io.File
 
 /** Unit tests for [[BuildFailureReportTask]] */
 class BuildFailureReportTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(BuildFailureReportTask)) with TmpDir {
@@ -110,7 +110,7 @@ class BuildFailureReportTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(BuildFa
 
   describe("When parsing a very simple  file") {
     val Simple = (Tmp / "simple").createDirectory()
-    File(Simple / "failures.md").writeAll("""# Simple Build Failures
+    (Simple / "failures.md").writeAll("""# Simple Build Failures
         |## 2024-01-01
         |### 1.0 Build failed https://buildlink
         |Step name https://buildlink/log#100
@@ -195,7 +195,7 @@ class BuildFailureReportTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(BuildFa
              |BUG-2 Describe bug 2
              |""".stripMargin).mkString("\n")
     val Basic = (Tmp / "basic").createDirectory()
-    File(Basic / "failures.md").writeAll(Content)
+    (Basic / "failures.md").writeAll(Content)
 
     it("should report on the last day of investigations") {
       withGoMatching(TaskCmd, Basic / "failures.md") { case (stdout, stderr) =>
@@ -424,7 +424,7 @@ class BuildFailureReportTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(BuildFa
         |""".stripMargin
 
     // Create an actual file for returning and the URL that points to it
-    File(Scenario / "run_fails.json").writeAll("""{"workflow_runs":[
+    (Scenario / "run_fails.json").writeAll("""{"workflow_runs":[
        |{"id":0,"name":"a5","run_number":5,"head_branch":"main","html_url":"https://build5","created_at":"2024-01-05"},
        |{"id":1,"name":"a4","run_number":4,"head_branch":"master","html_url":"https://build4","created_at":"2024-01-04"},
        |{"id":2,"name":"a3","run_number":3,"head_branch":"release-1.3","html_url":"https://build3","created_at":"2024-01-03"},
@@ -435,7 +435,7 @@ class BuildFailureReportTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(BuildFa
 
     it("should overwrite the file to include uninvestigated build failures") {
       // This file will be overwritten
-      File(Scenario / "failures.md").writeAll(OriginalFailureSectionHeader1 + OriginalFailureSectionHeaders2)
+      (Scenario / "failures.md").writeAll(OriginalFailureSectionHeader1 + OriginalFailureSectionHeaders2)
 
       // This is the mock return result from the API call, constructed by overriding the system property to
       // create a file URL instead of a REST API.
@@ -457,7 +457,7 @@ class BuildFailureReportTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(BuildFa
       sys.props.remove("run.fails.template")
 
       val today = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(LocalDate.now())
-      (Scenario / "failures.md").toFile.slurp() shouldBe
+      (Scenario / "failures.md").slurp() shouldBe
         s"""$OriginalFailureSectionHeader1
           |$today
           |------------------------------------------------------------------------------
@@ -476,12 +476,10 @@ class BuildFailureReportTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(BuildFa
 
     it("should rewrite branches to fetch build versions") {
       // This file will be overwritten
-      File(Scenario / "failures.md").writeAll(OriginalFailureSectionHeader1)
+      (Scenario / "failures.md").writeAll(OriginalFailureSectionHeader1)
 
       // This is the mock return result from the API call, constructed by overriding the system property to
       // create a file URL instead of a REST API.
-
-      val yyy = (Scenario / "failures.md").toFile.slurp()
 
       sys.props("run.fails.template") = RunFailsTemplate
       withGoMatching(TaskCmd, "--add-fails", "run_fails.json", "--main-version", "1.99", Scenario / "failures.md") {
@@ -504,8 +502,7 @@ class BuildFailureReportTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(BuildFa
       sys.props.remove("run.fails.template")
 
       val today = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(LocalDate.now())
-      val xxx = (Scenario / "failures.md").toFile.slurp()
-      (Scenario / "failures.md").toFile.slurp() shouldBe
+      (Scenario / "failures.md").slurp() shouldBe
         s"""$OriginalFailureSectionHeader1
            |$today
            |------------------------------------------------------------------------------
@@ -537,7 +534,7 @@ class BuildFailureReportTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(BuildFa
   describe("When parsing a sample file") {
 
     val Sample = (Tmp / "sample").createDirectory()
-    File(Sample / "failures.md").writeAll("""# Flink Build Failures
+    (Sample / "failures.md").writeAll("""# Flink Build Failures
         |## 2024-05-03
         |
         |### 1.20 Nightly (beta) #270 https://github.com/apache/flink/actions/runs/8917610620

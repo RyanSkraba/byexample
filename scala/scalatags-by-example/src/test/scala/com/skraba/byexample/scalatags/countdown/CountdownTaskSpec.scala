@@ -2,6 +2,7 @@ package com.skraba.byexample.scalatags.countdown
 
 import com.skraba.byexample.scalatags.ScalatagsGoSpec.withScalatagsGoMatch
 import com.tinfoiled.docopt4s.testkit.TmpDir
+import com.tinfoiled.docopt4s.FsPath._
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 

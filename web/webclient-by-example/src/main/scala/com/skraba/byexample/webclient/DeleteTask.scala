@@ -5,7 +5,7 @@ import com.tinfoiled.docopt4s.{Docopt, Task}
 /** Command-line driver that gets a URI. */
 object DeleteTask extends Task {
 
-  val Cmd = "delete"
+  override val Cmd = "delete"
 
   val Description = "Make an HTTP DELETE request."
 

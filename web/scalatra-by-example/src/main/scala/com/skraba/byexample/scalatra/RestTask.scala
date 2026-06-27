@@ -11,7 +11,7 @@ import scala.util.{Failure, Success, Try}
 /** Command-line driver that launches a server that has a basic REST API. */
 object RestTask extends Task {
 
-  val Cmd = "rest"
+  override val Cmd = "rest"
 
   val Description = "Run a server with a basic REST API."
 

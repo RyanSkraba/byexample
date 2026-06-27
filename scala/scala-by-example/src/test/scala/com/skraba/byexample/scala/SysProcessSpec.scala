@@ -55,7 +55,7 @@ class SysProcessSpec extends AnyFunSpecLike with Matchers {
       val stderr = new StringBuilder
       val status = "echo Hello world".!(ProcessLogger(stdout.append(_), stderr.append(_)))
       status shouldBe 0
-      stdout.toString() shouldBe "Hello world"
+      stdout.toString shouldBe "Hello world"
       stderr.size shouldBe 0
     }
   }
