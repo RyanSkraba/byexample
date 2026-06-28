@@ -1,6 +1,8 @@
 Ammonite by example
 ==============================================================================
 
+⚠️⚠️⚠️ Ammonite is going away, look to [../tools-by-example](../tools-by-example) for migration into Scala jars.
+
 [Ammonite] is a pretty great tool for running scripts written in Scala.  This project includes some
 examples.
 
