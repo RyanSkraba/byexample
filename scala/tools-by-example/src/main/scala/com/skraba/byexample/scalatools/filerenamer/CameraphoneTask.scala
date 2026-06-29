@@ -90,7 +90,7 @@ object CameraphoneTask extends Task {
       case (Some(rootDir), _) => Seq(rootDir)
       case (None, Some(tag)) =>
         gvfs
-          .map(_.list.filter(_.toString.contains(phoneTag)))
+          .map(_.list.filter(_.toString.contains(tag)))
           .flatMap(_.headOption)
           .flatMap(_.list.headOption) match {
           case Some(found) => Seq(found)
@@ -130,9 +130,9 @@ object CameraphoneTask extends Task {
     val dst = opt.dir.getOption("--dst", PathValidator().optionallyExists())
     val dstSub = opt.string.getOption("--dstSub")
     val dstSuffix = opt.string.getOr("--dstSuffix", dfltDstSuffix)
-    val dryRun = opt.boolean.get("--dryRun")
+    val dryRun = opt.flag("--dryRun")
 
-    val console = AnsiConsole(verbose = !opt.flag("--noVerbose"), plain = opt.flag("--plain"))
+    val out = AnsiConsole(verbose = !opt.flag("--noVerbose"), plain = opt.flag("--plain"), yes = opt.flag("--yes"))
 
     val rootDirs = findRootDirs(deviceRootDir, phoneMountDir, phoneTag).sortBy(_.toString)
     var atLeastOneSuccess = false
@@ -146,7 +146,7 @@ object CameraphoneTask extends Task {
         dstSub = dstSub,
         dstSuffix = dstSuffix,
         dryRun = dryRun,
-        console = console
+        out = out
       )
     atLeastOneSuccess = true
   }
@@ -154,7 +154,7 @@ object CameraphoneTask extends Task {
   /** Copies files from a directory, usually a phone, into the local hard disk. On the phone, files are moved into a
     * subdirectory to indicate they've already been copied.
     *
-    * @param rootDir
+    * @param deviceRootDir
     *   The root path of the device containing pictures (Default: autodetected in /run/media)
     * @param deviceBackedupSubDir
     *   The subdirectory to move source directories once they are copied (Default: backedupYYYYMMDD)
@@ -170,7 +170,7 @@ object CameraphoneTask extends Task {
     *   When autocreating the destination subdirectory, a suffix after the date (Default: Cameraphone)
     * @param dryRun
     *   True if no files should actually be copied or moved
-    * @param console
+    * @param out
     *   A configuration for running
     */
   def cameraphone(
@@ -182,21 +182,21 @@ object CameraphoneTask extends Task {
       dstSub: Option[String],
       dstSuffix: String,
       dryRun: Boolean,
-      console: AnsiConsole
+      out: AnsiConsole
   ): Unit = {
 
     // Find all the files that exist in the device subdirectories
     val files = {
       // Use the given src for the device, or try to detect it
-      console.vPrintln(deviceRootDir)
+      out.vPrintln(deviceRootDir)
 
       for (mediaDir <- deviceRelPath.map(deviceRootDir / _)) yield {
         if (!mediaDir.exists) {
-          console.vPrintln(console.warn("Source directory not found", mediaDir))
+          out.vPrintln(out.warn("Source directory not found", mediaDir))
           Seq.empty
         } else {
           val files = mediaDir.list.filter(Files.isRegularFile(_))
-          console.vPrintln(s"There are ${files.size} files in <SRC>/${deviceRootDir.relativize(mediaDir)}.")
+          out.vPrintln(s"There are ${files.size} files in <SRC>/${deviceRootDir.relativize(mediaDir)}.")
           files
         }
       }
@@ -206,20 +206,20 @@ object CameraphoneTask extends Task {
     val filesToCopy = {
       val byExtension = files.flatten.groupBy(_.ext)
       for (ext <- byExtension) {
-        console.vPrintln(s"  ${console.bold(ext._1)}: ${ext._2.size}")
+        out.vPrintln(s"  ${out.bold(ext._1)}: ${ext._2.size}")
       }
       extension.flatMap(byExtension.get).flatten
     }.sortBy(_.toString)
 
     if (filesToCopy.isEmpty) {
-      console.vPrintln(console.ok("No files to copy", bold = true))
+      out.vPrintln(out.ok("No files to copy", bold = true))
       return
     }
 
     // The actual destination directory or the default
     val dstRoot = dst.getOrElse(Home / "Pictures")
     if (!dstRoot.exists) {
-      println(console.error("Destination directory not found", dstRoot))
+      println(out.error("Destination directory not found", dstRoot))
       return
     }
 
@@ -243,14 +243,14 @@ object CameraphoneTask extends Task {
         println(s"cp $file ${dstDir / file.getFileName}")
         println(s"mv $file ${file.getParent / deviceBackedupSubDir / file.getFileName}")
       } else {
-        console.vPrint(s"${dstDir / file.getFileName}.")
+        out.vPrint(s"${dstDir / file.getFileName}.")
         Files.copy(file, dstDir / file.getFileName)
-        console.vPrint(".")
+        out.vPrint(".")
 
         val deviceBackedupDir = file.getParent / deviceBackedupSubDir
         deviceBackedupDir.createDirectory(failIfExists = false)
         Files.move(file, deviceBackedupDir / file.getFileName)
-        console.vPrintln(".")
+        out.vPrintln(".")
       }
     }
   }

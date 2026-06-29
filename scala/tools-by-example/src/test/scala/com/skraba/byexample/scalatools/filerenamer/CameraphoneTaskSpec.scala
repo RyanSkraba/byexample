@@ -3,23 +3,22 @@ package com.skraba.byexample.scalatools.filerenamer
 import com.skraba.byexample.scalatools.filerenamer.CameraphoneTask.{DefaultBackupDir, MissingPhoneDirException, Today}
 import com.tinfoiled.docopt4s.AnsiConsole
 import com.tinfoiled.docopt4s.FsPath.RichPath
-import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, TmpDir, WithFileTests}
+import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, WithFileTests}
 
 import java.nio.file.Path
 
 /** Unit tests for [[CameraphoneTask]]. */
 class CameraphoneTaskSpec
     extends MultiTaskMainSpec(FileRenamerGo, Some(CameraphoneTask))
-    with TmpDir
     with WithFileTests
-    with FileRenamerSpecBase {
+    with WithTmpSrcDst {
 
   /** Used for colour codes. */
   val Ansi = AnsiConsole()
 
   /** Run the cameraphone task with the source and destination directories. */
   def cameraphone(src: Path, dst: Path)(args: Any*): String =
-    withTaskSuccessSrcDst(src, dst, DefaultBackupDir -> "<DEFAULTBACKUP>", Today -> "<TODAY>")(TaskCmd +: args: _*)
+    withGoStdoutSrcDst(src, dst, DefaultBackupDir -> "<DEFAULTBACKUP>", Today -> "<TODAY>")(TaskCmd +: args: _*)
 
   describe(s"Standard $MainName $TaskCmd command line help, versions and exceptions") {
     itShouldHandleVersionNoArgsAndHelpFlags()

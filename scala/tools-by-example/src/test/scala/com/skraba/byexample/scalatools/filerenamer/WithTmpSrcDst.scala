@@ -6,7 +6,7 @@ import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, TmpDir}
 import java.nio.file.Path
 
 /** Trait for including file system helpers. */
-trait FileRenamerSpecBase { this: MultiTaskMainSpec[_] with TmpDir =>
+trait WithTmpSrcDst extends TmpDir { this: MultiTaskMainSpec[_] =>
 
   /** Creates a scenario in the temporary directory with some files and directories in it
     *
@@ -33,27 +33,23 @@ trait FileRenamerSpecBase { this: MultiTaskMainSpec[_] with TmpDir =>
     (src, dst)
   }
 
-  /** A helper method for running an ammonite script with an assumed successful result.
+  /** A helper method for running a MultiTaskMain with an assumed successful result.
     * @param replacements
     *   A list of pairs of strings to replace in the output.
-    * @param task
-    *   The task to run
     * @param args
     *   The arguments to apply to the ammonite script
     * @return
     *   The output of the script with all of the string replacements applied, as well as replacing the temporary
     *   directory with &lt;TMP&gt;.
     */
-  def withTaskSuccess(replacements: (String, String)*)(args: Any*): String = {
-    withGoMatching(args: _*) { case (stdout: String, stderr: String) =>
-      stderr shouldBe empty
-      replacements
-        .foldLeft(stdout) { (acc, r) => acc.replace(r._1, r._2) }
-        .replace(Tmp.toString, "<TMP>")
-    }
+  def withGoStdoutReplace(replacements: (String, String)*)(args: Any*): String = {
+    val stdout = withGoStdout(args: _*)
+    replacements
+      .foldLeft(stdout) { (acc, r) => acc.replace(r._1, r._2) }
+      .replace(Tmp.toString, "<TMP>")
   }
 
-  /** A helper method for running an ammonite script with an assumed successful result, specifically for scenarios
+  /** A helper method for running a MultiTaskMain with an assumed successful result, specifically for scenarios
     * involving source and destination directories.
     *
     * @param src
@@ -62,15 +58,12 @@ trait FileRenamerSpecBase { this: MultiTaskMainSpec[_] with TmpDir =>
     *   The destination directory.
     * @param replacements
     *   A list of pairs of strings to replace in the output.
-    * @param task
-    *   The task to run.
     * @param args
     *   The arguments to apply to the ammonite script.
     * @return
     *   The output of the script with all of the string replacements applied, as well as replacing the source and
     *   destination directories with &lt;SRC&gt; and &lt;DST&gt; respectively.
     */
-  def withTaskSuccessSrcDst(src: Path, dst: Path, replacements: (String, String)*)(args: Any*): String =
-    withTaskSuccess(replacements ++ Seq(src.toString -> "<SRC>", dst.toString -> "<DST>"): _*)(args: _*)
-
+  def withGoStdoutSrcDst(src: Path, dst: Path, replacements: (String, String)*)(args: Any*): String =
+    withGoStdoutReplace(replacements ++ Seq(src.toString -> "<SRC>", dst.toString -> "<DST>"): _*)(args: _*)
 }
