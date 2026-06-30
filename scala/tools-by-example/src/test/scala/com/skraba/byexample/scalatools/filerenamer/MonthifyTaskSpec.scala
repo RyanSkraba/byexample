@@ -15,7 +15,7 @@ class MonthifyTaskSpec
   /** Used for colour codes. */
   val Ansi = AnsiConsole()
 
-  /** Run the cameraphone task with the source and destination directories. */
+  /** Run the MonthlyTask with the source and destination directories. */
   def monthify(src: Path, dst: Path)(args: Any*): String = withGoStdoutSrcDst(src, dst)(TaskCmd +: args: _*)
 
   describe(s"Standard $MainName $TaskCmd command line help, versions and exceptions") {

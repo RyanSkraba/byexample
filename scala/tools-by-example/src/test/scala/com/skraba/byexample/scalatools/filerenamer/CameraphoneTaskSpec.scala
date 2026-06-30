@@ -16,7 +16,7 @@ class CameraphoneTaskSpec
   /** Used for colour codes. */
   val Ansi = AnsiConsole()
 
-  /** Run the cameraphone task with the source and destination directories. */
+  /** Run the CameraphoneTask with the source and destination directories. */
   def cameraphone(src: Path, dst: Path)(args: Any*): String =
     withGoStdoutSrcDst(src, dst, DefaultBackupDir -> "<DEFAULTBACKUP>", Today -> "<TODAY>")(TaskCmd +: args: _*)
 
