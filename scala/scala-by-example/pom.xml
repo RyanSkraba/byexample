@@ -20,8 +20,6 @@
     <scalafmt.conf.path>${project.basedir}/../../.scalafmt.conf</scalafmt.conf.path>
     <!-- Launcher class -->
     <exec.mainClass>com.skraba.byexample.scala.ScalaGo</exec.mainClass>
-    <!-- other project dependency versions as properties -->
-    <markd.version>0.0.5</markd.version>
   </properties>
 
   <dependencies>
@@ -39,13 +37,6 @@
     <dependency>
       <groupId>org.scala-lang</groupId>
       <artifactId>scala-compiler</artifactId>
-    </dependency>
-
-    <!-- Necessary for prettifying JSON code blocks -->
-    <dependency>
-      <groupId>com.tinfoiled</groupId>
-      <artifactId>markd_${scala.binary.version}</artifactId>
-      <version>${markd.version}</version>
     </dependency>
 
     <!-- Tests -->

@@ -41,6 +41,7 @@
     <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
     <jetty.version>12.0.16</jetty.version>
     <junit5.version>5.11.4</junit5.version>
+    <markd.version>0.2.0</markd.version>
     <play-json.version>2.10.6</play-json.version>
     <scala.binary.version>2.13</scala.binary.version>
     <scala.version>2.13.18</scala.version>
@@ -82,6 +83,11 @@
         <groupId>com.tinfoiled</groupId>
         <artifactId>docopt4s_${scala.binary.version}</artifactId>
         <version>${docopt4s.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tinfoiled</groupId>
+        <artifactId>markd_${scala.binary.version}</artifactId>
+        <version>${markd.version}</version>
       </dependency>
       <dependency>
         <groupId>jakarta.servlet</groupId>
