@@ -12,7 +12,7 @@ object CameraphoneTask extends Task {
   override val Description: String = "Backs up pictures from the connected phone"
   override val Cmd: String = "cameraphone"
   override val Doc: String =
-    s"""${Description}
+    s"""$Description
        |
        |Usage:
        |  ${FileRenamerGo.Name} $Cmd [options] [--extension=EXT]...

@@ -12,7 +12,7 @@ object PayslipTask extends Task {
   override val Description: String = "Rename payslip files"
   override val Cmd: String = "payslip"
   override val Doc: String =
-    s"""${Description}
+    s"""$Description
        |
        |Usage:
        |  ${FileRenamerGo.Name} $Cmd [options]

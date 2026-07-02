@@ -11,7 +11,7 @@ object MonthifyTask extends Task {
   override val Description: String = "Move image files to directories by month"
   override val Cmd: String = "monthify"
   override val Doc: String =
-    s"""${Description}
+    s"""$Description
        |
        |Usage:
        |  ${FileRenamerGo.Name} $Cmd [options]
