@@ -6,6 +6,7 @@ import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, TmpDir}
 import java.nio.file.Path
 
 /** Trait for including file system helpers. */
+@Deprecated(since = "Use from docopt4s 0.0.10 when released")
 trait WithTmpSrcDst extends TmpDir { this: MultiTaskMainSpec[_] =>
 
   /** Creates a scenario in the temporary directory with some files and directories in it
@@ -45,7 +46,7 @@ trait WithTmpSrcDst extends TmpDir { this: MultiTaskMainSpec[_] =>
   def withGoStdoutReplace(replacements: (String, String)*)(args: Any*): String = {
     val stdout = withGoStdout(args: _*)
     replacements
-      .foldLeft(stdout) { (acc, r) => acc.replace(r._1, r._2) }
+      .foldLeft(stdout) { (acc, r) => acc.replaceAll(r._1, r._2) }
       .replace(Tmp.toString, "<TMP>")
   }
 
@@ -65,5 +66,5 @@ trait WithTmpSrcDst extends TmpDir { this: MultiTaskMainSpec[_] =>
     *   destination directories with &lt;SRC&gt; and &lt;DST&gt; respectively.
     */
   def withGoStdoutSrcDst(src: Path, dst: Path, replacements: (String, String)*)(args: Any*): String =
-    withGoStdoutReplace(replacements ++ Seq(src.toString -> "<SRC>", dst.toString -> "<DST>"): _*)(args: _*)
+    withGoStdoutReplace(replacements ++ Seq(s"\\Q$src\\E" -> "<SRC>", s"\\Q$dst\\E" -> "<DST>"): _*)(args: _*)
 }
