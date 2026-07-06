@@ -33,21 +33,21 @@ class RewriteDateTaskSpec
   describe(s"Running $MainName $TaskCmd") {
 
     val (src, dst) = createSrcDst("repo", "a", "b")
-    Process(Seq("git", "init", "."), src.toFile).!!
-    Process(Seq("git", "config", "user.name", "user"), src.toFile).!!
-    Process(Seq("git", "config", "user.email", "user@example.com"), src.toFile).!!
+    git(src, "init", ".")
+    git(src, "config", "user.name", "user")
+    git(src, "config", "user.email", "user@example.com")
 
     // The initial commit is used as a reference for "next" commands
-    Process(Seq("git", "add", "a"), src.toFile).!!
-    Process(Seq("git", "commit", "-m", "Initial commit."), src.toFile).!!
+    git(src, "add", "a")
+    git(src, "commit", "-m", "Initial commit.")
     val stdout = withGoStdoutSrcDst(src, dst, "\\[main .*?]" -> "<MAIN>")(
       TaskCmd,
       "--src" -> src,
       "--plain",
       "2026-02-14T12:34:56"
     )
-    Process(Seq("git", "add", "b"), src.toFile).!!
-    Process(Seq("git", "commit", "-m", "Last commit."), src.toFile).!!
+    git(src, "add", "b")
+    git(src, "commit", "-m", "Last commit.")
 
     it("should have rewritten the date of the initial commit") {
       (src / ".git").toFile should exist
@@ -61,7 +61,11 @@ class RewriteDateTaskSpec
           |    fuzzed: 2026-02-14T12:34:56 (0s)
           |GPG_FAKED_DATE="1771068896" GIT_COMMITTER_DATE="2026-02-14T12:34:56" \
           |    git -c "gpg.program=/tmp/gpgWithRewrite.sh" commit --amend --no-edit --date 2026-02-14T12:34:56
-          |<MAIN> Initial commit. Date: Sat Feb 14 12:34:56 2026 +0100 1 file changed, 1 insertion(+) create mode 100644 a
+          |<MAIN> Initial commit.
+          | Date: Sat Feb 14 12:34:56 2026 +0100
+          | 1 file changed, 1 insertion(+)
+          | create mode 100644 a
+          |
           |""".stripMargin
     }
 
@@ -79,7 +83,11 @@ class RewriteDateTaskSpec
           |    fuzzed: 2026-02-15T12:34:56 (86400s)
           |GPG_FAKED_DATE="1771155296" GIT_COMMITTER_DATE="2026-02-15T12:34:56" \
           |    git -c "gpg.program=/tmp/gpgWithRewrite.sh" commit --amend --no-edit --date 2026-02-15T12:34:56
-          |<MAIN> Last commit. Date: Sun Feb 15 12:34:56 2026 +0100 1 file changed, 1 insertion(+) create mode 100644 b
+          |<MAIN> Last commit.
+          | Date: Sun Feb 15 12:34:56 2026 +0100
+          | 1 file changed, 1 insertion(+)
+          | create mode 100644 b
+          |
           |""".stripMargin
     }
   }

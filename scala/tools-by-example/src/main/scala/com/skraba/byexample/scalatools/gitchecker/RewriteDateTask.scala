@@ -151,9 +151,9 @@ object RewriteDateTask extends Task {
              |    git -c "gpg.program=$gpgWithRewrite" commit --amend --no-edit --date $fuzzed""".stripMargin))
         if (!dryRun)
           out.vPrintln(
-            Process(
+            git(
+              src,
               Seq(
-                "git",
                 "-c",
                 s"gpg.program=$gpgWithRewrite",
                 "commit",
@@ -162,11 +162,10 @@ object RewriteDateTask extends Task {
                 "--date",
                 fuzzed.toString
               ),
-              src.toFile,
               "TZ" -> timeZone,
               "GIT_COMMITTER_DATE" -> fuzzed.toString,
               "GPG_FAKED_DATE" -> fakedDate
-            ).!!.linesIterator.mkString
+            )
           )
       }
     )

@@ -63,7 +63,7 @@ object Commit {
     * @return
     *   The stdout parsed into a commit instance.
     */
-  def fromGit(in: String): Seq[Commit] = in
+  def fromGitStdout(in: String): Seq[Commit] = in
     .split("\u0000")
     .grouped(10)
     .map(_.mkString("\u0000").trim)
@@ -99,7 +99,7 @@ object Commit {
     */
   def getDateFromRepo(commit: String = "HEAD", repo: Path = FsPath.Pwd): LocalDateTime =
     LocalDateTime.parse(
-      Process(Seq("git", "log", "-1", commit, "--pretty=format:%aI"), repo.toFile).!!.linesIterator.toSeq.last.trim,
+      git(repo, "log", "-1", commit, "--pretty=format:%aI").trim,
       DateTimeFormatter.ISO_OFFSET_DATE_TIME
     )
 }
