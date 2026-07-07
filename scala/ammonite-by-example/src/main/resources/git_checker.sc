@@ -4,12 +4,6 @@
 
 import mainargs.{Flag, arg, main}
 
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
-import java.time.{DayOfWeek, LocalDateTime}
-import scala.io.AnsiColor._
-import scala.util._
-
 // ==========================================================================
 // Adding artifacts to your local build (from this project, from maven and
 // from local maven).
@@ -18,9 +12,6 @@ local_import_util.load("ammonite-by-example")
 
 @
 import com.skraba.byexample.scala.ammonite.ConsoleCfg
-import com.skraba.byexample.scala.ammonite.git.CherryPickerReport
-import com.skraba.byexample.scala.ammonite.git.Commit.getDateFromRepo
-import com.tinfoiled.markd.Markd
 
 // ==========================================================================
 // Top level variables available to the script
@@ -33,24 +24,13 @@ import com.tinfoiled.markd.Markd
 def help(out: ConsoleCfg): Unit = {
   // The help header includes all of the subcommands
   val cli = "git_checker.sc"
-  println(
-    out.helpHeader(
-      cli,
-      "Do some analysis on git repositories",
-      "cherryPick" -> "Get a status report on two branches"
-    )
-  )
 
   // Usage examples
-  println(out.helpUse(cli, "cherryPick", "[repo]", "[main]", "[branch]"))
   println(out.helpUse(cli, "ghContrib", "[USER]", "[DSTFILE]", "[--verbose]"))
   println(out.helpUse(cli, "ghOpenPrs", "[githuborg/proj]"))
   println(out.helpUse(cli, "ghFailedRuns", "[githuborg/proj]"))
   println()
 }
-
-// ==========================================================================
-// Cherry pick report
 
 // ==========================================================================
 // GitHub API for counting open PRs
