@@ -65,7 +65,6 @@ class RewriteDateTaskSpec
           | Date: Sat Feb 14 12:34:56 2026 +0100
           | 1 file changed, 1 insertion(+)
           | create mode 100644 a
-          |
           |""".stripMargin
     }
 
@@ -87,7 +86,6 @@ class RewriteDateTaskSpec
           | Date: Sun Feb 15 12:34:56 2026 +0100
           | 1 file changed, 1 insertion(+)
           | create mode 100644 b
-          |
           |""".stripMargin
     }
   }

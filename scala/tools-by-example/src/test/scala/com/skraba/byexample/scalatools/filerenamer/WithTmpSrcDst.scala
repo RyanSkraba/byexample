@@ -9,6 +9,19 @@ import java.nio.file.Path
 @Deprecated(since = "Use from docopt4s 0.0.10 when released")
 trait WithTmpSrcDst extends TmpDir { this: MultiTaskMainSpec[_] =>
 
+  /** Helper to do regex replacements on strings that aren't from standard out.
+    *
+    * @param in
+    *   A string to replace
+    * @param replacements
+    *   The regex to apply to the replacements with the corresponding value.
+    * @return
+    *   The string with all replacements applied.
+    */
+  def replace(in: String, replacements: (Any, String)*): String = {
+    replacements.foldLeft(in) { (acc, r) => acc.replaceAll(r._1.toString, r._2) }
+  }
+
   /** Creates a scenario in the temporary directory with some files and directories in it
     *
     * @param tag

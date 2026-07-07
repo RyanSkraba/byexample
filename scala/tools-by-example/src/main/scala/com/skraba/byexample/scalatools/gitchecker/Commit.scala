@@ -99,7 +99,7 @@ object Commit {
     */
   def getDateFromRepo(commit: String = "HEAD", repo: Path = FsPath.Pwd): LocalDateTime =
     LocalDateTime.parse(
-      git(repo, "log", "-1", commit, "--pretty=format:%aI").trim,
+      git(repo, "log", "-1", commit, "--pretty=format:%aI"),
       DateTimeFormatter.ISO_OFFSET_DATE_TIME
     )
 }

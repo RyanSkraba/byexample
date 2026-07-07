@@ -1,6 +1,7 @@
 package com.skraba.byexample.scalatools
 
 import java.nio.file.Path
+import scala.collection.mutable
 import scala.sys.process.{Process, ProcessLogger}
 
 package object gitchecker {
@@ -32,15 +33,12 @@ package object gitchecker {
     */
   @throws[GitException]
   def git(repo: Path, args: Seq[String], extraEnv: (String, String)*): String = {
-    val stdout = new StringBuilder
-    val stderr = new StringBuilder
-    val logger = ProcessLogger(
-      stdout.append(_).append("\n"),
-      stderr.append(_).append("\n")
-    )
+    val stdout = mutable.ListBuffer[String]()
+    val stderr = mutable.ListBuffer[String]()
+    val logger = ProcessLogger(stdout += _, stderr += _)
     val exitCode = Process("git" +: args, repo.toFile, extraEnv: _*).!(logger)
 
-    if (exitCode != 0) throw new GitException(exitCode, stdout.toString, stderr.toString)
-    stdout.toString
+    if (exitCode != 0) throw new GitException(exitCode, stdout.mkString("\n"), stderr.mkString("\n"))
+    stdout.mkString("\n")
   }
 }
