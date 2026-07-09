@@ -6,7 +6,14 @@ import scala.sys.process.{Process, ProcessLogger}
 
 package object gitchecker {
 
-  case class GitException(exitCode: Int, stdout: String, stderr: String) extends Exception()
+  case class GitException(
+      exitCode: Int,
+      stdout: String,
+      stderr: String,
+      repo: Path,
+      args: Seq[String],
+      extraEnv: (String, String)*
+  ) extends Exception()
 
   /** Runs git as a process with arguments, erroring if the exist code is non-zero
     *
@@ -38,7 +45,11 @@ package object gitchecker {
     val logger = ProcessLogger(stdout += _, stderr += _)
     val exitCode = Process("git" +: args, repo.toFile, extraEnv: _*).!(logger)
 
-    if (exitCode != 0) throw new GitException(exitCode, stdout.mkString("\n"), stderr.mkString("\n"))
+    if (exitCode != 0) {
+      val ex = GitException(exitCode, stdout.mkString("\n"), stderr.mkString("\n"), repo, args, extraEnv: _*)
+      Console.err.println(ex)
+      throw ex
+    }
     stdout.mkString("\n")
   }
 }

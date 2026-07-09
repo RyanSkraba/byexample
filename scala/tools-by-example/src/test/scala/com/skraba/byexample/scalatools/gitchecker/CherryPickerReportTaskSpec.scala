@@ -7,7 +7,6 @@ import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, WithFileTests}
 import com.tinfoiled.markd.Markd
 
 import java.nio.file.Path
-import scala.util.matching.Regex
 
 /** Unit tests for [[CherryPickerReportTask]]. */
 class CherryPickerReportTaskSpec
@@ -35,7 +34,7 @@ class CherryPickerReportTaskSpec
 
   /** Make a commit and extract the replacements for the hash. */
   def gitCommitAndExtractReplacements(repo: Path, message: String, tag: String): Seq[(String, String)] = {
-    val in = git(repo, "commit", "-m", message)
+    git(repo, "commit", "-m", message)
     val hash = git(repo, "rev-parse", "HEAD")
     Seq(hash -> s"<$tag-LONG>", hash.take(10) -> s"<$tag>")
   }
@@ -43,21 +42,25 @@ class CherryPickerReportTaskSpec
   describe(s"Running $MainName $TaskCmd") {
 
     val (src, dst) = createSrcDst("repo", "a", "b", "c")
-    git(src, "init", ".")
-    git(src, "config", "user.name", "user")
-    git(src, "config", "user.email", "user@example.com")
 
-    // The initial commit is used as a reference for "next" commands
-    git(src, "add", "a")
-    val commitA = gitCommitAndExtractReplacements(src, "Initial commit.", "A")
+    val replacements = {
+      git(src, "init", ".")
+      git(src, "config", "user.name", "user")
+      git(src, "config", "user.email", "user@example.com")
 
-    git(src, "switch", "-C", "branch")
-    git(src, "add", "b")
-    val commitB = gitCommitAndExtractReplacements(src, "Branch commit.", "B")
+      // The initial commit is used as a reference for "next" commands
+      git(src, "add", "a")
+      val commitA = gitCommitAndExtractReplacements(src, "Initial commit.", "A")
 
-    git(src, "switch", "main")
-    git(src, "add", "c")
-    val commitC = gitCommitAndExtractReplacements(src, "Main commit.", "C")
+      git(src, "switch", "-C", "branch")
+      git(src, "add", "b")
+      val commitB = gitCommitAndExtractReplacements(src, "Branch commit.", "B")
+
+      git(src, "switch", "main")
+      git(src, "add", "c")
+      val commitC = gitCommitAndExtractReplacements(src, "Main commit.", "C")
+      commitA ++ commitB ++ commitC
+    }
 
     it("create a new cherry-pick report") {
       (src / ".git").toFile should exist
@@ -75,7 +78,7 @@ class CherryPickerReportTaskSpec
           |
           |""".stripMargin
 
-      val report = replace((dst / "status.md").slurp(), commitA ++ commitB ++ commitC: _*)
+      val report = replace((dst / "status.md").slurp(), replacements: _*)
       Markd.parse(report).build().toString shouldBe
         """CherryPickerReport
           |==============================================================================
