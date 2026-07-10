@@ -15,7 +15,7 @@
   <description>Markd example project, setup, howtos, etc.</description>
 
   <properties>
-    <byexample.relBaseDir>../..</byexample.relBaseDir>
+    <project.relBaseDir>../..</project.relBaseDir>
     <maven.deploy.skip>false</maven.deploy.skip>
     <scalafmt.conf.path>${project.basedir}/../../.scalafmt.conf</scalafmt.conf.path>
     <!-- Launcher class -->

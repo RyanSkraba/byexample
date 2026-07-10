@@ -175,13 +175,13 @@ object AdventUtils {
         .filter(_.name == "Day0Input.txt")
         .filter(_.isFile)
         .map(_.toFile)
-        .sortBy(_.toString())
+        .sortBy(_.toString)
         .lastOption
         .map(_.slurp())
         .foreach { basic =>
           val dst = (rsrcRoot / s"advent$year").toDirectory
           dst.createDirectory(force = true)
-          for (day <- 0 to 25 if !(dst / s"Day${day}Input.txt").exists)
+          for (day <- 0 to 12 if !(dst / s"Day${day}Input.txt").exists)
             (dst / s"Day${day}Input.txt").toFile.writeAll(basic)
         }
     }
@@ -193,7 +193,7 @@ object AdventUtils {
         .filter(_.name == "AdventOfCodeDay0Spec.scala")
         .filter(_.isFile)
         .map(_.toFile)
-        .sortBy(_.toString())
+        .sortBy(_.toString)
         .lastOption
 
       day0code

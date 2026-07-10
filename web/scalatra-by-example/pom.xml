@@ -16,13 +16,13 @@
   <description>Scalatra example project, setup, howtos, etc.</description>
 
   <properties>
-    <byexample.relBaseDir>../..</byexample.relBaseDir>
+    <project.relBaseDir>../..</project.relBaseDir>
     <maven.deploy.skip>false</maven.deploy.skip>
     <scalafmt.conf.path>${project.basedir}/../../.scalafmt.conf</scalafmt.conf.path>
     <!-- Launcher class -->
     <exec.mainClass>com.skraba.byexample.scalatra.ScalatraGo</exec.mainClass>
     <!-- other project dependency versions as properties -->
-    <plugin.maven.twirl.version>2.0.8</plugin.maven.twirl.version>
+    <plugin.maven.twirl.version>2.0.9</plugin.maven.twirl.version>
     <scalatra.version>3.1.1</scalatra.version>
     <twirl.version>1.6.9</twirl.version>
   </properties>

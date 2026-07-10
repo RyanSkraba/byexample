@@ -32,7 +32,6 @@ class Collections050MapSpec extends AnyFunSpecLike with Matchers {
     }
 
     it("has aliases") {
-      // TODO: verify and improve
       (ms ++ ms).size shouldBe 3
     }
 
@@ -91,7 +90,6 @@ class Collections050MapSpec extends AnyFunSpecLike with Matchers {
 
     it("has aliases") {
       val ms = SortedMap(5 -> "A", 4 -> "A", 3 -> "B", 2 -> "X", 1 -> "A")
-      // TODO: verify and improve
       (ms ++ ms).size shouldBe 5
     }
 
@@ -125,7 +123,6 @@ class Collections050MapSpec extends AnyFunSpecLike with Matchers {
 
     it("has aliases") {
       val ms = mutable.Map(1 -> "one", 2 -> "two", 3 -> "three")
-      // TODO: verify and improve
       (ms ++ ms).size shouldBe 3
     }
 
@@ -174,7 +171,7 @@ class Collections050MapSpec extends AnyFunSpecLike with Matchers {
 
     it("supports transformations and cloning") {
       val ms = mutable.Map(1 -> "one", 2 -> "two", 3 -> "three")
-      // values only, but with key as a paramter
+      // values only, but with key as a parameter
       ms.mapValuesInPlace((k, v) => v.reverse + k) shouldBe Map(1 -> "eno1", 2 -> "owt2", 3 -> "eerht3")
       ms.clone shouldBe ms
       ms.clone should not be theSameInstanceAs(ms)

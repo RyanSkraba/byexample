@@ -6,7 +6,7 @@ import org.scalatest.matchers.should.Matchers
 
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
-import scala.reflect.io.Streamable
+import scala.util.Using
 
 /** Matchers and assertions on stdout, stderr streams.
   *
@@ -18,7 +18,7 @@ class StdoutSpec extends AnyFunSpecLike with Matchers {
 
     it("should match stdout and stderr using withConsoleMatch") {
       withConsoleMatch {
-        // Run any arbritrary code here.
+        // Run any arbitrary code here.
         Console.out.println("Hello")
         System.out.println("NOT CAPTURED!") // TODO: This is capturable in other ways
         println("World")
@@ -67,8 +67,8 @@ object StdoutSpec {
     *   The return value of the partial function.
     */
   def withConsoleMatch[T, U](thunk: => T)(pf: scala.PartialFunction[(T, String, String), U]): U = {
-    Streamable.closing(new ByteArrayOutputStream()) { out =>
-      Streamable.closing(new ByteArrayOutputStream()) { err =>
+    Using.resource(new ByteArrayOutputStream()) { out =>
+      Using.resource(new ByteArrayOutputStream()) { err =>
         Console.withOut(out) {
           Console.withErr(err) {
             val t = thunk

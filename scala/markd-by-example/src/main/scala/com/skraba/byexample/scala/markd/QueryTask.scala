@@ -10,7 +10,7 @@ import scala.reflect.io.File
 /** Extracts text from a markdown file. */
 object QueryTask extends Task {
 
-  val Cmd = "query"
+  override val Cmd = "query"
 
   val Description = "Extracts text from a markdown file via a query path."
 

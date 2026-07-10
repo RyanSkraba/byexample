@@ -5,7 +5,7 @@ import com.skraba.byexample.scalatags.palette.PaletteSpec.Rainbow
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-import scala.reflect.io.File
+import java.nio.file.Paths
 
 class PaletteSpec extends AnyFunSpecLike with Matchers {
 
@@ -52,7 +52,7 @@ class PaletteSpec extends AnyFunSpecLike with Matchers {
 
     it("should draw a palette group") {
       Svg.toFile(
-        File("/tmp/palette.svg"),
+        Paths.get("/tmp/palette.svg"),
         Palette(colours, gradients)
           .toSvg(titleFont = "gelasio", shadeFont = "Source Sans Pro")
       )
@@ -61,7 +61,7 @@ class PaletteSpec extends AnyFunSpecLike with Matchers {
     it("should draw a pretty rainbow palette group") {
 
       Svg.toFile(
-        File("/tmp/rainbow.svg"),
+        Paths.get("/tmp/rainbow.svg"),
         Palette(
           colours = Seq(
             Rainbow.violet,

@@ -35,7 +35,6 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
     }
 
     it("has aliases") {
-      // TODO: verify and improve
       (xs ++ xs).size shouldBe 6
     }
 
@@ -163,7 +162,6 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
 
     it("has aliases") {
       val buf = mutable.Buffer(1, 2, 3)
-      // TODO: verify and improve
       (buf ++ buf).size shouldBe 6
     }
 
@@ -222,7 +220,6 @@ class Collections030SeqSpec extends AnyFunSpecLike with Matchers {
 
     it("has aliases") {
       val buf = mutable.Queue(1, 2, 3)
-      // TODO: verify and improve
       (buf ++ buf).size shouldBe 6
     }
 

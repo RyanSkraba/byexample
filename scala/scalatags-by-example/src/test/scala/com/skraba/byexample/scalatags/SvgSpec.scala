@@ -1,44 +1,34 @@
 package com.skraba.byexample.scalatags
 
 import com.skraba.byexample.scalatags.Svg.Attrs
-import org.scalatest.BeforeAndAfterAll
+import com.tinfoiled.docopt4s.testkit.TmpDir
+import com.tinfoiled.docopt4s.FsPath._
 import org.scalatest.OptionValues._
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 import scalatags.Text.implicits._
 import scalatags.Text.svgTags.{g, svg}
 
-import scala.reflect.io._
+import scala.reflect.io.File
 
-/** Unit tests for the helpers in the [[Svg]].
-  */
-class SvgSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterAll {
-
-  // TODO: TmpDir from docopts4s
-
-  /** A local temporary directory for test file storage. */
-  val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
-
-  /** Delete temporary resources after the script. */
-  override protected def afterAll(): Unit =
-    try { Tmp.deleteRecursively() }
-    catch { case ex: Exception => ex.printStackTrace() }
+/** Unit tests for the helpers in the [[Svg]]. */
+class SvgSpec extends AnyFunSpecLike with Matchers with TmpDir {
 
   describe("Writing to a file") {
 
     it("should write an svg tag unwrapped") {
       val svgContents = svg(Attrs.width := 100)
-      val dst = Tmp / File("svg_toFile_unwrapped.svg")
-      Svg.toFile(dst, svgContents, 99, 99);
-      dst.jfile should exist
+      val dst = Tmp / "svg_toFile_unwrapped.svg"
+      Svg.toFile(dst, svgContents, 99, 99)
+      dst.toFile should exist
       val dstContents = dst.safeSlurp()
-      dstContents.value shouldBe ("""<?xml version="1.0"?><svg width="100"></svg>""")
+      dstContents.value shouldBe """<?xml version="1.0"?><svg width="100"></svg>"""
     }
 
     it("should wrap a group tag") {
       val svgContents = g(Attrs.width := 100)
-      val dst = Tmp / File("svg_toFile_wrapped.svg")
-      Svg.toFile(dst, svgContents, 99, 99);
+      val dst = Tmp / "svg_toFile_wrapped.svg"
+      Svg.toFile(dst, svgContents, 99, 99)
       val dstContents = dst.safeSlurp()
       dstContents.value shouldBe
         """<?xml version="1.0"?>

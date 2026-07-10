@@ -4,15 +4,14 @@ import com.skraba.byexample.scalatra.ScalatraGo.SimpleResponse
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import sttp.client4.{DefaultSyncBackend, UriContext, quickRequest}
 import sttp.model.MediaType.ApplicationJson
-import sttp.model.{ContentTypeRange, StatusCodes, Uri}
+import sttp.model.{StatusCodes, Uri}
 
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
-import scala.reflect.io.Streamable
-import scala.util.{Success, Try}
+import scala.util.{Success, Try, Using}
 
 /** A reusable helper for stopping and starting a server for unit testing. */
 class ScalatraGoServer(args: Seq[String], timeout: Duration = 10.seconds) extends StatusCodes {
@@ -20,7 +19,7 @@ class ScalatraGoServer(args: Seq[String], timeout: Duration = 10.seconds) extend
   private[this] val started = "Standalone server started: (.*)\n".r
 
   /** Run a server in the background, capturing the base URI. */
-  val (server: Future[String], base: Uri) = Streamable.closing(new ByteArrayOutputStream()) { out =>
+  val (server: Future[String], base: Uri) = Using.resource(new ByteArrayOutputStream()) { out =>
     (
       Future {
         Console.withOut(out) {

@@ -1,16 +1,17 @@
 package com.skraba.byexample.scalatra
 
 import com.skraba.byexample.scalatra.ScalatraGo.TestableServlet
-import com.tinfoiled.docopt4s.{Docopt, Task}
+import com.tinfoiled.docopt4s.{Docopt, FsPath, Task}
+import com.tinfoiled.docopt4s.FsPath._
 import org.scalatra.servlet.ServletBase
 
 import java.net.URLConnection
-import scala.reflect.io.Directory
+import java.nio.file.{Path, Paths}
 
 /** Command-line driver that launches a server that serves resources from the filesystem. */
 object ServeFileTask extends Task {
 
-  val Cmd = "servefile"
+  override val Cmd = "servefile"
 
   val Description = "Run a server that serves resources from a directory."
 
@@ -39,29 +40,28 @@ object ServeFileTask extends Task {
     *   The base directory (absolute or relative to the current directory) to find files, or the current working
     *   directory.
     */
-  def fallbackToFileSystem(sb: ServletBase, baseDir: => Option[Directory] = None): Unit = {
+  def fallbackToFileSystem(sb: ServletBase, baseDir: => Option[Path] = None): Unit = {
     sb.notFound {
       // Only GET is supported
       if (sb.request.getMethod != "GET") sb.halt(404, "Unsupported method")
 
       // The request prefix is prepended to the path being requested, or use the shortened Task class name, if any
       val requestPath = baseDir
-        .orElse(Directory.Current)
-        .getOrElse(Directory("."))
+        .getOrElse(FsPath.Pwd)
         .resolve(sb.request.getRequestURI.substring(sb.request.getServletPath.length + 1))
 
       requestPath match {
-        case p if !p.exists     => sb.halt(404, "Not found")
-        case p if p.isDirectory => sb.redirect(sb.request.getRequestURI + "/index.html")(sb.request, sb.response)
-        case p if p.isFile =>
+        case p if !p.exists            => sb.halt(404, "Not found")
+        case p if p.toFile.isDirectory => sb.redirect(sb.request.getRequestURI + "/index.html")(sb.request, sb.response)
+        case p if p.toFile.isFile =>
           sb.contentType = Option(URLConnection.guessContentTypeFromName(sb.request.getRequestURI))
             .getOrElse("application/octet-stream")
-          p.toFile.inputStream()
+          p.inputStream()
       }
     }
   }
 
-  class Srvlet extends TestableServlet[Directory] {
+  class Srvlet extends TestableServlet[Path] {
     fallbackToFileSystem(this, Some(Cfg))
   }
 }

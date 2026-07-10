@@ -5,7 +5,7 @@ import com.tinfoiled.docopt4s.{Docopt, Task}
 /** Command-line driver that gets a URI. */
 object GetTask extends Task {
 
-  val Cmd = "get"
+  override val Cmd = "get"
 
   val Description = "Make an HTTP GET request."
 

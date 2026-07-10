@@ -2,26 +2,15 @@ package com.skraba.byexample.scala.ammonite
 
 import com.skraba.byexample.scala.ammonite.OsPathScalaRelectIOConverters._
 import com.tinfoiled.docopt4s.AnsiConsole
-import org.scalatest.BeforeAndAfterAll
+import com.tinfoiled.docopt4s.testkit.TmpDir
 import org.scalatest.OptionValues._
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
 import scala.io.AnsiColor._
-import scala.reflect.io.Directory
 
 /** Test the [[FileMaker]] class. */
-class FileMakerSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
-
-  // TODO: TmpDir from docopts4s
-
-  /** A local temporary directory for test file storage. */
-  val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
-
-  /** Delete temporary resources after the script. */
-  override protected def afterAll(): Unit =
-    try { Tmp.deleteRecursively() }
-    catch { case ex: Exception => ex.printStackTrace() }
+class FileMakerSpec extends AnyFunSpecLike with Matchers with TmpDir {
 
   describe("Create a basic file") {
 
@@ -43,7 +32,7 @@ class FileMakerSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers 
         styled.dst
       } { case (result, stdout, stderr) =>
         result.value shouldBe reflectPathToOsPath(Tmp / "txt" / "greeting.txt")
-        stdout shouldBe s"${BLACK}(txt${RESET}${BLACK})${RESET}"
+        stdout shouldBe s"$BLACK(txt$RESET$BLACK)$RESET"
         stderr shouldBe empty
       }
 
@@ -62,9 +51,7 @@ class FileMakerSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers 
       val styled = basic.white(Tmp / "txt" / "greeting.txt", "txt") { _ => fail("This shouldn't be called") }
 
       // When using the styled instance, it shouldn't call it's method because the file already exists
-      AmmoniteScriptSpecBase.withConsoleMatch {
-        styled.dst
-      } { case (result, stdout, stderr) =>
+      AmmoniteScriptSpecBase.withConsoleMatch { styled.dst } { case (result, stdout, stderr) =>
         result.value shouldBe reflectPathToOsPath(Tmp / "txt" / "greeting.txt")
         stdout shouldBe s""
         stderr shouldBe empty
@@ -86,11 +73,9 @@ class FileMakerSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers 
 
       // Try to overwrite it
       (Tmp / "txt").jfile should exist
-      AmmoniteScriptSpecBase.withConsoleMatch {
-        styled.dst
-      } { case (result, stdout, stderr) =>
+      AmmoniteScriptSpecBase.withConsoleMatch { styled.dst } { case (result, stdout, stderr) =>
         result.value shouldBe reflectPathToOsPath(Tmp / "txt" / "greeting.txt")
-        stdout shouldBe s"${RED}(txt${RESET}${RED}*${RESET}${RED})${RESET}"
+        stdout shouldBe s"${RED}(txt$RESET$RED*$RESET$RED)$RESET"
         stderr shouldBe empty
       }
 

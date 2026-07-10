@@ -10,7 +10,7 @@ import scala.util.matching.Regex
 
 object DateCountdownTask extends Task {
 
-  val Cmd = "datecount"
+  override val Cmd = "datecount"
 
   val Description = "Adjust countdown cells in tables."
 

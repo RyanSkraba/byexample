@@ -31,7 +31,7 @@ class LazyListSpec extends AnyFunSpecLike with Matchers {
       val y = x.updated(3, 1)
       y shouldBe a[LazyList[_]]
 
-      // Subsequences are lazily evalutated as well, even if they're bounded
+      // Subsequences are lazily evaluated as well, even if they're bounded
       val y5 = y.take(5)
       y5 shouldBe a[LazyList[_]]
       y5 shouldBe Seq(0, 0, 0, 1, 0)

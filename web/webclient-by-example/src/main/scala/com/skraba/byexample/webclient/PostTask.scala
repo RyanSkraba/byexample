@@ -5,7 +5,7 @@ import com.tinfoiled.docopt4s.{Docopt, Task}
 /** Command-line driver that posts to a URI. */
 object PostTask extends Task {
 
-  val Cmd = "post"
+  override val Cmd = "post"
 
   val Description = "Make an HTTP POST request."
 

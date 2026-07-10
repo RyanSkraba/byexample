@@ -2,7 +2,7 @@ package com.skraba.byexample.scala.ammonite
 
 import com.skraba.byexample.scala.ammonite.AmmoniteScriptSpecBase._
 import com.tinfoiled.docopt4s.AnsiConsole
-import org.scalatest.BeforeAndAfterAll
+import com.tinfoiled.docopt4s.testkit.TmpDir
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
@@ -17,7 +17,7 @@ import scala.util.Properties
   * @param ScriptPath
   *   The path to the script to run.
   */
-abstract class AmmoniteScriptSpecBase(ScriptPath: File) extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
+abstract class AmmoniteScriptSpecBase(ScriptPath: File) extends AnyFunSpecLike with Matchers with TmpDir {
 
   /** @param script The filename of the script to run. This looks through the path to find the file. */
   def this(script: String) = this(AmmoniteScriptSpecBase.find(script))
@@ -28,11 +28,6 @@ abstract class AmmoniteScriptSpecBase(ScriptPath: File) extends AnyFunSpecLike w
   /** A default AnsiConsole for testing output. */
   val Ansi: AnsiConsole = AnsiConsole()
 
-  // TODO: TmpDir from docopts4s
-
-  /** A local temporary directory for test file storage. */
-  val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
-
   /** Either create a new home directory reused across this suite, or use the common one. */
   val HomeFolder: Path =
     if (ReuseAmmoniteHome) ReusableAmmoniteHome
@@ -41,7 +36,7 @@ abstract class AmmoniteScriptSpecBase(ScriptPath: File) extends AnyFunSpecLike w
   /** Delete temporary resources after the script. */
   override protected def afterAll(): Unit =
     try {
-      Tmp.deleteRecursively()
+      super.afterAll()
       if (!ReuseAmmoniteHome && HomeFolder.exists)
         HomeFolder.deleteRecursively()
     } catch { case ex: Exception => ex.printStackTrace() }

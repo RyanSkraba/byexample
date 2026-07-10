@@ -9,19 +9,16 @@ import org.scalatest.matchers.should.Matchers
 import java.time.format.DateTimeFormatter
 import java.time.{DayOfWeek, LocalDate}
 
-/** Unit tests for [[GettingThingsDone]]
-  */
+/** Unit tests for [[GettingThingsDone]] */
 class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
 
-  /** Next monday, which is the default week start when initializing the statuses.
-    */
+  /** Next monday, which is the default week start when initializing the statuses. */
   val defaultNextWeekStart: String = nextWeekStart(None)
 
   /** The default day of the week. */
   val todayDayOfWeek: String = LocalDate.now.getDayOfWeek.toString.take(3).toLowerCase.capitalize
 
-  /** A function to prepend a comment with a given text to the contents of the header.
-    */
+  /** A function to prepend a comment with a given text to the contents of the header. */
   def preComment(text: String = "Hi")(h: Header): Header = h.copyMds(Comment(text) +: h.mds)
 
   /** Some text to be parsed into an status document. */
@@ -37,7 +34,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
   describe(s"Creating a clean document") {
 
     it("should be readable and self-describing") {
-      GettingThingsDone().h0.build().toString() shouldBe
+      GettingThingsDone().md.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
            !
@@ -84,7 +81,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            !<!--
            !# This comment text will not be beautified
            !-->
-           !""".stripMargin('!')).h0.build().toString() shouldBe
+           !""".stripMargin('!')).md.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
            !
@@ -111,20 +108,87 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     }
   }
 
+  describe("Getting information about weekly statuses") {
+
+    it("should find nothing where none exists") {
+      val empty = GettingThingsDone("")
+      empty.md shouldBe Markd()
+      empty.weeklies shouldBe None
+      empty.topWeek shouldBe None
+    }
+
+    for (title <- Seq("Week Status", "Weeks", "weekly statuses"))
+      it(s"should find nothing where none exists: $title") {
+        val gtd = GettingThingsDone(s"""
+           |# Distraction
+           |# $title
+           |# Red Herring""".stripMargin)
+        gtd.weeklies shouldBe None
+        gtd.topWeek shouldBe None
+      }
+
+    it(s"should find weeklies when it does exist, but not a top week: TO FIX") {
+      // TODO: " Weekly Status " should trim.  This case should be added to the next
+      // test case when it is fixed.
+      val title = " Weekly Status "
+      val gtd = GettingThingsDone(s"""
+         |# Distraction
+         |# $title
+         |# Red Herring""".stripMargin)
+      gtd.weeklies.value shouldBe Header(1, "Weekly Status ")
+      gtd.topWeek shouldBe None
+    }
+
+    for (title <- Seq("Weekly Status", "Weekly StatusX", "Weekly Status XYZ"))
+      it(s"should find weeklies when it does exist, but not a top week: $title") {
+        val gtd = GettingThingsDone(s"""
+           |# Distraction
+           |# $title
+           |# Red Herring""".stripMargin)
+        gtd.weeklies.value shouldBe Header(1, title.trim)
+        gtd.topWeek shouldBe None
+      }
+
+    for (title <- Seq("2026-01-05", "2026-1-05", "2026-01-5", "2026-01-05Stuff"))
+      it(s"should find weeklies and a top date week when it exists: $title") {
+        val gtd = GettingThingsDone(s"""
+           |# Distraction
+           |# Weekly Status
+           |## Top week
+           |## $title
+           |## Bottom week
+           |# Red Herring""".stripMargin)
+        gtd.weeklies.value.title shouldBe "Weekly Status"
+        gtd.topWeek.value shouldBe Header(2, title)
+      }
+
+    for (title <- Seq("Stuff2026-01-05", "Stuff 2026-01-05"))
+      it(s"should find weeklies and a top non-date week when it exists: $title") {
+        val gtd = GettingThingsDone(s"""
+           |# Distraction
+           |# Weekly Status
+           |## Top week
+           |## $title
+           |## Bottom week
+           |# Red Herring""".stripMargin)
+        gtd.weeklies.value.title shouldBe "Weekly Status"
+        gtd.topWeek.value shouldBe Header(2, "Top week")
+      }
+  }
+
   describe(s"Updating a top-level section") {
 
     it("should add itself to an empty document") {
       val empty = GettingThingsDone("")
-      empty.h0 shouldBe Markd()
+      empty.md shouldBe Markd()
 
       val updated = empty.updateHeader1("New")(preComment("empty"))
-      updated.h0 shouldBe Markd(Header(1, "New", Comment("empty")))
+      updated.md shouldBe Markd(Header(1, "New", Comment("empty")))
     }
 
     it(s"should add itself document where the section doesn't exist") {
-      val updated =
-        GettingThingsDone(original).updateHeader1("New")(preComment("add"))
-      updated.h0 shouldBe Markd(
+      val updated = GettingThingsDone(original).updateHeader1("New")(preComment("add"))
+      updated.md shouldBe Markd(
         Header(1, "H1 One", Paragraph("1")),
         Header(1, "H1 Two", Paragraph("2")),
         Header(1, "H1 Three", Paragraph("3")),
@@ -135,7 +199,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     describe("should update an existing section") {
       it("at the start") {
         val updated = GettingThingsDone(original).updateHeader1("H1 One")(preComment("one"))
-        updated.h0 shouldBe Markd(
+        updated.md shouldBe Markd(
           Header(1, "H1 One", Comment("one"), Paragraph("1")),
           Header(1, "H1 Two", Paragraph("2")),
           Header(1, "H1 Three", Paragraph("3"))
@@ -144,7 +208,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
 
       it("in the middle") {
         val updated = GettingThingsDone(original).updateHeader1("H1 Two")(preComment("two"))
-        updated.h0 shouldBe Markd(
+        updated.md shouldBe Markd(
           Header(1, "H1 One", Paragraph("1")),
           Header(1, "H1 Two", Comment("two"), Paragraph("2")),
           Header(1, "H1 Three", Paragraph("3"))
@@ -155,7 +219,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         val updated = GettingThingsDone(original).updateHeader1("H1 Three")(
           preComment("three")
         )
-        updated.h0 shouldBe Markd(
+        updated.md shouldBe Markd(
           Header(1, "H1 One", Paragraph("1")),
           Header(1, "H1 Two", Paragraph("2")),
           Header(1, "H1 Three", Comment("three"), Paragraph("3"))
@@ -172,18 +236,18 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
 
       val updated = empty.updateWeeklies(preComment("empty"))
       updated.weeklies.value shouldBe Header(1, H1Weeklies, Comment("empty"))
-      updated.h0 shouldBe Markd(
-        Header(1, H1Weeklies, Comment("empty"))
-      )
+      updated.topWeek shouldBe None
+      updated.md shouldBe Markd(Header(1, H1Weeklies, Comment("empty")))
     }
 
-    it(s"should add itself document where the section doesn't exist") {
+    it(s"should add itself where the section doesn't exist") {
       val existing = GettingThingsDone(original)
       existing.weeklies shouldBe None
 
       val updated = existing.updateWeeklies(preComment("existing"))
       updated.weeklies.value shouldBe Header(1, H1Weeklies, Comment("existing"))
-      updated.h0 shouldBe Markd(
+      updated.topWeek shouldBe None
+      updated.md shouldBe Markd(
         Header(1, "H1 One", Paragraph("1")),
         Header(1, "H1 Two", Paragraph("2")),
         Header(1, "H1 Three", Paragraph("3")),
@@ -196,7 +260,8 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         val existing =
           GettingThingsDone(original.replace("H1 One", H1Weeklies))
         val updated = existing.updateWeeklies(preComment("un"))
-        updated.h0 shouldBe Markd(
+        updated.topWeek shouldBe None
+        updated.md shouldBe Markd(
           Header(1, H1Weeklies, Comment("un"), Paragraph("1")),
           Header(1, "H1 Two", Paragraph("2")),
           Header(1, "H1 Three", Paragraph("3"))
@@ -207,7 +272,8 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         val existing =
           GettingThingsDone(original.replace("H1 Two", H1Weeklies))
         val updated = existing.updateWeeklies(preComment("deux"))
-        updated.h0 shouldBe Markd(
+        updated.topWeek shouldBe None
+        updated.md shouldBe Markd(
           Header(1, "H1 One", Paragraph("1")),
           Header(1, H1Weeklies, Comment("deux"), Paragraph("2")),
           Header(1, "H1 Three", Paragraph("3"))
@@ -218,7 +284,8 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
         val existing =
           GettingThingsDone(original.replace("H1 Three", H1Weeklies))
         val updated = existing.updateWeeklies(preComment("trois"))
-        updated.h0 shouldBe Markd(
+        updated.topWeek shouldBe None
+        updated.md shouldBe Markd(
           Header(1, "H1 One", Paragraph("1")),
           Header(1, "H1 Two", Paragraph("2")),
           Header(1, H1Weeklies, Comment("trois"), Paragraph("3"))
@@ -231,72 +298,57 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
       empty.topWeek shouldBe None
 
       val updated = empty.updateTopWeek(preComment("empty"))
-      updated.weeklies.value shouldBe Header(
-        1,
-        H1Weeklies,
-        Header(2, defaultNextWeekStart, Comment("empty"))
-      )
-      updated.topWeek.value shouldBe Header(
-        2,
-        defaultNextWeekStart,
-        Comment("empty")
-      )
-      updated.h0 shouldBe Markd(
-        Header(1, H1Weeklies, Header(2, defaultNextWeekStart, Comment("empty")))
-      )
+      updated.weeklies.value shouldBe Header(1, H1Weeklies, Header(2, defaultNextWeekStart, Comment("empty")))
+      updated.topWeek.value shouldBe Header(2, defaultNextWeekStart, Comment("empty"))
+      updated.md shouldBe Markd(Header(1, H1Weeklies, Header(2, defaultNextWeekStart, Comment("empty"))))
     }
 
     it("should add the latest week where one doesn't exist") {
-      val empty = GettingThingsDone(s"# $H1Weeklies")
+      val empty = GettingThingsDone(s"# $H1Weeklies Stuff")
       val updated = empty.updateTopWeek(preComment("existing"))
-      updated.h0 shouldBe Markd(
-        Header(
-          1,
-          H1Weeklies,
-          Header(2, defaultNextWeekStart, Comment("existing"))
-        )
-      )
+      updated.md shouldBe Markd(Header(1, s"$H1Weeklies Stuff", Header(2, defaultNextWeekStart, Comment("existing"))))
     }
 
-    it("should add the update the latest week where it exists") {
-      val existing =
-        GettingThingsDone(
-          original.replace("H1 Two", s"$H1Weeklies\n## Top week\n## Next week")
-        )
-      existing.weeklies.value shouldBe Header(
-        1,
-        H1Weeklies,
-        Header(2, "Top week"),
-        Header(2, "Next week", Paragraph("2"))
-      )
+    it("should add the update the latest non-date week where it exists") {
+      val existing = GettingThingsDone(original.replace("H1 Two", s"$H1Weeklies\n## Top week\n## Next week"))
+      existing.weeklies.value shouldBe
+        Header(1, H1Weeklies, Header(2, "Top week"), Header(2, "Next week", Paragraph("2")))
       existing.topWeek.value shouldBe Header(2, "Top week")
-      existing.h0 shouldBe Markd(
+      existing.md shouldBe Markd(
         Header(1, "H1 One", Paragraph("1")),
-        Header(
-          1,
-          H1Weeklies,
-          Header(2, "Top week"),
-          Header(2, "Next week", Paragraph("2"))
-        ),
+        Header(1, H1Weeklies, Header(2, "Top week"), Header(2, "Next week", Paragraph("2"))),
         Header(1, "H1 Three", Paragraph("3"))
       )
 
       val updated = existing.updateTopWeek(preComment("update"))
-      updated.weeklies.value shouldBe Header(
-        1,
-        H1Weeklies,
-        Header(2, "Top week", Comment("update")),
-        Header(2, "Next week", Paragraph("2"))
-      )
+      updated.weeklies.value shouldBe
+        Header(1, H1Weeklies, Header(2, "Top week", Comment("update")), Header(2, "Next week", Paragraph("2")))
       updated.topWeek.value shouldBe Header(2, "Top week", Comment("update"))
-      updated.h0 shouldBe Markd(
+      updated.md shouldBe Markd(
         Header(1, "H1 One", Paragraph("1")),
-        Header(
-          1,
-          H1Weeklies,
-          Header(2, "Top week", Comment("update")),
-          Header(2, "Next week", Paragraph("2"))
-        ),
+        Header(1, H1Weeklies, Header(2, "Top week", Comment("update")), Header(2, "Next week", Paragraph("2"))),
+        Header(1, "H1 Three", Paragraph("3"))
+      )
+    }
+
+    it("should add the update the latest date week where it exists") {
+      val existing = GettingThingsDone(original.replace("H1 Two", s"$H1Weeklies\n## Top week\n## 2026-01-12"))
+      existing.weeklies.value shouldBe
+        Header(1, H1Weeklies, Header(2, "Top week"), Header(2, "2026-01-12", Paragraph("2")))
+      existing.topWeek.value shouldBe Header(2, "2026-01-12", Paragraph("2"))
+      existing.md shouldBe Markd(
+        Header(1, "H1 One", Paragraph("1")),
+        Header(1, H1Weeklies, Header(2, "Top week"), Header(2, "2026-01-12", Paragraph("2"))),
+        Header(1, "H1 Three", Paragraph("3"))
+      )
+
+      val updated = existing.updateTopWeek(preComment("update"))
+      updated.weeklies.value shouldBe
+        Header(1, H1Weeklies, Header(2, "Top week"), Header(2, "2026-01-12", Comment("update"), Paragraph("2")))
+      updated.topWeek.value shouldBe Header(2, "2026-01-12", Comment("update"), Paragraph("2"))
+      updated.md shouldBe Markd(
+        Header(1, "H1 One", Paragraph("1")),
+        Header(1, H1Weeklies, Header(2, "Top week"), Header(2, "2026-01-12", Comment("update"), Paragraph("2"))),
         Header(1, "H1 Three", Paragraph("3"))
       )
     }
@@ -319,7 +371,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     it("should add itself to an empty document") {
       val empty = GettingThingsDone("")
       val updated = empty.updateTopWeekStats("unread", "123", Some("Sun"))
-      updated.h0.build().toString() shouldBe
+      updated.md.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
            !
@@ -335,7 +387,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     it("should update an empty cell in an existing document") {
       val existing = GettingThingsDone(withWeeklyStats)
       val updated = existing.updateTopWeekStats("unread", "123", Some("Wed"))
-      updated.h0.build().toString() shouldBe
+      updated.md.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
            !
@@ -351,7 +403,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     it("should add a column if unknown (not an error)") {
       val existing = GettingThingsDone(withWeeklyStats)
       val updated = existing.updateTopWeekStats("unread", "Vacation", Some(""))
-      updated.h0.build().toString() shouldBe
+      updated.md.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
            !
@@ -377,7 +429,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     it("should add itself to an empty document on today's day") {
       val empty = GettingThingsDone("")
       val updated = empty.updateTopWeekStats("unread", "987")
-      updated.h0.build().toString() should include("| 987 |")
+      updated.md.build().toString() should include("| 987 |")
       // Calling without a day should be the same as calling with today's day of the week.
       updated shouldBe empty.updateTopWeekStats(
         "unread",
@@ -389,7 +441,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     it("should add itself to an existing document on today's day") {
       val existing = GettingThingsDone(withWeeklyStats)
       val updated = existing.updateTopWeekStats("unread", "987")
-      updated.h0.build().toString() should include("| 987 |")
+      updated.md.build().toString() should include("| 987 |")
       // Calling without a day should be the same as calling with today's day of the week.
       updated shouldBe existing.updateTopWeekStats(
         "unread",
@@ -427,7 +479,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     it("should add itself to an empty document") {
       val empty = GettingThingsDone("")
       val updated = empty.addTopWeekToDo("Baking", "Make bread")
-      updated.h0.build().toString() shouldBe
+      updated.md.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
            !
@@ -537,7 +589,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
     it("should create a new week in an empty document") {
       val empty = GettingThingsDone("")
       val updated = empty.addWeek(None)
-      updated.h0.build().toString() shouldBe
+      updated.md.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
            !
@@ -559,7 +611,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            !| unread | 1   | 2   |     | 13  | 2   |     | 3   |
            !""".stripMargin('!'))
       val updated = gtd.addWeek(None)
-      updated.h0.build().toString() shouldBe
+      updated.md.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
            !
@@ -600,7 +652,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            !""".stripMargin('!'))
 
       val updated = gtd.addWeek(None)
-      updated.h0.build().toString() shouldBe
+      updated.md.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
            !
@@ -642,7 +694,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
            !""".stripMargin('!'))
 
       val updated = gtd.addWeek(None)
-      updated.h0.build().toString() shouldBe
+      updated.md.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
            !
@@ -680,7 +732,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
       gtd.addWeek(Some("2022-02-20")) shouldBe gtd
 
       val updated = gtd.addWeek(Some("2022-02-21"))
-      updated.h0.build().toString() shouldBe
+      updated.md.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
            !
@@ -701,7 +753,7 @@ class GettingThingsDoneSpec extends AnyFunSpecLike with Matchers {
       gtd.addWeek(Some("2022-02-27 Stuff")) shouldBe updated
 
       val updated2 = gtd.addWeek(Some("2022-04"))
-      updated2.h0.build().toString() shouldBe
+      updated2.md.build().toString() shouldBe
         s"""Weekly Status
            !==============================================================================
            !

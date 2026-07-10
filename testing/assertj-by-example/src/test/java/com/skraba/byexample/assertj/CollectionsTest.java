@@ -3,10 +3,7 @@ package com.skraba.byexample.assertj;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
@@ -45,7 +42,7 @@ class CollectionsTest {
 
   @Test
   void TestListFailsForNull() {
-    assertThatThrownBy(() -> assertThat((List<String>) null).hasSize(4))
+    assertThatThrownBy(() -> assertThat(new MightBeNull(true).get()).hasSize(4))
         .isInstanceOf(AssertionError.class)
         .hasMessageContaining("Expecting actual not to be null");
   }
@@ -61,6 +58,23 @@ class CollectionsTest {
     Map<String, Integer> myMap =
         Stream.of("Apple", "Banana", "Carrot", "Dog")
             .collect(Collectors.toMap(String::toLowerCase, String::length));
-    assertThat(myMap).containsEntry("apple", 5);
+    assertThat(myMap)
+        .containsEntry("apple", 5)
+        .containsKey("apple")
+        .containsValue(5)
+        .hasEntrySatisfying("apple", v -> assertThat(v).isEqualTo(5));
+  }
+
+  /** A little helper so that we can test a null instance of a String list knowing it will fail. */
+  static class MightBeNull {
+    private final boolean isNull;
+
+    MightBeNull(boolean isNull) {
+      this.isNull = isNull;
+    }
+
+    List<String> get() {
+      return isNull ? null : new ArrayList<>();
+    }
   }
 }

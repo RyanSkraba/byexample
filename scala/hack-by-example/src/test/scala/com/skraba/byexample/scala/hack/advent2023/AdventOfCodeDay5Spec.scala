@@ -58,8 +58,7 @@ class AdventOfCodeDay5Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
       (seeds, mapByName, mapNames)
     }
 
-    /** For part 1, given an input number and a map of ranges, find the output number
-      */
+    /** For part 1, given an input number and a map of ranges, find the output number */
     def part1FindInRange(in: Long, ranges: Array[Array[Long]]): Long = {
       for (range <- ranges if in >= range(1) && in < range(1) + range(2)) {
         return in - range(1) + range.head

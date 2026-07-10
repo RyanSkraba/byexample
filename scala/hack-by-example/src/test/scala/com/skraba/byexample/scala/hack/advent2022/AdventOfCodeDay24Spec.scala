@@ -13,7 +13,8 @@ import scala.collection.mutable
   *
   * Part 1: The minimum number of minutes that it takes to get from 0,0 to the bottom right corner.
   *
-  * Part 2: TODO
+  * Part 2: The minimum number of minutes that it takes to get from 0,0 to the bottom right corner, and then a round
+  * trip to the origin and back.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/24]]

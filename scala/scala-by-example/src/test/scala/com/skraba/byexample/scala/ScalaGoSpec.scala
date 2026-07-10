@@ -6,8 +6,7 @@ import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 
-/** Unit tests for [[ScalaGo]]
-  */
+/** Unit tests for [[ScalaGo]] */
 class ScalaGoSpec extends AnyFunSpecLike with Matchers with BeforeAndAfterEach with BeforeAndAfterAll {
 
   describe("ScalaGo docopt check") {

@@ -18,7 +18,7 @@ class ServeJarResourceTaskSpec
   }
 
   describe(s"Standard $MainName $TaskCmd command line help, versions and exceptions") {
-    // TODO: when it exists: itShouldHandleHelpAndVersionFlags()
+    itShouldHandleVersionNoArgsAndHelpFlags()
     itShouldThrowOnUnknownOptKey()
   }
 

@@ -402,7 +402,7 @@ class ByFailureOutput(report: BuildFailureReport) {
 }
 object BuildFailureReportTask extends Task {
 
-  val Cmd = "buildfail"
+  override val Cmd = "buildfail"
 
   val Description = "Summarize a markdown report on build failures."
 

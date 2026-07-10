@@ -1,16 +1,12 @@
 package com.skraba.byexample.scalatags.duolingo.cn
 
 import com.skraba.byexample.scalatags.ScalatagsGoSpec.{withScalatagsGo, withScalatagsGoMatch}
-import com.skraba.byexample.scalatags.duolingo.cn.CheatsheetSpec.assumeCheatsheetNetwork
 import com.tinfoiled.docopt4s.shaded.docoptjava.DocoptExitException
-import org.scalatest.funspec.AnyFunSpecLike
-import org.scalatest.matchers.should.Matchers
 
 import scala.xml.XML
 
-/** Unit tests for the [[DuolingoCnCheatsheetTask]] CLI.
-  */
-class DuolingoCnCheatsheetTaskSpec extends AnyFunSpecLike with Matchers {
+/** Unit tests for the [[DuolingoCnCheatsheetTask]] CLI. */
+class DuolingoCnCheatsheetTaskSpec extends CheatsheetSpec {
 
   describe("ScalatagsGo cheatsheet valid commands") {
 
@@ -20,8 +16,7 @@ class DuolingoCnCheatsheetTaskSpec extends AnyFunSpecLike with Matchers {
       t.getMessage shouldBe DuolingoCnCheatsheetTask.Doc
     }
 
-    it("should print an SVG document when run without arguments ") {
-      assumeCheatsheetNetwork()
+    itRequiresCheatsheet("should print an SVG document when run without arguments ") {
       withScalatagsGoMatch(DuolingoCnCheatsheetTask.Cmd) { case (stdout, stderr) =>
         stderr shouldBe ""
         val svg = XML.loadString(stdout)
@@ -32,8 +27,7 @@ class DuolingoCnCheatsheetTaskSpec extends AnyFunSpecLike with Matchers {
       }
     }
 
-    it("should filter on lessons") {
-      assumeCheatsheetNetwork()
+    itRequiresCheatsheet("should filter on lessons") {
       withScalatagsGoMatch(DuolingoCnCheatsheetTask.Cmd, "--section=3") { case (stdout, stderr) =>
         stderr shouldBe ""
         val svg = XML.loadString(stdout)
@@ -44,8 +38,7 @@ class DuolingoCnCheatsheetTaskSpec extends AnyFunSpecLike with Matchers {
       }
     }
 
-    it("should filter on individual words") {
-      assumeCheatsheetNetwork()
+    itRequiresCheatsheet("should filter on individual words") {
       withScalatagsGoMatch(DuolingoCnCheatsheetTask.Cmd, "--word=一二三") { case (stdout, stderr) =>
         stderr shouldBe ""
         val svg = XML.loadString(stdout)

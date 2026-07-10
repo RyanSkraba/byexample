@@ -259,8 +259,7 @@ private def calendarize(
   Table(Seq.fill(8)(Align.LEFT), TableRow("", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat") +: rows: _*)
 }
 
-/** An experiment to decorate a git contribution calendar with private information.
-  */
+/** An experiment to decorate a git contribution calendar with private information. */
 @main
 def gitJsonDecorated(
     srcFile: String = "/tmp/github_contributions.json",

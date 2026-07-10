@@ -10,9 +10,11 @@ import scala.reflect.io.File
 /** Test the getting_things_done.sc script. */
 class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
 
+  (Tmp / ".git").createDirectory()
+
   /** A file with a basic scenario. */
-  val Basic: File = (Tmp / "basic_gtd.md").createFile()
-  Basic.writeAll(
+  val Original: File = (Tmp / "original_gtd.md").createFile()
+  Original.writeAll(
     """# Weekly Status
       !## 2023-01-02
       !
@@ -21,6 +23,9 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
       !| A | One |
       !""".stripMargin('!')
   )
+
+  val Basic: File = (Tmp / "basic_gtd.md").createFile()
+  Basic.writeAll(Original.slurp())
 
   /** The default linkRef used for links generated today. */
   val TodayLink: String = GettingThingsDone.Pattern.format(Instant.now).replaceAll("-", "")
@@ -45,30 +50,38 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
       *   stdout
       */
     def clean(args: String*): String = {
-      sys.props("GTD_TAG") = "BASIC"
-      sys.props("BASIC_STATUS_REPO") = Tmp.toString
-      sys.props("BASIC_STATUS_FILE") = Basic.toString
+      Basic.writeAll(Original.slurp())
       withScript2("clean")(args: _*) { case (result, stdout, stderr) =>
         stderr shouldBe empty
         result shouldBe true
-        stdout
+        stdout.replaceAll(Tmp.toString(), "<TMP>")
       }
     }
 
-    it("should clean the basic scenario") {
-      clean()
-      Basic.slurp() shouldBe
-        """Weekly Status
-          !==============================================================================
-          !
-          !2023-01-02
-          !------------------------------------------------------------------------------
-          !
-          !| To Do | Notes |
-          !|-------|-------|
-          !| A     | One   |
-          !""".stripMargin('!')
-    }
+    for (statusFile <- Seq(Basic.toString, s"/no-exists/a/b/c:$Basic", s"$Basic:/no-exists/a/b/c"))
+      it(s"should clean the basic scenario with statusFile: $statusFile".replaceAll(Tmp.toString(), "<TMP>")) {
+        sys.props("GTD_TAG") = "BASIC"
+        sys.props(s"BASIC_STATUS_FILE") = Basic.toString
+        clean("--plain") shouldBe
+          """Commit:
+            |  git -C <TMP> add basic_gtd.md &&
+            |      git -C <TMP> difftool --staged
+            |  git -C <TMP> add basic_gtd.md &&
+            |      git -C <TMP> commit -m "doc(status): Beautify the document"
+            |
+            |""".stripMargin
+        Basic.slurp() shouldBe
+          """Weekly Status
+            !==============================================================================
+            !
+            !2023-01-02
+            !------------------------------------------------------------------------------
+            !
+            !| To Do | Notes |
+            !|-------|-------|
+            !| A     | One   |
+            !""".stripMargin('!')
+      }
   }
 
   describe(s"Running $ScriptName link") {
@@ -77,7 +90,6 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
 
     def link(args: String*): (String, String) = {
       sys.props("GTD_TAG") = "BASIC"
-      sys.props("BASIC_STATUS_REPO") = Tmp.toString
       sys.props("BASIC_STATUS_FILE") = Output.toString
       val stdout = withTaskSuccess()("link")(args: _*)
       (stdout, Output.slurp().replaceAll(TodayLink, "<TODAY>"))
@@ -166,14 +178,12 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
 
     def pr(args: String*): (String, String) = {
       sys.props("GTD_TAG") = "BASIC"
-      sys.props("BASIC_STATUS_REPO") = Tmp.toString
       sys.props("BASIC_STATUS_FILE") = Output.toString
       val stdout = withTaskSuccess()("pr")(args: _*)
       (stdout, Output.slurp().replaceAll(TodayLink, "<TODAY>"))
     }
 
-    // TODO: Restore with override LinkSorter
-    ignore("should create a doc with PRs") {
+    it("should create a doc with PRs") {
       // Create a basic file with a known top date
       val output = Output.toFile
       output.writeAll("""# Weekly Status
@@ -240,8 +250,7 @@ class GtdScriptSpec extends AmmoniteScriptSpecBase("/getting_things_done.sc") {
           |""".stripMargin
     }
 
-    // TODO: Don't ignore with override linksorter
-    ignore("should read PrjTask information from a doc") {
+    it("should read PrjTask information from a doc") {
       // Create a basic file with a known top date and an existing project configuration
       val output = Output.toFile
       output.writeAll("""# Weekly Status

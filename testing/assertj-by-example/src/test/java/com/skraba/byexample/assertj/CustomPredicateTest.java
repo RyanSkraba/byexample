@@ -59,7 +59,7 @@ class CustomPredicateTest {
 
     @Override
     public boolean matches(String value) {
-      return value.replaceAll("-", "").length() == value.length() - expected;
+      return value.replace("-", "").length() == value.length() - expected;
     }
   }
 }

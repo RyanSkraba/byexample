@@ -22,7 +22,7 @@ import org.scalatest.matchers.should.Matchers
   *         <-- YourClass
   * }}}
   *
-  * Any is the base with equals() hashCode() and toString()
+  * Any is the base with equals() hashCode() and toString
   *
   * AnyVal has 9 predefined value types. * Unit is the equivalent of void, and is denoted `()`
   *

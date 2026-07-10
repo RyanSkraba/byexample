@@ -34,8 +34,7 @@ class AdventOfCodeDay21Spec extends AnyFunSpecLike with Matchers with BeforeAndA
       override def value(monkeys: Map[String, Monkey]): Long = value
     }
 
-    /** Just throws an exception when it tries to calculate, used to determine where the human is located.
-      */
+    /** Just throws an exception when it tries to calculate, used to determine where the human is located. */
     case class BrokenMonkey(id: String) extends Monkey {
       override def value(monkeys: Map[String, Monkey]): Long =
         throw new IllegalArgumentException()

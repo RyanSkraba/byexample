@@ -7,8 +7,8 @@ import org.scalatest.matchers.should.Matchers
 
 /** =Advent of Code 2024 Day 10 Solutions in scala=
   *
-  * Input: A topological map for hiking, to find hiking trails from '0' to '9' that where a path can only increment by 0
-  * or 1.
+  * Input: A topological map for hiking, to find hiking trails from '0' to '9' where a path can only increment by 0 or
+  * \1.
   *
   * Part 1: From any '0', count how many '9's are reachable and return the sum.
   *

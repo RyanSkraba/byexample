@@ -85,7 +85,7 @@ object Setting {
     Setting(v, props, propKey, _.toBoolean, doc)(d)
 
   /** @param base
-    *   The base directory to use in case the discovered value is not an absoluate path.
+    *   The base directory to use in case the discovered value is not an absolute path.
     * @param v
     *   An optional explicit string value to be assigned to this setting as a path, resolving if necessary.
     * @param props

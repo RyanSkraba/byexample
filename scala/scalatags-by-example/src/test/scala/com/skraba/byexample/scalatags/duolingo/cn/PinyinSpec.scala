@@ -3,8 +3,7 @@ package com.skraba.byexample.scalatags.duolingo.cn
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
-/** Unit tests for the [[Pinyin]] helper object.
-  */
+/** Unit tests for the [[Pinyin]] helper object. */
 class PinyinSpec extends AnyFunSpecLike with Matchers {
 
   describe("Pinyin helpers") {

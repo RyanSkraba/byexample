@@ -2,7 +2,7 @@ package com.skraba.byexample.scala.ammonite
 
 import com.skraba.byexample.scala.ammonite.AmmoniteScriptSpecBase._
 import com.tinfoiled.docopt4s.AnsiConsole
-import org.scalatest.BeforeAndAfterAll
+import com.tinfoiled.docopt4s.testkit.TmpDir
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
@@ -12,17 +12,11 @@ import scala.io.AnsiColor.{BOLD, RESET, YELLOW}
 import scala.reflect.io._
 import scala.util.Properties
 
-/** Testing ammonite scripts can be a bit tricky!
-  */
-class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Matchers {
+/** Testing ammonite scripts can be a bit tricky! */
+class AmmoniteExampleSpec extends AnyFunSpecLike with Matchers with TmpDir {
 
   /** The path containing ammonite scripts. */
   val ScriptPath: Path = find("/ammonite_example.sc")
-
-  // TODO: TmpDir from docopts4s
-
-  /** A local temporary directory for test file storage. */
-  val Tmp: Directory = Directory.makeTemp(getClass.getSimpleName)
 
   /** Either create a new home directory reused across this suite, or use the common one. */
   val HomeFolder: Path =
@@ -32,7 +26,7 @@ class AmmoniteExampleSpec extends AnyFunSpecLike with BeforeAndAfterAll with Mat
   /** Delete temporary resources after the script. */
   override protected def afterAll(): Unit =
     try {
-      Tmp.deleteRecursively()
+      super.afterAll()
       if (!ReuseAmmoniteHome && HomeFolder.exists)
         HomeFolder.deleteRecursively()
     } catch { case ex: Exception => ex.printStackTrace() }

@@ -26,21 +26,24 @@ import com.tinfoiled.markd._
 // Top level variables available to the script
 
 /** A tag used to distinguish between documents. */
-val StatusTag: String = sys.props.get("GTD_TAG").orElse(sys.env.get("GTD_TAG")).getOrElse("GTD")
-
-/** Git root directory for the status file. */
-val StatusRepo: os.Path = sys.props
-  .get(s"${StatusTag}_STATUS_REPO")
-  .orElse(sys.env.get(s"${StatusTag}_STATUS_REPO"))
-  .map(os.Path(_))
-  .getOrElse(os.home / "Documents")
+lazy val StatusTag: String = sys.props.get("GTD_TAG").orElse(sys.env.get("GTD_TAG")).getOrElse("GTD")
 
 /** The actual status file to update. */
-val StatusFile: os.Path = sys.props
+lazy val StatusFile: os.Path = sys.props
   .get(s"${StatusTag}_STATUS_FILE")
   .orElse(sys.env.get(s"${StatusTag}_STATUS_FILE"))
+  .toSeq
+  .flatMap(_.split(':'))
   .map(os.Path(_))
-  .getOrElse(StatusRepo / "todo" / "status.md")
+  .find(os.exists)
+  .getOrElse(os.home / "Documents" / "todo" / "status.md")
+
+/** Git root directory for the status file. */
+lazy val StatusRepo = LazyList
+  .iterate(StatusFile)(_ / os.up)
+  .find(d => os.exists(d / ".git") && (d / os.up != d))
+  .map(d => if (os.exists(d / ".git")) d else os.home / "Documents")
+  .get
 
 lazy val StatusContents = os.read(StatusFile)
 
@@ -54,14 +57,15 @@ lazy val Gtd = GettingThingsDone(StatusContents, ProjectParserCfg)
   *   The title of the project to use in the weekly To Do, usually in CamelCase. If it's not explicitly present, this is
   *   created from the tag.
   * @param issueRefOpt
-  *   The text to use for an reference to an issue on this project. If it's not explicitly present, this is created from
+  *   The text to use for a reference to an issue on this project. If it's not explicitly present, this is created from
   *   the tag.
   * @param issueLinkOpt
-  *   The URL to use for an issue on this project. If it's not explicitly present, this is created from the tag.
+  *   The URL to use for an issue on this project. If it's not explicitly present, this is created from the tag. If the
+  *   issue ref ends with a #, we assume it is a GitHub link.
   * @param prRefOpt
   *   The text to use for a reference to a PR on this project.
   * @param prLinkOpt
-  *   The URL to use for a PR on this project.
+  *   The URL to use for a PR on this project. If the PR ref ends with a #, we assume it is a GitHub link.
   */
 case class PrjTask(
     tag: String,
@@ -72,6 +76,9 @@ case class PrjTask(
     prLinkOpt: Option[String]
 ) {
 
+  /** @return true if the reference looks like a GitHub reference (org/repo#) */
+  private def looksLikeGitHub(ref: String): Boolean = ref.endsWith("#") && ref.count(_ == '/') == 1
+
   /** The title of the project to use in the weekly To Do list. */
   val title: String = titleOpt.getOrElse(tag.toLowerCase.capitalize)
 
@@ -81,15 +88,24 @@ case class PrjTask(
   /** The URL used to construct the link to the issue number. If this contains a %s, the issue number will replace it,
     * otherwise the issue number is appended.
     */
-  val issueLink: String = issueLinkOpt.getOrElse(s"https://issues.apache.org/jira/browse/${tag.toUpperCase}-")
+  val issueLink: String = issueLinkOpt.getOrElse(
+    if (looksLikeGitHub(issueRef)) s"https://github.com/${issueRef.dropRight(1)}/issues/"
+    else s"https://issues.apache.org/jira/browse/${tag.toUpperCase}-"
+  )
 
   /** The user-visible way the PR is references in the To Do list. */
-  val prRef: String = prRefOpt.getOrElse(s"apache/${tag.toLowerCase}#")
+  val prRef: String = prRefOpt.getOrElse(
+    if (looksLikeGitHub(issueRef)) issueRef
+    else s"apache/${tag.toLowerCase}#"
+  )
 
   /** The URL used to construct the link to the PR. If this contains a %s, the PR number will replace it, otherwise the
     * PR number is appended.
     */
-  val prLink: String = prLinkOpt.getOrElse(s"https://github.com/apache/${tag.toLowerCase}/pull/")
+  val prLink: String = prLinkOpt.getOrElse(
+    if (looksLikeGitHub(prRef)) s"https://github.com/${prRef.dropRight(1)}/pull/"
+    else s"https://github.com/apache/${tag.toLowerCase}/pull/"
+  )
 
   private def replace(tmpl: String, in: String): String = if (tmpl.contains("%s")) tmpl.format(in) else tmpl + in
   def issueRefOf(in: String) = replace(issueRef, in)
@@ -184,7 +200,7 @@ object ProjectParserCfg extends ParserCfg {
   }
 }
 
-/** Some text that maps to to do task states */
+/** Some text that maps to to-do task states */
 val TextToToDoStates: Map[String, GettingThingsDone.ToDoState] =
   Map("MERGED" -> DoneToDo, "FIXED" -> DoneToDo, "DONE" -> DoneToDo)
 
@@ -203,7 +219,7 @@ private def writeGtd(
     gitStatus: Option[String] = None,
     compressTable: Boolean = false
 ): Unit = {
-  val asText = ProjectParserCfg.clean(gtd.h0).build().toString
+  val asText = ProjectParserCfg.clean(gtd.md).build().toString
   val after = if (compressTable) asText.replaceAll(" +( \\|)", "$1") else asText
 
   // We convert the string to bytes immediately, in order to avoid splitting emojis and writing
@@ -227,7 +243,7 @@ private def writeGtd(
            |  The file already contained the characters ??""".stripMargin)
 
     // These are very likely to occur together
-    if (gtd.h0.build().toString.contains("??"))
+    if (gtd.md.build().toString.contains("??"))
       println(s"""${RED_B}Warning:$RESET
            |  The built text contains ??""".stripMargin)
     if (after.contains("??"))

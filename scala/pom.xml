@@ -19,10 +19,11 @@
     <module>markd-by-example</module>
     <module>scala-by-example</module>
     <module>scalatags-by-example</module>
+    <module>tools-by-example</module>
   </modules>
 
   <properties>
-    <byexample.relBaseDir>..</byexample.relBaseDir>
+    <project.relBaseDir>..</project.relBaseDir>
     <!-- skip the deployment for aggregators, not necessary.  Needs to be flipped to false
      for project with artifacts. -->
     <maven.deploy.skip>true</maven.deploy.skip>

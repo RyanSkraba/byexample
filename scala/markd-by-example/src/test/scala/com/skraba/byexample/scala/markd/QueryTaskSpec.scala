@@ -1,16 +1,17 @@
 package com.skraba.byexample.scala.markd
 
 import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, TmpDir}
-import com.tinfoiled.markd.{Header, Markd, Paragraph}
+import com.tinfoiled.markd.Markd
+import com.tinfoiled.docopt4s.FsPath._
 
-import scala.reflect.io.{Directory, File}
+import java.nio.file.Path
 import scala.util.Using
 
 /** Unit tests for [[QueryTask]] */
 class QueryTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(QueryTask)) with TmpDir {
 
   describe(s"Standard $MainName $TaskCmd command line help, versions and exceptions") {
-    itShouldHandleHelpAndVersionFlags()
+    itShouldHandleVersionNoArgsAndHelpFlags()
     itShouldThrowOnUnknownOptKey()
     itShouldThrowOnIncompleteArgs()
     itShouldThrowOnIncompleteArgs("--query", "..B")
@@ -30,7 +31,7 @@ class QueryTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(QueryTask)) with Tmp
       !Hello AB2
       !""".stripMargin('!'))
 
-  val Basic: File = File(Tmp / "basic.md")
+  val Basic: Path = Tmp / "basic.md"
   Basic.writeAll(BasicMd.build().toString)
 
   describe("The basic scenario") {
@@ -48,11 +49,11 @@ class QueryTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(QueryTask)) with Tmp
     }
 
     it("should read from stdin") {
-      Using(Basic.inputStream()) { in =>
+      Using.resource(Basic.inputStream()) { in =>
         Console.withIn(in) {
           withGoStdout(TaskCmd, "--query", "A.B.C[*]", "-") shouldBe "Hello ABC"
         }
-      }.get
+      }
     }
 
     it("should fail with un unrecognized query") {

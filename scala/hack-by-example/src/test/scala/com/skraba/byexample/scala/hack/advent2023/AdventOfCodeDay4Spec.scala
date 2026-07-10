@@ -50,7 +50,7 @@ class AdventOfCodeDay4Spec extends AnyFunSpecLike with Matchers with BeforeAndAf
         // the first value is the total
         // the second value is a list of past winners that contribute a free copy of the current ticket
         .foldLeft[(Long, Seq[Int])]((0L, Nil)) { case ((total, bonus), matches) =>
-          // OK, not gonna lie, I got this to to work first and now I can't figure out why it works.
+          // OK, not gonna lie, I got this to work first and now I can't figure out why it works.
           val nextBonus = bonus.map(_ - 1).filter(_ > 0)
           if (matches > 0) {
             (

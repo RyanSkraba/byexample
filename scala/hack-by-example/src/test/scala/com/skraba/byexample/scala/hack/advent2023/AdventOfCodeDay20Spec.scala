@@ -43,8 +43,7 @@ class AdventOfCodeDay20Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         cnj: Map[String, Set[String]] = Map().withDefaultValue(Set())
     )
 
-    /** A signal in the system, with a source, destination and whether the pulse was HIGH
-      */
+    /** A signal in the system, with a source, destination and whether the pulse was HIGH */
     type Signal = (String, String, Boolean)
 
     trait Module {

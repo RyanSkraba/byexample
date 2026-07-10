@@ -15,7 +15,7 @@
   <description>Scalatags example project, setup, howtos, etc.</description>
 
   <properties>
-    <byexample.relBaseDir>../..</byexample.relBaseDir>
+    <project.relBaseDir>../..</project.relBaseDir>
     <maven.deploy.skip>false</maven.deploy.skip>
     <scalafmt.conf.path>${project.basedir}/../../.scalafmt.conf</scalafmt.conf.path>
     <!-- Launcher class -->
@@ -48,6 +48,12 @@
       <groupId>com.lihaoyi</groupId>
       <artifactId>scalatags_${scala.binary.version}</artifactId>
       <version>${scalatags.version}</version>
+    </dependency>
+
+    <!-- Tests -->
+    <dependency>
+      <groupId>com.tinfoiled</groupId>
+      <artifactId>docopt4s-testkit_${scala.binary.version}</artifactId>
     </dependency>
   </dependencies>
 </project>

@@ -167,6 +167,16 @@ class RegexSpec extends AnyFunSpecLike with Matchers {
         .value
         .matched shouldBe "BYEX-1234"
     }
+
+    it("should support multiline regex") {
+      val multiline = raw"""(?x)
+            \b(?<prj>[A-Z]+) # A project at the start
+            -                # hyphen separator
+            (?<num>\d+)\b    # A number at the end
+          """.r
+      multiline.matches("BYEX-1234") shouldBe true
+      multiline.matches(" BYEX-1234 ") shouldBe false
+    }
   }
 
   describe("Using Regex groups") {

@@ -6,20 +6,19 @@ import scalatags.Text.svgTags.{g, svg, text}
 import scalatags.Text.tags.attr
 import scalatags.generic
 import scalatags.text.Builder
+import com.tinfoiled.docopt4s.FsPath._
 
 import java.io.BufferedWriter
-import scala.reflect.io.File
+import java.nio.file.Path
 
 object Svg {
 
-  /** Useful pointer to qualify attribute names, since they can conflict with common variables.
-    */
+  /** Useful pointer to qualify attribute names, since they can conflict with common variables. */
   val Attrs: scalatags.Text.svgAttrs.type = scalatags.Text.svgAttrs
 
   val XmlNs = attr("xmlns") := "https://www.w3.org/2000/svg"
 
-  /** The Apache2 license header [[https://www.apache.org/licenses/LICENSE-2.0#apply]]
-    */
+  /** The Apache2 license header [[https://www.apache.org/licenses/LICENSE-2.0#apply]] */
   val Apache2: String =
     s"""  Licensed to the Apache Software Foundation (ASF) under one or more
        |  contributor license agreements.  See the NOTICE file distributed with
@@ -77,7 +76,7 @@ object Svg {
     *   The height of the document and viewbox.
     */
   def toFile(
-      f: File,
+      f: Path,
       svgContents: Modifier,
       viewBoxDx: Int = 100,
       viewBoxDy: Int = 100,
@@ -110,7 +109,7 @@ object Svg {
     *
     * @param dx
     *   The number of pixels right to translate.
-    * @param label
+    * @param dy
     *   The number of pixels down to translate.
     * @return
     *   The attribute to add to a tag.

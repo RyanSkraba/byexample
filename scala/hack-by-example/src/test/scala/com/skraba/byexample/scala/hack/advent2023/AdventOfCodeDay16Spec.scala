@@ -83,8 +83,7 @@ class AdventOfCodeDay16Spec extends AnyFunSpecLike with Matchers with BeforeAndA
         case _                            => Set(in.straight)
       }
 
-      /** Count the energized squares if the beam of light starts at the given position
-        */
+      /** Count the energized squares if the beam of light starts at the given position */
       def count(start: Cursor): Long = {
         // Iterate over the list of positions that have been visited and
         // the current "heads" of the beams of light, until there are no more heads.

@@ -5,7 +5,7 @@ import com.tinfoiled.docopt4s.{Docopt, Task}
 /** Command-line driver that puts to a URI. */
 object PutTask extends Task {
 
-  val Cmd = "put"
+  override val Cmd = "put"
 
   val Description = "Make an HTTP PUT request."
 

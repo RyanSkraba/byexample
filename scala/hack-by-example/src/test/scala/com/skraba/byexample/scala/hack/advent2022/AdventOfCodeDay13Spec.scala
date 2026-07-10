@@ -7,11 +7,16 @@ import org.scalatest.matchers.should.Matchers
 
 /** =Advent of Code 2022 Day 13 Solutions in scala=
   *
-  * Input: TODO
+  * Input: Pairs of "signals" where a signal is recursively defined as an Integer OR a list of Signals. Quite a few
+  * rules apply to ordering signals: When two integers are compared, the smaller integer comes first. When two lists are
+  * compared, they are compared element-by-element to determine which one comes first (where a larger list comes second,
+  * all other things being equal). For comparison purposes, a signal that is an Int is equivalent to a signal that is a
+  * list of one Int.
   *
-  * Part 1:
+  * Part 1: Given a list of pairs of signals, count how many are ordered correctly.
   *
-  * Part 2:
+  * Part 2: Sorting all the pairs of signals plus [[2]] and [[6]], find the index of those two key signals and multiply
+  * them together.
   *
   * @see
   *   Rephrased from [[https://adventofcode.com/2022/day/13]]

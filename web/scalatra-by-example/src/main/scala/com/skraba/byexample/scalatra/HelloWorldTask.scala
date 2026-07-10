@@ -6,7 +6,7 @@ import com.tinfoiled.docopt4s.{Docopt, Task}
 /** Command-line driver that launches a server that says hello. */
 object HelloWorldTask extends Task {
 
-  val Cmd = "helloworld"
+  override val Cmd = "helloworld"
 
   val Description = "Run a server saying Hello World."
 

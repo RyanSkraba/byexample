@@ -124,8 +124,7 @@ object Cheatsheet {
 
   }
 
-  /** Create the cheatsheet fully initialized by the vocabulary contents.
-    */
+  /** Create the cheatsheet fully initialized by the vocabulary contents. */
   def all(): Cheatsheet = {
     val allWords: Seq[Array[String]] = contents().map(_.split('\t'))
 

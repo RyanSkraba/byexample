@@ -8,8 +8,7 @@ import org.scalatra.ScalatraServlet
 
 import java.util.concurrent.atomic.AtomicBoolean
 
-/** A driver for running a Scalatra web server.
-  */
+/** A driver for running a Scalatra web server. */
 object ScalatraGo extends MultiTaskMain {
   override lazy val Name: String = "ScalatraGo"
   override lazy val Version: String = "0.0.1-SNAPSHOT"

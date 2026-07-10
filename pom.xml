@@ -11,6 +11,7 @@
 
   <modules>
     <module>benchmarking</module>
+    <module>json</module>
     <module>misc</module>
     <module>scala</module>
     <module>testing</module>
@@ -19,7 +20,7 @@
 
   <properties>
     <!-- From this file to the root directory of the repo. -->
-    <byexample.relBaseDir>.</byexample.relBaseDir>
+    <project.relBaseDir>.</project.relBaseDir>
 
     <!-- specifies that the system uses Java 11 by default -->
     <maven.compiler.source>17</maven.compiler.source>
@@ -33,16 +34,17 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <!-- Dependencies -->
-    <ammonite.version>3.0.0</ammonite.version>
-    <assertj.version>3.27.0</assertj.version>
-    <docopt4s.version>0.0.6</docopt4s.version>
+    <ammonite.version>3.0.9</ammonite.version>
+    <assertj.version>3.27.7</assertj.version>
+    <docopt4s.version>0.0.9</docopt4s.version>
     <hamcrest.version>3.0</hamcrest.version>
     <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
     <jetty.version>12.0.16</jetty.version>
-    <junit5.version>5.11.4</junit5.version>
+    <junit5.version>6.1.1</junit5.version>
+    <markd.version>0.2.0</markd.version>
     <play-json.version>2.10.6</play-json.version>
     <scala.binary.version>2.13</scala.binary.version>
-    <scala.version>2.13.15</scala.version>
+    <scala.version>2.13.18</scala.version>
     <scalafmt.version>3.8.0</scalafmt.version>
     <scalatest.version>3.2.19</scalatest.version>
     <slf4j.version>2.0.16</slf4j.version>
@@ -53,25 +55,26 @@
     <exec.mainClass>com.skraba.byexample.ToDoGo</exec.mainClass>
 
     <!-- Plugins -->
-    <plugin.clean.maven.version>3.3.2</plugin.clean.maven.version>
-    <plugin.compiler.maven.version>3.12.1</plugin.compiler.maven.version>
-    <plugin.deploy.maven.version>3.1.1</plugin.deploy.maven.version>
-    <plugin.enforcer.maven.version>3.4.1</plugin.enforcer.maven.version>
-    <plugin.enforcer.required.maven.version>3.5.0</plugin.enforcer.required.maven.version>
-    <plugin.failsafe.maven.version>3.2.5</plugin.failsafe.maven.version>
-    <plugin.install.maven.version>3.1.1</plugin.install.maven.version>
-    <plugin.jar.maven.version>3.3.0</plugin.jar.maven.version>
+    <plugin.clean.maven.version>3.5.0</plugin.clean.maven.version>
+    <plugin.compiler.maven.version>3.14.1</plugin.compiler.maven.version>
+    <plugin.deploy.maven.version>3.1.4</plugin.deploy.maven.version>
+    <plugin.enforcer.maven.version>3.6.2</plugin.enforcer.maven.version>
+    <plugin.enforcer.required.maven.version>3.8.1</plugin.enforcer.required.maven.version>
+    <plugin.failsafe.maven.version>3.5.4</plugin.failsafe.maven.version>
+    <plugin.install.maven.version>3.1.4</plugin.install.maven.version>
+    <plugin.jar.maven.version>3.5.0</plugin.jar.maven.version>
     <plugin.maven.docker.version>0.45.1</plugin.maven.docker.version>
     <plugin.maven.scala.version>4.9.2</plugin.maven.scala.version>
     <plugin.maven.scalatest.version>2.2.0</plugin.maven.scalatest.version>
     <plugin.maven.scalatest.exclude>org.scalatest.tags.Slow</plugin.maven.scalatest.exclude>
-    <plugin.report.surefire.maven.version>3.2.5</plugin.report.surefire.maven.version>
-    <plugin.resources.maven.version>3.3.1</plugin.resources.maven.version>
-    <plugin.shade.maven.version>3.5.1</plugin.shade.maven.version>
-    <plugin.site.maven.version>4.0.0-M14</plugin.site.maven.version>
-    <plugin.maven.spotless.version>2.43.0</plugin.maven.spotless.version>
-    <plugin.surefire.maven.version>3.2.5</plugin.surefire.maven.version>
-    <plugin.war.maven.version>3.4.0</plugin.war.maven.version>
+    <plugin.report.surefire.maven.version>3.5.4</plugin.report.surefire.maven.version>
+    <plugin.resources.maven.version>3.4.0</plugin.resources.maven.version>
+    <plugin.shade.maven.version>3.6.1</plugin.shade.maven.version>
+    <plugin.site.maven.version>4.0.0-M16</plugin.site.maven.version>
+    <plugin.source.maven.version>3.4.0</plugin.source.maven.version>
+    <plugin.maven.spotless.version>3.1.0</plugin.maven.spotless.version>
+    <plugin.surefire.maven.version>3.5.4</plugin.surefire.maven.version>
+    <plugin.war.maven.version>3.5.1</plugin.war.maven.version>
   </properties>
 
   <dependencyManagement>
@@ -80,6 +83,11 @@
         <groupId>com.tinfoiled</groupId>
         <artifactId>docopt4s_${scala.binary.version}</artifactId>
         <version>${docopt4s.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tinfoiled</groupId>
+        <artifactId>markd_${scala.binary.version}</artifactId>
+        <version>${markd.version}</version>
       </dependency>
       <dependency>
         <groupId>jakarta.servlet</groupId>
@@ -180,6 +188,10 @@
   <dependencies>
     <!-- Tests -->
     <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-library</artifactId>
       <scope>test</scope>
@@ -188,6 +200,10 @@
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
     </dependency>
   </dependencies>
 
@@ -362,9 +378,10 @@
                 <include>src/main/scala/**/*.scala</include>
                 <include>src/test/java/**/*.scala</include>
                 <include>src/test/scala/**/*.scala</include>
+                <include>src/**/*.sc</include>
               </includes>
               <scalafmt>
-                <file>${project.basedir}/${byexample.relBaseDir}/.scalafmt.conf</file>
+                <file>${project.basedir}/${project.relBaseDir}/.scalafmt.conf</file>
                 <version>${scalafmt.version}</version>
               </scalafmt>
             </scala>
@@ -404,6 +421,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-report-plugin</artifactId>
+        <version>${plugin.report.surefire.maven.version}</version>
       </plugin>
     </plugins>
   </reporting>

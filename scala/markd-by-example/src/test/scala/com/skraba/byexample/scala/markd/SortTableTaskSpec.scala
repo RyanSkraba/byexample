@@ -1,14 +1,15 @@
 package com.skraba.byexample.scala.markd
 import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, TmpDir}
+import com.tinfoiled.docopt4s.FsPath._
 import com.tinfoiled.markd._
 
-import scala.reflect.io.{Directory, File}
+import java.nio.file.Path
 
 /** Unit tests for [[SortTableTask]] */
 class SortTableTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(SortTableTask)) with TmpDir {
 
   describe(s"Standard $MainName $TaskCmd command line help, versions and exceptions") {
-    itShouldHandleHelpAndVersionFlags()
+    itShouldHandleVersionNoArgsAndHelpFlags()
     itShouldThrowOnUnknownOptKey()
     itShouldThrowOnIncompleteArgs()
     itShouldThrowOnIncompleteArgs("filename.md")
@@ -31,7 +32,7 @@ class SortTableTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(SortTableTask)) 
   def generateTable(title: String, rows: Any*): Table =
     Table(Seq.fill(1)(Align.LEFT), TableRow(title) +: rows.map(_.toString).map(TableRow(_)): _*)
 
-  val Basic: File = File(Tmp / "basic.md")
+  val Basic: Path = Tmp / "basic.md"
   Basic.writeAll("""To Sort | A | B | Original
                    !---|----|---|---|
                    !z  | 10 | a | 0 |
@@ -46,7 +47,7 @@ class SortTableTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(SortTableTask)) 
   describe("When overwriting a very simple file") {
 
     it("should sort on the first column by default") {
-      val in = File(Tmp / "rewrite.md")
+      val in = Tmp / "rewrite.md"
       in.writeAll(Basic.slurp())
       withGoMatching(TaskCmd, in, "To Sort") { case (stdout, stderr) =>
         stderr shouldBe empty
@@ -222,7 +223,7 @@ class SortTableTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(SortTableTask)) 
          !| 200 | 100 |
          !| 100 | 200 |
          !""".stripMargin('!')
-    val Multi = File(Tmp / "multi.md")
+    val Multi = Tmp / "multi.md"
     Multi.writeAll(MultiTable)
 
     it(s"should sort all the tables") {
@@ -355,9 +356,9 @@ class SortTableTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(SortTableTask)) 
 
   describe("Alphabetical sorting") {
     it("should ignore accents") {
-      val in = File(Tmp / "accents.md")
+      val in = Tmp / "accents.md"
       in.writeAll(
-        generateTable("To Sort", "Ä1", "À1", "Å0", "Ä0", "A0", "Ä1", "À1", "Ä0", "À1", "Á0", "Ä0").build().toString()
+        generateTable("To Sort", "Ä1", "À1", "Å0", "Ä0", "A0", "Ä1", "À1", "Ä0", "À1", "Á0", "Ä0").build().toString
       )
 
       withGoMatching(TaskCmd, in, "To Sort", "-") { case (stdout, stderr) =>
@@ -367,9 +368,9 @@ class SortTableTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(SortTableTask)) 
     }
 
     it("should take case into account") {
-      val in = File(Tmp / "accents.md")
+      val in = Tmp / "accents.md"
       in.writeAll(
-        generateTable("To Sort", "ä1", "à1", "Å0", "Ä0", "a0", "Ä1", "à1", "Ä0", "À1", "á0", "Ä0").build().toString()
+        generateTable("To Sort", "ä1", "à1", "Å0", "Ä0", "a0", "Ä1", "à1", "Ä0", "À1", "á0", "Ä0").build().toString
       )
 
       withGoMatching(TaskCmd, in, "To Sort", "0", "-") { case (stdout, stderr) =>
@@ -379,9 +380,9 @@ class SortTableTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(SortTableTask)) 
     }
 
     it("should ignore case") {
-      val in = File(Tmp / "accents.md")
+      val in = Tmp / "accents.md"
       in.writeAll(
-        generateTable("To Sort", "ä1", "à1", "Å0", "Ä0", "a0", "Ä1", "à1", "Ä0", "À1", "á0", "Ä0").build().toString()
+        generateTable("To Sort", "ä1", "à1", "Å0", "Ä0", "a0", "Ä1", "à1", "Ä0", "À1", "á0", "Ä0").build().toString
       )
 
       withGoMatching(TaskCmd, in, "To Sort", "0:i", "-") { case (stdout, stderr) =>

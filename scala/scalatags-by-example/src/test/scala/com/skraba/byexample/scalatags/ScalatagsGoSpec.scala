@@ -7,10 +7,9 @@ import org.scalatest.matchers.should.Matchers
 
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
-import scala.reflect.io.Streamable
+import scala.util.Using
 
-/** Unit tests for the CLI in the [[ScalatagsGo]] project.
-  */
+/** Unit tests for the CLI in the [[ScalatagsGo]] project. */
 class ScalatagsGoSpec extends AnyFunSpecLike with Matchers {
 
   describe("ScalatagsGo docopt check") {
@@ -113,8 +112,8 @@ object ScalatagsGoSpec {
   def withConsoleMatch[T, U](
       thunk: => T
   )(pf: scala.PartialFunction[(T, String, String), U]): U = {
-    Streamable.closing(new ByteArrayOutputStream()) { out =>
-      Streamable.closing(new ByteArrayOutputStream()) { err =>
+    Using.resource(new ByteArrayOutputStream()) { out =>
+      Using.resource(new ByteArrayOutputStream()) { err =>
         Console.withOut(out) {
           Console.withErr(err) {
             val t = thunk

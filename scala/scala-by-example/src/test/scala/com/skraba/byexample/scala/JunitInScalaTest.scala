@@ -6,8 +6,7 @@ import org.junit.jupiter.api.Test
 
 import java.io.IOException
 
-/** Basic JUnit test written in scala.
-  */
+/** Basic JUnit test written in scala. */
 class JunitInScalaTest {
   @Test
   @throws[IOException]

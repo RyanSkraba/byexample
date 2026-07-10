@@ -86,7 +86,7 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
       // From something
       Iterable(1, 2, 3) shouldBe Iterable(1, 2, 3)
 
-      // From repeatedly applying a funtion
+      // From repeatedly applying a function
       Iterable.iterate(1, 4)(_ * 2) shouldBe Iterable(1, 2, 4, 8)
 
       // Unfold takes a state (accumulator) and applies a function to it that
@@ -203,7 +203,7 @@ class Collections020IterableSpec extends AnyFunSpecLike with Matchers {
       xs span (_ <= 2) shouldBe (Iterable(1, 2), Iterable(3))
       // (xs filter p, xs.filterNot p)
       xs partition (_ % 2 == 0) shouldBe (Iterable(2), Iterable(1, 3))
-      // Arbitrary discrimator function for the key.
+      // Arbitrary discriminator function for the key.
       xs groupBy (_ <= 2) shouldBe Map(false -> Iterable(3), true -> Iterable(1, 2))
       // As well as arbitrary function for the value.
       xs.groupMap(_ % 2)(_ + 100) shouldBe Map(0 -> Iterable(102), 1 -> Iterable(101, 103))

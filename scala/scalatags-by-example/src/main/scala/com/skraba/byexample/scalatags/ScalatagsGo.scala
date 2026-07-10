@@ -7,8 +7,7 @@ import com.tinfoiled.docopt4s.shaded.docoptjava.{Docopt, DocoptExitException}
 
 import scala.jdk.CollectionConverters._
 
-/** A driver for the various utilities written with Scalatags.
-  */
+/** A driver for the various utilities written with Scalatags. */
 object ScalatagsGo {
 
   val Version: String = "0.0.1-SNAPSHOT"

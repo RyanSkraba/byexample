@@ -58,7 +58,7 @@ case class Stamper(
     stampAt(this.x + dx, this.y + dy, tag)
   }
 
-  /** Move to an abolute position and add a copy of the stamp. This does not take into account [[stepX]] or [[stepY]].
+  /** Move to an absolute position and add a copy of the stamp. This does not take into account [[stepX]] or [[stepY]].
     *
     * @param x
     *   The new x position to add a stamp.
