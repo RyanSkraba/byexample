@@ -2,8 +2,8 @@ package com.skraba.byexample.scalatools.gitchecker
 
 import com.tinfoiled.docopt4s.AnsiConsole
 import com.tinfoiled.markd._
-
 import CherryPickerReport._
+import com.skraba.byexample.scalatools.gitchecker.Git.Commit
 
 import java.nio.file.Path
 
@@ -259,7 +259,7 @@ object CherryPickerReport {
     *   The [[CherryPickerReport]] if successful, or the git command output if it failed.
     */
   def fromGit(repo: Path, lTag: String, rTag: String): CherryPickerReport = {
-    val stdout = git(repo, Cmd :+ s"$lTag...$rTag": _*)
+    val stdout = Git(repo, Cmd :+ s"$lTag...$rTag": _*)
     val (left, right) = Commit.fromGitStdout(stdout).partition(_.isLeft)
     CherryPickerReport(lTag, rTag, left, right)
   }

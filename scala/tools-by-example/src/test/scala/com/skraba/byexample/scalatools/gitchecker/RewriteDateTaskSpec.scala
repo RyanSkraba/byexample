@@ -35,16 +35,16 @@ class RewriteDateTaskSpec
   describe(s"Running $MainName $TaskCmd") {
 
     val (src, dst) = createSrcDst("repo", "a", "b")
-    git(src, "init", ".")
-    git(src, "config", "user.name", "user")
-    git(src, "config", "user.email", "user@example.com")
+    Git(src, "init", ".")
+    Git(src, "config", "user.name", "user")
+    Git(src, "config", "user.email", "user@example.com")
 
     // The initial commit is used as a reference for "next" commands
-    git(src, "add", "a")
-    git(src, "commit", "-m", "Initial commit.")
+    Git(src, "add", "a")
+    Git(src, "commit", "-m", "Initial commit.")
     val stdout = rewriteDate(src, dst)("--src" -> src, "--plain", "2026-02-14T12:34:56")
-    git(src, "add", "b")
-    git(src, "commit", "-m", "Last commit.")
+    Git(src, "add", "b")
+    Git(src, "commit", "-m", "Last commit.")
 
     it("should have rewritten the date of the initial commit") {
       (src / ".git").toFile should exist

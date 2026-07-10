@@ -34,8 +34,8 @@ class CherryPickerReportTaskSpec
 
   /** Make a commit and extract the replacements for the hash. */
   def gitCommitAndExtractReplacements(repo: Path, message: String, tag: String): Seq[(String, String)] = {
-    git(repo, "commit", "-m", message)
-    val hash = git(repo, "rev-parse", "HEAD")
+    Git(repo, "commit", "-m", message)
+    val hash = Git(repo, "rev-parse", "HEAD")
     Seq(hash -> s"<$tag-LONG>", hash.take(10) -> s"<$tag>")
   }
 
@@ -44,20 +44,20 @@ class CherryPickerReportTaskSpec
     val (src, dst) = createSrcDst("repo", "a", "b", "c")
 
     val replacements = {
-      git(src, "init", ".")
-      git(src, "config", "user.name", "user")
-      git(src, "config", "user.email", "user@example.com")
+      Git(src, "init", ".")
+      Git(src, "config", "user.name", "user")
+      Git(src, "config", "user.email", "user@example.com")
 
       // The initial commit is used as a reference for "next" commands
-      git(src, "add", "a")
+      Git(src, "add", "a")
       val commitA = gitCommitAndExtractReplacements(src, "Initial commit.", "A")
 
-      git(src, "switch", "-C", "branch")
-      git(src, "add", "b")
+      Git(src, "switch", "-C", "branch")
+      Git(src, "add", "b")
       val commitB = gitCommitAndExtractReplacements(src, "Branch commit.", "B")
 
-      git(src, "switch", "main")
-      git(src, "add", "c")
+      Git(src, "switch", "main")
+      Git(src, "add", "c")
       val commitC = gitCommitAndExtractReplacements(src, "Main commit.", "C")
       commitA ++ commitB ++ commitC
     }
