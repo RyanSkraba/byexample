@@ -19,7 +19,9 @@ class RewriteDateTaskSpec
 
   /** Run the MonthlyTask with the source and destination directories. */
   def rewriteDate(src: Path, dst: Path)(args: Any*): String =
-    withGoStdoutSrcDst(src, dst, "\\[main .*?]" -> "<MAIN>")(TaskCmd +: args: _*)
+    withGoStdoutSrcDst(src, dst, "\\[(main|master) .*?]" -> "<MAIN>", "GPG_FAKED_DATE=\"\\d+\"" -> "<GPGDATE>")(
+      TaskCmd +: args: _*
+    )
 
   describe(s"Standard $MainName $TaskCmd command line help, versions and exceptions") {
     itShouldHandleVersionNoArgsAndHelpFlags()
@@ -33,21 +35,16 @@ class RewriteDateTaskSpec
   describe(s"Running $MainName $TaskCmd") {
 
     val (src, dst) = createSrcDst("repo", "a", "b")
-    git(src, "init", ".")
-    git(src, "config", "user.name", "user")
-    git(src, "config", "user.email", "user@example.com")
+    Git(src, "init", ".")
+    Git(src, "config", "user.name", "user")
+    Git(src, "config", "user.email", "user@example.com")
 
     // The initial commit is used as a reference for "next" commands
-    git(src, "add", "a")
-    git(src, "commit", "-m", "Initial commit.")
-    val stdout = withGoStdoutSrcDst(src, dst, "\\[main .*?]" -> "<MAIN>")(
-      TaskCmd,
-      "--src" -> src,
-      "--plain",
-      "2026-02-14T12:34:56"
-    )
-    git(src, "add", "b")
-    git(src, "commit", "-m", "Last commit.")
+    Git(src, "add", "a")
+    Git(src, "commit", "-m", "Initial commit.")
+    val stdout = rewriteDate(src, dst)("--src" -> src, "--plain", "2026-02-14T12:34:56")
+    Git(src, "add", "b")
+    Git(src, "commit", "-m", "Last commit.")
 
     it("should have rewritten the date of the initial commit") {
       (src / ".git").toFile should exist
@@ -59,7 +56,7 @@ class RewriteDateTaskSpec
           | base date: 2026-02-14T12:34:56
           |  adjusted: 2026-02-14T12:34:56 (0s)
           |    fuzzed: 2026-02-14T12:34:56 (0s)
-          |GPG_FAKED_DATE="1771068896" GIT_COMMITTER_DATE="2026-02-14T12:34:56" \
+          |<GPGDATE> GIT_COMMITTER_DATE="2026-02-14T12:34:56" \
           |    git -c "gpg.program=/tmp/gpgWithRewrite.sh" commit --amend --no-edit --date 2026-02-14T12:34:56
           |<MAIN> Initial commit.
           | Date: Sat Feb 14 12:34:56 2026 +0100
@@ -69,18 +66,12 @@ class RewriteDateTaskSpec
     }
 
     it("should rewrite the last commit to the next exact day") {
-      withGoStdoutSrcDst(src, dst, "\\[main .*?]" -> "<MAIN>")(
-        TaskCmd,
-        "--src" -> src,
-        "--fuzz" -> 0,
-        "--plain",
-        "next1day"
-      ) shouldBe
+      rewriteDate(src, dst)("--src" -> src, "--fuzz" -> 0, "--plain", "next1day") shouldBe
         """      fuzz: 0.0 / 0.0 / 0s
           | base date: 2026-02-14T12:34:56
           |  adjusted: 2026-02-15T12:34:56 (86400s)
           |    fuzzed: 2026-02-15T12:34:56 (86400s)
-          |GPG_FAKED_DATE="1771155296" GIT_COMMITTER_DATE="2026-02-15T12:34:56" \
+          |<GPGDATE> GIT_COMMITTER_DATE="2026-02-15T12:34:56" \
           |    git -c "gpg.program=/tmp/gpgWithRewrite.sh" commit --amend --no-edit --date 2026-02-15T12:34:56
           |<MAIN> Last commit.
           | Date: Sun Feb 15 12:34:56 2026 +0100

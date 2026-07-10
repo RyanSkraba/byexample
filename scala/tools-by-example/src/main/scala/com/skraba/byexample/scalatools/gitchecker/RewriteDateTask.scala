@@ -1,6 +1,6 @@
 package com.skraba.byexample.scalatools.gitchecker
 
-import com.skraba.byexample.scalatools.gitchecker.Commit.getDateFromRepo
+import com.skraba.byexample.scalatools.gitchecker.Git.Commit.getDateFromRepo
 import com.tinfoiled.docopt4s.FsPath.RichPath
 import com.tinfoiled.docopt4s.{AnsiConsole, Docopt, FsPath, Task}
 
@@ -9,7 +9,6 @@ import java.nio.file.{Files, Path}
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.time.{DayOfWeek, LocalDateTime}
-import scala.sys.process.Process
 import scala.util.{Random, Try}
 
 object RewriteDateTask extends Task {
@@ -151,7 +150,7 @@ object RewriteDateTask extends Task {
              |    git -c "gpg.program=$gpgWithRewrite" commit --amend --no-edit --date $fuzzed""".stripMargin))
         if (!dryRun)
           out.vPrintln(
-            git(
+            Git(
               src,
               Seq(
                 "-c",
