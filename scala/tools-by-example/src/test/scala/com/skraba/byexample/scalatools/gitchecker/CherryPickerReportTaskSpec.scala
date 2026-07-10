@@ -49,6 +49,8 @@ class CherryPickerReportTaskSpec
       Git(src, "config", "user.email", "user@example.com")
 
       // The initial commit is used as a reference for "next" commands
+      // Explicitly switch to main even if it's already the default branch
+      Git(src, "switch", "-C", "main")
       Git(src, "add", "a")
       val commitA = gitCommitAndExtractReplacements(src, "Initial commit.", "A")
 
