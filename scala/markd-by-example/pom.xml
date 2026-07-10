@@ -21,7 +21,7 @@
     <!-- Launcher class -->
     <exec.mainClass>com.skraba.byexample.scala.markd.MarkdGo</exec.mainClass>
     <!-- other project dependency versions as properties -->
-    <markd.version>0.0.5</markd.version>
+    <markd.version>0.1.0</markd.version>
   </properties>
 
   <dependencies>
