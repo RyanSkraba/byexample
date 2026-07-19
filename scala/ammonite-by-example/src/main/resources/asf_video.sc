@@ -1,6 +1,6 @@
 #!/usr/bin/env amm
 
-import $ivy.`org.apache.commons:commons-csv:1.11.0`
+import $ivy.`org.apache.commons:commons-csv:1.14.1`
 import mainargs.{Flag, arg, main}
 import org.apache.commons.csv._
 
@@ -270,8 +270,10 @@ object Session {
   ): Seq[Session] = {
 
     // Read the input file entirely as a CSV file, and convert it to Session
-    val csvFormat: CSVFormat = CSVFormat.DEFAULT.builder.setHeader().build()
-    val csvLines = Streamable.closing(new java.io.FileReader(file)) { new CSVParser(_, csvFormat).getRecords.asScala }
+    val csvFormat: CSVFormat = CSVFormat.DEFAULT.builder.setHeader().get()
+    val csvLines = Streamable.closing(new java.io.FileReader(file)) {
+      CSVParser.builder().setFormat(csvFormat).setReader(_).get().getRecords.asScala
+    }
     val sessions = csvLines.zipWithIndex.map { case (csv, i) =>
       Session(
         id = (i + 1).toString,
@@ -337,8 +339,10 @@ object SessionDescription {
   ): Seq[SessionDescription] = {
 
     // Read the input file entirely as a CSV file, and extract the interesting information
-    val csvFormat: CSVFormat = CSVFormat.DEFAULT.builder.setHeader().build()
-    val csvLines = Streamable.closing(new java.io.FileReader(file)) { new CSVParser(_, csvFormat).getRecords.asScala }
+    val csvFormat: CSVFormat = CSVFormat.DEFAULT.builder.setHeader().get()
+    val csvLines = Streamable.closing(new java.io.FileReader(file)) {
+      CSVParser.builder().setFormat(csvFormat).setReader(_).get().getRecords.asScala
+    }
     val descriptions = csvLines
       .map { csv =>
         SessionDescription(
