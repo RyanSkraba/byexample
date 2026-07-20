@@ -1,11 +1,11 @@
 package com.skraba.byexample.scalatools.gitchecker
 
+import com.skraba.byexample.scalatools.gitchecker.Git.Commit
 import com.tinfoiled.docopt4s.FsPath.RichPath
 import com.tinfoiled.docopt4s.{AnsiConsole, Docopt, FsPath, PathValidator, Task}
 import com.tinfoiled.markd.Markd
 
-import java.nio.file.{Files, Path}
-import scala.util.{Failure, Left, Random, Right, Success, Try}
+import java.nio.file.Path
 
 object CherryPickerReportTask extends Task {
   override val Description: String = "Create a cherry-picking report between two branches"
@@ -46,7 +46,7 @@ object CherryPickerReportTask extends Task {
          |${out.kv(" statusDoc:", statusDoc)}
          |
          |${out.bold("Git command:")}
-         |${(CherryPickerReport.Cmd :+ s"$lTag...$rTag").mkString(" ")}
+         |${Commit.leftRightLogCmd(src, lTag, rTag).mkString(" ")}
          |
          |""".stripMargin
     )

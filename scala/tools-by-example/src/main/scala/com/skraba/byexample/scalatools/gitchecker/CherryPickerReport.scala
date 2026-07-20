@@ -23,8 +23,8 @@ case class CherryPickerReport(
   /** The right branch name with colour and indicator. */
   lazy val rTag: String = out.right(s"$rBranch (RIGHT)")
 
-  lazy val leftSubjects: Map[String, Seq[Commit]] = left.groupBy(_.subject)
-  lazy val rightSubjects: Map[String, Seq[Commit]] = right.groupBy(_.subject)
+  private lazy val leftSubjects: Map[String, Seq[Commit]] = left.groupBy(_.subject)
+  private lazy val rightSubjects: Map[String, Seq[Commit]] = right.groupBy(_.subject)
 
   lazy val IssuesTag: Option[String] = issuesUrl.map { _.reverse.dropWhile(_ == '/').takeWhile(_.isUpper).reverse }
 
@@ -179,8 +179,8 @@ case class CherryPickerReport(
           case h1: Header if h1.level == 1 && h1.title == "References" =>
             allIssueNum.foldLeft(originalReferences) { (acc, num) =>
               val tagToCheck = s"$tag-$num"
-              acc.mapFirstIn(ifNotFound = LinkRef(tagToCheck, s"${issuesUrl.get}-$num")) {
-                case lr @ LinkRef(tagToCheck, _, _) => lr
+              acc.mapFirstIn(ifNotFound = LinkRef(tagToCheck, s"${issuesUrl.get}-$num")) { case lr @ LinkRef(_, _, _) =>
+                lr
               }
             }
         }
@@ -232,8 +232,6 @@ case class CherryPickerReport(
 
 object CherryPickerReport {
 
-  val Cmd: Seq[String] = Seq("--no-pager", "log", "--left-right", "--graph", "--cherry-pick", Commit.LogFormat)
-
   val CommitHashSize = 10
 
   val MinCommitHashSize = 7
@@ -259,8 +257,7 @@ object CherryPickerReport {
     *   The [[CherryPickerReport]] if successful, or the git command output if it failed.
     */
   def fromGit(repo: Path, lTag: String, rTag: String): CherryPickerReport = {
-    val stdout = Git(repo, Cmd :+ s"$lTag...$rTag": _*)
-    val (left, right) = Commit.fromGitStdout(stdout).partition(_.isLeft)
+    val (left, right) = Commit.leftRightLog(repo, lTag, rTag).partition(_.isLeft)
     CherryPickerReport(lTag, rTag, left, right)
   }
 

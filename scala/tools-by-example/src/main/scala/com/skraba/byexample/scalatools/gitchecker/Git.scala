@@ -11,6 +11,7 @@ import scala.sys.process.{Process, ProcessLogger}
 /** Access to the git command line. */
 object Git {
 
+  /** An exception occurred when calling git, contains all the information necessary for debugging. */
   case class GitException(
       exitCode: Int,
       stdout: String,
@@ -18,13 +19,14 @@ object Git {
       repo: Path,
       args: Seq[String],
       extraEnv: (String, String)*
-  ) extends Exception() {
+  ) extends Exception(s"exit code: $exitCode, repo: $repo") {
     lazy val debug: String =
       s"""-------------------------------------------------------------------
-         |GitException (exit code: $exitCode, repo: $repo)
-         |args: ${args}
+         |GitException ($getMessage)
+         |args:
+         |${args.map { a => s"  $a" }.mkString("\n")}
          |extraEnv:
-         |${extraEnv.map { case (k, v) => s"$k=$v" }.mkString("\n")}
+         |${extraEnv.map { case (k, v) => s"  $k=$v" }.mkString("\n")}
          |stdout ------------------------------------------------------------
          |$stdout
          |stderr ------------------------------------------------------------
@@ -35,10 +37,10 @@ object Git {
 
   /** Runs git as a process with arguments, erroring if the exist code is non-zero
     *
-    * @param args
-    *   The git arguments ("add", ".")
     * @param repo
     *   The directory of the repository to run in
+    * @param args
+    *   The git arguments ("add", ".")
     * @return
     *   The output of the command
     */
@@ -113,26 +115,50 @@ object Git {
   }
 
   object Commit {
-    // Build a format string (see https://git-scm.com/docs/git-log#_pretty_formats)
-    // In the order of the commit class, noting that the marker might appear at the start of the line.
-    val LogFormat: String =
-      Seq("H", "an", "ae", "at", "cn", "ce", "ct", "d", "s", "B").mkString(
-        "--pretty=format:%",
-        "%x00%",
-        "%x00"
-      )
 
-    /** @param in
-      *   The stdout from the git logs with the log format
+    /** Given a git repo and two branches (left and right), produces the commits that differ between the two branches.
+      *
+      * @param repo
+      *   The root directory of the git repo on the local disk.
+      * @param lTag
+      *   The name of the left branch (usually main)
+      * @param rTag
+      *   The name of the right branch (usually branch-1.x)
       * @return
-      *   The stdout parsed into a commit instance.
+      *   The command used to generate the git log.
       */
-    def fromGitStdout(in: String): Seq[Commit] = in
-      .split("\u0000")
-      .grouped(10)
-      .map(_.mkString("\u0000").trim)
-      .toSeq
-      .map(Commit(_))
+    def leftRightLogCmd(repo: Path, lTag: String, rTag: String): Seq[String] = {
+      // Build a format string (see https://git-scm.com/docs/git-log#_pretty_formats)
+      // In the order of the commit class, noting that the marker might appear at the start of the line.
+      val fmt: String =
+        Seq("H", "an", "ae", "at", "cn", "ce", "ct", "d", "s", "B").mkString(
+          "--pretty=format:%",
+          "%x00%",
+          "%x00"
+        )
+      Seq("--no-pager", "log", "--left-right", "--graph", "--cherry-pick", fmt, s"$lTag...$rTag")
+    }
+
+    /** Given a git repo and two branches (left and right), produces the commits that differ between the two branches.
+      *
+      * @param repo
+      *   The root directory of the git repo on the local disk.
+      * @param lTag
+      *   The name of the left branch (usually main)
+      * @param rTag
+      *   The name of the right branch (usually branch-1.x)
+      * @return
+      *   The log of commits that differ between the two branches.
+      */
+    def leftRightLog(repo: Path, lTag: String, rTag: String): Seq[Commit] = {
+      val stdout = Git(repo, leftRightLogCmd(repo, lTag, rTag))
+      stdout
+        .split("\u0000")
+        .grouped(10)
+        .map(_.mkString("\u0000").trim)
+        .toSeq
+        .map(Commit(_))
+    }
 
     // From a one line string given the log format, create a commit instance
     def apply(in: String): Commit = {
