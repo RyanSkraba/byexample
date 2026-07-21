@@ -1,6 +1,6 @@
 package com.skraba.byexample.scalatools.filerenamer
 
-import com.skraba.byexample.scalatools.filerenamer.CameraphoneTask.{DefaultBackupDir, MissingPhoneDirException, Today}
+import com.skraba.byexample.scalatools.filerenamer.DeviceBackup.{DefaultBackupDir, MissingPhoneDirException, Today}
 import com.tinfoiled.docopt4s.AnsiConsole
 import com.tinfoiled.docopt4s.FsPath.RichPath
 import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, WithFileTests}

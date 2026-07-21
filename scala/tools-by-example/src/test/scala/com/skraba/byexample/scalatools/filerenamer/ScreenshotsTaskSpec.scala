@@ -1,6 +1,6 @@
 package com.skraba.byexample.scalatools.filerenamer
 
-import com.skraba.byexample.scalatools.filerenamer.CameraphoneTask.{DefaultBackupDir, Today}
+import com.skraba.byexample.scalatools.filerenamer.DeviceBackup.{DefaultBackupDir, Today}
 import com.tinfoiled.docopt4s.AnsiConsole
 import com.tinfoiled.docopt4s.FsPath.RichPath
 import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, WithFileTests}
@@ -98,13 +98,13 @@ class ScreenshotsTaskSpec
 
         (src / "DCIM" / "Screenshots").files shouldBe empty
         (src / "DCIM" / "Screenshots").dirs shouldBe Seq(
-          src / "DCIM" / "Screenshots" / CameraphoneTask.DefaultBackupDir
+          src / "DCIM" / "Screenshots" / DefaultBackupDir
         )
-        (src / "DCIM" / "Screenshots" / CameraphoneTask.DefaultBackupDir / "image4.jpg").toFile should exist
+        (src / "DCIM" / "Screenshots" / DefaultBackupDir / "image4.jpg").toFile should exist
 
         (src / "Pictures" / "Screenshots").files shouldBe Seq(src / "Pictures" / "Screenshots" / "list.txt")
         (src / "Pictures" / "Screenshots").dirs should have size 1
-        (src / "Pictures" / "Screenshots" / CameraphoneTask.DefaultBackupDir / "image1.jpg").toFile should exist
+        (src / "Pictures" / "Screenshots" / DefaultBackupDir / "image1.jpg").toFile should exist
 
         dst.files shouldBe empty
         dst.dirs should have size 1
@@ -113,9 +113,7 @@ class ScreenshotsTaskSpec
         (dst / s"$Today Screenshots").dirs shouldBe empty
         (dst / s"$Today Screenshots" / "image1.jpg").toFile should exist
         (dst / s"$Today Screenshots" / "image4.jpg").toFile should exist
-
       }
-
     }
   }
 }
