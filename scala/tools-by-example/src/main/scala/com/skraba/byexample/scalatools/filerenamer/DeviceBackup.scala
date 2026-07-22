@@ -3,7 +3,7 @@ package com.skraba.byexample.scalatools.filerenamer
 import com.tinfoiled.docopt4s.FsPath._
 import com.tinfoiled.docopt4s.{AnsiConsole, Docopt, PathValidator}
 
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.{CopyOption, Files, Path, Paths, StandardCopyOption}
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -11,11 +11,9 @@ import java.time.format.DateTimeFormatter
 object DeviceBackup {
 
   /** The docopt that can be applied to a task that does device backup. */
-  val Doc: String =
-    """<DESCRIPTION>
-       |
-       |Usage:
-       |  ${FileRenamerGo.Name} <CMD> [options] [--extension=EXT]...
+  def doc(cmd: String, dfltSuffix: String, dfltDir: String, dfltExt: String): String =
+    s"""Usage:
+       |  ${FileRenamerGo.Name} $cmd [options] [--extension=EXT]...
        |      [--deviceRelPath=REL]...
        |
        |Options:
@@ -38,9 +36,9 @@ object DeviceBackup {
        |        `backedupYYYYMMDD`
        |  --deviceRelPath=REL
        |        From the device root, the relative paths to find media in.
-       |        (Default: <DFLTDIR>)
+       |        (Default: $dfltDir)
        |  --extension=EXT
-       |        The extensions to copy and move. (Default: mp4 and jpg)
+       |        The extensions to copy and move. (Default: $dfltExt)
        |  --dst=DST
        |        Create directories here to copy or move out media.
        |        (Default: ~/Pictures)
@@ -49,7 +47,7 @@ object DeviceBackup {
        |        (Default: Autocreated with a date prefix)
        |  --dstSuffix=DSTSFX
        |        When autocreating the destination subdirectory, a suffix after the
-       |        date. By default, uses " <SUFFIX>"
+       |        date. By default, uses " $dfltSuffix"
        |  --dryRun
        |        True if no files should actually be copied or moved
        |  --noVerbose
@@ -115,8 +113,15 @@ object DeviceBackup {
     *   The default destination suffix to use if they aren't in the opt
     * @param dfltDeviceRelPath
     *   The default relative device path to use if they aren't in the opt
+    * @param dfltExtension
+    *   The default extensions to use if they aren't in the opt
     */
-  def backup(opt: Docopt, dfltDstSuffix: String, dfltDeviceRelPath: Seq[String]): Unit = {
+  def backup(
+      opt: Docopt,
+      dfltDstSuffix: String,
+      dfltDeviceRelPath: Seq[String],
+      dfltExtension: Seq[String] = Seq("mp4", "jpg")
+  ): Unit = {
     // To find the source of the mounted phone
     val deviceRootDir = opt.dir.getOption("--deviceRootDir")
     val phoneMountDir = opt.dir.getOption("--phoneMountDir")
@@ -128,7 +133,7 @@ object DeviceBackup {
       case other            => other
     }
     val extension = opt.strings.getOrEmpty("--extension") match {
-      case xs if xs.isEmpty => Seq("mp4", "jpg")
+      case xs if xs.isEmpty => dfltExtension
       case other            => other
     }
     val dst = opt.dir.getOption("--dst", PathValidator().optionallyExists())
@@ -248,7 +253,7 @@ object DeviceBackup {
         println(s"mv $file ${file.getParent / deviceBackedupSubDir / file.getFileName}")
       } else {
         out.vPrint(s"${dstDir / file.getFileName}.")
-        Files.copy(file, dstDir / file.getFileName)
+        Files.copy(file, dstDir / file.getFileName, StandardCopyOption.COPY_ATTRIBUTES)
         out.vPrint(".")
 
         val deviceBackedupDir = file.getParent / deviceBackedupSubDir
