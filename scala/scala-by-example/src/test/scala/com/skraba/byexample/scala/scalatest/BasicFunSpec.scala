@@ -74,7 +74,7 @@ class BasicFunSpec extends AnyFunSpecLike with Matchers {
       it("pendingUntilFixed blocks are considered pending if broken, and failed if they pass") {
         pendingUntilFixed {
           // If this test were to succeed, the TestFailedException would indicate that the pendingUntilFixed is
-          // obsolete.  It must faile to be ignored.
+          // obsolete.  It must fail to be ignored.
           fail("This isn't run")
         }
       }
