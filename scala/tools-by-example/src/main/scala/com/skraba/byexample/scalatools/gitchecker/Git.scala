@@ -6,10 +6,14 @@ import java.nio.file.Path
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import scala.collection.mutable
-import scala.sys.process.{Process, ProcessLogger}
+import scala.sys.process._
+import scala.util.Try
 
 /** Access to the git command line. */
 object Git {
+
+  // You need the gh token to proceed
+  lazy val Token: Option[String] = sys.env.get("GH_TOKEN").orElse(Try(Seq("gh", "auth", "token").!!).toOption)
 
   /** An exception occurred when calling git, contains all the information necessary for debugging. */
   case class GitException(
