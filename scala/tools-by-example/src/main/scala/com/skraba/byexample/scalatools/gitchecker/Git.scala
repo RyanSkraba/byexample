@@ -13,7 +13,7 @@ import scala.util.Try
 object Git {
 
   // You need the gh token to proceed
-  lazy val Token: Option[String] = sys.env.get("GH_TOKEN").orElse(Try(Seq("gh", "auth", "token").!!).toOption)
+  lazy val Token: Option[String] = sys.env.get("GH_TOKEN").orElse(Try(Seq("gh", "auth", "token").!!.trim).toOption)
 
   /** An exception occurred when calling git, contains all the information necessary for debugging. */
   case class GitException(

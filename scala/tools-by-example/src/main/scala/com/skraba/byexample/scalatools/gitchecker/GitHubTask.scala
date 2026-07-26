@@ -1,13 +1,12 @@
 package com.skraba.byexample.scalatools.gitchecker
 
-import com.tinfoiled.docopt4s.FsPath.{Pwd, RichPath}
-import com.tinfoiled.docopt4s.{AnsiConsole, Docopt, FsPath, PathValidator, Task}
-import play.api.libs.json.{JsArray, Json}
+import com.tinfoiled.docopt4s.FsPath.RichPath
+import com.tinfoiled.docopt4s.{AnsiConsole, Docopt, PathValidator, Task}
+import play.api.libs.json.Json
 
 import java.nio.file.Path
 import scala.io.Source
-import scala.sys.process.{Process, stringSeqToProcess}
-import scala.util.{Try, Using}
+import scala.util.Using
 
 object GitHubTask extends Task {
   override val Description: String = "Access GitHub information from the command line"
@@ -104,7 +103,7 @@ object GitHubTask extends Task {
   ): Unit = {
 
     // You need the gh token to proceed
-    lazy val token =
+    val token =
       Git.Token.getOrElse {
         Console.out.println(cfg.out.error("Cannot find 'GH_TOKEN' or 'gh auth token'"))
         return
