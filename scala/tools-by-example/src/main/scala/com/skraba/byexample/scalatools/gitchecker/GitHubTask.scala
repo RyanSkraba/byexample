@@ -84,7 +84,7 @@ object GitHubTask extends Task {
 
     cfg.dst
       .map(_.writeAll(Json.prettyPrint(prsAsJson)))
-      .foreach(dst => println(cfg.out.ok("Writing to " + cfg.out.ok(dst))))
+      .foreach(dst => println(cfg.out.ok("Writing to " + dst)))
     print(cfg.out.ok(prCount))
   }
 

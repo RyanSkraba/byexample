@@ -2,6 +2,7 @@ package com.skraba.byexample.scalatools.gitchecker
 
 import com.skraba.byexample.scalatools.filerenamer.WithTmpSrcDst
 import com.tinfoiled.docopt4s.AnsiConsole
+import com.tinfoiled.docopt4s.FsPath.RichPath
 import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, WithFileTests}
 
 import java.nio.file.Path
@@ -25,6 +26,9 @@ class GitHubTaskSpec extends MultiTaskMainSpec(GitCheckerGo, Some(GitHubTask)) w
     itShouldThrowOnMissingOptValue("failedRun", "org/repo", "--mock")
   }
 
+  // Used for colour output
+  val out = AnsiConsole()
+
   describe(s"Running $MainName $TaskCmd openPr") {
 
     // An example response to avoid going to the server
@@ -35,8 +39,24 @@ class GitHubTaskSpec extends MultiTaskMainSpec(GitCheckerGo, Some(GitHubTask)) w
       github(src, dst)("openPr", "apache/avro", "--plain", "--mock" -> mock) shouldBe "100"
     }
 
-    // TODO: Test, --verbose, --plain, --mock, --html
+    it("should get the open PRs for avro with verbose") {
+      github(src, dst)("openPr", "apache/avro", "--verbose", "--mock" -> mock) shouldBe
+        s"""{
+         |  "total_count" : 100
+         |}
+         |${out.ok("100")}""".stripMargin
+    }
 
+    it("should get the open PRs for avro with a destination") {
+      github(src, dst)("openPr", "apache/avro", "--dst" -> dst / "output.txt", "--mock" -> mock) shouldBe
+        s"""${out.ok("Writing to <DST>/output.txt")}
+           |${out.ok("100")}""".stripMargin
+      (dst / "output.txt").toFile should exist
+      (dst / "output.txt").slurp shouldBe
+        """{
+          |  "total_count" : 100
+          |}""".stripMargin
+    }
   }
 
   describe(s"Running $MainName $TaskCmd contrib") {
