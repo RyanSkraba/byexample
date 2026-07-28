@@ -99,4 +99,39 @@ class GitHubTaskSpec extends MultiTaskMainSpec(GitCheckerGo, Some(GitHubTask)) w
       github(src, dst)("contrib", "username", "--plain", "--mock" -> mock) shouldBe ""
     }
   }
+
+  describe(s"Running $MainName $TaskCmd failedRun") {
+
+    // An example response to avoid going to the server.
+    val mock =
+      """[ {
+        |  "conclusion" : "failure",
+        |  "headBranch" : "main",
+        |  "name" : "github_actions in /. - Update #1466618788",
+        |  "number" : 748,
+        |  "startedAt" : "2026-07-19T17:21:43Z",
+        |  "status" : "completed",
+        |  "updatedAt" : "2026-07-19T17:22:52Z",
+        |  "url" : "https://github.com/apache/avro/actions/runs/29696672591"
+        |},  {
+        |  "conclusion" : "failure",
+        |  "headBranch" : "main",
+        |  "name" : "github_actions in /. - Update #1466618788",
+        |  "number" : 748,
+        |  "startedAt" : "2026-07-19T17:21:43Z",
+        |  "status" : "completed",
+        |  "updatedAt" : "2026-07-19T17:22:52Z",
+        |  "url" : "https://github.com/apache/avro/actions/runs/29696672591"
+        |} ]
+        |""".stripMargin
+    val (src, dst) = createSrcDst("failedRun")
+
+    it("should get the failed runs") {
+      github(src, dst)("failedRun", "apache/avro", "--plain", "--mock" -> mock) shouldBe
+        """### main github_actions in /. - Update #1466618788 #748 (2026-07-19T17:21:43Z) https://github.com/apache/avro/actions/runs/29696672591
+          |### main github_actions in /. - Update #1466618788 #748 (2026-07-19T17:21:43Z) https://github.com/apache/avro/actions/runs/29696672591
+          |""".stripMargin
+    }
+  }
+
 }

@@ -1,11 +1,12 @@
 package com.skraba.byexample.scalatools.gitchecker
 
-import com.tinfoiled.docopt4s.FsPath.RichPath
+import com.tinfoiled.docopt4s.FsPath.{Pwd, RichPath}
 import com.tinfoiled.docopt4s.{AnsiConsole, Docopt, PathValidator, Task}
-import play.api.libs.json.Json
+import play.api.libs.json.{JsArray, Json}
 
 import java.nio.file.Path
 import scala.io.Source
+import scala.sys.process.Process
 import scala.util.Using
 
 object GitHubTask extends Task {
@@ -170,5 +171,77 @@ object GitHubTask extends Task {
       prj: String,
       mainVersion: String = "main",
       cfg: Cfg
-  ): Unit = ???
+  ): Unit = {
+
+    val failures = cfg.mock match {
+      case Some(json) => json
+      case _ =>
+        Git(
+          Pwd,
+          "gh",
+          Seq(
+            "run",
+            "list",
+            "--repo",
+            prj,
+            "--json",
+            "startedAt,updatedAt,name,number,status,url,conclusion,headBranch",
+            "--status",
+            "failure"
+          )
+        )
+    }
+
+    cfg.out.vPrintln(cfg.out.magenta("Output"))
+    cfg.out.vPrintln(failures)
+
+    // Extract the information that we need from the build failures
+    val prs: Seq[(String, String, String, String)] = Json
+      .parse(failures)
+      .as[JsArray]
+      .value
+      .sortBy(_("startedAt").toString)
+      .reverse
+      .map(pr => {
+        val release = pr("headBranch").as[String] match {
+          case "main" | "master"                 => mainVersion
+          case rel if rel.startsWith("release-") => rel.substring(8)
+          case br                                => br
+        }
+        val date = pr("startedAt").as[String]
+        val name = pr("name").as[String] + " #" + pr("number").as[Int]
+        val url = pr("url").as[String]
+        (release, name, date, url)
+      })
+      .toSeq
+
+    if (cfg.html) {
+      println("""<!DOCTYPE html>
+                |<html><body>
+                |""".stripMargin)
+      prs
+        .map { case (release, name, date, url) => name -> s"### $release $name ($date) $url" }
+        .map { case label -> clipboard => s"  <p><button clipboard='$clipboard'>$label</button></p>" }
+        .foreach(println)
+      println("""<script>
+                |// Add event listener to handle clicks on all buttons
+                |document.querySelectorAll('button').forEach(button => {
+                |  button.addEventListener('click', function() {
+                |    var copyText = button.getAttribute('clipboard');
+                |    if (copyText === null || copyText === undefined) {
+                |      copyText = button.textContent;
+                |    }
+                |    navigator.clipboard.writeText(copyText);
+                |  });
+                |});
+                |</script>
+                |</body></html>
+                |""".stripMargin)
+    } else {
+      prs
+        .map { case (release, name, date, url) => s"### $release $name ($date) $url" }
+        .foreach(println)
+    }
+  }
+
 }
