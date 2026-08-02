@@ -213,7 +213,7 @@ object DeviceBackup {
 
     // Only consider the valid extensions
     val filesToCopy = {
-      val byExtension = files.flatten.groupBy(_.ext)
+      val byExtension = files.flatten.groupBy(_.baseExt._2)
       for (ext <- byExtension) {
         out.vPrintln(s"  ${out.bold(ext._1)}: ${ext._2.size}")
       }

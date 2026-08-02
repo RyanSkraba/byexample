@@ -1,15 +1,15 @@
 package com.skraba.byexample.scalatags.countdown
 
 import com.skraba.byexample.scalatags.ScalatagsGoSpec.withScalatagsGoMatch
-import com.tinfoiled.docopt4s.testkit.TmpDir
 import com.tinfoiled.docopt4s.FsPath._
+import com.tinfoiled.docopt4s.testkit.WithTmpDir
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 
 import scala.reflect.io.File
 
 /** Unit tests for the [[CountdownTask]] CLI. */
-class CountdownTaskSpec extends AnyFunSpecLike with Matchers with TmpDir {
+class CountdownTaskSpec extends AnyFunSpecLike with Matchers with WithTmpDir {
 
   /** A resource in this maven project, discoverable on the classpath. */
   val TemplateFile: File = {

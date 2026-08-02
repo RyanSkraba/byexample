@@ -1,12 +1,12 @@
 package com.skraba.byexample.scala.markd
-import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, TmpDir}
 import com.tinfoiled.docopt4s.FsPath._
+import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, WithTmpDir}
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 /** Unit tests for [[BuildFailureReportTask]] */
-class BuildFailureReportTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(BuildFailureReportTask)) with TmpDir {
+class BuildFailureReportTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(BuildFailureReportTask)) with WithTmpDir {
 
   describe(s"Standard $MainName $TaskCmd command line help, versions and exceptions") {
     itShouldHandleVersionNoArgsAndHelpFlags()

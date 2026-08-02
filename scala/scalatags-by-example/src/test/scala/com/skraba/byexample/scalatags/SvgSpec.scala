@@ -1,18 +1,16 @@
 package com.skraba.byexample.scalatags
 
 import com.skraba.byexample.scalatags.Svg.Attrs
-import com.tinfoiled.docopt4s.testkit.TmpDir
 import com.tinfoiled.docopt4s.FsPath._
+import com.tinfoiled.docopt4s.testkit.WithTmpDir
 import org.scalatest.OptionValues._
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
 import scalatags.Text.implicits._
 import scalatags.Text.svgTags.{g, svg}
 
-import scala.reflect.io.File
-
 /** Unit tests for the helpers in the [[Svg]]. */
-class SvgSpec extends AnyFunSpecLike with Matchers with TmpDir {
+class SvgSpec extends AnyFunSpecLike with Matchers with WithTmpDir {
 
   describe("Writing to a file") {
 

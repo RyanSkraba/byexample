@@ -1,14 +1,14 @@
 package com.skraba.byexample.scala.markd
 
-import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, TmpDir}
-import com.tinfoiled.markd.Markd
 import com.tinfoiled.docopt4s.FsPath._
+import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, WithTmpDir}
+import com.tinfoiled.markd.Markd
 
 import java.nio.file.Path
 import scala.util.Using
 
 /** Unit tests for [[QueryTask]] */
-class QueryTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(QueryTask)) with TmpDir {
+class QueryTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(QueryTask)) with WithTmpDir {
 
   describe(s"Standard $MainName $TaskCmd command line help, versions and exceptions") {
     itShouldHandleVersionNoArgsAndHelpFlags()

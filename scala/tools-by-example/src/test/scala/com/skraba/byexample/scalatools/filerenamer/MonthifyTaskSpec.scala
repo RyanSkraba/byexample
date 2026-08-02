@@ -2,7 +2,7 @@ package com.skraba.byexample.scalatools.filerenamer
 
 import com.tinfoiled.docopt4s.AnsiConsole
 import com.tinfoiled.docopt4s.FsPath.RichPath
-import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, WithFileTests}
+import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, WithFileTests, WithTmpSrcDst}
 
 import java.nio.file.Path
 

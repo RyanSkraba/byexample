@@ -1,17 +1,14 @@
 package com.skraba.byexample.scalatags.duolingo.cn
 
 import com.skraba.byexample.scalatags.Svg
-import com.tinfoiled.docopt4s.testkit.TmpDir
 import com.tinfoiled.docopt4s.FsPath._
-
+import com.tinfoiled.docopt4s.testkit.WithTmpDir
 import org.scalactic.source.Position
+import org.scalatest.Tag
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.Tag
 
-import scala.reflect.io.File
-
-class CheatsheetSpec extends AnyFunSpecLike with Matchers with TmpDir {
+class CheatsheetSpec extends AnyFunSpecLike with Matchers with WithTmpDir {
 
   /** Disabling unit tests that require network to continue. */
   class RequiresCheatsheetItWork() extends ItWord {

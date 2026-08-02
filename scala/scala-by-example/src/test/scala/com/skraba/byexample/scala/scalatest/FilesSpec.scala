@@ -1,7 +1,7 @@
 package com.skraba.byexample.scala.scalatest
 
-import com.tinfoiled.docopt4s.testkit.TmpDir
 import com.tinfoiled.docopt4s.FsPath._
+import com.tinfoiled.docopt4s.testkit.WithTmpDir
 import org.scalatest.OptionValues.convertOptionToValuable
 import org.scalatest.funspec.AnyFunSpecLike
 import org.scalatest.matchers.should.Matchers
@@ -12,7 +12,7 @@ import scala.util.{Properties, Using}
 /** Matchers and assertions on files. ScalaTest doesn't help much, but it's pretty easy to use existing methods and
   * tools.
   */
-class FilesSpec extends AnyFunSpecLike with Matchers with TmpDir {
+class FilesSpec extends AnyFunSpecLike with Matchers with WithTmpDir {
 
   // TODO: should this be added to docopts4s ?
 
@@ -108,7 +108,7 @@ class FilesSpec extends AnyFunSpecLike with Matchers with TmpDir {
       count.slurp() shouldBe "1;one\n2;two\n"
       count.safeSlurp() shouldBe Some("1;one\n2;two\n")
       (Basic / "noFile").safeSlurp() shouldBe None
-      count.lines().toList should contain inOrderOnly ("1;one", "2;two")
+      count.lines.toList should contain inOrderOnly ("1;one", "2;two")
     }
 
     it("should find a file in the resources") {

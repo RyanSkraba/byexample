@@ -36,7 +36,7 @@
     <!-- Dependencies -->
     <ammonite.version>3.0.9</ammonite.version>
     <assertj.version>3.27.7</assertj.version>
-    <docopt4s.version>0.0.9</docopt4s.version>
+    <docopt4s.version>0.0.10</docopt4s.version>
     <hamcrest.version>3.0</hamcrest.version>
     <jakarta.servlet-api.version>6.1.0</jakarta.servlet-api.version>
     <jetty.version>12.0.32</jetty.version>
@@ -87,6 +87,11 @@
       <dependency>
         <groupId>com.tinfoiled</groupId>
         <artifactId>markd_${scala.binary.version}</artifactId>
+        <version>${markd.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.tinfoiled</groupId>
+        <artifactId>markdql_${scala.binary.version}</artifactId>
         <version>${markd.version}</version>
       </dependency>
       <dependency>

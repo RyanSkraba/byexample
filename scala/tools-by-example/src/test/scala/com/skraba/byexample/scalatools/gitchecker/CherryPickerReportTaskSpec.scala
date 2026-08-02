@@ -1,9 +1,8 @@
 package com.skraba.byexample.scalatools.gitchecker
 
-import com.skraba.byexample.scalatools.filerenamer.WithTmpSrcDst
 import com.tinfoiled.docopt4s.AnsiConsole
 import com.tinfoiled.docopt4s.FsPath.RichPath
-import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, WithFileTests}
+import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, WithFileTests, WithTmpSrcDst}
 import com.tinfoiled.markd.Markd
 
 import java.nio.file.Path

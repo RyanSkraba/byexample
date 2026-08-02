@@ -23,6 +23,7 @@
     <markd.version>0.0.5</markd.version>
   </properties>
 
+  <!-- Don't bump these versions: ammonite is going away anyway -->
   <dependencyManagement>
     <dependencies>
       <dependency>

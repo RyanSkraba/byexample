@@ -1,12 +1,12 @@
 package com.skraba.byexample.scala.markd
-import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, TmpDir}
 import com.tinfoiled.docopt4s.FsPath._
+import com.tinfoiled.docopt4s.testkit.{MultiTaskMainSpec, WithTmpDir}
 import com.tinfoiled.markd._
 
 import java.nio.file.Path
 
 /** Unit tests for [[SortTableTask]] */
-class SortTableTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(SortTableTask)) with TmpDir {
+class SortTableTaskSpec extends MultiTaskMainSpec(MarkdGo, Some(SortTableTask)) with WithTmpDir {
 
   describe(s"Standard $MainName $TaskCmd command line help, versions and exceptions") {
     itShouldHandleVersionNoArgsAndHelpFlags()
