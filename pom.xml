@@ -47,7 +47,7 @@
     <scala.version>2.13.18</scala.version>
     <scalafmt.version>3.8.0</scalafmt.version>
     <scalatest.version>3.2.19</scalatest.version>
-    <slf4j.version>2.0.16</slf4j.version>
+    <slf4j.version>2.0.18</slf4j.version>
     <sttp.version>4.0.9</sttp.version>
     <testcontainers.version>2.0.2</testcontainers.version>
 
